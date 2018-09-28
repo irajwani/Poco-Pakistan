@@ -394,7 +394,7 @@ class Products extends Component {
   }
 }
 
-export default withNavigation(Collection);
+export default withNavigation(Products);
 
 const styles = StyleSheet.create({
 
