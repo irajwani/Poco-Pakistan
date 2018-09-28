@@ -103,7 +103,10 @@ export default class App extends Component<Props> {
   
       // (required) Called when a remote or local notification is opened or received
       onNotification: function(notification) {
-          console.log( 'NOTIFICATION:', notification );
+          const {userInteraction} = notification;
+          console.log( 'NOTIFICATION:', notification, userInteraction );
+          
+          //userInteraction ? this.navToEditItem() : console.log('user hasnt pressed notification, so do nothing');
       },
   
       // ANDROID ONLY: GCM Sender ID (optional - not required for local notifications, but is need to receive remote push notifications) 
@@ -153,7 +156,7 @@ export default class App extends Component<Props> {
   
       /* iOS and Android properties */
       title: "My Notification Title", // (optional, for iOS this is only used in apple watch, the title will be the app name on other iOS devices)
-      message: "My first Notification Message", // (required)
+      message: "Nobody has shown interest in ...... for the past ten days.\nPerhaps you should consider a reduction in price.\nTap here to edit item details", // (required)
       playSound: true, // (optional) default: true
       soundName: 'default', // (optional) Sound to play when the notification is shown. Value of 'default' plays the default sound. It can be set to a custom sound such as 'android.resource://com.xyz/raw/my_sound'. It will look for the 'my_sound' audio file in 'res/raw' directory and play it. default: 'default' (default sound is played)
       number: 10, // (optional) Valid 32 bit integer specified as string. default: none (Cannot be zero)
@@ -161,7 +164,7 @@ export default class App extends Component<Props> {
 
   PushNotification.localNotificationSchedule({
     message: "My first scheduled Notification Message", // (required)
-    date: new Date(Date.now() + (10 * 1000)) // in 60 secs
+    date: new Date(Date.now() + (10 * 1000)) // in 10 secs
   });
 
 

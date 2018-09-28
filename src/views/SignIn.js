@@ -29,7 +29,7 @@ const {width, height} = Dimensions.get('window');
 function timeSince(date) {
 
     var seconds = Math.floor((new Date() - date) / 1000);
-    return Math.floor(seconds/86400);
+    return Math.floor(seconds/86400);;
     
 }
 
@@ -173,7 +173,10 @@ class SignIn extends Component {
                         
                             var daysElapsed;
                             daysElapsed = timeSince( d.Users[uid].products[key].time);
-                            postData = {key: key, uid: uid, uris: d.Users[uid].products[key].uris, text: d.Users[uid].products[key], daysElapsed: daysElapsed };
+                            daysElapsed >= 10 ? 
+                                postData = {key: key, uid: uid, uris: d.Users[uid].products[key].uris, text: d.Users[uid].products[key], daysElapsed: daysElapsed, shouldReducePrice: true }
+                                :
+                                postData = {key: key, uid: uid, uris: d.Users[uid].products[key].uris, text: d.Users[uid].products[key], daysElapsed: daysElapsed, shouldReducePrice: false };
                             updates['/Products/' + i + '/'] = postData;
                             firebase.database().ref().update(updates);
                             i++;
