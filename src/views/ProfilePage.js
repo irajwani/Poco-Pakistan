@@ -1,15 +1,32 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, Image, ImageBackground } from 'react-native'
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { Dimensions, Text, StyleSheet, View, Image, ImageBackground } from 'react-native'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Button, Divider} from 'react-native-elements'
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import firebase from '../cloud/firebase.js';
 import {database} from '../cloud/database';
 import {storage} from '../cloud/storage';
+import { iOSColors } from 'react-native-typography';
+
+const {width, height} = Dimensions.get('window');
 
 const resizeMode = 'center';
 
 class ProfilePage extends Component {
+
+  //...navigation Options do nothing due incorrect integration with TabBarBottom
+  static navigationOptions = {
+    headerTitle: 'ProfileMyStyle',
+    headerStyle: {
+      backgroundColor: 'red',
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontWeight: 'bold',
+      fontFamily: 'Verdana'
+    },
+  };
+
   constructor(props) {
     super(props);
     this.state = {
@@ -65,10 +82,20 @@ class ProfilePage extends Component {
 
         <ImageBackground style={styles.headerBackground} source={require('../images/profile_bg.jpg')}>
         <View style={styles.header}>
-          <View style={styles.profilepicWrap}>
-          {this.state.uri ? <Image style= {styles.profilepic} source={ {uri: this.state.uri} }/>
-        : <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>} 
-          </View>
+          <View style={styles.gearAndPicRow}>
+            <Icon name="settings-outline" 
+                  style={ styles.gear }
+                          size={30} 
+                          color={iOSColors.gray}
+                          onPress={() => this.props.navigation.navigate('EditProfile')}
+
+            />
+
+            <View style={styles.profilepicWrap}>
+            {this.state.uri ? <Image style= {styles.profilepic} source={ {uri: this.state.uri} }/>
+          : <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>} 
+            </View>
+          </View>  
 
           <Text style={styles.name}>{this.state.name}</Text>
           <Text style={styles.pos}>{this.state.email} </Text>
@@ -84,16 +111,12 @@ class ProfilePage extends Component {
           
           <Divider style={{  backgroundColor: 'blue', height: 30 }} />
 
-          <Icon.Button name="edit" backgroundColor="#3b5998" onPress={() => {this.props.navigation.navigate('EditProfile')}}>
-            <Text style={{fontFamily: 'Arial', fontSize: 15}}>Edit Profile</Text>
-          </Icon.Button>
-
-          <Icon.Button name="users" backgroundColor="#3b5" onPress={() => {this.props.navigation.navigate('Users')}}>
-            <Text style={{fontFamily: 'Arial', fontSize: 15}}>Users</Text>
-          </Icon.Button>
-
         </View>
       </ImageBackground>
+
+      <View style={styles.companyLogoContainer}>
+          <Image source={require('../images/blank.jpg')} style={styles.companyLogo}/>
+      </View>
         
 
       </View>
@@ -111,7 +134,7 @@ export default withNavigation(ProfilePage)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
     flexDirection: 'column',
     justifyContent: 'space-evenly'
   },
@@ -125,30 +148,39 @@ const styles = StyleSheet.create({
   header: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     padding: 20,
     backgroundColor: 'rgba(0,0,0, 0.5)',
   },
+
+  gear: {
+    flex: 2,
+  },
+  gearAndPicRow: {
+    flex: 0.5,
+    flexDirection: 'row',
+    paddingRight: 75,
+  },
   profilepicWrap: {
-    width: 180,
-    height: 180,
-    borderRadius: 100,
+    width: 130,
+    height: 130,
+    borderRadius: 65,
     borderColor: 'rgba(0,0,0,0.4)',
-    borderWidth: 16,
+    borderWidth: 0,
   },
   profilepic: {
     flex: 1,
     width: null,
     alignSelf: 'stretch',
-    borderRadius: 100,
+    borderRadius: 65,
     borderColor: '#fff',
-    borderWidth: 4
+    borderWidth: 0
   },
   name: {
-    marginTop: 20,
-    fontSize: 22,
+    marginTop: 5,
+    fontSize: 15,
     color: '#fff',
-    fontWeight: 'bold'
+    fontWeight: 'normal'
   },
   numberProducts: {
     fontSize: 16,
@@ -172,7 +204,29 @@ const styles = StyleSheet.create({
     color: '#13a34c',
     fontWeight: '600',
     fontStyle: 'normal'
-  }
+  },
+
+  companyLogoContainer: {
+    justifyContent: 'center',
+    alignContent: 'center',
+    backgroundColor: '#122021',
+  },
+  companyLogo: {
+    //resizeMode: 'container',
+    borderWidth:1,
+    borderColor:'#207011',
+    alignItems:'center',
+    justifyContent:'center',
+    width:40,
+    height:40,
+    backgroundColor:'#fff',
+    borderRadius:0,
+    borderWidth: 2,
+    marginLeft: (width/4)-10,
+    paddingLeft: 25,
+    paddingRight: 25
+
+}
 
 });
 

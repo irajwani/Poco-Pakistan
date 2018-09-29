@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, Button } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { withNavigation, TabNavigator, TabBarBottom } from 'react-navigation'; // Version can be specified in package.json
 import ProfilePage from './ProfilePage';
@@ -22,6 +22,7 @@ const HomeScreen = TabNavigator(
             },
             {
               navigationOptions: ({ navigation }) => ({
+                
                 tabBarIcon: ({ focused, tintColor }) => {
                   const { routeName } = navigation.state;
                   let iconName;
