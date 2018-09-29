@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import { Dimensions, View, Image, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, TouchableHighlight } from 'react-native';
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import { Container, Header, Content, Card, CardItem, Thumbnail, Text, Left, Body } from 'native-base';
@@ -91,24 +92,27 @@ class Products extends Component {
   incrementLikes(likes, uid, key) {
     //add like to product, and add this product to user's collection; if already in collection, modal shows user
     //theyve already liked the product
-    if(this.state.productsInCollection.includes(key)) {
-      console.log("you've already liked this product")
-
-    } 
-    
-    else {
-      console.log('first failed')
+      //add to current users WishList
       var userCollectionUpdates = {};
-      userCollectionUpdates['/Users/' + uid + '/collection/' + key + '/'] = true;
-      firebase.database().ref().update(updates);
-      //.....
-      var updates = {};
-      likes += 1;
-      var postData = likes;
-      updates['/Users/' + uid + '/products/' + key + '/likes/'] = postData;
-      firebase.database().ref().update(updates);
+      userCollectionUpdates['/Users/' + firebase.auth().currentUser.uid + '/collection/' + key + '/'] = true;
+      firebase.database().ref().update(userCollectionUpdates);
+      //add a like to the sellers likes count for this particular product
+      //unless users already liked this product, in which case, dont do anything
+      if(this.state.collectionKeys.includes(key)) {
+        console.log('show modal that users already liked this product')
+      } 
+      else {
+        var updates = {};
+        likes += 1;
+        var postData = likes;
+        updates['/Users/' + uid + '/products/' + key + '/likes/'] = postData;
+        firebase.database().ref().update(updates);
+      }
+      
+       
+      
 
-    }
+    
     
   }
 
@@ -392,6 +396,18 @@ class Products extends Component {
     )
   
   }
+}
+
+Products.PropTypes = {
+    showAllProducts: PropTypes.bool,
+    showCollection: PropTypes.bool,
+    showAllProducts: PropTypes.bool,
+}
+
+Products.defaultProps = {
+    showAllProducts: true,
+    showCollection: false,
+    showAllProducts: false,
 }
 
 export default withNavigation(Products);

@@ -6,7 +6,6 @@ import {withNavigation, StackNavigator} from 'react-navigation'; // Version can 
 import firebase from '../cloud/firebase.js';
 import {database} from '../cloud/database';
 import {storage} from '../cloud/storage';
-import Products from '../components/Products';
 
 const resizeMode = 'center';
 
@@ -60,49 +59,47 @@ class ProfilePage extends Component {
 
   render() {
 
-    return ( <Products showYourProducts={true} showCollection={false} showAllProducts={false}/>)
+    return (
 
-    // return (
+      <View style={styles.container}>
 
-    //   <View style={styles.container}>
+        <ImageBackground style={styles.headerBackground} source={require('../images/profile_bg.jpg')}>
+        <View style={styles.header}>
+          <View style={styles.profilepicWrap}>
+          {this.state.uri ? <Image style= {styles.profilepic} source={ {uri: this.state.uri} }/>
+        : <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>} 
+          </View>
 
-    //     <ImageBackground style={styles.headerBackground} source={require('../images/profile_bg.jpg')}>
-    //     <View style={styles.header}>
-    //       <View style={styles.profilepicWrap}>
-    //       {this.state.uri ? <Image style= {styles.profilepic} source={ {uri: this.state.uri} }/>
-    //     : <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>} 
-    //       </View>
+          <Text style={styles.name}>{this.state.name}</Text>
+          <Text style={styles.pos}>{this.state.email} </Text>
+          <Text style={styles.insta}>@{this.state.insta} </Text>
 
-    //       <Text style={styles.name}>{this.state.name}</Text>
-    //       <Text style={styles.pos}>{this.state.email} </Text>
-    //       <Text style={styles.insta}>@{this.state.insta} </Text>
+          <Divider style={{  backgroundColor: 'blue', height: 30 }} />
 
-    //       <Divider style={{  backgroundColor: 'blue', height: 30 }} />
-
-    //       <View style={ {flexDirection: 'row',} }>
-    //         <Text style={styles.numberProducts}>Products on Sale: {this.state.numberProducts} </Text>
-    //         <Divider style={{  backgroundColor: '#0394c0', width: 3, height: 20 }} />
-    //         <Text style={styles.soldProducts}> Products Sold: {this.state.soldProducts}</Text>
-    //       </View>
+          <View style={ {flexDirection: 'row',} }>
+            <Text style={styles.numberProducts}>Products on Sale: {this.state.numberProducts} </Text>
+            <Divider style={{  backgroundColor: '#0394c0', width: 3, height: 20 }} />
+            <Text style={styles.soldProducts}> Products Sold: {this.state.soldProducts}</Text>
+          </View>
           
-    //       <Divider style={{  backgroundColor: 'blue', height: 30 }} />
+          <Divider style={{  backgroundColor: 'blue', height: 30 }} />
 
-    //       <Icon.Button name="edit" backgroundColor="#3b5998" onPress={() => {this.props.navigation.navigate('EditProfile')}}>
-    //         <Text style={{fontFamily: 'Arial', fontSize: 15}}>Edit Profile</Text>
-    //       </Icon.Button>
+          <Icon.Button name="edit" backgroundColor="#3b5998" onPress={() => {this.props.navigation.navigate('EditProfile')}}>
+            <Text style={{fontFamily: 'Arial', fontSize: 15}}>Edit Profile</Text>
+          </Icon.Button>
 
-    //       <Icon.Button name="users" backgroundColor="#3b5" onPress={() => {this.props.navigation.navigate('Users')}}>
-    //         <Text style={{fontFamily: 'Arial', fontSize: 15}}>Users</Text>
-    //       </Icon.Button>
+          <Icon.Button name="users" backgroundColor="#3b5" onPress={() => {this.props.navigation.navigate('Users')}}>
+            <Text style={{fontFamily: 'Arial', fontSize: 15}}>Users</Text>
+          </Icon.Button>
 
-    //     </View>
-    //   </ImageBackground>
+        </View>
+      </ImageBackground>
         
 
-    //   </View>
+      </View>
 
 
-    // )
+    )
 
 
   }

@@ -23,10 +23,11 @@ import UserComments from './src/views/UserComments.js';
 import Users from './src/views/Users.js';
 import MultipleAddButton from './src/components/MultipleAddButton.js';
 import MultiplePictureCamera from './src/components/MultiplePictureCamera.js';
-
+import Products from './src/components/Products.js';
 
 ////
 import PushNotification from 'react-native-push-notification';
+
 ////
 
 
@@ -51,6 +52,8 @@ const RootStack = createStackNavigator({
   MultiplePictureCamera: MultiplePictureCamera,
 
   CreateItem: CreateItem,
+
+  Products: Products,
 
   MarketPlace: MarketPlace,
 
