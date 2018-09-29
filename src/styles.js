@@ -14,13 +14,13 @@ const styles = StyleSheet.create({
       flexDirection: 'column',
       justifyContent: 'space-between',
       alignContent: 'center',
-      backgroundColor: '#071223',
+      backgroundColor: '#122021',
       //#fff
     },
     companyLogoContainer: {
       justifyContent: 'center',
       alignContent: 'center',
-      backgroundColor: 'black'
+      backgroundColor: '#122021'
     },
     companyLogo: {
       //resizeMode: 'container',
@@ -28,12 +28,12 @@ const styles = StyleSheet.create({
       borderColor:'#207011',
       alignItems:'center',
       justifyContent:'center',
-      width:70,
-      height:70,
+      width:40,
+      height:40,
       backgroundColor:'#fff',
       borderRadius:0,
       borderWidth: 2,
-      marginLeft: 60,
+      marginLeft: (width/4)-10,
       paddingLeft: 25,
       paddingRight: 25
   

@@ -121,18 +121,22 @@ class Products extends Component {
     this.props.navigation.navigate('Comments', {likes: text.likes, uid: uid, productKey: productKey, uri: uri, text: text, time: text.time, name: name})
   }
 
-  findRoom(rooms, key) {
-    for(var room of rooms ) {
-      
-      if(room.name === key) {return room.id}
-    }
-  }
-
   navToProductDetails(data) {
       this.props.navigation.navigate('ProductDetails', {data: data})
   }
 
-  navToChat(key) {
+  findRoom(rooms, desiredRoomsName) {
+    for(var room of rooms ) {
+      
+      if(room.name === desiredRoomsName) {return room.id}
+    }
+  }
+
+  navToChat(uid, key) {
+
+    //if you posted this product yourself, then buying it is trivial,
+    //and you should see a modal saying 'you own this product already'
+
     console.log(key);
     //create separate Chats branch
     const CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
@@ -151,53 +155,73 @@ class Products extends Component {
     chatManager.connect().then(currentUser => {
       
       this.currentUser = currentUser;
+      console.log(this.currentUser.rooms);
+      var desiredRoomsName = key + '.' + CHATKIT_USER_NAME
+      var roomExists = this.currentUser.rooms.filter(room => (room.name == desiredRoomsName));
+      //create a new room for specifically for this buyer, seller and product & navigate to the chat room
+      //unless the room already exists, in which case, just navigate to it
+
+      if(this.currentUser.rooms.length > 0 && roomExists.length > 0) {
+        console.log('no need to create a brand new room');
+        this.props.navigation.navigate( 'CustomChat', {id: this.findRoom(this.currentUser.rooms, desiredRoomsName)} )
+
+      }
+      else {
+        this.currentUser.createRoom({
+          //base the room name on the following pattern: sellers uid + dot + product key + dot + buyers uid
+          name: desiredRoomsName,
+          private: false,
+          addUserIds: [uid]
+        }).then(room => {
+          console.log(`Created room called ${room.name}`)
+          this.props.navigation.navigate( 'CustomChat', {id: this.findRoom(this.currentUser.rooms, desiredRoomsName)} )
+        })
+        .catch(err => {
+          console.log(`Error creating room ${err}`)
+        })
+      }
+
+        
       
-      var roomExists = this.currentUser.rooms.filter(room => (room.name == key));
+      
 
-      console.log(roomExists.length);
-      setTimeout(() => {
+      
+      
 
-        if(this.currentUser.rooms.length > 0 && roomExists.length > 0 ) {
-          //first check if you've already subscribed to this room
-          for(var room of this.currentUser.rooms) {
-           var {name} = room;
-           console.log(name);
-           if(name === key) { 
-              console.log('navigating to room')
-              
-              this.props.navigation.navigate( 'CustomChat', {key: key, id: this.findRoom(this.currentUser.rooms, key)} )
-                            }
-    
-          }
-    
-          //subscribe to room and navigate to it
-          
-        } else {
-          //subscribe to at least the room for this product
-          console.log('subscribe to your very first product chat room')
-          this.currentUser.getJoinableRooms().then( (rooms) => {  
+      // if(this.currentUser.rooms.length > 0 && roomExists.length > 0 ) {
+      //   //first check if you've already subscribed to this room
+      //   for(var room of this.currentUser.rooms) {
+      //     var {name} = room;
+      //     console.log(name);
+      //     if(name === key) { 
+      //       console.log('navigating to room')
             
-            this.currentUser.joinRoom( {
-              roomId: this.findRoom(rooms, key)
-            })
-            setTimeout(() => {
-              this.props.navigation.navigate( 'CustomChat', {key: key, id: this.findRoom(rooms, key)} )
-            }, 1000);
-            //this.setState({id: this.findRoom(rooms, key) });  
-    
-          }  )
+      //       this.props.navigation.navigate( 'CustomChat', {key: key, id: this.findRoom(this.currentUser.rooms, key)} )
+      //                     }
+  
+      //   }
+  
+      //   //subscribe to room and navigate to it
+        
+      // } else {
+      //   //subscribe to at least the room for this product
+      //   console.log('subscribe to your very first product chat room')
+      //   this.currentUser.getJoinableRooms().then( (rooms) => {  
           
-          
-          
-    
-        }
-      }, 3000);
-      
-      //first find roomId from key
-      
-      
-
-      
+      //     this.currentUser.joinRoom( {
+      //       roomId: this.findRoom(rooms, key)
+      //     })
+      //     setTimeout(() => {
+      //       this.props.navigation.navigate( 'CustomChat', {key: key, id: this.findRoom(rooms, key)} )
+      //     }, 1000);
+      //     //this.setState({id: this.findRoom(rooms, key) });  
+  
+      //   }  )
+        
+        
+        
+  
+      // }
       
       
     });
@@ -299,7 +323,7 @@ class Products extends Component {
                     onPress = { () => { 
                         console.log('going to chat');
                         //subscribe to room key
-                        this.navToChat(section.key);
+                        this.navToChat(section.uid, section.key);
                         } }
 
                     />

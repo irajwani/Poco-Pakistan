@@ -209,7 +209,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
     
     var updates = {};
     updates['/Users/' + uid + '/products/' + newPostKey + '/'] = postData;
-    this.createRoom(newPostKey);
+    //this.createRoom(newPostKey);
     
 
     return {database: firebase.database().ref().update(updates),

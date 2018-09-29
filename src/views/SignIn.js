@@ -238,13 +238,14 @@ class SignIn extends Component {
                     title='Sign In' 
                     titleStyle={{ fontWeight: "700" }}
                     buttonStyle={{
-                    backgroundColor: "#45bc53",
+                    backgroundColor: "#16994f",
                     //#2ac40f
                     //#45bc53
+                    //#16994f
                     width: (width)*0.70,
                     height: 45,
                     borderColor: "#37a1e8",
-                    borderWidth: 3,
+                    borderWidth: 0,
                     borderRadius: 5
                     }}
                     containerStyle={{ marginTop: 5, marginBottom: 5 }} onPress={this.onSignInPress.bind(this)} />;
@@ -252,12 +253,12 @@ class SignIn extends Component {
                     title='Sign Up' 
                     titleStyle={{ fontWeight: "700" }}
                     buttonStyle={{
-                    backgroundColor: "#2ac40f",
+                    backgroundColor: '#368c93',
                     //#2ac40f
                     width: (width)*0.70,
                     height: 45,
                     borderColor: "#226b13",
-                    borderWidth: 3,
+                    borderWidth: 0,
                     borderRadius: 5
                     }}
                     containerStyle={{ marginTop: 5, marginBottom: 5 }} onPress={this.onSignUpPress.bind(this)} />;
@@ -298,7 +299,7 @@ class SignIn extends Component {
           <KeyboardAvoidingView behavior='padding'
           style={styles.signInContainer}>
 
-            <View style={ { justifyContent: 'center', flexDirection: 'column', flex: 0.45, paddingRight: 40, paddingLeft: 40, paddingTop: 5}}>
+            <View style={ { justifyContent: 'center', flexDirection: 'column', flex: 0.45, paddingRight: 40, paddingLeft: 40, paddingTop: 25}}>
                 <View style={styles.companyLogoContainer}>
                     <Image source={require('../images/blank.jpg')} style={styles.companyLogo}/>
                 </View>
@@ -310,22 +311,23 @@ class SignIn extends Component {
                     onChangeText={email => this.setState({ email })}
                     autoCorrect={false}
                     // this is used as active border color
-                    borderColor={'#071223'}
+                    borderColor={'#122021'}
                     // this is used to set backgroundColor of label mask.
                     // please pass the backgroundColor of your TextInput container.
-                    backgroundColor={'#071223'}
+                    backgroundColor={'#122021'}
                     inputStyle={{ color: '#0d7018' }}
                 />
                 <Hoshi
                     label={'Password'}
+                    labelStyle={ {color: iOSColors.gray, ...systemWeights.regular} }
                     value={this.state.pass}
                     onChangeText={pass => this.setState({ pass })}
                     autoCorrect={false}
                     secureTextEntry
                     // this is used as active border color
-                    
+                    borderColor={'#122021'}
                     // this is used to set backgroundColor of label mask.
-                    backgroundColor={'#071223'}
+                    backgroundColor={'#122021'}
                     // please pass the backgroundColor of your TextInput container.
                     inputStyle={{ color: '#0d7018' }}
                 />

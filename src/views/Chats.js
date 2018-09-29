@@ -24,7 +24,7 @@ class Chats extends Component {
   componentWillMount() {
     setTimeout(() => {
       this.getChats();
-    }, 5000);
+    }, 1000);
   }
 
   getChats() {
@@ -55,31 +55,27 @@ class Chats extends Component {
           
           var {createdByUserId, name, id} = this.currentUser.rooms[i]
           var product;
+          
           d.Products.forEach( (prod) => {
               console.log(prod.key, name);
-              if(prod.key == name) { product = prod.text; console.log(product); }
+              //given the current Room Name, we need the product key to match some part of the room name
+              //to obtain the product text
+              if(name.includes(prod.key)) { product = prod.text; console.log(product); }
           })
           console.log(product);
           var users = this.currentUser.rooms[i].users
 
-          //split into cases based on if whether anyone has started conversation with buyer
+          
           
           var obj;
           var chatUpdates = {};
-          if(users.length == 2) {
-              var buyer = users[0,0].name;
-              var seller = users[0,1].name;
-              obj = { product: product, createdByUserId: createdByUserId, name: name, id: id, seller: seller, buyer: buyer};
-              chats.push(obj);
-              chatUpdates['/Users/' + CHATKIT_USER_NAME + '/chats/' + i + '/'] = obj;
-              firebase.database().ref().update(chatUpdates);
-          } else {
-              var seller = users[0,0].name;
-              obj = {product: product, createdByUserId: createdByUserId, name: name, id: id, seller: seller};
-              chats.push(obj);
-              chatUpdates['/Users/' + CHATKIT_USER_NAME + '/chats/' + i + '/'] = obj;
-              firebase.database().ref().update(chatUpdates);
-          }
+          var buyer = users[0,0].name;
+          var seller = users[0,1].name;
+          obj = { product: product, createdByUserId: createdByUserId, name: name, id: id, seller: seller, buyer: buyer};
+          chats.push(obj);
+          chatUpdates['/Users/' + CHATKIT_USER_NAME + '/chats/' + i + '/'] = obj;
+          firebase.database().ref().update(chatUpdates);
+          
 
       
 
