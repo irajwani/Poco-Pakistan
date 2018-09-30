@@ -98,7 +98,7 @@ class ProfilePage extends Component {
   render() {
     var {isGetting, comments} = this.state;
     console.log(comments)
-    const gradientColors = ['#5adb0a','#0baa26', '#075113'];
+    const gradientColors = ['#7de853','#0baa26', '#064711'];
     const gradientColors2 = ['#0a968f','#6ee5df', ];
 
     if(isGetting){
@@ -131,30 +131,38 @@ class ProfilePage extends Component {
             </View>
           </View>  
 
-          <Text style={styles.name}>{this.state.name}</Text>
-          <Text style={styles.pos}>{this.state.email} </Text>
-          <Text style={styles.insta}>@{this.state.insta} </Text>
-
-          <Divider style={{  backgroundColor: 'blue', height: 30 }} />
-
-          <View style={ {flexDirection: 'row',} }>
-            <Text style={styles.numberProducts}>Products on Sale: {this.state.numberProducts} </Text>
-            <Divider style={{  backgroundColor: '#0394c0', width: 3, height: 20 }} />
-            <Text style={styles.soldProducts}> Products Sold: {this.state.soldProducts}</Text>
+          <View style={styles.profileText}>
+            <Text style={styles.name}>{this.state.name}</Text>
+            <Text style={styles.pos}>{this.state.email} </Text>
+            <Text style={styles.insta}>@{this.state.insta} </Text>
           </View>
+
           
-          <Divider style={{  backgroundColor: 'blue', height: 30 }} />
 
         </View>
       </LinearGradient>
+      </View>
 
       {/* Number of Products on Market and Sold Cards */}
+      <View style={styles.midContainer}>
+        <View style={ {flexDirection: 'row',} }>
+          <View style={styles.numberCard}>
+            <Text style={styles.numberProducts}>{this.state.numberProducts} </Text>
+            <Text style={styles.subText}>ON SALE</Text>
+          </View>
+          <Divider style={{  backgroundColor: '#47474f', width: 3, height: 55 }} />
+          <View style={styles.numberCard}>
+            <Text style={styles.numberProducts}>{this.state.soldProducts} </Text>
+            <Text style={styles.subText}>SOLD</Text>
+          </View>    
+        </View>
+      </View>
       
 
       
         
 
-      </View>
+      
 
       <View style={styles.footerContainer} >
 
@@ -195,9 +203,41 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly'
   },
 
-  footerContainer: {
+  profileText: {
+    flex: 1,
     flexDirection: 'column',
-    padding: 5
+    alignItems: 'center',
+    paddingTop: 10,
+
+  },
+
+  numberCard: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: '#cdcdd6',
+    width: (width/2) - 20,
+    height: 55,
+    padding: 5,
+    borderWidth: 2,
+    borderColor: '#020202',
+    borderRadius: 0,
+  },
+
+  subText: {
+    fontFamily: 'Courier-Bold',
+    fontSize: 15,
+    fontWeight: '400'
+  },
+
+  midContainer: {
+    flex: 0.2,
+    padding: 2,
+  },
+
+  footerContainer: {
+    flex: 0.5,
+    flexDirection: 'column',
+    padding: 2
   },
 
   headerBackground: {
@@ -211,14 +251,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 20,
-    backgroundColor: 'rgba(0,0,0, 0.5)',
+    //backgroundColor: 'black'
   },
 
   gear: {
     flex: 2,
   },
   gearAndPicRow: {
-    flex: 1,
+    flex: 2,
     flexDirection: 'row',
     paddingRight: 75,
   },
@@ -244,8 +284,9 @@ const styles = StyleSheet.create({
     fontWeight: 'normal'
   },
   numberProducts: {
-    fontSize: 16,
-    color: '#fff',
+    fontFamily: 'Verdana',
+    fontSize: 15,
+    color: 'black',
     fontWeight: 'bold'
   },
   soldProducts: {
@@ -256,13 +297,13 @@ const styles = StyleSheet.create({
   ,
   pos: {
     fontSize: 16,
-    color: '#0394c0',
+    color: '#141691',
     fontWeight: '600',
     fontStyle: 'italic'
   },
   insta: {
     fontSize: 16,
-    color: '#13a34c',
+    color: '#6617b5',
     fontWeight: '600',
     fontStyle: 'normal'
   },

@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import { Text, View, StyleSheet } from 'react-native'
+import { Text, View, StyleSheet, Dimensions } from 'react-native'
 import { iOSUIKit, human } from 'react-native-typography';
+const {width} = Dimensions.get('window')
 function timeSince(date) {
 
     var seconds = Math.floor((new Date() - date) / 1000);
@@ -33,17 +34,20 @@ export default class ReviewsList extends Component {
   render() {
     const {reviews} = this.props;
     return (
-      <View>
+      <View style={ {backgroundColor: '#e5e5b7'} }>
         {Object.keys(reviews).map(
                  (comment) => (
                  <View key={comment} style={styles.rowContainer}>
+                    
                     <View style={styles.textContainer}>
                         <Text style={ styles.naam }> {reviews[comment].name} </Text>
                         <Text style={styles.comment}> {reviews[comment].text}  </Text>
                         <Text style={ styles.commentTime }> {timeSince(reviews[comment].time)} ago </Text>
                     </View>
-                    <View style={styles.separator}/>
+                    <View style={styles.separator}/>   
+                    
                  </View>
+                 
             )
                      
              )}
@@ -78,8 +82,8 @@ const styles = StyleSheet.create({
     },
 
     rowContainer: {
-        flexDirection: 'row',
-        padding: 20
+        flexDirection: 'column',
+        padding: 14
       },
 
     textContainer: {
@@ -90,7 +94,8 @@ const styles = StyleSheet.create({
     },
 
     separator: {
-    height: 1,
-    backgroundColor: 'black'
+    width: width,
+    height: 2,
+    backgroundColor: '#111110'
     },  
 })
