@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
-import { Dimensions, Text, StyleSheet, View, Image, ImageBackground } from 'react-native'
+import { Dimensions, Text, StyleSheet, ScrollView, View, Image, ImageBackground } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Button, Divider} from 'react-native-elements'
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import firebase from '../cloud/firebase.js';
 import {database} from '../cloud/database';
-import {storage} from '../cloud/storage';
 import { iOSColors } from 'react-native-typography';
-
+import LinearGradient from 'react-native-linear-gradient'
+import ReviewsList from '../components/ReviewsList.js';
 const {width, height} = Dimensions.get('window');
 
 const resizeMode = 'center';
@@ -38,13 +38,15 @@ class ProfilePage extends Component {
       soldProducts: 0,
       sellItem: false,
       products: [],
-      showMarket: false,
+      isGetting: true,
+
     }
 
   }
 
   componentWillMount() {
     this.getProducts();
+    this.getComments(firebase.auth().currentUser.uid);
   }
 
   getProducts() {
@@ -74,16 +76,48 @@ class ProfilePage extends Component {
     
   }
 
+  getComments(uid) {
+    console.log(uid);
+    const keys = [];
+    database.then( (d) => {
+      //get name of current user to track who left comments on this persons UserComments component  
+      var insaanKaNaam = d.Users[firebase.auth().currentUser.uid].profile.name;  
+
+      //get list of comments for specific product
+      var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: 'No Reviews have been left for this seller. Be the first to review this individual', name: 'NottMyStyle Team', time: Date.now() } };
+      
+      this.setState({ comments, name: insaanKaNaam });
+      console.log(comments);
+
+    })
+    .then( () => { console.log('here');this.setState( {isGetting: false} );  } )
+    .catch( (err) => {console.log(err) })
+    
+}
+
   render() {
+    var {isGetting, comments} = this.state;
+    console.log(comments)
+    const gradientColors = ['#5adb0a','#0baa26', '#075113'];
+    const gradientColors2 = ['#0a968f','#6ee5df', ];
+
+    if(isGetting){
+      return(
+        <View>
+          <Text>Loading....</Text>
+        </View>
+      )
+    }
+ 
 
     return (
+      <View style={styles.mainContainer}>
+      <View style={styles.headerContainer}>
 
-      <View style={styles.container}>
-
-        <ImageBackground style={styles.headerBackground} source={require('../images/profile_bg.jpg')}>
+        <LinearGradient style={styles.linearGradient} colors={gradientColors} >
         <View style={styles.header}>
           <View style={styles.gearAndPicRow}>
-            <Icon name="settings-outline" 
+            <Icon name="settings" 
                   style={ styles.gear }
                           size={30} 
                           color={iOSColors.gray}
@@ -112,14 +146,26 @@ class ProfilePage extends Component {
           <Divider style={{  backgroundColor: 'blue', height: 30 }} />
 
         </View>
-      </ImageBackground>
+      </LinearGradient>
 
-      <View style={styles.companyLogoContainer}>
-          <Image source={require('../images/blank.jpg')} style={styles.companyLogo}/>
-      </View>
+      {/* Number of Products on Market and Sold Cards */}
+      
+
+      
         
 
       </View>
+
+      <View style={styles.footerContainer} >
+
+        <ScrollView contentContainerStyle={styles.halfPageScroll}>
+          <ReviewsList reviews={comments}/>
+        </ScrollView> 
+
+      </View>
+
+      </View>
+      
 
 
     )
@@ -132,11 +178,26 @@ class ProfilePage extends Component {
 export default withNavigation(ProfilePage)
 
 const styles = StyleSheet.create({
-  container: {
+  linearGradient: {
     flex: 1,
-    backgroundColor: '#fff',
+  },
+  halfPageScroll: {
+    
+  },
+  mainContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    padding: 0
+  },
+  headerContainer: {
+    flex: 1,
     flexDirection: 'column',
     justifyContent: 'space-evenly'
+  },
+
+  footerContainer: {
+    flexDirection: 'column',
+    padding: 5
   },
 
   headerBackground: {
@@ -157,7 +218,7 @@ const styles = StyleSheet.create({
     flex: 2,
   },
   gearAndPicRow: {
-    flex: 0.5,
+    flex: 1,
     flexDirection: 'row',
     paddingRight: 75,
   },
