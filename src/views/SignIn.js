@@ -173,7 +173,7 @@ class SignIn extends Component {
                         
                             var daysElapsed;
                             daysElapsed = timeSince( d.Users[uid].products[key].time);
-                            daysElapsed >= 10 ? 
+                            daysElapsed >= 7 ? 
                                 postData = {key: key, uid: uid, uris: d.Users[uid].products[key].uris, text: d.Users[uid].products[key], daysElapsed: daysElapsed, shouldReducePrice: true }
                                 :
                                 postData = {key: key, uid: uid, uris: d.Users[uid].products[key].uris, text: d.Users[uid].products[key], daysElapsed: daysElapsed, shouldReducePrice: false };

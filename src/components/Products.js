@@ -13,6 +13,8 @@ import * as Animatable from 'react-native-animatable';
 import Collapsible from 'react-native-collapsible';
 import Accordion from 'react-native-collapsible/Accordion';
 
+import PushNotification from 'react-native-push-notification';
+
 import Chatkit from "@pusher/chatkit";
 
 const CHATKIT_SECRET_KEY = "9b627f79-3aba-48df-af55-838bbb72222d:Pk9vcGeN/h9UQNGVEv609zhjyiPKtmnd0hlBW2T4Hfw="
@@ -39,8 +41,69 @@ class Products extends Component {
 
   componentWillMount() {
     setTimeout(() => {
+      this.initializePushNotifications();
+    }, 5);
+    setTimeout(() => {
       this.getPageSpecificProducts();
-    }, 4);
+    }, 3000);
+  }
+
+  initializePushNotifications = () => {
+    PushNotification.configure({
+
+      // (optional) Called when Token is generated (iOS and Android)
+      onRegister: function(token) {
+          console.log( 'TOKEN:', token );
+      },
+  
+      // (required) Called when a remote or local notification is opened or received
+      onNotification: function(notification) {
+          const {userInteraction} = notification;
+          console.log( 'NOTIFICATION:', notification, userInteraction );
+          if(userInteraction) {
+            this.props.navigation.navigate('YourProducts');
+          }
+          
+          //userInteraction ? this.navToEditItem() : console.log('user hasnt pressed notification, so do nothing');
+      },
+  
+      // ANDROID ONLY: GCM Sender ID (optional - not required for local notifications, but is need to receive remote push notifications) 
+      //senderID: "YOUR GCM SENDER ID",
+  
+      // IOS ONLY (optional): default: all - Permissions to register.
+      permissions: {
+          alert: true,
+          badge: true,
+          sound: true
+      },
+  
+      // Should the initial notification be popped automatically
+      // default: true
+      popInitialNotification: true,
+  
+      /**
+        * (optional) default: true
+        * - Specified if permissions (ios) and token (android and ios) will requested or not,
+        * - if not, you must call PushNotificationsHandler.requestPermissions() later
+        */
+      requestPermissions: true,
+  });
+
+
+  }
+  
+  shouldSendNotifications(arrayOfProducts) {
+    for(var product of arrayOfProducts) {
+      if(product.shouldReducePrice) {
+        console.log('should reduce price');
+
+        PushNotification.localNotificationSchedule({
+          message: `Nobody has initiated a chat with you about your product, ${product.text.name}, yet 🤔. Tap here to give it a more attractive price`,// (required)
+          date: new Date(Date.now() + (1200 * 1000)) // in 20 minutes
+        });
+
+      }
+    }
   }
 
 
@@ -54,13 +117,17 @@ class Products extends Component {
         var productKeys = d.Users[firebase.auth().currentUser.uid].products ? Object.keys(d.Users[firebase.auth().currentUser.uid].products) : [];
         var collectionKeys = d.Users[firebase.auth().currentUser.uid].collection ? Object.keys(d.Users[firebase.auth().currentUser.uid].collection) : [] ;  
         var all = d.Products;
+        var yourProducts = all.filter((product) => productKeys.includes(product.key) );
+        //we need to identify which products have a notification set to True for a price reduction
+        //loop over yourProducts and if you have a shouldReducePrice boolean of true, then schedule a notification for this individual for after thirty minutes
+        this.shouldSendNotifications(yourProducts);
 
         if(showAllProducts) {
             all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
             var name = d.Users[firebase.auth().currentUser.uid].profile.name;
             var productsl = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 )
             var productsr = all.slice( Math.round(all.length/2) , all.length + 1);
-            this.setState({ productsl, productsr, name, collectionKeys });
+            this.setState({ productsl, productsr, name, collectionKeys, productKeys });
         }
 
         if(showCollection) {
@@ -70,8 +137,7 @@ class Products extends Component {
             var productsl = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 )
             var productsr = all.slice( Math.round(all.length/2) , all.length + 1);
             //get goods already in user's collection
-            var productsInCollection = d.Users[firebase.auth().currentUser.uid].collection ? Object.keys(d.Users[firebase.auth().currentUser.uid].collection) : [];
-            this.setState({ productsl, productsr, name, collectionKeys, productsInCollection });
+            this.setState({ productsl, productsr, name, collectionKeys, productKeys });
         }
 
         if(showYourProducts) {
@@ -80,7 +146,7 @@ class Products extends Component {
             var name = d.Users[firebase.auth().currentUser.uid].profile.name;
             var productsl = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 )
             var productsr = all.slice( Math.round(all.length/2) , all.length + 1);
-            this.setState({ productsl, productsr, name, collectionKeys });
+            this.setState({ productsl, productsr, name, collectionKeys, productKeys });
         }
 
     })
@@ -130,6 +196,10 @@ class Products extends Component {
       
       if(room.name === desiredRoomsName) {return room.id}
     }
+  }
+
+  navToEditItem(item) {
+    this.props.navigation.navigate('EditItem', {item: item})
   }
 
   navToChat(uid, key) {
@@ -311,7 +381,25 @@ class Products extends Component {
         </Animatable.Text>
         
         <View style={ styles.buyReviewRow }  >
-            <Button
+            {this.state.productKeys.includes(section.key) ? 
+                <Button
+                    buttonStyle={{
+                        backgroundColor: "#186f87",
+                        width: 80,
+                        height: 40,
+                        
+                    }}
+                    icon={{name: 'settings', type: 'font-awesome'}}
+                    title='EDIT'
+                    onPress = { () => { 
+                        console.log('going to edit item details');
+                        //subscribe to room key
+                        this.navToEditItem(section);
+                        } }
+
+                    /> 
+                : 
+                <Button
                     buttonStyle={{
                         backgroundColor: "#186f87",
                         width: 80,
@@ -326,7 +414,7 @@ class Products extends Component {
                         this.navToChat(section.uid, section.key);
                         } }
 
-                    />
+                    />}
             <Icon
                 name="lead-pencil" 
                 size={20}  

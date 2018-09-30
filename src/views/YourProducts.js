@@ -6,11 +6,11 @@ import { withNavigation } from 'react-navigation';
 class YourProducts extends Component {
   render() {
     return (
-      <Products showAllProducts={false} showYourProducts={true} />
+      <Products showAllProducts={false} showYourProducts={true} showCollection={false}/>
     )
   }
 }
 
 export default withNavigation(YourProducts);
 
-////this component is to be used within your profile page
+////you may navigate to this component from the profile page's sold items button.
