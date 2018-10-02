@@ -27,7 +27,7 @@ class Users extends Component {
         .catch( (err) => console.log(err))
     }
 
-    navToReview(name, email, uri, users) {
+    navToReview(name, country, uri, users) {
         //var uid = Object.keys(users)[0];
         //get uid of user whose profile you're visiting by cross-referencing it against his profile pic url
         var uid;
@@ -39,7 +39,7 @@ class Users extends Component {
         });
         console.log(uid);    
         
-        this.props.navigation.navigate('UserComments', {name: name, email: email, uri: uri, uid: uid});
+        this.props.navigation.navigate('UserComments', {name: name, country: country, uri: uri, uid: uid});
     }
 
     render() {
@@ -58,12 +58,12 @@ class Users extends Component {
 
                 {Object.keys(users).map( (key) => 
                     <View style={styles.rowContainer}>
-                        <TouchableHighlight style={styles.profilepicWrap} onPress={() => {this.navToReview(users[key].profile.name, users[key].profile.email, users[key].profile.uri, users )} } >
+                        <TouchableHighlight style={styles.profilepicWrap} onPress={() => {this.navToReview(users[key].profile.name, users[key].profile.country, users[key].profile.uri, users )} } >
                             <Image source={ {uri: users[key].profile.uri }} style={styles.profilepic} />
                         </TouchableHighlight>
                         <View style={styles.textContainer} />
                             <Text style={styles.name}>{users[key].profile.name}</Text>
-                            <Text style={styles.pos}>{users[key].profile.email} </Text>
+                            <Text style={styles.pos}>{users[key].profile.country} </Text>
                             <Text style={styles.insta}>@{users[key].profile.insta} </Text>
                         <View style={styles.textContainer} />
                         <View style={styles.separator}/>

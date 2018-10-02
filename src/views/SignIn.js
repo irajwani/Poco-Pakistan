@@ -84,7 +84,7 @@ class SignIn extends Component {
         const { email, pass } = this.state; //now that person has input text, their email and password are here
         firebase.auth().signInWithEmailAndPassword(email, pass)
             .then(() => { this.setState({ error: '', loading: false });
-                          this.authChangeListener();
+                          //this.authChangeListener();
                           //cant do these things:
                           //firebase.database().ref('Users/7j2AnQgioWTXP7vhiJzjwXPOdLC3/').set({name: 'Imad Rajwani', attended: 1});
                           })
@@ -128,22 +128,22 @@ class SignIn extends Component {
                     });
     }
 
-    getData(snapshot) {
-        details = {
-            name: 'the many faced God',
-            shirt: 'never'
-        };
+    // getData(snapshot) {
+    //     details = {
+    //         name: 'the many faced God',
+    //         shirt: 'never'
+    //     };
         
-        details.name = snapshot.val().name
-        details.shirt = snapshot.val().shirt
-        //console.log(details);
-        this.setState({details, isGetting: false});
-    }
+    //     details.name = snapshot.val().name
+    //     details.shirt = snapshot.val().shirt
+    //     //console.log(details);
+    //     this.setState({details, isGetting: false});
+    // }
 
-    getDB(snapshot) {
-        this.setState({data: snapshot.val()});
-        console.log(this.state.data);
-    }
+    // getDB(snapshot) {
+    //     this.setState({data: snapshot.val()});
+    //     console.log(this.state.data);
+    // }
 
     updateProducts() {
 
@@ -207,7 +207,7 @@ class SignIn extends Component {
 
 
     authChangeListener() {
-
+        
         firebase.auth().onAuthStateChanged( (user) => {
             if (user) {
 
@@ -286,15 +286,12 @@ class SignIn extends Component {
     //   snapshot = firebase.database().ref('Users/' + this.state.userid + '/').once('value')
     //   //snapshot.then( result => return console.log(result.val().name) );
     //   console.log(snapshot);
-    
-    if(this.state.isGetting == false) 
-        { return (this.props.navigation.navigate('HomeScreen')) }
 
         //  {
         //   console.log(this.state.uid); 
         //   return ( <ProfilePage uid={this.state.uid} /> ) 
         //  }
-    else {return (
+    return (
             
           <KeyboardAvoidingView behavior='padding'
           style={styles.signInContainer}>
@@ -343,7 +340,7 @@ class SignIn extends Component {
                   )
 
 
-                }
+                
 
         
     }
@@ -411,4 +408,4 @@ class SignIn extends Component {
     //     }
     // }
 }
-export default withNavigation(SignIn);
+export default SignIn;

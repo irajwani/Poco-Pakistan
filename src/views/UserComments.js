@@ -128,7 +128,7 @@ class UserComments extends Component {
                    {params.name}
                  </Text>
                  <Text style={styles.email}>
-                   {params.email}
+                   {params.country}
                  </Text>
                </View>
                

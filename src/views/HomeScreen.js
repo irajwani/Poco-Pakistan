@@ -7,17 +7,19 @@ import MarketPlace from './MarketPlace';
 import CreateItem from './CreateItem';
 import Chats from './Chats'
 import Collection from './Collection'
-
-
+import { profileToEditProfileStack } from '../stackNavigators/profileToEditProfileStack';
+import { marketToProductDetailsOrChatOrCommentsStack } from '../stackNavigators/marketToProductDetailsOrChatOrCommentsStack';
 
 const HomeScreen = TabNavigator(
             {
 
-              Profile: { screen: ProfilePage },
-              Market: {screen: MarketPlace},
-              Sell: {screen: CreateItem},
-              Chats: {screen: Chats},
-              WishList: {screen: Collection},
+              //Profile: { screen: ProfilePage },
+              Profile: profileToEditProfileStack,
+              //Market: {screen: MarketPlace},
+              Market: marketToProductDetailsOrChatOrCommentsStack,
+              //Sell: {screen: CreateItem},
+              //Chats: {screen: Chats},
+              //WishList: {screen: Collection},
               
             },
             {
@@ -59,4 +61,4 @@ const HomeScreen = TabNavigator(
           ); 
         
     
-export default withNavigation(HomeScreen);
+export default HomeScreen;

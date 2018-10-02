@@ -118,9 +118,7 @@ class Products extends Component {
         var collectionKeys = d.Users[firebase.auth().currentUser.uid].collection ? Object.keys(d.Users[firebase.auth().currentUser.uid].collection) : [] ;  
         var all = d.Products;
         var yourProducts = all.filter((product) => productKeys.includes(product.key) );
-        //we need to identify which products have a notification set to True for a price reduction
-        //loop over yourProducts and if you have a shouldReducePrice boolean of true, then schedule a notification for this individual for after thirty minutes
-        this.shouldSendNotifications(yourProducts);
+        
 
         if(showAllProducts) {
             all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
@@ -141,6 +139,9 @@ class Products extends Component {
         }
 
         if(showYourProducts) {
+            //we need to identify which products have a notification set to True for a price reduction
+            //loop over yourProducts and if you have a shouldReducePrice boolean of true, then schedule a notification for this individual for after thirty minutes
+            this.shouldSendNotifications(yourProducts);
             all = all.filter((product) => productKeys.includes(product.key) );
             all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
             var name = d.Users[firebase.auth().currentUser.uid].profile.name;

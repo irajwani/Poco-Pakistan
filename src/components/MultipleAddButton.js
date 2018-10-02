@@ -39,6 +39,34 @@ class MultipleAddButton extends Component {
   render() {
     
     console.log(this.props.pictureuris.length);
+
+    if(this.props.navToComponent == 'EditProfile') {
+      return (
+        <View style={styles.headerBackground}>
+        
+        <TouchableHighlight style={styles.profilepicWrap} onPress={() => this.showActionSheet()} >
+          {this.props.pictureuris === 'nothing here' ? 
+            <Image source={require('../images/nothing_here.png')} style={styles.mainImage} /> : 
+            <Image source={{uri: this.props.pictureuris[0]}} style={styles.mainImage} />
+            }
+
+        </TouchableHighlight>
+        
+        
+          <ActionSheet
+          ref={o => this.ActionSheet = o}
+          title={'Choose picture selection option'}
+          options={['Camera', 'PhotoLibrary', 'cancel']}
+          cancelButtonIndex={2}
+          destructiveButtonIndex={1}
+          onPress={(index) => { console.log(index); this.cameraOrGallery(index, this.props.navToComponent) }}
+          />
+        
+        
+       
+        </View>
+      )
+    }
     
     return (
       <View style={styles.headerBackground}>

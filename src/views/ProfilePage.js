@@ -14,18 +14,17 @@ const resizeMode = 'center';
 
 class ProfilePage extends Component {
 
-  //...navigation Options do nothing due incorrect integration with TabBarBottom
-  static navigationOptions = {
-    headerTitle: 'ProfileMyStyle',
-    headerStyle: {
-      backgroundColor: 'red',
-    },
-    headerTintColor: '#fff',
-    headerTitleStyle: {
-      fontWeight: 'bold',
-      fontFamily: 'Verdana'
-    },
-  };
+  // static navigationOptions = {
+  //   headerTitle: 'ProfileMyStyle',
+  //   headerStyle: {
+  //     backgroundColor: 'red',
+  //   },
+  //   headerTintColor: '#fff',
+  //   headerTitleStyle: {
+  //     fontWeight: 'bold',
+  //     fontFamily: 'Verdana'
+  //   },
+  // };
 
   constructor(props) {
     super(props);
@@ -64,13 +63,13 @@ class ProfilePage extends Component {
       
       var numberProducts = Object.keys(d.Users[your_uid].products).length
       
-      var {email, insta, name, size, uri} = d.Users[your_uid].profile
+      var {country, insta, name, size, uri} = d.Users[your_uid].profile
       // var name = d.Users[your_uid].profile.name;
       // var email = d.Users[your_uid].profile.email;
       // var insta = d.Users[your_uid].profile.insta;
 
       console.log(name);
-      this.setState({ name, email, uri, insta, numberProducts, soldProducts })
+      this.setState({ name, country, uri, insta, numberProducts, soldProducts })
     })
     .catch( (err) => {console.log(err) })
     
@@ -133,7 +132,7 @@ class ProfilePage extends Component {
 
           <View style={styles.profileText}>
             <Text style={styles.name}>{this.state.name}</Text>
-            <Text style={styles.pos}>{this.state.email} </Text>
+            <Text style={styles.pos}>{this.state.country} </Text>
             <Text style={styles.insta}>@{this.state.insta} </Text>
           </View>
 
@@ -216,22 +215,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#cdcdd6',
     width: (width/2) - 20,
-    height: 55,
+    height: 75,
+    //55
     padding: 5,
-    borderWidth: 2,
+    borderWidth: 0,
     borderColor: '#020202',
     borderRadius: 0,
   },
 
   subText: {
     fontFamily: 'Courier-Bold',
-    fontSize: 15,
+    fontSize: 20,
     fontWeight: '400'
   },
 
   midContainer: {
-    flex: 0.2,
-    padding: 2,
+    flex: 0.5,
+    //0.2
+    padding: 0,
   },
 
   footerContainer: {
@@ -284,8 +285,8 @@ const styles = StyleSheet.create({
     fontWeight: 'normal'
   },
   numberProducts: {
-    fontFamily: 'Verdana',
-    fontSize: 15,
+    fontFamily: 'Arial',
+    fontSize: 25,
     color: 'black',
     fontWeight: 'bold'
   },
@@ -297,13 +298,13 @@ const styles = StyleSheet.create({
   ,
   pos: {
     fontSize: 16,
-    color: '#141691',
+    color: '#fff',
     fontWeight: '600',
     fontStyle: 'italic'
   },
   insta: {
     fontSize: 16,
-    color: '#6617b5',
+    color: '#fff',
     fontWeight: '600',
     fontStyle: 'normal'
   },

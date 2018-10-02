@@ -26,6 +26,7 @@ import MultiplePictureCamera from './src/components/MultiplePictureCamera.js';
 import Products from './src/components/Products.js';
 import YourProducts from './src/views/YourProducts.js';
 import EditItem from './src/views/EditItem.js';
+import InitialScreen from './src/views/InitialScreen.js';
 
 
 ////
@@ -104,7 +105,7 @@ export default class App extends Component<Props> {
     
     return (
       
-        <RootStack />
+        <InitialScreen />
       
     );
   }

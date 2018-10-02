@@ -32,6 +32,9 @@ class MultiplePictureCamera extends Component {
     this.camera.takePictureAsync(options).then((image64) => {
         this.state.pictureuris.push( image64.uri );
         this.setState({isLoading: false, confirmDisabled: false});
+        //if the user was previously on the EditProfile Page, then send user back there, else assume
+        //the user is creating an item and let them take up to 4 pictures
+        if(navToComponent == 'EditProfile') {this.confirmSelection(navToComponent)};
         if(this.state.pictureuris.length == 4) {
           this.confirmSelection(navToComponent);
         }
@@ -52,7 +55,7 @@ class MultiplePictureCamera extends Component {
   
   render() {
     const {params} = this.props.navigation.state;
-    var navToComponent = params.navToComponent;
+    var {navToComponent} = params;
 
     return (
         <View style={styles.container}>

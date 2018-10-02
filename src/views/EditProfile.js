@@ -6,7 +6,7 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import RNFetchBlob from 'react-native-fetch-blob';
 import { Sae, Fumi } from 'react-native-textinput-effects';
 import firebase from '../cloud/firebase.js';
-import AddButton from '../components/AddButton.js';
+import MultipleAddButton from '../components/MultipleAddButton.js';
 import Chatkit from "@pusher/chatkit";
 
 const Blob = RNFetchBlob.polyfill.Blob;
@@ -19,7 +19,7 @@ class EditProfile extends Component {
       super(props);
       this.state = {
           name: '',
-          email: '',
+          country: '',
           size: 1,
           uri: undefined,
           insta: ''
@@ -91,7 +91,7 @@ class EditProfile extends Component {
 
     var postData = {
         name: data.name,
-        email: data.email,
+        email: data.country,
         size: data.size,
         insta: data.insta
     }
@@ -138,8 +138,7 @@ class EditProfile extends Component {
   render() {
     const uid = firebase.auth().currentUser.uid;
     const {params} = this.props.navigation.state
-    const pictureuri = params ? params.uri : 'nothing here'
-    const picturebase64 = params ? params.base64 : 'nothing here'
+    const pictureuris = params ? params.pictureuris : 'nothing here'
     var conditionMet = (this.state.name) && (this.state.email) && (pictureuri !== 'nothing here')
 
     return (
@@ -147,7 +146,7 @@ class EditProfile extends Component {
 
         <Text style={{textAlign: 'center'}}>Choose Profile Picture:</Text>
         <Divider style={{  backgroundColor: '#fff', height: 8 }} />
-        <AddButton navToComponent = {'EditProfile'} pictureuri={pictureuri} />
+        <MultipleAddButton navToComponent = {'EditProfile'} pictureuris={pictureuris} />
 
         <Sae
             label={'FirstName LastName'}
@@ -161,12 +160,12 @@ class EditProfile extends Component {
         />
 
         <Sae
-            label={'email@somedomain.com'}
+            label={'Nottingham, UK'}
             iconClass={FontAwesomeIcon}
-            iconName={'code'}
+            iconName={'city'}
             iconColor={'#0a3f93'}
-            value={this.state.email}
-            onChangeText={email => this.setState({ email })}
+            value={this.state.country}
+            onChangeText={country => this.setState({ country })}
             autoCorrect={false}
             inputStyle={{ color: '#4dcc0e' }}
         />
@@ -205,8 +204,8 @@ class EditProfile extends Component {
             icon={{name: 'save', type: 'font-awesome'}}
             title='SAVE'
             onPress={() => {
-                            this.updateFirebase(this.state, pictureuri, mime = 'image/jpg', uid );
-                            this.props.navigation.navigate('HomeScreen'); 
+                            this.updateFirebase(this.state, pictureuris[0], mime = 'image/jpg', uid );
+                            this.props.navigation.navigate('ProfilePage'); 
                             } } 
         />
         <Divider style={{  backgroundColor: '#fff', height: 8 }} />
