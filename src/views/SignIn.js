@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { Dimensions, View, Text, Image, TouchableHighlight, ActivityIndicator, KeyboardAvoidingView } from 'react-native';
+import {connect} from 'react-redux';
+
 import { Hoshi, Jiro } from 'react-native-textinput-effects';
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import { PacmanIndicator } from 'react-native-indicators';
@@ -39,7 +41,7 @@ class SignIn extends Component {
 
     constructor(props) {
       super(props);
-      this.state = { products: [], data: { imad: {age: 22, height: 510}, k: {age: 22, height: 510}}, test: 3, email: '', uid: '', pass: '', error: '', loading: false, loggedIn: false, isGetting: true};
+      this.state = { products: [], email: '', uid: '', pass: '',};
       }
 
       componentWillMount() {
@@ -227,7 +229,7 @@ class SignIn extends Component {
 
 
     renderButtonOrLoading() {
-        if (this.state.loading) {
+        if (this.props.loading) {
             return <View style={{flex: 1}}>
                         <PacmanIndicator color='#28a526' />
                    </View>
@@ -248,7 +250,7 @@ class SignIn extends Component {
                     borderWidth: 0,
                     borderRadius: 5
                     }}
-                    containerStyle={{ marginTop: 5, marginBottom: 5 }} onPress={this.onSignInPress.bind(this)} />;
+                    containerStyle={{ marginTop: 5, marginBottom: 5 }} onPress={() => {this.props.onSignInPress(this.state.email, this.state.pass)} } />;
                 <Button
                     title='Sign Up' 
                     titleStyle={{ fontWeight: "700" }}
@@ -408,4 +410,21 @@ class SignIn extends Component {
     //     }
     // }
 }
-export default SignIn;
+
+// this feeds the singular store whenever the state changes
+const mapStateToProps = (state) => {
+    return {
+        loading: state.loading,
+        loggedIn: state.loggedIn,
+    }
+}
+
+//if we want a component to access the store, we need to map actions to the props
+const mapDispatchToProps = (dispatch) => {
+    return {
+        onSignInPress: (email, pass) => dispatch( {type: 'onSignInPress', email: email, pass: pass } ),
+        //onSignInLoading: () => dispatch( {type: 'onSignInLoading'} )
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignIn)
