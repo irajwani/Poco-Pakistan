@@ -192,7 +192,7 @@ class Products extends Component {
       this.props.navigation.navigate('ProductDetails', {data: data})
   }
 
-  findRoom(rooms, desiredRoomsName) {
+  findRoomId(rooms, desiredRoomsName) {
     for(var room of rooms ) {
       
       if(room.name === desiredRoomsName) {return room.id}
@@ -234,7 +234,7 @@ class Products extends Component {
 
       if(this.currentUser.rooms.length > 0 && roomExists.length > 0) {
         console.log('no need to create a brand new room');
-        this.props.navigation.navigate( 'CustomChat', {id: this.findRoom(this.currentUser.rooms, desiredRoomsName)} )
+        this.props.navigation.navigate( 'CustomChat', {id: this.findRoomId(this.currentUser.rooms, desiredRoomsName)} )
 
       }
       else {
@@ -245,7 +245,7 @@ class Products extends Component {
           addUserIds: [uid]
         }).then(room => {
           console.log(`Created room called ${room.name}`)
-          this.props.navigation.navigate( 'CustomChat', {id: this.findRoom(this.currentUser.rooms, desiredRoomsName)} )
+          this.props.navigation.navigate( 'CustomChat', {id: this.findRoomId(this.currentUser.rooms, desiredRoomsName)} )
         })
         .catch(err => {
           console.log(`Error creating room ${err}`)

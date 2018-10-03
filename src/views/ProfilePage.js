@@ -215,9 +215,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#cdcdd6',
     width: (width/2) - 20,
-    height: 75,
+    height: 100,
     //55
-    padding: 5,
+    padding: 0,
     borderWidth: 0,
     borderColor: '#020202',
     borderRadius: 0,
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
   },
   name: {
     marginTop: 5,
-    fontSize: 15,
+    fontSize: 27,
     color: '#fff',
     fontWeight: 'normal'
   },
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   }
   ,
   pos: {
-    fontSize: 16,
+    fontSize: 20,
     color: '#fff',
     fontWeight: '600',
     fontStyle: 'italic'

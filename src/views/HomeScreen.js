@@ -1,14 +1,12 @@
 import React, {Component} from 'react';
-import { Text, View, Button } from 'react-native';
+
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { withNavigation, TabNavigator, TabBarBottom } from 'react-navigation'; // Version can be specified in package.json
-import ProfilePage from './ProfilePage';
-import MarketPlace from './MarketPlace';
-import CreateItem from './CreateItem';
-import Chats from './Chats'
-import Collection from './Collection'
+
 import { profileToEditProfileStack } from '../stackNavigators/profileToEditProfileStack';
 import { marketToProductDetailsOrChatOrCommentsStack } from '../stackNavigators/marketToProductDetailsOrChatOrCommentsStack';
+import { multipleAddButtonToMultiplePictureCameraToCreateItemStack } from '../stackNavigators/createItemToPictureCameraStack';
+import { wishListToProductDetailsOrChatOrCommentsStack } from '../stackNavigators/wishListToProductDetailsOrChatOrCommentsStack';
 
 const HomeScreen = TabNavigator(
             {
@@ -18,8 +16,11 @@ const HomeScreen = TabNavigator(
               //Market: {screen: MarketPlace},
               Market: marketToProductDetailsOrChatOrCommentsStack,
               //Sell: {screen: CreateItem},
+              Sell: multipleAddButtonToMultiplePictureCameraToCreateItemStack,
               //Chats: {screen: Chats},
+              Chats: chatsToCustomChatStack,
               //WishList: {screen: Collection},
+              WishList: wishListToProductDetailsOrChatOrCommentsStack,
               
             },
             {
