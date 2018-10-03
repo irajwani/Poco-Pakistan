@@ -1,7 +1,8 @@
 import firebase from '../cloud/firebase'
 
 const initialState = {
-
+    
+    showSignIn: false,
     loading: false,
     loggedIn: false,
 
@@ -15,16 +16,21 @@ const reducer = (state = initialState, action) => {
         case 'onSignInPress' :
 
             newState.loading = true;
-            firebase.auth().signInWithEmailAndPassword(action.email, action.pass);
-            newState.loading = false;
-            newState.loggedIn = true;
+            //hopefully this forcibly renders pacman:
+            setTimeout(() => {
+                firebase.auth().signInWithEmailAndPassword(action.email, action.pass);
+                newState.loading = false;
+                newState.loggedIn = true;
+            }, 2000);
             //newState.uid = firebase.auth().currentUser.uid
             // var {uid} = newState;
             // promiseToGetData(uid, newState)
             // .then( (fromResolve) => { newState.data = fromResolve; newState.paths = getPaths(fromResolve); console.log(newState)  })
             break;
-          
-            
+        case 'showSignIn':
+
+            newState.showSignIn = true;
+            break;
             
         // firebase.auth().signInWithEmailAndPassword(action.email, action.pass)
             //     .then( () => {

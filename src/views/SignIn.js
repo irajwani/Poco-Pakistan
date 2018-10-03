@@ -235,7 +235,7 @@ class SignIn extends Component {
                    </View>
         }
         return (
-            <View style={ {padding: 15,} }>
+            <View>
                 <Button
                     title='Sign In' 
                     titleStyle={{ fontWeight: "700" }}
@@ -251,20 +251,8 @@ class SignIn extends Component {
                     borderRadius: 5
                     }}
                     containerStyle={{ marginTop: 5, marginBottom: 5 }} onPress={() => {this.props.onSignInPress(this.state.email, this.state.pass)} } />;
-                <Button
-                    title='Sign Up' 
-                    titleStyle={{ fontWeight: "700" }}
-                    buttonStyle={{
-                    backgroundColor: '#368c93',
-                    //#2ac40f
-                    width: (width)*0.70,
-                    height: 45,
-                    borderColor: "#226b13",
-                    borderWidth: 0,
-                    borderRadius: 5
-                    }}
-                    containerStyle={{ marginTop: 5, marginBottom: 5 }} onPress={this.onSignUpPress.bind(this)} />;
-        </View> )
+            </View> 
+            )
     }
 
 

@@ -5,6 +5,20 @@ const {width, height} = Dimensions.get('window');
 
 const styles = StyleSheet.create({
 
+  //SIGNIN OR SIGNUP Page
+    firstContainer: {
+      flex: 1,
+      // marginTop: 5,
+      //marginBottom: 5,
+      padding: 40,
+      flexDirection: 'column',
+      justifyContent: 'space-evenly',
+      alignItems: 'center',
+      //alignContent
+      backgroundColor: '#122021',
+      //#fff
+    },
+
   //SIGN IN PAGE
     signInContainer: {
       flex: 1,

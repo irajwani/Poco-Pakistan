@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
 import { Text, View } from 'react-native'
+import SignInOrSignUp from './SignInOrSignUp';
 import SignIn from './SignIn';
 import HomeScreen from './HomeScreen';
 import firebase from '../cloud/firebase';
 
 import {connect} from 'react-redux';
-
-
 
 class InitialScreen extends Component {
   constructor(props) {
@@ -23,13 +22,15 @@ class InitialScreen extends Component {
 //   }
 
   render() {
-    const {uid, loggedIn} = this.props;
+    const {uid, loggedIn, showSignIn} = this.props;
     
     if(loggedIn) {
         return <HomeScreen />
     }
-    else {
+    else if (showSignIn){
         return <SignIn />
+    } else {
+        return <SignInOrSignUp/>
     }
 
     
@@ -43,6 +44,7 @@ const mapStateToProps = (state) => {
     return {
         loading: state.loading,
         loggedIn: state.loggedIn,
+        showSignIn: state.showSignIn,
     }
 }
 
@@ -51,7 +53,7 @@ const mapDispatchToProps = (dispatch) => {
     return {
         //just a func to handle authentication, change the application state and store the UID
         onSignInPress: (email, pass) => dispatch( {type: 'onSignInPress', email: email, pass: pass } ),
-        
+        showSignIn: () => dispatch( {type: 'showSignIn' } ),
     }
 }
 
