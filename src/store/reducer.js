@@ -17,11 +17,11 @@ const reducer = (state = initialState, action) => {
 
             newState.loading = true;
             //hopefully this forcibly renders pacman:
-            setTimeout(() => {
-                firebase.auth().signInWithEmailAndPassword(action.email, action.pass);
-                newState.loading = false;
-                newState.loggedIn = true;
-            }, 2000);
+            
+            firebase.auth().signInWithEmailAndPassword(action.email, action.pass);
+            newState.loading = false;
+            newState.loggedIn = true;
+            
             //newState.uid = firebase.auth().currentUser.uid
             // var {uid} = newState;
             // promiseToGetData(uid, newState)

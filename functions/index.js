@@ -26,12 +26,13 @@ admin.initializeApp();
 // });
 
 //FUNCTION NUMBAH 1 :
-exports.createNewUser = functions.database.ref('/Users/{uid}/{profile}/uri').onUpdate( 
+exports.createNewUser = functions.database.ref('/Users/{uid}/{profile}/uri/').onUpdate( 
     (snapshot, context) => { 
     console.log('User edited profile and added name');
     var uri = snapshot.after.val();
     var name = context.params.profile.name;
     var uid = context.params.uid;
+    console.log(uri, name, uid);
     
     
     chatkit.createUser({
@@ -41,8 +42,27 @@ exports.createNewUser = functions.database.ref('/Users/{uid}/{profile}/uri').onU
         .then( () => {
             console.log('success');
             return null})
-        .catch( () => {console.log('problem')});
-    //and if the user doesn't already have a room, right now the promise will be rejected and this function will have no effect, which is dope?
+        .catch( () => {console.log('user already exists')});
+    //and if the user doesn't already have a room, right now the promise will be rejected 
+    //and this function will update the user's properties.
+    chatkit.updateUser({
+        id: uid,
+        name: name,
+        avatarURL: uri
+      }).then(() => {
+          console.log('User updated successfully');
+          return null
+        }).catch((err) => {
+          console.log(err);
+        });
+        
+    chatkit.getUsers()
+        .then((res) => {
+            console.log(res);
+            return null
+        }).catch((err) => {
+            console.log(err);
+        });    
     
     return null;
 } );

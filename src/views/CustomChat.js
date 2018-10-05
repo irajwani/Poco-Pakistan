@@ -1,7 +1,12 @@
 import React, {Component} from 'react';
+import {Platform} from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat';
 import {withNavigation} from 'react-navigation';
 import firebase from '../cloud/firebase';
+
+import Message from '../components/SlackMessage';
+
+import emojiUtils from 'emoji-utils';
 
 import Chatkit from "@pusher/chatkit";
 
@@ -10,6 +15,10 @@ const CHATKIT_TOKEN_PROVIDER_ENDPOINT = "https://us1.pusherplatform.io/services/
 const CHATKIT_INSTANCE_LOCATOR = "v1:us1:7a5d48bb-1cda-4129-88fc-a7339330f5eb";
 
 class CustomChat extends Component {
+  static navigationOptions = {
+    header: null
+  }
+    
   state = {
     messages: [],
   }
@@ -67,18 +76,21 @@ class CustomChat extends Component {
 
   }
 
+  //onReceive function not supposed to be here?
+  //Think he's using renderMessage to produce the UI which receives the messages as props
   onReceive(data) {
     console.log(data);
     //...
-    const { id, senderId, text, createdAt } = data;
+    const { id, senderId, text, createdAt, sender } = data;
+    const {avatarURL, name} = sender;
     const incomingMessage = {
       _id: id,
       text: text,
       createdAt: new Date(createdAt),
       user: {
         _id: senderId,
-        name: senderId,
-        avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmXGGuS_PrRhQt73sGzdZvnkQrPXvtA-9cjcPxJLhLo8rW-sVA"
+        name: name,
+        avatar: avatarURL,
       }
     };
 
@@ -86,6 +98,7 @@ class CustomChat extends Component {
       messages: GiftedChat.append(previousState.messages, incomingMessage)
     }));
   }
+  /////////////////
 
   onSend([message], id) {
     this.currentUser.sendMessage({
@@ -93,6 +106,25 @@ class CustomChat extends Component {
       roomId: id,
     });
     
+  }
+
+  renderMessage(props) {
+    const { currentMessage: { text: currText } } = props;
+
+    let messageTextStyle;
+
+    // Make "pure emoji" messages much bigger than plain text.
+    if (currText && emojiUtils.isPureEmojiString(currText)) {
+      messageTextStyle = {
+        fontSize: 28,
+        // Emoji get clipped if lineHeight isn't increased; make it consistent across platforms.
+        lineHeight: Platform.OS === 'android' ? 34 : 30,
+      };
+    }
+
+    return (
+      <Message {...props} messageTextStyle={messageTextStyle} />
+    );
   }
 
   render() {
@@ -112,7 +144,12 @@ class CustomChat extends Component {
         user={{
           _id: CHATKIT_USER_NAME
         }}
-        
+        renderMessage={this.renderMessage}
+        showUserAvatar={true}
+        showAvatarForEveryMessage={true}
+        renderAvatarOnTop={true}
+        loadEarlier={true}
+        isLoadingEarlier={true}
           
         
       />

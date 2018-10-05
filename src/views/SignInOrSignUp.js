@@ -5,7 +5,7 @@ import {Button} from 'react-native-elements'
 import styles from '../styles';
 import { connect } from 'react-redux';
 
-export default class SignInOrSignUp extends Component {
+class SignInOrSignUp extends Component {
   render() {
     return (
         <View style={styles.firstContainer}>

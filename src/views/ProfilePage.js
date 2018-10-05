@@ -14,17 +14,18 @@ const resizeMode = 'center';
 
 class ProfilePage extends Component {
 
-  // static navigationOptions = {
-  //   headerTitle: 'ProfileMyStyle',
-  //   headerStyle: {
-  //     backgroundColor: 'red',
-  //   },
-  //   headerTintColor: '#fff',
-  //   headerTitleStyle: {
-  //     fontWeight: 'bold',
-  //     fontFamily: 'Verdana'
-  //   },
-  // };
+  static navigationOptions = {
+    header: null
+    // headerTitle: 'ProfileMyStyle',
+    // headerStyle: {
+    //   backgroundColor: 'red',
+    // },
+    // headerTintColor: '#fff',
+    // headerTitleStyle: {
+    //   fontWeight: 'bold',
+    //   fontFamily: 'Verdana'
+    // },
+  };
 
   constructor(props) {
     super(props);
@@ -149,7 +150,7 @@ class ProfilePage extends Component {
             <Text style={styles.numberProducts}>{this.state.numberProducts} </Text>
             <Text style={styles.subText}>ON SALE</Text>
           </View>
-          <Divider style={{  backgroundColor: '#47474f', width: 3, height: 55 }} />
+          <Divider style={{  backgroundColor: '#47474f', width: 3, height: 60 }} />
           <View style={styles.numberCard}>
             <Text style={styles.numberProducts}>{this.state.soldProducts} </Text>
             <Text style={styles.subText}>SOLD</Text>
@@ -215,9 +216,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#cdcdd6',
     width: (width/2) - 20,
-    height: 100,
+    height: 60,
     //55
-    padding: 0,
+    padding: 5,
     borderWidth: 0,
     borderColor: '#020202',
     borderRadius: 0,
@@ -230,7 +231,6 @@ const styles = StyleSheet.create({
   },
 
   midContainer: {
-    flex: 0.5,
     //0.2
     padding: 0,
   },
@@ -259,8 +259,9 @@ const styles = StyleSheet.create({
     flex: 2,
   },
   gearAndPicRow: {
-    flex: 2,
+    flex: 1.4,
     flexDirection: 'row',
+    paddingTop:20,
     paddingRight: 75,
   },
   profilepicWrap: {

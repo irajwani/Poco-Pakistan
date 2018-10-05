@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, Platform } from 'react-native';
+import { Text, StyleSheet, View, ScrollView, Platform } from 'react-native';
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
+import {Fab} from 'native-base';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ButtonGroup, Button, Divider} from 'react-native-elements';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import RNFetchBlob from 'react-native-fetch-blob';
@@ -22,7 +24,8 @@ class EditProfile extends Component {
           country: '',
           size: 1,
           uri: undefined,
-          insta: ''
+          insta: '',
+          fabActive: true,
       }
   }
 
@@ -91,7 +94,7 @@ class EditProfile extends Component {
 
     var postData = {
         name: data.name,
-        email: data.country,
+        country: data.country,
         size: data.size,
         insta: data.insta
     }
@@ -139,13 +142,26 @@ class EditProfile extends Component {
     const uid = firebase.auth().currentUser.uid;
     const {params} = this.props.navigation.state
     const pictureuris = params ? params.pictureuris : 'nothing here'
-    var conditionMet = (this.state.name) && (this.state.email) && (pictureuri !== 'nothing here')
+    var conditionMet = (this.state.name) && (this.state.country) && (pictureuris[0] !== 'nothing here')
 
     return (
-      <View style={styles.container}>
-
+      <ScrollView contentContainerStyle={styles.container}>
+        <Button
+            buttonStyle={{
+                backgroundColor: "#0a3f93",
+                width: 50,
+                height: 40,
+                borderColor: "transparent",
+                borderWidth: 0,
+                borderRadius: 90,
+                marginLeft: 200
+            }}
+            icon={{name: 'arrow-left', type: 'font-awesome'}}
+            onPress={() => {
+                            this.props.navigation.goBack(); 
+                            } } 
+        />
         <Text style={{textAlign: 'center'}}>Choose Profile Picture:</Text>
-        <Divider style={{  backgroundColor: '#fff', height: 8 }} />
         <MultipleAddButton navToComponent = {'EditProfile'} pictureuris={pictureuris} />
 
         <Sae
@@ -162,7 +178,7 @@ class EditProfile extends Component {
         <Sae
             label={'Nottingham, UK'}
             iconClass={FontAwesomeIcon}
-            iconName={'city'}
+            iconName={'globe'}
             iconColor={'#0a3f93'}
             value={this.state.country}
             onChangeText={country => this.setState({ country })}
@@ -195,7 +211,7 @@ class EditProfile extends Component {
             large
             buttonStyle={{
                 backgroundColor: "#5bea94",
-                width: 280,
+                width: 250,
                 height: 80,
                 borderColor: "transparent",
                 borderWidth: 0,
@@ -208,8 +224,8 @@ class EditProfile extends Component {
                             this.props.navigation.navigate('ProfilePage'); 
                             } } 
         />
-        <Divider style={{  backgroundColor: '#fff', height: 8 }} />
-      </View>
+        
+      </ScrollView>
     )
   }
 }
@@ -218,8 +234,12 @@ export default withNavigation(EditProfile);
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         flexDirection: 'column',
-        justifyContent: 'space-evenly'
+        justifyContent: 'space-evenly',
+        //alignItems: 'center',
+        paddingTop: 20,
+        paddingLeft: 20,
+        paddingRight: 20,
+
     }
 })

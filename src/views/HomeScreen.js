@@ -7,6 +7,7 @@ import { profileToEditProfileStack } from '../stackNavigators/profileToEditProfi
 import { marketToProductDetailsOrChatOrCommentsStack } from '../stackNavigators/marketToProductDetailsOrChatOrCommentsStack';
 import { multipleAddButtonToMultiplePictureCameraToCreateItemStack } from '../stackNavigators/createItemToPictureCameraStack';
 import { wishListToProductDetailsOrChatOrCommentsStack } from '../stackNavigators/wishListToProductDetailsOrChatOrCommentsStack';
+import { ChatsToCustomChatStack } from '../stackNavigators/chatsToCustomChatStack';
 
 const HomeScreen = TabNavigator(
             {
@@ -18,7 +19,7 @@ const HomeScreen = TabNavigator(
               //Sell: {screen: CreateItem},
               Sell: multipleAddButtonToMultiplePictureCameraToCreateItemStack,
               //Chats: {screen: Chats},
-              Chats: chatsToCustomChatStack,
+              Chats: ChatsToCustomChatStack,
               //WishList: {screen: Collection},
               WishList: wishListToProductDetailsOrChatOrCommentsStack,
               
