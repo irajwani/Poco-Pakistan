@@ -27,11 +27,13 @@ class InitialScreen extends Component {
     if(loggedIn) {
         return <HomeScreen />
     }
+    
     else if (showSignIn){
         return <SignIn />
-    } else {
-        return <SignInOrSignUp/>
-    }
+    } 
+        
+    return <SignInOrSignUp/>
+    
 
     
     

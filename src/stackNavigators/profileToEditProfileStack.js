@@ -4,12 +4,16 @@ import ProfilePage from '../views/ProfilePage';
 import EditProfile from '../views/EditProfile';
 import MultiplePictureCamera from '../components/MultiplePictureCamera';
 import MultipleAddButton from '../components/MultipleAddButton';
+import YourProducts from '../views/YourProducts';
+import EditItem from '../views/EditItem';
 
 export const profileToEditProfileStack = createStackNavigator({
     ProfilePage: ProfilePage,
     EditProfile: EditProfile,
     MultipleAddButton: MultipleAddButton,
     MultiplePictureCamera: MultiplePictureCamera,
+    YourProducts: YourProducts,
+    EditItem: EditItem,
 },
 {   
     initalRouteName: 'ProfilePage',

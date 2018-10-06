@@ -7,11 +7,13 @@ import NumericInput from 'react-native-numeric-input'
 import {Button, ButtonGroup, Divider} from 'react-native-elements';
 import RNFetchBlob from 'react-native-fetch-blob';
 import MultipleAddButton from '../components/MultipleAddButton';
+import CustomModalPicker from '../components/CustomModalPicker';
 import accounting from 'accounting'
 import ProductLabel from '../components/ProductLabel.js';
 import {signInContainer} from '../styles.js';
 import firebase from '../cloud/firebase.js';
 import Chatkit from "@pusher/chatkit";
+
 
 const Blob = RNFetchBlob.polyfill.Blob;
 const fs = RNFetchBlob.fs;
@@ -102,6 +104,19 @@ class CreateItem extends Component {
         
     
 //    }
+
+// showCustomModalPicker(gender) {
+//     let index = 0;
+//     const data = [
+//         { key: index++, label: 'Fruits' },
+//         { key: index++, label: 'Red Apples' },
+//         { key: index++, label: 'Cherries' },
+//     ];
+//     return (
+//         <CustomModalPicker data={data}/>
+//     )
+
+// }
 
 showPicker(gender) {
     if (gender == 0) {
@@ -319,7 +334,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
     const pictureuris = params ? params.pictureuris : 'nothing here'
     //const picturebase64 = params ? params.base64 : 'nothing here'
     //Lenient condition, Array.isArray(pictureuris) && pictureuris.length >= 1
-    var conditionMet = (this.state.name) && (this.state.months > 0) && (this.state.price > 0)
+    var conditionMet = (this.state.name) && (this.state.months >= 0) && (this.state.price > 0)
     console.log(conditionMet);
     //console.log(pictureuri);
     //this.setState({uri: params.uri})
@@ -354,8 +369,12 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
             {/* Type of clothing */}
             <Divider style={{  backgroundColor: '#fff', height: 12 }} />
 
-            <ProductLabel color='#1271b5' title='Product Category'/>            
-        {this.showPicker(this.state.gender)}
+            <ProductLabel color='#1271b5' title='Product Category'/>
+            <CustomModalPicker>
+                {this.showPicker(this.state.gender)}        
+            </CustomModalPicker>
+            <Text>{this.state.type}</Text>
+        
         
             {/* <Image
             style={{width: '25%', height: '25%', opacity: 1.0}} 
@@ -432,14 +451,17 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
             />
             {/* product condition */}
             <Divider style={{  backgroundColor: '#fff', height: 12 }} />
-            <ProductLabel color='#1271b5' title="Product's Condition"/> 
-            <Picker selectedValue = {this.state.condition} onValueChange={ (condition) => {this.setState({condition})} } >
-               <Picker.Item label = "New with tags" value = "New with tags" />
-               <Picker.Item label = "New" value = "New" />
-               <Picker.Item label = "Very good" value = "Very good" />
-               <Picker.Item label = "Good" value = "Good" />
-               <Picker.Item label = "Satisfactory" value = "Satisfactory" />
-            </Picker>
+            <ProductLabel color='#1271b5' title="Product's Condition"/>
+            <CustomModalPicker>
+                <Picker selectedValue = {this.state.condition} onValueChange={ (condition) => {this.setState({condition})} } >
+                    <Picker.Item label = "New with tags" value = "New with tags" />
+                    <Picker.Item label = "New" value = "New" />
+                    <Picker.Item label = "Very good" value = "Very good" />
+                    <Picker.Item label = "Good" value = "Good" />
+                    <Picker.Item label = "Satisfactory" value = "Satisfactory" />
+                </Picker>
+            </CustomModalPicker> 
+            <Text>{this.state.condition}</Text>
 
             {/* product age (months) */}
             <View style = { {alignItems: 'center', flexDirection: 'column'} } >

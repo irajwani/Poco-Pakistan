@@ -319,7 +319,31 @@ class SignIn extends Component {
                     inputStyle={{ color: '#0d7018' }}
                 />
             </View>
-                  {this.renderButtonOrLoading()}
+            {this.props.loading ? 
+                <View style={{flex: 1}}>
+                    <PacmanIndicator color='#28a526' />
+                </View>
+                :
+                <View style={{ padding: 20, alignContent: 'center'}}>
+                    <Button
+                        title='Sign In' 
+                        titleStyle={{ fontWeight: "700" }}
+                        buttonStyle={{
+                        backgroundColor: "#16994f",
+                        //#2ac40f
+                        //#45bc53
+                        //#16994f
+                        width: (width)*0.70,
+                        height: 45,
+                        borderColor: "#37a1e8",
+                        borderWidth: 0,
+                        borderRadius: 5,
+                        
+                        }}
+                        containerStyle={{ padding: 10, marginTop: 5, marginBottom: 5 }} 
+                        onPress={() => {this.props.onSignInPress(this.state.email, this.state.pass)} } 
+                    /> 
+             </View>}
                   
                 
 

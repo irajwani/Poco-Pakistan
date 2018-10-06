@@ -50,6 +50,7 @@ class MultiplePictureCamera extends Component {
 
   confirmSelection(navToComponent) {
     console.log('prssed')
+    //if its going back to EditItem, will it skim over the details?
     this.props.navigation.navigate(`${navToComponent}`, {pictureuris: this.state.pictureuris} )
   }
   

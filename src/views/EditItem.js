@@ -26,21 +26,57 @@ class EditItem extends Component {
   constructor(props) {
       super(props);
       const {params} = this.props.navigation.state;
-      const {name, brand} = params.data.text;
-      console.log(name);
+      const {text} = params.data;
+      const {name, brand, price, months} = text;
+      switch(text.gender) {
+        case 'Men':
+            var gender = 0
+            break; 
+        case 'Accessories':
+            var gender = 1
+            break;
+        case 'Women':
+            var gender = 2
+            break;
+        default:
+            var gender = 0
+    }
+
+    switch(text.size) {
+        case 'Extra Small':
+            text.size = 0
+            break; 
+        case 'Small':
+            text.size = 1
+            break;
+        case 'Medium':
+            text.size = 2
+            break;
+        case 'Large':
+            text.size = 3
+            break;
+        case 'Extra Large':
+            text.size = 4
+            break;
+        case 'Extra Extra Large':
+            text.size = 5
+            break;
+        default:
+            text.size = 2
+    }
+
       this.state = {
           uri: undefined,
-          name: '',
-          brand: '',
-          price: 0,
-          original_price: 0,
-          size: 2,
-          type: 'Trousers',
-          gender: 2,
-          condition: 'Good',
-          months: 0,
-          insta: '',
-          description: '',
+          name: name,
+          brand: brand,
+          price: price,
+          original_price: text.original_price ? text.original_price : 0,
+          size: text.size,
+          type: text.type ? text.type : 'Trousers',
+          gender: gender,
+          condition: text.condition ? text.condition : 'Good',
+          months: months,
+          description: text.description ? text.description : '',
           typing: true,
       }
   }
@@ -148,7 +184,7 @@ showPicker(gender) {
     } 
 }
 
-updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
+updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey) => {
     // : if request.auth != null;
     var gender;
     switch(data.gender) {
@@ -208,19 +244,19 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
         
       };
   
-    var newPostKey = firebase.database().ref().child(`Users/${uid}/products`).push().key;
+    //var newPostKey = firebase.database().ref().child(`Users/${uid}/products`).push().key;
     
     var updates = {};
-    updates['/Users/' + uid + '/products/' + newPostKey + '/'] = postData;
+    updates['/Users/' + uid + '/products/' + postKey + '/'] = postData;
     //this.createRoom(newPostKey);
     
 
     return {database: firebase.database().ref().update(updates),
-            storage: this.uploadToStore(pictureuris, uid, newPostKey)}
+            storage: this.uploadToStore(pictureuris, uid, postKey)}
 
 }
 
-  uploadToStore = (pictureuris, uid, newPostKey) => {
+  uploadToStore = (pictureuris, uid, postKey) => {
       
     pictureuris.forEach( (uri, index) => {
         
@@ -228,7 +264,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
 
         const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
         let uploadBlob = null
-        const imageRef = firebase.storage().ref().child(`Users/${uid}/${newPostKey}/${index}`);
+        const imageRef = firebase.storage().ref().child(`Users/${uid}/${postKey}/${index}`);
         fs.readFile(uploadUri, 'base64')
         .then((data) => {
         return Blob.build(data, { type: `${mime};BASE64` })
@@ -244,7 +280,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
         })
         .then((url) => {
             console.log(url);
-            storageUpdates['/Users/' + uid + '/products/' + newPostKey + '/uris/' + index + '/'] = url;
+            storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/' + index + '/'] = url;
             firebase.database().ref().update(storageUpdates);  
         })
     } )
@@ -320,6 +356,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
     const uid = firebase.auth().currentUser.uid; 
     const {params} = this.props.navigation.state
     const pictureuris = params ? params.pictureuris : 'nothing here'
+    const postKey = params.data.key;
     //const picturebase64 = params ? params.base64 : 'nothing here'
     //Lenient condition, Array.isArray(pictureuris) && pictureuris.length >= 1
     var conditionMet = (this.state.name) && (this.state.months > 0) && (this.state.price > 0)
@@ -342,7 +379,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
             <Text style={{textAlign: 'center'}}>Picture(s) of Product:</Text>
             <Divider style={{  backgroundColor: '#fff', height: 8 }} />
 
-            <MultipleAddButton navToComponent = {'CreateItem'} pictureuris={pictureuris}/>
+            <MultipleAddButton navToComponent = {'EditItem'} pictureuris={pictureuris}/>
 
             <Divider style={{  backgroundColor: '#fff', height: 12 }} />
 
@@ -509,9 +546,9 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
                 borderRadius: 5
             }}
             icon={{name: 'cloud-upload', type: 'font-awesome'}}
-            title='SUBMIT TO MARKET'
+            title='(RE)SUBMIT TO MARKET'
             onPress={() => { 
-                this.updateFirebase(this.state, pictureuris, mime = 'image/jpg', uid , this.state.name); 
+                this.updateFirebase(this.state, pictureuris, mime = 'image/jpg', uid , this.state.name, postKey); 
                               } } 
             />
 

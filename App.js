@@ -5,7 +5,6 @@ import {
   Text,
   View
 } from 'react-native';
-import { createStackNavigator } from 'react-navigation'; // Version can be specified in package.json
 import {Provider} from 'react-redux'
 import {createStore} from 'redux'
 import reducer from './src/store/reducer.js'

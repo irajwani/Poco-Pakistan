@@ -24,6 +24,10 @@ const CHATKIT_INSTANCE_LOCATOR = "v1:us1:7a5d48bb-1cda-4129-88fc-a7339330f5eb";
 
 var {height, width} = Dimensions.get('window');
 
+const editProductIcon = <Icon name="playlist-edit" 
+                              size={10} 
+                              color={iOSColors.white} />
+
 
 class Products extends Component {
   constructor(props) {
@@ -200,7 +204,7 @@ class Products extends Component {
   }
 
   navToEditItem(item) {
-    this.props.navigation.navigate('EditItem', {item: item})
+    this.props.navigation.navigate('EditItem', {data: item, pictureuris: item.uris})
   }
 
   navToChat(uid, key) {
@@ -390,7 +394,7 @@ class Products extends Component {
                         height: 40,
                         
                     }}
-                    icon={{name: 'settings', type: 'font-awesome'}}
+                    icon={{name: 'lead-pencil', type: 'material-community'}}
                     title='EDIT'
                     onPress = { () => { 
                         console.log('going to edit item details');
@@ -417,7 +421,7 @@ class Products extends Component {
 
                     />}
             <Icon
-                name="lead-pencil" 
+                name="tooltip-edit" 
                 size={20}  
                 color={'#0e4406'}
                 onPress = { () => { 

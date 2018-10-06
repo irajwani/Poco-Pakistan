@@ -44,7 +44,7 @@ class ProfilePage extends Component {
 
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.getProducts();
     this.getComments(firebase.auth().currentUser.uid);
   }
@@ -147,7 +147,7 @@ class ProfilePage extends Component {
       <View style={styles.midContainer}>
         <View style={ {flexDirection: 'row',} }>
           <View style={styles.numberCard}>
-            <Text style={styles.numberProducts}>{this.state.numberProducts} </Text>
+            <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.numberProducts}>{this.state.numberProducts} </Text>
             <Text style={styles.subText}>ON SALE</Text>
           </View>
           <Divider style={{  backgroundColor: '#47474f', width: 3, height: 60 }} />
