@@ -40,7 +40,7 @@ export default class Bubble extends React.Component {
     }
   }
 
-  renderMessageText() {
+  renderMessageText(textColor) {
     if (this.props.currentMessage.text) {
       const { containerStyle, wrapperStyle, messageTextStyle, ...messageTextProps } = this.props;
       if (this.props.renderMessageText) {
@@ -50,7 +50,11 @@ export default class Bubble extends React.Component {
         <MessageText
           {...messageTextProps}
           textStyle={{
-            left: [styles.standardFont, styles.slackMessageText, messageTextProps.textStyle, messageTextStyle],
+            left: [styles.messageTextFont, 
+            {   marginLeft: 0,
+                marginRight: 0,
+                color: textColor,
+                }, messageTextProps.textStyle, messageTextStyle],
           }}
         />
       );
@@ -140,6 +144,8 @@ export default class Bubble extends React.Component {
       </View>
     );
 
+    var textColor = isSameUser(this.props.currentMessage, this.props.previousMessage) ? '#94c2ed' : '#86bb71'; 
+
     return (
       <View style={[styles.container, this.props.containerStyle]}>
         <TouchableOpacity
@@ -157,7 +163,7 @@ export default class Bubble extends React.Component {
               {this.renderCustomView()}
               {messageHeader}
               {this.renderMessageImage()}
-              {this.renderMessageText()}
+              {this.renderMessageText(textColor)}
             </View>
           </View>
         </TouchableOpacity>
@@ -171,13 +177,19 @@ export default class Bubble extends React.Component {
 // The "right" position is only used in the default Bubble.
 const styles = StyleSheet.create({
   standardFont: {
-      //controls all text
-    fontSize: 18,
+    fontFamily: 'Futura',
+    fontSize: 24,
   },
+
+  messageTextFont: {
+      fontFamily: 'Georgia',
+      fontSize: 18
+  },
+
   slackMessageText: {
     marginLeft: 0,
     marginRight: 0,
-    color: 'black',
+    color: 'blue',
   },
   container: {
     flex: 1,

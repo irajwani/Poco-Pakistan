@@ -93,9 +93,9 @@ const styles = StyleSheet.create({
   },
   slackAvatar: {
     // The bottom should roughly line up with the first line of message text.
-    height: 40,
-    width: 40,
-    borderRadius: 3,
+    height: 60,
+    width: 60,
+    borderRadius: 10,
   },
 });
 

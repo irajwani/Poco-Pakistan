@@ -144,9 +144,10 @@ class CustomChat extends Component {
         user={{
           _id: CHATKIT_USER_NAME
         }}
-        renderMessage={this.renderMessage}
+        //renderMessage={this.renderMessage}
+        //renderBubble={this.renderBubble}
         showUserAvatar={true}
-        showAvatarForEveryMessage={true}
+        showAvatarForEveryMessage={false}
         renderAvatarOnTop={true}
         loadEarlier={true}
         isLoadingEarlier={true}
