@@ -22,13 +22,13 @@ class InitialScreen extends Component {
 //   }
 
   render() {
-    const {uid, loggedIn, showSignIn} = this.props;
+    const {loggedIn, showSignIn, signedOut} = this.props;
     
     if(loggedIn) {
         return <HomeScreen />
     }
     
-    else if (showSignIn){
+    else if (showSignIn || signedOut){
         return <SignIn />
     } 
         
@@ -47,6 +47,7 @@ const mapStateToProps = (state) => {
         loading: state.loading,
         loggedIn: state.loggedIn,
         showSignIn: state.showSignIn,
+        signedOut: state.signedOut
     }
 }
 

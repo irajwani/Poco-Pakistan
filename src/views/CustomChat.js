@@ -14,6 +14,9 @@ const CHATKIT_SECRET_KEY = "9b627f79-3aba-48df-af55-838bbb72222d:Pk9vcGeN/h9UQNG
 const CHATKIT_TOKEN_PROVIDER_ENDPOINT = "https://us1.pusherplatform.io/services/chatkit_token_provider/v1/7a5d48bb-1cda-4129-88fc-a7339330f5eb/token";
 const CHATKIT_INSTANCE_LOCATOR = "v1:us1:7a5d48bb-1cda-4129-88fc-a7339330f5eb";
 
+
+//#86bb71
+//#94c2ed
 class CustomChat extends Component {
   static navigationOptions = {
     header: null
@@ -137,7 +140,7 @@ class CustomChat extends Component {
     console.log(this.state.messages);
     
     return (
-
+      
       <GiftedChat
         messages={this.state.messages}
         onSend={messages => this.onSend(messages, id)}

@@ -1,10 +1,10 @@
 import firebase from '../cloud/firebase'
 
 const initialState = {
-    
     showSignIn: false,
     loading: false,
     loggedIn: false,
+    signedOut: false
 
 }
 
@@ -17,10 +17,11 @@ const reducer = (state = initialState, action) => {
 
             newState.loading = true;
             //hopefully this forcibly renders pacman:
-            
+            newState.signedOut = false;
             firebase.auth().signInWithEmailAndPassword(action.email, action.pass);
             newState.loading = false;
             newState.loggedIn = true;
+            
             
             //newState.uid = firebase.auth().currentUser.uid
             // var {uid} = newState;
@@ -31,6 +32,11 @@ const reducer = (state = initialState, action) => {
 
             newState.showSignIn = true;
             break;
+        
+        case 'signOut':
+            firebase.auth().signOut();
+            console.log('sign out');
+            newState.signedOut = true;
             
         // firebase.auth().signInWithEmailAndPassword(action.email, action.pass)
             //     .then( () => {

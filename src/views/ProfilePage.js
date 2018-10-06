@@ -10,6 +10,7 @@ import LinearGradient from 'react-native-linear-gradient'
 import ReviewsList from '../components/ReviewsList.js';
 const {width, height} = Dimensions.get('window');
 
+
 const resizeMode = 'center';
 
 class ProfilePage extends Component {
@@ -44,13 +45,17 @@ class ProfilePage extends Component {
 
   }
 
-  componentDidMount() {
-    this.getProducts();
-    this.getComments(firebase.auth().currentUser.uid);
+  componentWillMount() {
+    setTimeout(() => {
+      const uid = firebase.auth().currentUser.uid;
+      this.getProducts(uid);
+      this.getComments(uid);
+    }, 3000);
+    
   }
 
-  getProducts() {
-    var your_uid = firebase.auth().currentUser.uid;
+  getProducts(your_uid) {
+    console.log(your_uid);
     const keys = [];
     database.then( (d) => {
       
@@ -135,6 +140,15 @@ class ProfilePage extends Component {
             <Text style={styles.name}>{this.state.name}</Text>
             <Text style={styles.pos}>{this.state.country} </Text>
             <Text style={styles.insta}>@{this.state.insta} </Text>
+            <Icon name="exit-to-app" 
+                  style={ styles.gear }
+                          size={20} 
+                          color={'#800000'}
+                          onPress={() => {firebase.auth().signOut()
+                          .then(() => console.log('sccessfully signed out'))
+                          .catch((err) => console.log(err)); }}
+
+            />
           </View>
 
           

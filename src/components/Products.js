@@ -420,14 +420,25 @@ class Products extends Component {
                         } }
 
                     />}
-            <Icon
+            
+            {this.props.showYourProducts ?
+              <Icon
+                name="check-circle" 
+                size={30}  
+                color={'#0e4406'}
+                onPress = {() => console.log('this product is sold')}
+            />
+            :
+              <Icon
                 name="tooltip-edit" 
                 size={20}  
                 color={'#0e4406'}
                 onPress = { () => { 
                             this.navToComments(section.uid, section.key, section.text, this.state.name, section.uris[0]);
                             } }
-            />
+            />}
+
+            
         </View>
 
         {/* <Button
