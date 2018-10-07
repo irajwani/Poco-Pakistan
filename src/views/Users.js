@@ -3,7 +3,6 @@ import { Text, ScrollView, View, Image, StyleSheet, TouchableHighlight } from 'r
 import { material } from 'react-native-typography'
 import { withNavigation } from 'react-navigation';
 import { database } from '../cloud/database';
-import firebase from '../cloud/firebase';
 
 class Users extends Component {
     constructor(props) {

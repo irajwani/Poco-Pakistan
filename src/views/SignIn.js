@@ -1,25 +1,21 @@
 import React, { Component } from 'react';
-import { Dimensions, View, Text, Image, TouchableHighlight, ActivityIndicator, KeyboardAvoidingView } from 'react-native';
+import { Dimensions, View, Image, KeyboardAvoidingView } from 'react-native';
 import {connect} from 'react-redux';
 
-import { Hoshi, Jiro } from 'react-native-textinput-effects';
-import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
+import { Hoshi } from 'react-native-textinput-effects';
 import { PacmanIndicator } from 'react-native-indicators';
 import {Button} from 'react-native-elements'
 //import AwesomeButtonRick from 'react-native-really-awesome-button/src/themes/rick'
 import styles from '../styles.js';
 //import GeoAttendance from './geoattendance.js';
-import ProfilePage from './ProfilePage';
-import HomeScreen from './HomeScreen.js';
+
 import firebase from '../cloud/firebase.js';
 import {database} from '../cloud/database';
-import {storage} from '../cloud/storage';
+
 import { systemWeights, iOSColors } from 'react-native-typography';
 
 
-const CHATKIT_SECRET_KEY = "9b627f79-3aba-48df-af55-838bbb72222d:Pk9vcGeN/h9UQNGVEv609zhjyiPKtmnd0hlBW2T4Hfw="
-
-const {width, height} = Dimensions.get('window');
+const {width,} = Dimensions.get('window');
 //THIS PAGE: 
 //Allows user to sign in or sign up
 //Updates products on firebase db by scouring products from each user's list of products.

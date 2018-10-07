@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Dimensions, View, Image, StyleSheet, ScrollView, TouchableOpacity, } from 'react-native';
+import { Dimensions, View, Image, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import { Text,  } from 'native-base';
 import {Button} from 'react-native-elements'
@@ -15,10 +15,7 @@ import Accordion from 'react-native-collapsible/Accordion';
 import PushNotification from 'react-native-push-notification';
 
 import Chatkit from "@pusher/chatkit";
-
-const CHATKIT_SECRET_KEY = "9b627f79-3aba-48df-af55-838bbb72222d:Pk9vcGeN/h9UQNGVEv609zhjyiPKtmnd0hlBW2T4Hfw="
-const CHATKIT_TOKEN_PROVIDER_ENDPOINT = "https://us1.pusherplatform.io/services/chatkit_token_provider/v1/7a5d48bb-1cda-4129-88fc-a7339330f5eb/token";
-const CHATKIT_INSTANCE_LOCATOR = "v1:us1:7a5d48bb-1cda-4129-88fc-a7339330f5eb";
+import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
 
 
 var {height, width} = Dimensions.get('window');
@@ -40,10 +37,10 @@ class Products extends Component {
   componentWillMount() {
     setTimeout(() => {
       this.initializePushNotifications();
-    }, 5);
+    }, 1000);
     setTimeout(() => {
       this.getPageSpecificProducts();
-    }, 3000);
+    }, 1000);
   }
 
   initializePushNotifications = () => {
@@ -94,14 +91,23 @@ class Products extends Component {
     for(var product of arrayOfProducts) {
       if(product.shouldReducePrice) {
         console.log('should reduce price');
+        var date = new Date(Date.now() + (1200 * 1000)) // in 20 minutes
 
         PushNotification.localNotificationSchedule({
           message: `Nobody has initiated a chat with you about your product, ${product.text.name}, yet 🤔. Tap here to give it a more attractive price`,// (required)
-          date: new Date(Date.now() + (1200 * 1000)) // in 20 minutes
+          date: Platform.OS == 'ios' ? date.toISOString() : date,
         });
 
       }
     }
+  }
+
+  removeFalsyValuesFrom(object) {
+    const newObject = {};
+    Object.keys(object).forEach((property) => {
+      if (object[property]) {newObject[property] = object[property]}
+    })
+    return Object.values(newObject);
   }
 
 
@@ -113,11 +119,13 @@ class Products extends Component {
         const {showAllProducts, showCollection, showYourProducts} = this.props;
 
         var productKeys = d.Users[firebase.auth().currentUser.uid].products ? Object.keys(d.Users[firebase.auth().currentUser.uid].products) : [];
-        var collectionKeys = d.Users[firebase.auth().currentUser.uid].collection ? Object.keys(d.Users[firebase.auth().currentUser.uid].collection) : [] ;  
+        //need to filter d.Users.uid.collection for only those keys that have values of true
+        var collection = d.Users[firebase.auth().currentUser.uid].collection ? d.Users[firebase.auth().currentUser.uid].collection : null;
+        var rawCollectionKeys = collection ? Object.keys(collection) : []
+        var collectionKeys = rawCollectionKeys ? this.removeFalsyValuesFrom(rawCollectionKeys) : ['nothing'] ;  
         var all = d.Products;
         var yourProducts = all.filter((product) => productKeys.includes(product.key) );
         
-
         if(showAllProducts) {
             all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
             var name = d.Users[firebase.auth().currentUser.uid].profile.name;
@@ -155,37 +163,86 @@ class Products extends Component {
   }
 
   incrementLikes(likes, uid, key) {
+    //func applies to scenario when heart icon is gray
     //add like to product, and add this product to user's collection; if already in collection, modal shows user
     //theyve already liked the product
       //add to current users WishList
-      var userCollectionUpdates = {};
-      userCollectionUpdates['/Users/' + firebase.auth().currentUser.uid + '/collection/' + key + '/'] = true;
-      firebase.database().ref().update(userCollectionUpdates);
       //add a like to the sellers likes count for this particular product
       //unless users already liked this product, in which case, dont do anything
       if(this.state.collectionKeys.includes(key)) {
         console.log('show modal that users already liked this product')
+        alert("This product is already in your collection.")
       } 
-      else {
-        this.setState({ collectionKeys: this.state.collectionKeys.push(key) } ); 
-        //so the user can't add another like to the product.
+      else { 
+        var userCollectionUpdates = {};
+        userCollectionUpdates['/Users/' + firebase.auth().currentUser.uid + '/collection/' + key + '/'] = true;
+        firebase.database().ref().update(userCollectionUpdates);
+        //since we don't want the user to add another like to the product,
+        //tack on his unique contribution to the seller's product's total number of likes
         var updates = {};
         likes += 1;
         var postData = likes;
         updates['/Users/' + uid + '/products/' + key + '/likes/'] = postData;
         firebase.database().ref().update(updates);
+        //locally reflect the updated number of likes and updated collection of the user,
+        const {productsl, productsr} = this.state;
+        
+        productsl.forEach( (product) => {
+          if(product.key == key) {
+            product.text.likes += 1;
+          } 
+          return null;
+        })
+
+        productsr.forEach( (product) => {
+          if(product.key == key) {
+            product.text.likes += 1;
+          }
+          return null;
+        })
+
+
+        this.setState({ collectionKeys: this.state.collectionKeys.push(key), productsl, productsr } );
+
+
       }
       
-       
-      
-
-    
     
   }
 
   decrementLikes(likes, uid, key) {
+    //this func applies when heart icon is red
     console.log('decrement number of likes');
+    var userCollectionUpdates = {};
+    userCollectionUpdates['/Users/' + firebase.auth().currentUser.uid + '/collection/' + key + '/'] = false;
+    firebase.database().ref().update(userCollectionUpdates);
     //ask user to confirm if they'd like to unlike this product
+    var updates = {};
+    likes -= 1;
+    var postData = likes;
+    updates['/Users/' + uid + '/products/' + key + '/likes/'] = postData;
+    firebase.database().ref().update(updates);
+    //locally reflect the updated number of likes and updated collection of the user,
+    const {productsl, productsr} = this.state;
+        
+    productsl.forEach( (product) => {
+      if(product.key == key) {
+        product.text.likes -= 1;
+      } 
+      return null;
+    })
+
+    productsr.forEach( (product) => {
+      if(product.key == key) {
+        product.text.likes -= 1;
+      }
+      return null;
+    })
+
+    var collectionKeys = this.state.collectionKeys.filter( (productKey) => productKey !== key)
+
+
+    this.setState({ collectionKeys: collectionKeys, productsl, productsr } );
   }
 
   setSaleTo(soldStatus, uid, productKey) {
@@ -193,6 +250,7 @@ class Products extends Component {
     updates['Users/' + uid + '/products/' + productKey + '/sold/'] = soldStatus;
     firebase.database().ref().update(updates);
     //just alert user this product has been marked as sold, and will show as such on their next visit to the app.
+
   }
 
   navToComments(uid, productKey, text, name, uri) {
@@ -338,7 +396,8 @@ class Products extends Component {
               {this.state.collectionKeys.includes(section.key) ? <Icon name="heart" 
                         size={25} 
                         color='#800000'
-                        onPress={() => {this.decrementLikes(section.text.likes, section.uid, section.key)}}
+                        onLongPress={() => {this.decrementLikes(section.text.likes, section.uid, section.key)}}
+                        
 
               /> : <Icon name="heart-outline" 
                         size={25} 
@@ -491,7 +550,7 @@ class Products extends Component {
 
   render() {
 
-    var {isGetting, emptyCollection} = this.state;
+    var {productsl, activeSectionL, productsr, activeSectionR, isGetting, emptyCollection} = this.state;
 
     if(isGetting) {
       return ( 
@@ -517,8 +576,8 @@ class Products extends Component {
       >
         
         <Accordion
-          activeSection={this.state.activeSectionL}
-          sections={this.state.productsl}
+          activeSection={activeSectionL}
+          sections={productsl}
           touchableComponent={TouchableOpacity}
           renderHeader={this.renderHeader}
           renderContent={this.renderContent}
@@ -527,8 +586,8 @@ class Products extends Component {
         />
 
         <Accordion
-          activeSection={this.state.activeSectionR}
-          sections={this.state.productsr}
+          activeSection={activeSectionR}
+          sections={productsr}
           touchableComponent={TouchableOpacity}
           renderHeader={this.renderHeader}
           renderContent={this.renderContent}
