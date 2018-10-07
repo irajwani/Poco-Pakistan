@@ -28,7 +28,7 @@ class InitialScreen extends Component {
         return <HomeScreen />
     }
     
-    else if (showSignIn || signedOut){
+    else if (showSignIn){
         return <SignIn />
     } 
         
@@ -47,7 +47,6 @@ const mapStateToProps = (state) => {
         loading: state.loading,
         loggedIn: state.loggedIn,
         showSignIn: state.showSignIn,
-        signedOut: state.signedOut
     }
 }
 

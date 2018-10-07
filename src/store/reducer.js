@@ -1,10 +1,10 @@
 import firebase from '../cloud/firebase'
 
 const initialState = {
+    
     showSignIn: false,
     loading: false,
-    loggedIn: false,
-    signedOut: false
+    loggedIn: false
 
 }
 
@@ -34,9 +34,7 @@ const reducer = (state = initialState, action) => {
             break;
         
         case 'signOut':
-            firebase.auth().signOut();
-            console.log('sign out');
-            newState.signedOut = true;
+            newState.loggedIn = false;
             
         // firebase.auth().signInWithEmailAndPassword(action.email, action.pass)
             //     .then( () => {

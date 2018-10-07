@@ -8,6 +8,7 @@ import {database} from '../cloud/database';
 import { iOSColors } from 'react-native-typography';
 import LinearGradient from 'react-native-linear-gradient'
 import ReviewsList from '../components/ReviewsList.js';
+import { connect } from 'react-redux';
 const {width, height} = Dimensions.get('window');
 
 
@@ -131,8 +132,11 @@ class ProfilePage extends Component {
             />
 
             <View style={styles.profilepicWrap}>
-            {this.state.uri ? <Image style= {styles.profilepic} source={ {uri: this.state.uri} }/>
-          : <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>} 
+            {this.state.uri ? 
+              <Image style= {styles.profilepic} source={ {uri: this.state.uri} }/>
+              : 
+              <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>
+            } 
             </View>
           </View>  
 
@@ -145,7 +149,7 @@ class ProfilePage extends Component {
                           size={20} 
                           color={'#800000'}
                           onPress={() => {firebase.auth().signOut()
-                          .then(() => console.log('sccessfully signed out'))
+                          .then(() => {console.log('sccessfully signed out'); this.props.signOut })
                           .catch((err) => console.log(err)); }}
 
             />
@@ -197,7 +201,24 @@ class ProfilePage extends Component {
 
 }
 
-export default withNavigation(ProfilePage)
+// this feeds the singular store whenever the state changes
+const mapStateToProps = (state) => {
+  return {
+      //loggedIn: state.loggedIn,
+  }
+}
+
+  //if we want a component to access the store, we need to map actions to the props
+const mapDispatchToProps = (dispatch) => {
+  return {
+      //just a func to handle authentication, change the application state and store the UID
+      signOut: () => dispatch( {type: 'signOut'} )
+      // onSignInPress: (email, pass) => dispatch( {type: 'onSignInPress', email: email, pass: pass } ),
+      // showSignIn: () => dispatch( {type: 'showSignIn' } ),
+  }
+}
+
+export default withNavigation(connect(mapStateToProps, mapDispatchToProps)(ProfilePage))
 
 const styles = StyleSheet.create({
   linearGradient: {

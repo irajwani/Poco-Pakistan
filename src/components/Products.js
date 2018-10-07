@@ -1,14 +1,13 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Dimensions, View, Image, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, TouchableHighlight } from 'react-native';
+import { Dimensions, View, Image, StyleSheet, ScrollView, TouchableOpacity, } from 'react-native';
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
-import { Container, Header, Content, Card, CardItem, Thumbnail, Text, Left, Body } from 'native-base';
-import {Button, Divider} from 'react-native-elements'
+import { Text,  } from 'native-base';
+import {Button} from 'react-native-elements'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { material, systemWeights, human, iOSUIKit, iOSColors } from 'react-native-typography'
 import firebase from '../cloud/firebase.js';
-import {database, p} from '../cloud/database';
-import {storage} from '../cloud/storage';
+import {database} from '../cloud/database';
 import * as Animatable from 'react-native-animatable';
 import Collapsible from 'react-native-collapsible';
 import Accordion from 'react-native-collapsible/Accordion';
@@ -23,11 +22,6 @@ const CHATKIT_INSTANCE_LOCATOR = "v1:us1:7a5d48bb-1cda-4129-88fc-a7339330f5eb";
 
 
 var {height, width} = Dimensions.get('window');
-
-const editProductIcon = <Icon name="playlist-edit" 
-                              size={10} 
-                              color={iOSColors.white} />
-
 
 class Products extends Component {
   constructor(props) {
@@ -173,6 +167,8 @@ class Products extends Component {
         console.log('show modal that users already liked this product')
       } 
       else {
+        this.setState({ collectionKeys: this.state.collectionKeys.push(key) } ); 
+        //so the user can't add another like to the product.
         var updates = {};
         likes += 1;
         var postData = likes;
@@ -185,6 +181,18 @@ class Products extends Component {
 
     
     
+  }
+
+  decrementLikes(likes, uid, key) {
+    console.log('decrement number of likes');
+    //ask user to confirm if they'd like to unlike this product
+  }
+
+  setSaleTo(soldStatus, uid, productKey) {
+    var updates={};
+    updates['Users/' + uid + '/products/' + productKey + '/sold/'] = soldStatus;
+    firebase.database().ref().update(updates);
+    //just alert user this product has been marked as sold, and will show as such on their next visit to the app.
   }
 
   navToComments(uid, productKey, text, name, uri) {
@@ -330,7 +338,7 @@ class Products extends Component {
               {this.state.collectionKeys.includes(section.key) ? <Icon name="heart" 
                         size={25} 
                         color='#800000'
-                        onPress={() => {this.incrementLikes(section.text.likes, section.uid, section.key)}}
+                        onPress={() => {this.decrementLikes(section.text.likes, section.uid, section.key)}}
 
               /> : <Icon name="heart-outline" 
                         size={25} 
@@ -422,12 +430,21 @@ class Products extends Component {
                     />}
             
             {this.props.showYourProducts ?
-              <Icon
-                name="check-circle" 
-                size={30}  
-                color={'#0e4406'}
-                onPress = {() => console.log('this product is sold')}
-            />
+
+              section.text.sold ? 
+                <Icon
+                    name="check-circle" 
+                    size={30}  
+                    color={'#0e4406'}
+                    onPress = {() => {console.log('this product is sold'); this.setSaleTo(false, section.uid, section.key)}}
+                /> : 
+                <Icon
+                    name="check-circle" 
+                    size={30}  
+                    color={'gray'}
+                    onPress = {() => {console.log('this product is sold'); this.setSaleTo(true, section.uid, section.key)}}
+                />
+              
             :
               <Icon
                 name="tooltip-edit" 
