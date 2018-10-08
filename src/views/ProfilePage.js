@@ -9,6 +9,7 @@ import { iOSColors } from 'react-native-typography';
 import LinearGradient from 'react-native-linear-gradient'
 import ReviewsList from '../components/ReviewsList.js';
 import { connect } from 'react-redux';
+import { PacmanIndicator } from 'react-native-indicators';
 const {width, height} = Dimensions.get('window');
 
 
@@ -109,8 +110,8 @@ class ProfilePage extends Component {
 
     if(isGetting){
       return(
-        <View>
-          <Text>Loading....</Text>
+        <View style={{flex: 1}}>
+          <PacmanIndicator color='#28a526' />
         </View>
       )
     }

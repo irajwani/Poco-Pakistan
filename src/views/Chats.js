@@ -95,6 +95,10 @@ class Chats extends Component {
     this.props.navigation.navigate('CustomChat', {id: id})
   }
 
+  navToNotifications() {
+    this.props.navigation.navigate('Notifications')
+  }
+
   
   render() {
     const {chats} = this.state
@@ -117,16 +121,19 @@ class Chats extends Component {
     return (
       <ScrollView 
         contentContainerStyle={{
+          paddingTop: 15,
           flexDirection: 'column',
           flexGrow: 1,
+          justifyContent: 'flex-start',
+          alignItems: 'center'
         }}
       >
              
         {chats.map( (chat) => {
           return(
-            <View style={{flexDirection: 'column', padding: 5}}>
+            <View key={chat.name} style={{flexDirection: 'column', padding: 5}}>
               <View style={styles.separator}/>
-              <View key={chat.name} style={styles.rowContainer}>
+              <View style={styles.rowContainer}>
                 <Image source={ {uri: chat.productImageURL }} style={[styles.profilepic, styles.productcolor]} />
                   <View style={styles.infoandbuttoncontainer}>
                     <Text style={[styles.info, styles.productinfo]}>{chat.productText.name}</Text>
@@ -149,7 +156,11 @@ class Chats extends Component {
           )
             
           })}
-
+        <Button 
+                buttonStyle={styles.notifsbutton}
+                title="Notifications"
+                onPress={()=>this.navToNotifications()}
+        />  
       </ScrollView>
     )
   }
@@ -158,6 +169,14 @@ class Chats extends Component {
 export default withNavigation(Chats)
 
 const styles = StyleSheet.create({
+  notifsbutton: {
+    backgroundColor: "#20b590",
+    width: 200,
+    height: 50,
+    borderWidth: 2,
+    borderRadius: 0,
+    borderColor: "#0c5911"
+  },
   rowContainer: {
     flexDirection: 'row',
     paddingTop: 10,

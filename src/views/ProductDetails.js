@@ -139,7 +139,7 @@ class ProductDetails extends Component {
             </View> 
         </View>
         
-        <Text style={styles.priceText}> ${text.price} </Text>
+        <Text style={styles.priceText}> £{text.price} </Text>
 
 
 

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Dimensions, View, Image, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
+import { Dimensions, View, Image, StyleSheet, ScrollView, TouchableOpacity, } from 'react-native';
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import { Text,  } from 'native-base';
 import {Button} from 'react-native-elements'
@@ -87,7 +87,7 @@ class Products extends Component {
 
   }
   
-  shouldSendNotifications(arrayOfProducts) {
+  shouldSendNotifications(arrayOfProducts, your_uid) {
     for(var product of arrayOfProducts) {
       if(product.shouldReducePrice) {
         console.log('should reduce price');
@@ -96,14 +96,18 @@ class Products extends Component {
 
         PushNotification.localNotificationSchedule({
           message: message,// (required)
-          date: Platform.OS == 'ios' ? date.toISOString() : date,
+          date: date,
         });
         var postData = {
+          name: product.text.name,
+          price: product.text.price,
+          uri: product.uris[0],
+          daysElapsed: product.daysElapsed,
           message: message,
           date: date,
         }
         var notificationUpdates = {};
-        notificationUpdates['/Users/' + uid + '/notifications/' + product.key + '/'] = postData;
+        notificationUpdates['/Users/' + your_uid + '/notifications/' + product.key + '/'] = postData;
         firebase.database().ref().update(notificationUpdates);
       }
     }
@@ -124,10 +128,11 @@ class Products extends Component {
     database.then( (d) => {
       //Only pull the products that are in this user's collection
         const {showAllProducts, showCollection, showYourProducts} = this.props;
+        const uid = firebase.auth().currentUser.uid;
 
-        var productKeys = d.Users[firebase.auth().currentUser.uid].products ? Object.keys(d.Users[firebase.auth().currentUser.uid].products) : [];
+        var productKeys = d.Users[uid].products ? Object.keys(d.Users[uid].products) : [];
         //need to filter d.Users.uid.collection for only those keys that have values of true
-        var collection = d.Users[firebase.auth().currentUser.uid].collection ? d.Users[firebase.auth().currentUser.uid].collection : null;
+        var collection = d.Users[uid].collection ? d.Users[uid].collection : null;
         var rawCollectionKeys = collection ? Object.keys(collection) : []
         var collectionKeys = rawCollectionKeys ? this.removeFalsyValuesFrom(rawCollectionKeys) : ['nothing'] ;  
         var all = d.Products;
@@ -135,7 +140,7 @@ class Products extends Component {
         
         if(showAllProducts) {
             all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
-            var name = d.Users[firebase.auth().currentUser.uid].profile.name;
+            var name = d.Users[uid].profile.name;
             var productsl = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 )
             var productsr = all.slice( Math.round(all.length/2) , all.length + 1);
             this.setState({ productsl, productsr, name, collectionKeys, productKeys });
@@ -144,7 +149,7 @@ class Products extends Component {
         if(showCollection) {
             all = all.filter((product) => collectionKeys.includes(product.key) );
             all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
-            var name = d.Users[firebase.auth().currentUser.uid].profile.name;
+            var name = d.Users[uid].profile.name;
             var productsl = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 )
             var productsr = all.slice( Math.round(all.length/2) , all.length + 1);
             //get goods already in user's collection
@@ -154,17 +159,17 @@ class Products extends Component {
         if(showYourProducts) {
             //we need to identify which products have a notification set to True for a price reduction
             //loop over yourProducts and if you have a shouldReducePrice boolean of true, then schedule a notification for this individual for after thirty minutes
-            this.shouldSendNotifications(yourProducts);
+            this.shouldSendNotifications(yourProducts, uid);
             all = all.filter((product) => productKeys.includes(product.key) );
             all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
-            var name = d.Users[firebase.auth().currentUser.uid].profile.name;
+            var name = d.Users[uid].profile.name;
             var productsl = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 )
             var productsr = all.slice( Math.round(all.length/2) , all.length + 1);
             this.setState({ productsl, productsr, name, collectionKeys, productKeys });
         }
 
     })
-    .then( () => { this.setState( {isGetting: false} );  } )
+    .then( () => { console.log('finished loading');this.setState( {isGetting: false} );  } )
     .catch( (err) => {console.log(err) })
     
   }
@@ -437,7 +442,7 @@ class Products extends Component {
           
         <View style= { styles.priceMagnifyingGlassRow } >
             <Animatable.Text style={styles.price} animation={isActive ? 'bounceInRight' : undefined}>
-            ${section.text.price}
+            £{section.text.price}
             </Animatable.Text>
             <Icon name="magnify" 
                   size={22} 

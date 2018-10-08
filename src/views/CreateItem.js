@@ -14,7 +14,7 @@ import {signInContainer} from '../styles.js';
 import firebase from '../cloud/firebase.js';
 import Chatkit from "@pusher/chatkit";
 import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
-
+import { material } from 'react-native-typography';
 
 
 const Blob = RNFetchBlob.polyfill.Blob;
@@ -367,11 +367,13 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
             {/* Type of clothing */}
             <Divider style={{  backgroundColor: '#fff', height: 12 }} />
 
-            <ProductLabel color='#1271b5' title='Product Category'/>
-            <CustomModalPicker>
-                {this.showPicker(this.state.gender)}        
-            </CustomModalPicker>
-            <Text>{this.state.type}</Text>
+            <View style={styles.modalPicker}>
+                <Text style={styles.subHeading}>Product Type</Text>
+                <CustomModalPicker>
+                    {this.showPicker(this.state.gender)}        
+                </CustomModalPicker>
+                <Text style={styles.optionSelected}>{this.state.type}</Text>
+            </View>    
         
         
             {/* <Image
@@ -412,7 +414,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
         {/* 3. Product Price */}
 
             <Jiro
-                    label={'Selling Price'}
+                    label={'Selling Price (GBP)'}
                     value={this.state.price}
                     onChangeText={price => this.setState({ price })}
                     autoCorrect={false}
@@ -426,7 +428,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
             <Text>{this.formatMoney(this.state.price)}</Text>
             {/* Original Price */}
             <Jiro
-                    label={'Original Price'}
+                    label={'Original Price (GBP)'}
                     value={this.state.original_price}
                     onChangeText={original_price => this.setState({ original_price })}
                     autoCorrect={false}
@@ -449,17 +451,19 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
             />
             {/* product condition */}
             <Divider style={{  backgroundColor: '#fff', height: 12 }} />
-            <ProductLabel color='#1271b5' title="Product's Condition"/>
-            <CustomModalPicker>
-                <Picker selectedValue = {this.state.condition} onValueChange={ (condition) => {this.setState({condition})} } >
-                    <Picker.Item label = "New with tags" value = "New with tags" />
-                    <Picker.Item label = "New" value = "New" />
-                    <Picker.Item label = "Very good" value = "Very good" />
-                    <Picker.Item label = "Good" value = "Good" />
-                    <Picker.Item label = "Satisfactory" value = "Satisfactory" />
-                </Picker>
-            </CustomModalPicker> 
-            <Text>{this.state.condition}</Text>
+            <View style={styles.modalPicker}>
+                <Text style={styles.subHeading}>Product Condition</Text>
+                <CustomModalPicker>
+                    <Picker selectedValue = {this.state.condition} onValueChange={ (condition) => {this.setState({condition})} } >
+                        <Picker.Item label = "New with tags" value = "New with tags" />
+                        <Picker.Item label = "New" value = "New" />
+                        <Picker.Item label = "Very good" value = "Very good" />
+                        <Picker.Item label = "Good" value = "Good" />
+                        <Picker.Item label = "Satisfactory" value = "Satisfactory" />
+                    </Picker>
+                </CustomModalPicker> 
+                <Text style={styles.optionSelected}>{this.state.condition}</Text>
+            </View>    
 
             {/* product age (months) */}
             <View style = { {alignItems: 'center', flexDirection: 'column'} } >
@@ -557,7 +561,28 @@ const styles = StyleSheet.create({
         flexDirection: 'row'
     },
 
-    promptText: {fontSize: 12, fontStyle: 'normal', textAlign: 'center'}
+    promptText: {fontSize: 12, fontStyle: 'normal', textAlign: 'center'},
+
+    modalPicker: {
+        flexDirection: 'column',
+        paddingLeft: 20,
+        paddingRight: 20,
+        alignItems: 'center',
+    },
+
+    subHeading: {
+        ...material.subheading,
+        color: '#0c5759',
+        fontSize: 15,
+        textDecorationLine: 'underline',
+    },
+
+    optionSelected: {
+        ...material.display1,
+        fontWeight: 'bold',
+        fontSize: 18,
+        color: '#0c5925'
+    },
 })
 
 export default withNavigation(CreateItem)

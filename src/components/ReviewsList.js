@@ -34,7 +34,7 @@ export default class ReviewsList extends Component {
   render() {
     const {reviews} = this.props;
     return (
-      <View style={ {backgroundColor: '#e5e5b7'} }>
+      <View style={ {backgroundColor: '#f2ece3'} }>
         {Object.keys(reviews).map(
                  (comment) => (
                  <View key={comment} style={styles.rowContainer}>

@@ -251,8 +251,7 @@ class SignIn extends Component {
         //  }
     return (
             
-          <KeyboardAvoidingView behavior='padding'
-          style={styles.signInContainer}>
+          <View style={styles.signInContainer}>
 
             <View style={ { justifyContent: 'center', flexDirection: 'column', flex: 0.45, paddingRight: 40, paddingLeft: 40, paddingTop: 25}}>
                 <View style={styles.companyLogoContainer}>
@@ -318,7 +317,7 @@ class SignIn extends Component {
                  
                 
           
-          </KeyboardAvoidingView>
+          </View>
                   )
 
 
