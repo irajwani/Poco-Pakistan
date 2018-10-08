@@ -92,12 +92,19 @@ class Products extends Component {
       if(product.shouldReducePrice) {
         console.log('should reduce price');
         var date = new Date(Date.now() + (1200 * 1000)) // in 20 minutes
+        var message = `Nobody has initiated a chat with you about your product named, ${product.text.name}, since its submission on the market ${product.daysElapsed} days ago 🤔. Perhaps you should change it's selling price?`;
 
         PushNotification.localNotificationSchedule({
-          message: `Nobody has initiated a chat with you about your product, ${product.text.name}, yet 🤔. Tap here to give it a more attractive price`,// (required)
+          message: message,// (required)
           date: Platform.OS == 'ios' ? date.toISOString() : date,
         });
-
+        var postData = {
+          message: message,
+          date: date,
+        }
+        var notificationUpdates = {};
+        notificationUpdates['/Users/' + uid + '/notifications/' + product.key + '/'] = postData;
+        firebase.database().ref().update(notificationUpdates);
       }
     }
   }

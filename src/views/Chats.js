@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import {  StyleSheet, ScrollView, View, TouchableHighlight } from 'react-native'
-import { Container, Header, Content, Card, CardItem, Thumbnail, Text, Icon, Left, Body, Right } from 'native-base'
+import {  Dimensions, StyleSheet, ScrollView, View, Image } from 'react-native'
+import {Text} from 'native-base'
 import {Button} from 'react-native-elements';
 
 import {database} from '../cloud/database'
@@ -8,10 +8,11 @@ import firebase from '../cloud/firebase';
 import { withNavigation } from 'react-navigation';
 import Chatkit from '@pusher/chatkit';
 import { CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_INSTANCE_LOCATOR } from '../credentials/keys';
+import {material} from 'react-native-typography';
 
 const noChatsText = "You have not initiated any chats. You may initiate a conversation with a seller by choosing to 'Buy' a product from the marketplace";
 
-
+const {width} = Dimensions.get('window')
 
 class Chats extends Component {
 
@@ -53,24 +54,24 @@ class Chats extends Component {
       for(let i = 1; i < this.currentUser.rooms.length; i++) {
           
           var {createdByUserId, name, id} = this.currentUser.rooms[i]
-          var product;
+          var productText, productImageURL;
           
           d.Products.forEach( (prod) => {
-              console.log(prod.key, name);
               //given the current Room Name, we need the product key to match some part of the room name
-              //to obtain the product text
-              if(name.includes(prod.key)) { product = prod.text; console.log(product); }
+              //to obtain the correct product's properties
+              if(name.includes(prod.key)) { productText = prod.text; productImageURL = prod.uris[0]; }
           })
-          console.log(product);
           var users = this.currentUser.rooms[i].users
-
+          console.log(users);
           
           
           var obj;
           var chatUpdates = {};
           var buyer = users[0,0].name;
+          var buyerAvatar = users[0,0].avatarURL;
           var seller = users[0,1].name;
-          obj = { product: product, createdByUserId: createdByUserId, name: name, id: id, seller: seller, buyer: buyer};
+          var sellerAvatar = users[0,1].avatarURL
+          obj = { productText: productText, productImageURL: productImageURL, createdByUserId: createdByUserId, name: name, id: id, seller: seller, sellerAvatar: sellerAvatar, buyer: buyer, buyerAvatar: buyerAvatar};
           chats.push(obj);
           chatUpdates['/Users/' + CHATKIT_USER_NAME + '/chats/' + i + '/'] = obj;
           firebase.database().ref().update(chatUpdates);
@@ -123,43 +124,28 @@ class Chats extends Component {
              
         {chats.map( (chat) => {
           return(
-            <View key={chat.name}>
-              
-              
-              <Card>
-                <CardItem bordered>
-                  <Body>
-
-                    <Text> {chat.product.name} being sold by {chat.seller} </Text>
-                    
-                    
-
-                  </Body>
-                  
-                  
-                    
-                      
-                  
-                </CardItem>
-                <CardItem footer bordered>
+            <View style={{flexDirection: 'column', padding: 5}}>
+              <View style={styles.separator}/>
+              <View key={chat.name} style={styles.rowContainer}>
+                <Image source={ {uri: chat.productImageURL }} style={[styles.profilepic, styles.productcolor]} />
+                  <View style={styles.infoandbuttoncontainer}>
+                    <Text style={[styles.info, styles.productinfo]}>{chat.productText.name}</Text>
+                    <Text style={[styles.info, styles.sellerinfo]}>From: {(chat.seller.split(' '))[0]}</Text>
                     <Button
-                        small
-                        buttonStyle={{
-                            backgroundColor: "#5db2dd",
-                            width: 100,
-                            height: 40,
-                            borderColor: "transparent",
-                            borderWidth: 0,
-                            borderRadius: 5
-                        }}
-                        icon={{name: 'envelope', type: 'font-awesome'}}
-                        title='Message'
-                        onPress={() => { this.navToChat(chat.id) } } 
-                        />
-                  </CardItem>
-              </Card>
+                      small
+                      buttonStyle={styles.messagebutton}
+                      icon={{name: 'email', type: 'material-community'}}
+                      title="TALK"
+                      onPress={() => { this.navToChat(chat.id) } } 
+                    />
+                  </View>
+                <Image source={ {uri: chat.sellerAvatar }} style={[styles.profilepic, styles.profilecolor]} />
+                  
 
+              </View>
+              <View style={styles.separator}/>
             </View>
+            
           )
             
           })}
@@ -171,6 +157,65 @@ class Chats extends Component {
 
 export default withNavigation(Chats)
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  rowContainer: {
+    flexDirection: 'row',
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingLeft: 5,
+    paddingRight: 5,
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    backgroundColor: '#fff'
+  },
+  profilepic: {
+    borderWidth:1,
+    alignItems:'center',
+    justifyContent:'center',
+    width:95,
+    height:95,
+    backgroundColor:'#fff',
+    borderRadius: 47,
+    borderWidth: 2
+
+},
+  profilecolor: {
+    borderColor: '#187fe0'
+  },
+  productcolor: {
+    borderColor: '#86bb71'
+  },
+infoandbuttoncontainer: {
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingTop: 5,
+  paddingBottom: 5
+},
+info: {
+  ...material.subheading,
+},  
+productinfo: {
+  color: "#800000",
+  fontSize: 15
+},
+sellerinfo: {
+  fontSize: 12,
+  color: "#07686d"
+},
+messagebutton: {
+  backgroundColor: "#86bb71",
+  width: 75,
+  height: 45,
+  borderWidth: 2,
+  borderRadius: 5,
+  borderColor: "#187fe0"
+},
+separator: {
+  backgroundColor: 'black',
+  width: width,
+  height: 4
+},  
+})
 
 

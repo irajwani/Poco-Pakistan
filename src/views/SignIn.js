@@ -40,36 +40,8 @@ class SignIn extends Component {
       this.state = { products: [], email: '', uid: '', pass: '',};
       }
 
-      componentWillMount() {
-          this.updateProducts();
-      }
-
-    componentDidMount() {
-        navigator.geolocation.getCurrentPosition(
-			position => {
-			  var JSONData = JSON.stringify(position);
-			  var ParsedData = JSON.parse(JSONData);
-              console.log(ParsedData);
-              //const initialPosition = ParsedData.coords.latitude;
-			  
-			  //this.setState({ initialPosition });
-			},
-			error => console.log(error.message),
-			{
-			  enableHighAccuracy: true,
-			  timeout: 5000,
-			  distanceFilter: 2,
-			}
-          );
-        this.watchID = navigator.geolocation.watchPosition(position => {
-			const JSONData = JSON.stringify(position);
-			var ParsedData = JSON.parse(JSONData);
-			console.log(ParsedData);
-		  });  
-    }
-    
-    componentWillUnmount() {
-        navigator.geolocation.clearWatch(this.watchID);
+    componentWillMount() {
+        this.updateProducts();
     }
 
     arrayToObject(arr, keyField) {
@@ -170,8 +142,8 @@ class SignIn extends Component {
                     if( Object.keys(d.Users[uid].products).includes(key)  ) {
                         
                             var daysElapsed;
-                            daysElapsed = timeSince( d.Users[uid].products[key].time);
-                            daysElapsed >= 7 ? 
+                            daysElapsed = timeSince(d.Users[uid].products[key].time);
+                            (daysElapsed >= 10) && (d.Users[uid].products[key].sold == false) ? 
                                 postData = {key: key, uid: uid, uris: d.Users[uid].products[key].uris, text: d.Users[uid].products[key], daysElapsed: daysElapsed, shouldReducePrice: true }
                                 :
                                 postData = {key: key, uid: uid, uris: d.Users[uid].products[key].uris, text: d.Users[uid].products[key], daysElapsed: daysElapsed, shouldReducePrice: false };
@@ -284,7 +256,7 @@ class SignIn extends Component {
 
             <View style={ { justifyContent: 'center', flexDirection: 'column', flex: 0.45, paddingRight: 40, paddingLeft: 40, paddingTop: 25}}>
                 <View style={styles.companyLogoContainer}>
-                    <Image source={require('../images/blank.jpg')} style={styles.companyLogo}/>
+                    <Image source={require('../images/companyLogo.jpg')} style={styles.companyLogo}/>
                 </View>
                   
                 <Hoshi

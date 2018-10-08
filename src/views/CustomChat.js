@@ -4,8 +4,6 @@ import { GiftedChat } from 'react-native-gifted-chat';
 import {withNavigation} from 'react-navigation';
 import firebase from '../cloud/firebase';
 
-import Message from '../components/SlackMessage';
-
 import emojiUtils from 'emoji-utils';
 
 import Chatkit from "@pusher/chatkit";
@@ -106,25 +104,6 @@ class CustomChat extends Component {
       roomId: id,
     });
     
-  }
-
-  renderMessage(props) {
-    const { currentMessage: { text: currText } } = props;
-
-    let messageTextStyle;
-
-    // Make "pure emoji" messages much bigger than plain text.
-    if (currText && emojiUtils.isPureEmojiString(currText)) {
-      messageTextStyle = {
-        fontSize: 28,
-        // Emoji get clipped if lineHeight isn't increased; make it consistent across platforms.
-        lineHeight: Platform.OS === 'android' ? 34 : 30,
-      };
-    }
-
-    return (
-      <Message {...props} messageTextStyle={messageTextStyle} />
-    );
   }
 
   render() {

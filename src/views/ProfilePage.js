@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dimensions, Text, StyleSheet, ScrollView, View, Image, ImageBackground } from 'react-native'
+import { Dimensions, Text, StyleSheet, ScrollView, View, Image, TouchableHighlight } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Button, Divider} from 'react-native-elements'
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
@@ -144,15 +144,19 @@ class ProfilePage extends Component {
             <Text style={styles.name}>{this.state.name}</Text>
             <Text style={styles.pos}>{this.state.country} </Text>
             <Text style={styles.insta}>@{this.state.insta} </Text>
-            <Icon name="exit-to-app" 
-                  style={ styles.gear }
-                          size={20} 
-                          color={'#800000'}
-                          onPress={() => {firebase.auth().signOut()
+            <TouchableHighlight onPress={() => {firebase.auth().signOut()
                           .then(() => {console.log('sccessfully signed out'); this.props.signOut })
-                          .catch((err) => console.log(err)); }}
+                          .catch((err) => console.log(err)); }}>
+              <View>
+              <Icon name="exit-to-app" 
+                    style={ styles.gear }
+                            size={20} 
+                            color={'#800000'}
 
-            />
+              />
+              <Text>Sign Out</Text>
+              </View>
+            </TouchableHighlight>
           </View>
 
           
@@ -204,7 +208,7 @@ class ProfilePage extends Component {
 // this feeds the singular store whenever the state changes
 const mapStateToProps = (state) => {
   return {
-      //loggedIn: state.loggedIn,
+      loggedIn: state.loggedIn,
   }
 }
 
@@ -218,7 +222,7 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export default withNavigation(connect(mapStateToProps, mapDispatchToProps)(ProfilePage))
+export default connect(mapStateToProps, mapDispatchToProps)(ProfilePage);
 
 const styles = StyleSheet.create({
   linearGradient: {
