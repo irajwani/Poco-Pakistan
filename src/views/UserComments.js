@@ -6,6 +6,7 @@ import {withNavigation} from 'react-navigation';
 import {database} from '../cloud/database';
 import firebase from '../cloud/firebase';
 import { material, systemWeights, human, iOSUIKit } from 'react-native-typography'
+import { PacmanIndicator } from 'react-native-indicators';
 //for each comment, use their time of post as the key
 function timeSince(date) {
 
@@ -110,15 +111,15 @@ class UserComments extends Component {
 
         if(this.state.isGetting) {
             return ( 
-              <View>
-                <Text>Loading...</Text>
-              </View>
+                <View style={{flex: 1}}>
+                    <PacmanIndicator color='#28a526' />
+                </View>
             )
         }
 
         return (
             <View style={styles.wrapper} >
-            <ScrollView contentContainerStyle={styles.wrapper}>
+            
             <View style={styles.rowContainer}>
                 {/* row containing profile picture, and user details */}
                <Image source={ {uri: params.uri }} style={styles.profilepic} />
@@ -134,7 +135,7 @@ class UserComments extends Component {
                
              </View>
              <View style={styles.separator}/>
-
+             <ScrollView contentContainerStyle={styles.wrapper}>
              {Object.keys(comments).map(
                  (comment) => (
                  <View key={comment} style={styles.rowContainer}>
@@ -188,7 +189,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
     },
     wrapper: {
-        flex: 1
+        flex: 1,
+        paddingTop: 10
       },
     scrollcontainer: {
         padding: 15,
@@ -274,7 +276,7 @@ const styles = StyleSheet.create({
         width:70,
         height:70,
         backgroundColor:'#fff',
-        borderRadius:50,
+        borderRadius:35,
         borderWidth: 2
     
     },

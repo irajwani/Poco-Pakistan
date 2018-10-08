@@ -501,20 +501,28 @@ class Products extends Component {
                     />}
             
             {this.props.showYourProducts ?
-
               section.text.sold ? 
+              <View style={{flexDirection: 'column',}}>
+                <Text style={{color: '#0e4406', fontSize: 8 }}>Confirm</Text>
+                <Text style={{color: '#0e4406', fontSize: 8 }}>Sale</Text>
                 <Icon
                     name="check-circle" 
                     size={30}  
                     color={'#0e4406'}
                     onPress = {() => {console.log('this product is sold'); this.setSaleTo(false, section.uid, section.key)}}
-                /> : 
+                />
+               </View>  
+               : 
+               <View style={{flexDirection: 'column',}}>
+                <Text style={{color: '#0e4406', fontSize: 5 }}>Confirm</Text>
+                <Text style={{color: '#0e4406', fontSize: 5 }}>Sale</Text>
                 <Icon
                     name="check-circle" 
                     size={30}  
-                    color={'gray'}
+                    color={'black'}
                     onPress = {() => {console.log('this product is sold'); this.setSaleTo(true, section.uid, section.key)}}
                 />
+               </View>
               
             :
               <Icon
@@ -633,7 +641,8 @@ const styles = StyleSheet.create({
   contentContainerStyle: {
     flexGrow: 4,   
     flexDirection: 'row',
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
+    paddingTop: 20,
       },
 
   priceMagnifyingGlassRow: {

@@ -111,9 +111,9 @@ class Comments extends Component {
 
         if(this.state.isGetting) {
             return ( 
-              <View>
-                <Text>Loading...</Text>
-              </View>
+                <View style={{flex: 1}}>
+                    <PacmanIndicator color='#189fe2' />
+                </View>
             )
         }
 

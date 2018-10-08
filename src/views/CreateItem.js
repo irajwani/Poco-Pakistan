@@ -532,7 +532,22 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
             icon={{name: 'cloud-upload', type: 'font-awesome'}}
             title='SUBMIT TO MARKET'
             onPress={() => { 
-                this.updateFirebase(this.state, pictureuris, mime = 'image/jpg', uid , this.state.name); 
+                this.updateFirebase(this.state, pictureuris, mime = 'image/jpg', uid , this.state.name);
+                alert(`Your product ${this.state.name} is being\n uploaded to the market.\n Sign In again after a few minutes to see it.\n Please do not resubmit the same product.`);
+                this.setState({ uri: undefined,
+                                name: '',
+                                brand: '',
+                                price: 0,
+                                original_price: 0,
+                                size: 2,
+                                type: 'Trousers',
+                                gender: 2,
+                                condition: 'Good',
+                                months: 0,
+                                insta: '',
+                                description: '',
+                                typing: true, });
+                this.props.navigation.navigate('Profile');
                               } } 
             />
 
@@ -555,6 +570,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         flexDirection: 'column',
         justifyContent: 'space-between',
+        paddingTop: 15
           
     },
     imageadder: {

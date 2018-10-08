@@ -3,6 +3,7 @@ import { Text, ScrollView, View, Image, StyleSheet, TouchableHighlight } from 'r
 import { material } from 'react-native-typography'
 import { withNavigation } from 'react-navigation';
 import { database } from '../cloud/database';
+import { PacmanIndicator } from 'react-native-indicators';
 
 class Users extends Component {
     constructor(props) {
@@ -45,8 +46,8 @@ class Users extends Component {
         const {users} = this.state
         if(this.state.isGetting) {
             return (
-                <View>
-                    <Text>Loading...</Text>
+                <View style={{flex: 1}}>
+                    <PacmanIndicator color='#800000' />
                 </View>
             )
         }

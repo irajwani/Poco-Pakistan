@@ -33,20 +33,21 @@ const styles = StyleSheet.create({
     },
     companyLogoContainer: {
       justifyContent: 'center',
-      alignContent: 'center',
-      backgroundColor: '#122021'
+      alignItems: 'center',
+      backgroundColor: '#122021',
+      paddingBottom: 10
     },
     companyLogo: {
       //resizeMode: 'container',
       borderColor:'#207011',
       alignItems:'center',
       justifyContent:'center',
-      width:60,
-      height:70,
+      width:90,
+      height:100,
       backgroundColor:'#122021',
-      borderRadius:30,
-      borderWidth: 2,
-      marginLeft: (width/4)-10,
+      borderRadius:45,
+      borderWidth: 3,
+      //marginLeft: (width/4)-10,
       paddingLeft: 25,
       paddingRight: 25
   

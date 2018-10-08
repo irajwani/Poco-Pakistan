@@ -9,6 +9,7 @@ import { withNavigation } from 'react-navigation';
 import Chatkit from '@pusher/chatkit';
 import { CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_INSTANCE_LOCATOR } from '../credentials/keys';
 import {material} from 'react-native-typography';
+import { PacmanIndicator } from 'react-native-indicators';
 
 const noChatsText = "You have not initiated any chats. You may initiate a conversation with a seller by choosing to 'Buy' a product from the marketplace";
 
@@ -104,8 +105,8 @@ class Chats extends Component {
     const {chats} = this.state
     if(this.state.isGetting) {
       return ( 
-        <View>
-          <Text>Loading...</Text>
+        <View style={{flex: 1}}>
+          <PacmanIndicator color='#189fe2' />
         </View>
       )
     }

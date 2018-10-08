@@ -1,20 +1,18 @@
 import { createStackNavigator } from 'react-navigation';
 import {Animated, Easing} from 'react-native';
-import Collection from '../views/Collection';
-import ProductDetails from '../views/ProductDetails';
-import CustomChat from '../views/CustomChat';
-import Comments from '../views/Comments';
-import YourProducts from '../views/YourProducts';
+import CreateProfile from '../views/CreateProfile';
+import SignIn from '../views/SignIn';
+import MultiplePictureCamera from '../components/MultiplePictureCamera';
+import MultipleAddButton from '../components/MultipleAddButton';
 
-export const wishListToProductDetailsOrChatOrCommentsStack = createStackNavigator({
-    Collection: Collection,
-    YourProducts: YourProducts,
-    ProductDetails: ProductDetails,
-    Comments: Comments,
-    CustomChat: CustomChat,
+export const SignUpToCreateProfileStack = createStackNavigator({
+    SignIn: SignIn,
+    CreateProfile: CreateProfile,
+    MultipleAddButton: MultipleAddButton,
+    MultiplePictureCamera: MultiplePictureCamera
 },
-{
-    initialRouteName: 'Collection',
+{   
+    initalRouteName: 'SignIn',
     headerMode: 'none',
     mode: 'modal',
     navigationOptions: {
@@ -44,5 +42,5 @@ export const wishListToProductDetailsOrChatOrCommentsStack = createStackNavigato
         return { opacity, transform: [{ translateY }] };
       },
     }),
-}
-)
+  })
+

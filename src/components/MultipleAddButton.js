@@ -40,7 +40,7 @@ class MultipleAddButton extends Component {
     
     console.log(this.props.pictureuris.length);
 
-    if(this.props.navToComponent == 'EditProfile') {
+    if(this.props.navToComponent == 'EditProfile' || this.props.navToComponent == 'CreateProfile') {
       return (
         <View style={styles.headerBackground}>
         

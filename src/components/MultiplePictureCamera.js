@@ -4,9 +4,11 @@ import { RNCamera } from 'react-native-camera';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { withNavigation } from 'react-navigation';
+import { material } from 'react-native-typography';
 
 
 class MultiplePictureCamera extends Component {
+  
 
   constructor(props) {
       super(props);
@@ -34,7 +36,7 @@ class MultiplePictureCamera extends Component {
         this.setState({isLoading: false, confirmDisabled: false});
         //if the user was previously on the EditProfile Page, then send user back there, else assume
         //the user is creating an item and let them take up to 4 pictures
-        if(navToComponent == 'EditProfile') {this.confirmSelection(navToComponent)};
+        if(navToComponent == 'EditProfile' || navToComponent == 'CreateProfile') {this.confirmSelection(navToComponent)};
         if(this.state.pictureuris.length == 4) {
           this.confirmSelection(navToComponent);
         }

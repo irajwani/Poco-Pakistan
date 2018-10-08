@@ -139,25 +139,22 @@ class ProfilePage extends Component {
               <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>
             } 
             </View>
+
+            <Icon name="account-multiple" 
+                  style={styles.users}
+                          size={30} 
+                          color={'#189fe2'}
+                          onPress={() => this.props.navigation.navigate('Users')}
+
+            />
+
           </View>  
 
           <View style={styles.profileText}>
             <Text style={styles.name}>{this.state.name}</Text>
             <Text style={styles.pos}>{this.state.country} </Text>
             <Text style={styles.insta}>@{this.state.insta} </Text>
-            <TouchableHighlight onPress={() => {firebase.auth().signOut()
-                          .then(() => {console.log('sccessfully signed out'); this.props.signOut })
-                          .catch((err) => console.log(err)); }}>
-              <View>
-              <Icon name="exit-to-app" 
-                    style={ styles.gear }
-                            size={20} 
-                            color={'#800000'}
-
-              />
-              <Text>Sign Out</Text>
-              </View>
-            </TouchableHighlight>
+            
           </View>
 
           
@@ -265,8 +262,8 @@ const styles = StyleSheet.create({
   },
 
   subText: {
-    fontFamily: 'Courier-Bold',
-    fontSize: 20,
+    fontFamily: 'Iowan Old Style',
+    fontSize: 16,
     fontWeight: '400'
   },
 
@@ -298,11 +295,16 @@ const styles = StyleSheet.create({
   gear: {
     flex: 2,
   },
+  users: {
+    paddingLeft: 35,
+    paddingRight: 0,
+    marginLeft: 0
+  },
   gearAndPicRow: {
     flex: 1.4,
     flexDirection: 'row',
     paddingTop:20,
-    paddingRight: 75,
+    paddingRight: 10,
   },
   profilepicWrap: {
     width: 130,
@@ -373,5 +375,19 @@ const styles = StyleSheet.create({
 }
 
 });
+
+{/* <TouchableHighlight onPress={() => {firebase.auth().signOut()
+                          .then(() => {console.log('sccessfully signed out'); this.props.signOut })
+                          .catch((err) => console.log(err)); }}>
+              <View>
+              <Icon name="exit-to-app" 
+                    style={ styles.gear }
+                            size={20} 
+                            color={'#800000'}
+
+              />
+              <Text>Sign Out</Text>
+              </View>
+            </TouchableHighlight> */}
 
 

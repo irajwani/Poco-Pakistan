@@ -6,6 +6,7 @@ import HomeScreen from './HomeScreen';
 import firebase from '../cloud/firebase';
 
 import {connect} from 'react-redux';
+import { SignUpToCreateProfileStack } from '../stackNavigators/signUpToEditProfileStack';
 
 class InitialScreen extends Component {
   constructor(props) {
@@ -29,7 +30,7 @@ class InitialScreen extends Component {
     }
     
     else if (showSignIn){
-        return <SignIn />
+        return <SignUpToCreateProfileStack/>
     } 
         
     return <SignInOrSignUp/>

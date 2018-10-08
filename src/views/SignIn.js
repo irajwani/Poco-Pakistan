@@ -80,12 +80,12 @@ class SignIn extends Component {
                                         updates['/Users/' + user.uid + '/'] = postData;
                                         firebase.database().ref().update(updates);
                         
-                                        this.props.navigation.navigate('EditProfile')
+                                        this.props.navigation.navigate('CreateProfile')
                                         //this.setState({uid: user.uid, loggedIn: true, isGetting: false});
                                     
                                         
                                     } else {
-                                        alert('no user found');
+                                        alert('Oops, there was an error with account registration!');
                                     }
                         
                         
@@ -253,7 +253,7 @@ class SignIn extends Component {
             
           <View style={styles.signInContainer}>
 
-            <View style={ { justifyContent: 'center', flexDirection: 'column', flex: 0.45, paddingRight: 40, paddingLeft: 40, paddingTop: 25}}>
+            <View style={ { justifyContent: 'center', flexDirection: 'column', flex: 0.65, paddingRight: 40, paddingLeft: 40, paddingTop: 5}}>
                 <View style={styles.companyLogoContainer}>
                     <Image source={require('../images/companyLogo.jpg')} style={styles.companyLogo}/>
                 </View>
@@ -309,7 +309,21 @@ class SignIn extends Component {
                         }}
                         containerStyle={{ padding: 10, marginTop: 5, marginBottom: 5 }} 
                         onPress={() => {this.props.onSignInPress(this.state.email, this.state.pass)} } 
-                    /> 
+                    />
+                    <Button
+                        title='Create New Account' 
+                        titleStyle={{ fontWeight: "bold" }}
+                        buttonStyle={{
+                        backgroundColor: '#368c93',
+                        //#2ac40f
+                        width: (width)*0.70,
+                        height: 45,
+                        borderColor: "#226b13",
+                        borderWidth: 0,
+                        borderRadius: 5
+                        }}
+                        containerStyle={{ marginTop: 5, marginBottom: 5 }} 
+                        onPress={ () => {this.onSignUpPress()} } />     
              </View>}
                   
                 
