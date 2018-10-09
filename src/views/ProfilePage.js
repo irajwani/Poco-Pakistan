@@ -132,13 +132,13 @@ class ProfilePage extends Component {
 
             />
 
-            <View style={styles.profilepicWrap}>
+            
             {this.state.uri ? 
               <Image style= {styles.profilepic} source={ {uri: this.state.uri} }/>
               : 
               <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>
             } 
-            </View>
+            
 
             <Icon name="account-multiple" 
                   style={styles.users}
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   header: {
-    flex: 1,
+    flex: 1.4,
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 20,
@@ -293,20 +293,25 @@ const styles = StyleSheet.create({
   },
 
   gear: {
-    flex: 2,
+    flex: 0,
+    paddingRight: 60
   },
   users: {
-    paddingLeft: 35,
+    flex: 0,
+    paddingLeft: 60,
     paddingRight: 0,
     marginLeft: 0
   },
   gearAndPicRow: {
     flex: 1.4,
     flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
     paddingTop:20,
-    paddingRight: 10,
+    paddingRight: 0,
   },
   profilepicWrap: {
+    backgroundColor: 'black',
     width: 130,
     height: 130,
     borderRadius: 65,
@@ -314,9 +319,10 @@ const styles = StyleSheet.create({
     borderWidth: 0,
   },
   profilepic: {
-    flex: 1,
-    width: null,
-    alignSelf: 'stretch',
+    //flex: 1,
+    width: 130,
+    height: 130,
+    alignSelf: 'center',
     borderRadius: 65,
     borderColor: '#fff',
     borderWidth: 0
