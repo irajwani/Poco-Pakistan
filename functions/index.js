@@ -37,12 +37,12 @@ exports.createNewUser = functions.database.ref('/Users/{uid}/{profile}/uri/').on
     
     chatkit.createUser({
         id: uid,
-        name: name,
-        avatarURL: uri})
+        name: name
+        })
         .then( () => {
             console.log('success');
             return null})
-        .catch( () => {console.log('user already exists')});
+        .catch( () => {console.log('user already exists or failed to create new user')});
     //and if the user doesn't already have a room, right now the promise will be rejected 
     //and this function will update the user's properties.
     chatkit.updateUser({

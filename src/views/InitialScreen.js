@@ -31,9 +31,7 @@ class InitialScreen extends Component {
     
     else if (showSignIn){
         return <SignUpToCreateProfileStack/>
-    } 
-        
-    return <SignInOrSignUp/>
+    }
     
 
     

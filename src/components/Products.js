@@ -181,7 +181,7 @@ class Products extends Component {
       //add to current users WishList
       //add a like to the sellers likes count for this particular product
       //unless users already liked this product, in which case, dont do anything
-      if(this.state.collectionKeys.includes(key)) {
+      if(this.state.collectionKeys.includes(key) == true) {
         console.log('show modal that users already liked this product')
         alert("This product is already in your collection.")
       } 
@@ -214,7 +214,7 @@ class Products extends Component {
         })
 
 
-        this.setState({ collectionKeys: this.state.collectionKeys.push(key), productsl, productsr } );
+        this.setState({ productsl, productsr } );
 
 
       }
@@ -251,10 +251,10 @@ class Products extends Component {
       return null;
     })
 
-    var collectionKeys = this.state.collectionKeys.filter( (productKey) => productKey !== key)
+    //var collectionKeys = this.state.collectionKeys.filter( (productKey) => productKey !== key)
 
 
-    this.setState({ collectionKeys: collectionKeys, productsl, productsr } );
+    this.setState({ productsl, productsr } );
   }
 
   setSaleTo(soldStatus, uid, productKey) {
@@ -411,7 +411,8 @@ class Products extends Component {
                         onLongPress={() => {this.decrementLikes(section.text.likes, section.uid, section.key)}}
                         
 
-              /> : <Icon name="heart-outline" 
+              /> :  
+              <Icon name="heart-outline" 
                         size={25} 
                         color={iOSColors.white}
                         onPress={() => {this.incrementLikes(section.text.likes, section.uid, section.key)}}

@@ -91,7 +91,7 @@ class ProfilePage extends Component {
       var insaanKaNaam = d.Users[firebase.auth().currentUser.uid].profile.name;  
 
       //get list of comments for specific product
-      var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: 'No Reviews have been left for this seller. Be the first to review this individual', name: 'NottMyStyle Team', time: Date.now() } };
+      var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: Date.now() } };
       
       this.setState({ comments, name: insaanKaNaam });
       console.log(comments);
