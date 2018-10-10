@@ -1,16 +1,11 @@
 import React, { Component } from 'react';
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
-import {Provider} from 'react-redux'
-import {createStore} from 'redux'
-import reducer from './src/store/reducer.js'
+import { SignUpToCreateProfileStack } from './src/stackNavigators/signUpToEditProfileStack';
+
+// import {Provider} from 'react-redux'
+// import {createStore} from 'redux'
+// import reducer from './src/store/reducer.js'
 
 // import GalleryEntry from './src/views/GalleryEntry.js';
-// import SignIn from './src/views/SignIn.js';
 // import HomeScreen from './src/views/HomeScreen.js';
 // import ProfilePage from './src/views/ProfilePage.js';
 // import AddButton from './src/components/AddButton';
@@ -28,9 +23,7 @@ import reducer from './src/store/reducer.js'
 // import Products from './src/components/Products.js';
 // import YourProducts from './src/views/YourProducts.js';
 // import EditItem from './src/views/EditItem.js';
-import InitialScreen from './src/views/InitialScreen.js';
 
-const store = createStore(reducer);
 
 type Props = {};
 
@@ -42,9 +35,9 @@ export default class App extends Component<Props> {
     
     return (
       
-      <Provider store={store}>
-        <InitialScreen />
-      </Provider>
+      
+      <SignUpToCreateProfileStack />
+      
       
     );
   }

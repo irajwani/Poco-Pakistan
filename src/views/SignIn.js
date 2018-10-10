@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Dimensions, View, Image, KeyboardAvoidingView } from 'react-native';
-import {connect} from 'react-redux';
 
 import { Hoshi } from 'react-native-textinput-effects';
 import { PacmanIndicator } from 'react-native-indicators';
@@ -13,6 +12,8 @@ import firebase from '../cloud/firebase.js';
 import {database} from '../cloud/database';
 
 import { systemWeights, iOSColors } from 'react-native-typography';
+import HomeScreen from './HomeScreen';
+import { SignUpToCreateProfileStack } from '../stackNavigators/signUpToEditProfileStack';
 
 
 const {width,} = Dimensions.get('window');
@@ -37,7 +38,7 @@ class SignIn extends Component {
 
     constructor(props) {
       super(props);
-      this.state = { products: [], email: '', uid: '', pass: '',};
+      this.state = { products: [], email: '', uid: '', pass: '', loading: false, loggedIn: false,};
       }
 
     componentWillMount() {
@@ -53,7 +54,14 @@ class SignIn extends Component {
         this.setState({ error: '', loading: true });
         const { email, pass } = this.state; //now that person has input text, their email and password are here
         firebase.auth().signInWithEmailAndPassword(email, pass)
-            .then(() => { this.setState({ error: '', loading: false });
+            .then(() => {
+                firebase.auth().onAuthStateChanged( (user) => {
+                    if(user) {
+                        console.log(user.uid);
+                        this.setState({loading: false, loggedIn: true})
+                        
+                    }
+                })
                           //this.authChangeListener();
                           //cant do these things:
                           //firebase.database().ref('Users/7j2AnQgioWTXP7vhiJzjwXPOdLC3/').set({name: 'Imad Rajwani', attended: 1});
@@ -71,7 +79,7 @@ class SignIn extends Component {
         this.setState({ error: '', loading: true });
         const { email, pass } = this.state;
         firebase.auth().createUserWithEmailAndPassword(email, pass)
-                    .then(() => { this.setState({ error: '', loading: false });
+                    .then(() => {
                                   firebase.auth().onAuthStateChanged( (user) => {
                                     if (user) {
                                         //give the user a new branch on the firebase realtime DB
@@ -80,8 +88,8 @@ class SignIn extends Component {
                                         updates['/Users/' + user.uid + '/'] = postData;
                                         firebase.database().ref().update(updates);
                         
-                                        this.props.navigation.navigate('CreateProfile')
-                                        //this.setState({uid: user.uid, loggedIn: true, isGetting: false});
+                                        this.setState({loading: false, });
+                                        this.props.navigation.navigate('CreateProfile');
                                     
                                         
                                     } else {
@@ -93,8 +101,8 @@ class SignIn extends Component {
                                     }
                                       )
                     .catch(() => {
-                      
                       this.setState({ error: 'Authentication failed, booo hooo.', loading: false });
+                      alert(this.state.error)
                     });
     }
 
@@ -227,181 +235,105 @@ class SignIn extends Component {
     ///////////////////
     //////////////////
 
-    render() 
-     {    
-    //     var promise = new Promise(function(resolve, reject) {
-    //     var snapshot;
-    //     snapshot = firebase.database().ref('Users/' + this.state.userid + '/').once('value')
+    render() {
 
-    //     if (snapshot) {
-    //       resolve("Stuff worked!");
-    //     }
-    //     else {
-    //       reject(Error("It broke"));
-    //     }
-    //   });
-    //   var snapshot;
-    //   snapshot = firebase.database().ref('Users/' + this.state.userid + '/').once('value')
-    //   //snapshot.then( result => return console.log(result.val().name) );
-    //   console.log(snapshot);
-
-        //  {
-        //   console.log(this.state.uid); 
-        //   return ( <ProfilePage uid={this.state.uid} /> ) 
-        //  }
-    return (
-            
-          <View style={styles.signInContainer}>
-
-            <View style={ { justifyContent: 'center', flexDirection: 'column', flex: 0.65, paddingRight: 40, paddingLeft: 40, paddingTop: 5}}>
-                <View style={styles.companyLogoContainer}>
-                    <Image source={require('../images/companyLogo.jpg')} style={styles.companyLogo}/>
-                </View>
-                  
-                <Hoshi
-                    label={'Email Address'}
-                    labelStyle={ {color: iOSColors.gray, ...systemWeights.regular} }
-                    value={this.state.email}
-                    onChangeText={email => this.setState({ email })}
-                    autoCorrect={false}
-                    // this is used as active border color
-                    borderColor={'#122021'}
-                    // this is used to set backgroundColor of label mask.
-                    // please pass the backgroundColor of your TextInput container.
-                    backgroundColor={'#122021'}
-                    inputStyle={{ color: '#0d7018' }}
-                />
-                <Hoshi
-                    label={'Password'}
-                    labelStyle={ {color: iOSColors.gray, ...systemWeights.regular} }
-                    value={this.state.pass}
-                    onChangeText={pass => this.setState({ pass })}
-                    autoCorrect={false}
-                    secureTextEntry
-                    // this is used as active border color
-                    borderColor={'#122021'}
-                    // this is used to set backgroundColor of label mask.
-                    backgroundColor={'#122021'}
-                    // please pass the backgroundColor of your TextInput container.
-                    inputStyle={{ color: '#0d7018' }}
-                />
-            </View>
-            {this.props.loading ? 
-                <View style={{flex: 1}}>
-                    <PacmanIndicator color='#28a526' />
-                </View>
-                :
-                <View style={{ padding: 20, alignContent: 'center'}}>
-                    <Button
-                        title='Sign In' 
-                        titleStyle={{ fontWeight: "700" }}
-                        buttonStyle={{
-                        backgroundColor: "#16994f",
-                        //#2ac40f
-                        //#45bc53
-                        //#16994f
-                        width: (width)*0.70,
-                        height: 45,
-                        borderColor: "#37a1e8",
-                        borderWidth: 0,
-                        borderRadius: 5,
-                        
-                        }}
-                        containerStyle={{ padding: 10, marginTop: 5, marginBottom: 5 }} 
-                        onPress={() => {this.props.onSignInPress(this.state.email, this.state.pass)} } 
-                    />
-                    <Button
-                        title='Create New Account' 
-                        titleStyle={{ fontWeight: "bold" }}
-                        buttonStyle={{
-                        backgroundColor: '#368c93',
-                        //#2ac40f
-                        width: (width)*0.70,
-                        height: 45,
-                        borderColor: "#226b13",
-                        borderWidth: 0,
-                        borderRadius: 5
-                        }}
-                        containerStyle={{ marginTop: 5, marginBottom: 5 }} 
-                        onPress={ () => {this.onSignUpPress()} } />     
-             </View>}
-                  
-                
-
-                 
-                
-          
-          </View>
-                  )
-
-
-                
-
+        const {loggedIn, loading, signUpProcedure} = this.state;
+    
+        if(loggedIn) {
+            return <HomeScreen/>
+        }
         
-    }
+        return (
+                
+            <View style={styles.signInContainer}>
+
+                <View style={ { justifyContent: 'center', flexDirection: 'column', flex: 0.65, paddingRight: 40, paddingLeft: 40, paddingTop: 5}}>
+                    <View style={styles.companyLogoContainer}>
+                        <Image source={require('../images/companyLogo.jpg')} style={styles.companyLogo}/>
+                    </View>
+                    
+                    <Hoshi
+                        label={'Email Address'}
+                        labelStyle={ {color: iOSColors.gray, ...systemWeights.regular} }
+                        value={this.state.email}
+                        onChangeText={email => this.setState({ email })}
+                        autoCorrect={false}
+                        // this is used as active border color
+                        borderColor={'#122021'}
+                        // this is used to set backgroundColor of label mask.
+                        // please pass the backgroundColor of your TextInput container.
+                        backgroundColor={'#122021'}
+                        inputStyle={{ color: '#0d7018' }}
+                    />
+                    <Hoshi
+                        label={'Password'}
+                        labelStyle={ {color: iOSColors.gray, ...systemWeights.regular} }
+                        value={this.state.pass}
+                        onChangeText={pass => this.setState({ pass })}
+                        autoCorrect={false}
+                        secureTextEntry
+                        // this is used as active border color
+                        borderColor={'#122021'}
+                        // this is used to set backgroundColor of label mask.
+                        backgroundColor={'#122021'}
+                        // please pass the backgroundColor of your TextInput container.
+                        inputStyle={{ color: '#0d7018' }}
+                    />
+                </View>
+                {loading ? 
+                    <View style={{flex: 1, paddingTop: 20}}>
+                        <PacmanIndicator color='#28a526' />
+                    </View>
+                    :
+                    <View style={{ padding: 20, alignContent: 'center'}}>
+                        <Button
+                            title='Sign In' 
+                            titleStyle={{ fontWeight: "700" }}
+                            buttonStyle={{
+                            backgroundColor: "#16994f",
+                            //#2ac40f
+                            //#45bc53
+                            //#16994f
+                            width: (width)*0.70,
+                            height: 45,
+                            borderColor: "#37a1e8",
+                            borderWidth: 0,
+                            borderRadius: 5,
+                            
+                            }}
+                            containerStyle={{ padding: 10, marginTop: 5, marginBottom: 5 }} 
+                            onPress={() => {this.onSignInPress()} } 
+                        />
+                        <Button
+                            title='Create New Account' 
+                            titleStyle={{ fontWeight: "bold" }}
+                            buttonStyle={{
+                            backgroundColor: '#368c93',
+                            //#2ac40f
+                            width: (width)*0.70,
+                            height: 45,
+                            borderColor: "#226b13",
+                            borderWidth: 0,
+                            borderRadius: 5
+                            }}
+                            containerStyle={{ marginTop: 5, marginBottom: 5 }} 
+                            onPress={ () => {this.onSignUpPress()} } />     
+                </View>}
+                    
+                    
+
+                    
+                    
+            
+            </View>
+                    )
 
 
+                    
 
-    ////////////////////////
-    ////////////////////////
+            
+        }
 
-    // render() 
-    //  {    
-    // //     var promise = new Promise(function(resolve, reject) {
-    // //     var snapshot;
-    // //     snapshot = firebase.database().ref('Users/' + this.state.userid + '/').once('value')
-
-    // //     if (snapshot) {
-    // //       resolve("Stuff worked!");
-    // //     }
-    // //     else {
-    // //       reject(Error("It broke"));
-    // //     }
-    // //   });
-    // //   var snapshot;
-    // //   snapshot = firebase.database().ref('Users/' + this.state.userid + '/').once('value')
-    // //   //snapshot.then( result => return console.log(result.val().name) );
-    // //   console.log(snapshot);
-    //   if (this.state.loggedIn) {
-    //     //console.log(this.state.uid);
-    //     if (this.state.isGetting) {
-
-    //       return (
-
-    //       <View style={[styles.horizontal, styles.aicontainer]}>
-    //                     <ActivityIndicator size="large" color="#0000ff"/>
-    //                </View>
-
-    //     );  } else { return ( <View><Text>What up</Text></View> ) }
-
-    //      } else {
-    //       return (
-    //       <View>
-    //               <TextInputField
-    //                   label='Email Address'
-    //                   placeholder='youremailaddress@bates.edu'
-    //                   value={this.state.email}
-    //                   onChangeText={email => this.setState({ email })}
-    //                   autoCorrect={false}
-    //               />
-    //               <TextInputField
-    //                   label='Password'
-    //                   autoCorrect={false}
-    //                   placeholder='Your Password'
-    //                   secureTextEntry
-    //                   value={this.state.pass}
-    //                   onChangeText={pass => this.setState({ pass })}
-    //               />
-    //               <Text>{this.state.error}</Text>
-    //               {this.renderButtonOrLoading()}
-    //       </View>
-    //               )
-
-
-
-
-    //     }
-    // }
 }
 
 // this feeds the singular store whenever the state changes
@@ -420,4 +352,4 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SignIn)
+export default SignIn;

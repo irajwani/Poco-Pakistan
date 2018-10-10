@@ -26,7 +26,7 @@ admin.initializeApp();
 // });
 
 //FUNCTION NUMBAH 1 :
-exports.createNewUser = functions.database.ref('/Users/{uid}/{profile}/uri/').onUpdate( 
+exports.createNewUser = functions.database.ref('/Users/{uid}/{profile}/uri/').onCreate( 
     (snapshot, context) => { 
     console.log('User edited profile and added name');
     var uri = snapshot.after.val();

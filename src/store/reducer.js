@@ -18,9 +18,18 @@ const reducer = (state = initialState, action) => {
             newState.loading = true;
             //hopefully this forcibly renders pacman:
             newState.signedOut = false;
-            firebase.auth().signInWithEmailAndPassword(action.email, action.pass);
-            newState.loading = false;
-            newState.loggedIn = true;
+            firebase.auth().signInWithEmailAndPassword(action.email, action.pass)
+            
+            firebase.auth().onAuthStateChanged( (user) => {
+                    if(user) {
+                        console.log(user.uid);
+                        newState.loading = false; 
+                        newState.loggedIn = true;
+                        
+                    }
+                })
+            
+            
             
             
             //newState.uid = firebase.auth().currentUser.uid

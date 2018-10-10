@@ -8,7 +8,6 @@ import {database} from '../cloud/database';
 import { iOSColors } from 'react-native-typography';
 import LinearGradient from 'react-native-linear-gradient'
 import ReviewsList from '../components/ReviewsList.js';
-import { connect } from 'react-redux';
 import { PacmanIndicator } from 'react-native-indicators';
 const {width, height} = Dimensions.get('window');
 
@@ -52,7 +51,7 @@ class ProfilePage extends Component {
       const uid = firebase.auth().currentUser.uid;
       this.getProducts(uid);
       this.getComments(uid);
-    }, 3000);
+    }, 1000);
     
   }
 
@@ -220,7 +219,7 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProfilePage);
+export default ProfilePage;
 
 const styles = StyleSheet.create({
   linearGradient: {
