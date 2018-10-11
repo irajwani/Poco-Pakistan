@@ -332,7 +332,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
     const pictureuris = params ? params.pictureuris : 'nothing here'
     //const picturebase64 = params ? params.base64 : 'nothing here'
     //Lenient condition, Array.isArray(pictureuris) && pictureuris.length >= 1
-    var conditionMet = (this.state.name) && (this.state.months >= 0) && (this.state.price > 0)
+    var conditionMet = (this.state.name) && (this.state.months >= 0) && (this.state.price > 0) && (Array.isArray(pictureuris) && pictureuris.length >= 1)
     console.log(conditionMet);
     //console.log(pictureuri);
     //this.setState({uri: params.uri})

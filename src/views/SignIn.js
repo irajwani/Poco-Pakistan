@@ -281,7 +281,7 @@ class SignIn extends Component {
                     />
                 </View>
                 {loading ? 
-                    <View style={{flex: 1, paddingTop: 20}}>
+                    <View >
                         <PacmanIndicator color='#28a526' />
                     </View>
                     :

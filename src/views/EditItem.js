@@ -9,9 +9,11 @@ import RNFetchBlob from 'react-native-fetch-blob';
 import MultipleAddButton from '../components/MultipleAddButton';
 import accounting from 'accounting'
 import ProductLabel from '../components/ProductLabel.js';
-import {signInContainer} from '../styles.js';
+import { material } from 'react-native-typography';
 import firebase from '../cloud/firebase.js';
 import Chatkit from "@pusher/chatkit";
+import { CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_INSTANCE_LOCATOR, CHATKIT_SECRET_KEY } from '../credentials/keys';
+
 
 const Blob = RNFetchBlob.polyfill.Blob;
 const fs = RNFetchBlob.fs;
@@ -316,9 +318,6 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
 
   createRoom(key) {
     //create a new room with product id, and add buyer as member of room.  
-    const CHATKIT_SECRET_KEY = "9b627f79-3aba-48df-af55-838bbb72222d:Pk9vcGeN/h9UQNGVEv609zhjyiPKtmnd0hlBW2T4Hfw="
-    const CHATKIT_TOKEN_PROVIDER_ENDPOINT = "https://us1.pusherplatform.io/services/chatkit_token_provider/v1/7a5d48bb-1cda-4129-88fc-a7339330f5eb/token";
-    const CHATKIT_INSTANCE_LOCATOR = "v1:us1:7a5d48bb-1cda-4129-88fc-a7339330f5eb";
 
     const CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
     // This will create a `tokenProvider` object. This object will be later used to make a Chatkit Manager instance.
@@ -359,7 +358,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
     const postKey = params.data.key;
     //const picturebase64 = params ? params.base64 : 'nothing here'
     //Lenient condition, Array.isArray(pictureuris) && pictureuris.length >= 1
-    var conditionMet = (this.state.name) && (this.state.months > 0) && (this.state.price > 0)
+    var conditionMet = (this.state.name) && (this.state.months > 0) && (this.state.price > 0) && (Array.isArray(pictureuris) && pictureuris.length >= 1)
     console.log(conditionMet);
     //console.log(pictureuri);
     //this.setState({uri: params.uri})
@@ -394,8 +393,14 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
             {/* Type of clothing */}
             <Divider style={{  backgroundColor: '#fff', height: 12 }} />
 
-            <ProductLabel color='#1271b5' title='Product Category'/>            
-        {this.showPicker(this.state.gender)}
+            <View style={styles.modalPicker}>
+                <Text style={styles.subHeading}>Product Type</Text>
+                <CustomModalPicker>
+                    {this.showPicker(this.state.gender)}        
+                </CustomModalPicker>
+                <Text style={styles.optionSelected}>{this.state.type}</Text>
+            </View>    
+        
         
             {/* <Image
             style={{width: '25%', height: '25%', opacity: 1.0}} 
@@ -435,7 +440,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
         {/* 3. Product Price */}
 
             <Jiro
-                    label={'Selling Price'}
+                    label={'Selling Price (GBP)'}
                     value={this.state.price}
                     onChangeText={price => this.setState({ price })}
                     autoCorrect={false}
@@ -449,7 +454,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
             <Text>{this.formatMoney(this.state.price)}</Text>
             {/* Original Price */}
             <Jiro
-                    label={'Original Price'}
+                    label={'Original Price (GBP)'}
                     value={this.state.original_price}
                     onChangeText={original_price => this.setState({ original_price })}
                     autoCorrect={false}
@@ -472,14 +477,19 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
             />
             {/* product condition */}
             <Divider style={{  backgroundColor: '#fff', height: 12 }} />
-            <ProductLabel color='#1271b5' title="Product's Condition"/> 
-            <Picker selectedValue = {this.state.condition} onValueChange={ (condition) => {this.setState({condition})} } >
-               <Picker.Item label = "New with tags" value = "New with tags" />
-               <Picker.Item label = "New" value = "New" />
-               <Picker.Item label = "Very good" value = "Very good" />
-               <Picker.Item label = "Good" value = "Good" />
-               <Picker.Item label = "Satisfactory" value = "Satisfactory" />
-            </Picker>
+            <View style={styles.modalPicker}>
+                <Text style={styles.subHeading}>Product Condition</Text>
+                <CustomModalPicker>
+                    <Picker selectedValue = {this.state.condition} onValueChange={ (condition) => {this.setState({condition})} } >
+                        <Picker.Item label = "New with tags" value = "New with tags" />
+                        <Picker.Item label = "New" value = "New" />
+                        <Picker.Item label = "Very good" value = "Very good" />
+                        <Picker.Item label = "Good" value = "Good" />
+                        <Picker.Item label = "Satisfactory" value = "Satisfactory" />
+                    </Picker>
+                </CustomModalPicker> 
+                <Text style={styles.optionSelected}>{this.state.condition}</Text>
+            </View>    
 
             {/* product age (months) */}
             <View style = { {alignItems: 'center', flexDirection: 'column'} } >
@@ -549,7 +559,8 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
             title='(RE)SUBMIT TO MARKET'
             onPress={() => { 
                 this.updateFirebase(this.state, pictureuris, mime = 'image/jpg', uid , this.state.name, postKey); 
-                              } } 
+                  } }
+
             />
 
             <Divider style={{  backgroundColor: '#fff', height: 10 }} />
@@ -565,20 +576,42 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
   }
 }
 
+export default withNavigation(EditItem)
+
 const styles = StyleSheet.create({
     contentContainer: {
         flexGrow: 1, 
         backgroundColor: '#fff',
         flexDirection: 'column',
         justifyContent: 'space-between',
+        paddingTop: 15
           
     },
     imageadder: {
         flexDirection: 'row'
     },
 
-    promptText: {fontSize: 12, fontStyle: 'normal', textAlign: 'center'}
-})
+    promptText: {fontSize: 12, fontStyle: 'normal', textAlign: 'center'},
 
-export default withNavigation(EditItem)
+    modalPicker: {
+        flexDirection: 'column',
+        paddingLeft: 20,
+        paddingRight: 20,
+        alignItems: 'center',
+    },
+
+    subHeading: {
+        ...material.subheading,
+        color: '#0c5759',
+        fontSize: 15,
+        textDecorationLine: 'underline',
+    },
+
+    optionSelected: {
+        ...material.display1,
+        fontWeight: 'bold',
+        fontSize: 18,
+        color: '#0c5925'
+    },
+})
 

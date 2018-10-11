@@ -262,6 +262,8 @@ class Products extends Component {
     updates['Users/' + uid + '/products/' + productKey + '/sold/'] = soldStatus;
     firebase.database().ref().update(updates);
     //just alert user this product has been marked as sold, and will show as such on their next visit to the app.
+    var status = soldStatus ? 'sold' : 'available for purchase'
+    alert(`Product has been marked as ${status}.\n If you wish to see the effects of this change immediately,\n please close and open NottMyStyle`)
 
   }
 
@@ -420,11 +422,22 @@ class Products extends Component {
               />}
 
               <Text style={styles.likes}>{section.text.likes}</Text>
-            </View>  
-            <Image 
-            source={{uri: section.uris[0]}}
-            style={{ height: 190, width: (width/2 - 18), zIndex: -1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, resizeMode: 'cover' }} 
-            />
+            </View>
+            {section.text.sold ? 
+              <View style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center'}}>
+                <Text style={styles.soldText}>SOLD</Text>
+                <Image 
+                source={{uri: section.uris[0]}}
+                style={{ height: 190, width: (width/2 - 18), zIndex: -1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, resizeMode: 'cover' }} 
+                />
+              </View>
+              
+             :
+             <Image 
+                source={{uri: section.uris[0]}}
+                style={{ height: 190, width: (width/2 - 18), zIndex: -1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, resizeMode: 'cover' }} 
+             />
+            }  
         </View>        
 
                 
@@ -510,7 +523,7 @@ class Products extends Component {
                     name="check-circle" 
                     size={30}  
                     color={'#0e4406'}
-                    onPress = {() => {console.log('this product is sold'); this.setSaleTo(false, section.uid, section.key)}}
+                    onPress = {() => {console.log('setting product status to available for purchase'); this.setSaleTo(false, section.uid, section.key)}}
                 />
                </View>  
                : 
@@ -521,7 +534,7 @@ class Products extends Component {
                     name="check-circle" 
                     size={30}  
                     color={'black'}
-                    onPress = {() => {console.log('this product is sold'); this.setSaleTo(true, section.uid, section.key)}}
+                    onPress = {() => {console.log('setting product status to sold'); this.setSaleTo(true, section.uid, section.key)}}
                 />
                </View>
               
@@ -660,8 +673,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'space-between', padding: 5, marginRight: 30
   },
 
-  boldText: {fontFamily: 'verdana', fontSize: 9, fontWeight: 'bold', color: 'blue'},    
+  boldText: {fontFamily: 'verdana', fontSize: 9, fontWeight: 'bold', color: 'blue'},  
 
+  soldText: {
+    fontFamily: 'Iowan Old Style', 
+    fontSize: 25, 
+    fontWeight: 'bold',
+    color: '#800000',
+    transform: [{ rotate: '-45deg'}],
+    borderColor: "#800000",
+    borderWidth: 2,
+    borderRadius: 10
+  },
+  
   likes: {
     ...iOSUIKit.largeTitleEmphasized,
     color: '#c61919',
