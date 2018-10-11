@@ -140,7 +140,7 @@ class CreateProfile extends Component {
     const uid = firebase.auth().currentUser.uid;
     const {params} = this.props.navigation.state
     const pictureuris = params ? params.pictureuris : 'nothing here'
-    var conditionMet = (this.state.name) && (this.state.country) && (pictureuris[0] !== 'nothing here')
+    var conditionMet = (this.state.name) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1)
 
     return (
       <ScrollView contentContainerStyle={styles.container}>

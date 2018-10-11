@@ -84,7 +84,7 @@ class SignIn extends Component {
                                     if (user) {
                                         //give the user a new branch on the firebase realtime DB
                                         var updates = {};
-                                        var postData = {products: '', profile: ''}
+                                        var postData = {products: ''}
                                         updates['/Users/' + user.uid + '/'] = postData;
                                         firebase.database().ref().update(updates);
                         
@@ -101,7 +101,7 @@ class SignIn extends Component {
                                     }
                                       )
                     .catch(() => {
-                      this.setState({ error: 'Authentication failed, booo hooo.', loading: false });
+                      this.setState({ error: 'You already have a NottMyStyle account. Please use your credentials to Sign In', loading: false });
                       alert(this.state.error)
                     });
     }
@@ -203,35 +203,6 @@ class SignIn extends Component {
                   }
 
 
-
-    renderButtonOrLoading() {
-        if (this.props.loading) {
-            return <View style={{flex: 1}}>
-                        <PacmanIndicator color='#28a526' />
-                   </View>
-        }
-        return (
-            <View>
-                <Button
-                    title='Sign In' 
-                    titleStyle={{ fontWeight: "700" }}
-                    buttonStyle={{
-                    backgroundColor: "#16994f",
-                    //#2ac40f
-                    //#45bc53
-                    //#16994f
-                    width: (width)*0.70,
-                    height: 45,
-                    borderColor: "#37a1e8",
-                    borderWidth: 0,
-                    borderRadius: 5
-                    }}
-                    containerStyle={{ marginTop: 5, marginBottom: 5 }} onPress={() => {this.props.onSignInPress(this.state.email, this.state.pass)} } />;
-            </View> 
-            )
-    }
-
-
     ///////////////////
     //////////////////
 
@@ -281,7 +252,7 @@ class SignIn extends Component {
                     />
                 </View>
                 {loading ? 
-                    <View >
+                    <View style={{flex: 0.5}}>
                         <PacmanIndicator color='#28a526' />
                     </View>
                     :
