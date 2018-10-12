@@ -16,6 +16,7 @@ import PushNotification from 'react-native-push-notification';
 
 import Chatkit from "@pusher/chatkit";
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
+import { PacmanIndicator } from 'react-native-indicators';
 
 
 var {height, width} = Dimensions.get('window');
@@ -30,6 +31,7 @@ class Products extends Component {
         activeSectionL: false,
         activeSectionR: false,
         collapsed: true,
+        navToChatLoading: false,
       };
       //this.navToChat = this.navToChat.bind(this);
   }
@@ -56,7 +58,8 @@ class Products extends Component {
           const {userInteraction} = notification;
           console.log( 'NOTIFICATION:', notification, userInteraction );
           if(userInteraction) {
-            this.props.navigation.navigate('YourProducts');
+            //this.props.navigation.navigate('YourProducts');
+            alert('You may edit item details by going to your profile page\n and tapping the number of products on sale');
           }
           
           //userInteraction ? this.navToEditItem() : console.log('user hasnt pressed notification, so do nothing');
@@ -291,7 +294,7 @@ class Products extends Component {
 
     //if you posted this product yourself, then buying it is trivial,
     //and you should see a modal saying 'you own this product already'
-
+    this.setState({navToChatLoading: true});
     console.log(key);
     //create separate Chats branch
     const CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
@@ -318,6 +321,7 @@ class Products extends Component {
 
       if(this.currentUser.rooms.length > 0 && roomExists.length > 0) {
         console.log('no need to create a brand new room');
+        this.setState({navToChatLoading: false});
         this.props.navigation.navigate( 'CustomChat', {id: this.findRoomId(this.currentUser.rooms, desiredRoomsName)} )
 
       }
@@ -329,6 +333,7 @@ class Products extends Component {
           addUserIds: [uid]
         }).then(room => {
           console.log(`Created room called ${room.name}`)
+          this.setState({navToChatLoading: false});
           this.props.navigation.navigate( 'CustomChat', {id: this.findRoomId(this.currentUser.rooms, desiredRoomsName)} )
         })
         .catch(err => {
@@ -584,7 +589,7 @@ class Products extends Component {
 
   render() {
 
-    var {productsl, activeSectionL, productsr, activeSectionR, isGetting, emptyCollection} = this.state;
+    var {productsl, activeSectionL, productsr, activeSectionR, isGetting, emptyCollection, navToChatLoading} = this.state;
 
     if(isGetting) {
       return ( 
@@ -600,6 +605,14 @@ class Products extends Component {
                 <Text>You haven't liked any items on the marketplace yet.</Text>
             </View>
         )
+    }
+
+    if(navToChatLoading) {
+      return(
+        <View style={{flex: 1}}>
+          <PacmanIndicator color='#186f87' />
+        </View>
+      )
     }
     
     return (

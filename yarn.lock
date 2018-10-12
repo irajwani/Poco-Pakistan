@@ -551,11 +551,11 @@
   version "0.2.8"
   resolved "https://registry.yarnpkg.com/@firebase/webchannel-wrapper/-/webchannel-wrapper-0.2.8.tgz#38a936b60b898a1ad0f3719543ff1a1031f60f8b"
 
-"@pusher/chatkit@^0.7.17":
-  version "0.7.17"
-  resolved "https://registry.yarnpkg.com/@pusher/chatkit/-/chatkit-0.7.17.tgz#2f3229e3ec04590924d6f6719da4d1e158825f57"
+"@pusher/chatkit@^0.7.18":
+  version "0.7.18"
+  resolved "https://registry.yarnpkg.com/@pusher/chatkit/-/chatkit-0.7.18.tgz#7c239cfa76728a9382bb94bb1c8ddc91fdf6ce37"
   dependencies:
-    pusher-platform "^0.15.1"
+    pusher-platform "^0.15.2"
     ramda "^0.25.0"
 
 abab@^1.0.4:
@@ -4618,9 +4618,9 @@ punycode@^2.1.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
 
-pusher-platform@^0.15.1:
-  version "0.15.1"
-  resolved "https://registry.yarnpkg.com/pusher-platform/-/pusher-platform-0.15.1.tgz#e8ff7e59f8440ddae6dd71a50e4796400b7ec62f"
+pusher-platform@^0.15.2:
+  version "0.15.2"
+  resolved "https://registry.yarnpkg.com/pusher-platform/-/pusher-platform-0.15.2.tgz#802726b1ffbc8988f1f827e69d8f6b992b8ca9fc"
 
 qs@~6.5.1:
   version "6.5.2"

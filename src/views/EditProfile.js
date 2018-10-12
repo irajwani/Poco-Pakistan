@@ -219,6 +219,7 @@ class EditProfile extends Component {
             title='SAVE'
             onPress={() => {
                             this.updateFirebase(this.state, pictureuris[0], mime = 'image/jpg', uid );
+                            alert('Close the application, wait a few seconds for changes to take effect, and then reopen the app')
                             this.props.navigation.navigate('ProfilePage'); 
                             } } 
         />

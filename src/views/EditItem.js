@@ -316,6 +316,21 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
     // }
   }
 
+  deleteProduct(uid, key) {
+    firebase.database().ref('/Users/' + uid + '/products/' + key + '/').remove( 
+        ()=>{
+        alert('Your product has been successfully deleted.\n Please restart the app and wait a few seconds for these changes to take effect.')
+        this.props.navigation.navigate('ProfilePage');
+    })
+    .then( () => {
+        console.log('product has been successfully removed')
+    })
+    .catch( (err)=> {
+        console.log(err);
+    });
+
+  }
+
   createRoom(key) {
     //create a new room with product id, and add buyer as member of room.  
 
@@ -543,7 +558,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
             />
             
             </KeyboardAvoidingView>
-
+            {/* RESUBMIT EDITED PRODUCT */}
             <Button
             large
             disabled = { conditionMet ? false : true}
@@ -559,6 +574,23 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
             title='(RE)SUBMIT TO MARKET'
             onPress={() => { 
                 this.updateFirebase(this.state, pictureuris, mime = 'image/jpg', uid , this.state.name, postKey); 
+                  } }
+
+            />
+            {/* DELETE PRODUCT */}
+            <Button
+            buttonStyle={{
+                backgroundColor: "#800000",
+                width: 280,
+                height: 60,
+                borderColor: "transparent",
+                borderWidth: 0,
+                borderRadius: 25
+            }}
+            icon={{name: 'delete-empty', type: 'material-community'}}
+            title='DELETE PRODUCT'
+            onPress={() => { 
+                this.deleteProduct(uid, postKey);
                   } }
 
             />

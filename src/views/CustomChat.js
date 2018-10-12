@@ -129,7 +129,6 @@ class CustomChat extends Component {
         showAvatarForEveryMessage={false}
         renderAvatarOnTop={true}
         loadEarlier={true}
-        isLoadingEarlier={true}
           
         
       />

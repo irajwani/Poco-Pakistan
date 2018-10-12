@@ -11,7 +11,7 @@ import { CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_INSTANCE_LOCATOR } from '../cr
 import {material} from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
 
-const noChatsText = "You have not initiated any chats. You may initiate a conversation with a seller by choosing to 'Buy' a product from the marketplace";
+const noChatsText = "You have not initiated any chats. You may initiate a conversation with a seller by choosing to 'Buy' a product from the Marketplace";
 
 const {width} = Dimensions.get('window')
 
@@ -29,7 +29,7 @@ class Chats extends Component {
   }
 
   getChats() {
-    //get chats for particular user
+    //first generate, and then retrieve chats for particular user
     database.then( (d) => {
       var chats = [];
       
@@ -113,8 +113,8 @@ class Chats extends Component {
 
     if(this.state.noChats) {
       return (
-        <View>
-          <Text>{noChatsText}</Text>
+        <View style={{flex: 1, alignItems: 'center'}}>
+          <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'blue'}}>{noChatsText}</Text>
         </View>
       )
     }

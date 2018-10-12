@@ -75,36 +75,36 @@ class SignIn extends Component {
 
     }
 
-    onSignUpPress() {
-        this.setState({ error: '', loading: true });
-        const { email, pass } = this.state;
-        firebase.auth().createUserWithEmailAndPassword(email, pass)
-                    .then(() => {
-                                  firebase.auth().onAuthStateChanged( (user) => {
-                                    if (user) {
-                                        //give the user a new branch on the firebase realtime DB
-                                        var updates = {};
-                                        var postData = {products: ''}
-                                        updates['/Users/' + user.uid + '/'] = postData;
-                                        firebase.database().ref().update(updates);
+    // onSignUpPress() {
+    //     this.setState({ error: '', loading: true });
+    //     const { email, pass } = this.state;
+    //     firebase.auth().createUserWithEmailAndPassword(email, pass)
+    //                 .then(() => {
+    //                               firebase.auth().onAuthStateChanged( (user) => {
+    //                                 if (user) {
+    //                                     //give the user a new branch on the firebase realtime DB
+    //                                     var updates = {};
+    //                                     var postData = {products: ''}
+    //                                     updates['/Users/' + user.uid + '/'] = postData;
+    //                                     firebase.database().ref().update(updates);
                         
-                                        this.setState({loading: false, });
-                                        this.props.navigation.navigate('CreateProfile');
+    //                                     this.setState({loading: false, });
+    //                                     this.props.navigation.navigate('CreateProfile');
                                     
                                         
-                                    } else {
-                                        alert('Oops, there was an error with account registration!');
-                                    }
+    //                                 } else {
+    //                                     alert('Oops, there was an error with account registration!');
+    //                                 }
                         
                         
-                                } )
-                                    }
-                                      )
-                    .catch(() => {
-                      this.setState({ error: 'You already have a NottMyStyle account. Please use your credentials to Sign In', loading: false });
-                      alert(this.state.error)
-                    });
-    }
+    //                             } )
+    //                                 }
+    //                                   )
+    //                 .catch(() => {
+    //                   this.setState({ error: 'You already have a NottMyStyle account. Please use your credentials to Sign In', loading: false });
+    //                   alert(this.state.error)
+    //                 });
+    // }
 
     // getData(snapshot) {
     //     details = {
@@ -137,10 +137,10 @@ class SignIn extends Component {
             }
             console.log(keys);
             var products = [];
-            var updates = {};
+            var updates;
             var chatUpdates = {};
             var postData;
-            var i = 0;
+            var i = 1;
             //go through all products in each user's branch and update the Products section of the database
             for(const uid of uids) {
                 for(const key of keys) {
@@ -155,10 +155,11 @@ class SignIn extends Component {
                                 postData = {key: key, uid: uid, uris: d.Users[uid].products[key].uris, text: d.Users[uid].products[key], daysElapsed: daysElapsed, shouldReducePrice: true }
                                 :
                                 postData = {key: key, uid: uid, uris: d.Users[uid].products[key].uris, text: d.Users[uid].products[key], daysElapsed: daysElapsed, shouldReducePrice: false };
+                            updates = {};    
                             updates['/Products/' + i + '/'] = postData;
                             firebase.database().ref().update(updates);
                             i++;
-
+                            console.log(i);
 
                         
 
@@ -288,7 +289,7 @@ class SignIn extends Component {
                             borderRadius: 5
                             }}
                             containerStyle={{ marginTop: 5, marginBottom: 5 }} 
-                            onPress={ () => {this.onSignUpPress()} } />     
+                            onPress={ () => {this.props.navigation.navigate('CreateProfile')} } />     
                 </View>}
                     
                     

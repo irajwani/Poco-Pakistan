@@ -34,6 +34,7 @@ class MultipleAddButton extends Component {
 
   launchGallery() {
     console.log('opening Photo Library');
+    alert('We are currently working on this feature. Please select the camera option for now');
   }
 
   render() {

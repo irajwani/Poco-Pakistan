@@ -8,12 +8,14 @@ import { PacmanIndicator } from 'react-native-indicators';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Button } from 'react-native-elements';
 
+const noNotificationsText = 'The NottMyStyle team believes the status of your products to be alright, thus you have no notifications'
+
 const {width} = Dimensions.get('window');
 
 class Notifications extends Component {
   constructor(props) {
       super(props);
-      this.state={isGetting:true};
+      this.state={isGetting:true, noNotifications: false};
   }
 
   componentWillMount() {
@@ -30,8 +32,14 @@ class Notifications extends Component {
     //get chats for particular user
     database.then( (d) => {
       const uid = firebase.auth().currentUser.uid;
-      const notifications = d.Users[uid].notifications
-      this.setState({notifications});
+      if(d.Users[uid].notifications) {
+        const notifications = d.Users[uid].notifications 
+        this.setState({notifications});
+      } 
+      else {
+        this.setState({noNotifications: true})
+      }
+      
       
     })
     .then( () => { this.setState( {isGetting: false} );  } )
@@ -40,7 +48,7 @@ class Notifications extends Component {
   }
 
   render() {
-    const {isGetting, notifications} = this.state;
+    const {isGetting, noNotifications, notifications} = this.state;
     console.log(notifications);
     if(isGetting) {
         return (
@@ -48,6 +56,14 @@ class Notifications extends Component {
                 <PacmanIndicator color='#0a968f' />
             </View>
         )
+    }
+
+    if(noNotifications) {
+      return (
+        <View style={{flex: 1, alignItems: 'center'}}>
+          <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'green'}}>{noNotificationsText}</Text>
+        </View>
+      )
     }
 
     return (

@@ -130,7 +130,7 @@ class ProductDetails extends Component {
 
               /> : <Icon name="heart-outline" 
                         size={35} 
-                        color={iOSColors.white}
+                        color={iOSColors.gray}
                         onPress={() => {this.incrementLikes(params.data.text.likes, params.data.uid, params.data.key)}}
 
               />}
