@@ -59,7 +59,7 @@ class Products extends Component {
           console.log( 'NOTIFICATION:', notification, userInteraction );
           if(userInteraction) {
             //this.props.navigation.navigate('YourProducts');
-            alert('You may edit item details by going to your profile page\n and tapping the number of products on sale');
+            alert('You may edit individual product details by:\n  Navigate to your profile.\n Then tap the number of products on sale');
           }
           
           //userInteraction ? this.navToEditItem() : console.log('user hasnt pressed notification, so do nothing');
@@ -101,6 +101,7 @@ class Products extends Component {
           message: message,// (required)
           date: date,
         });
+
         var postData = {
           name: product.text.name,
           price: product.text.price,
@@ -313,6 +314,15 @@ class Products extends Component {
     chatManager.connect().then(currentUser => {
       
       this.currentUser = currentUser;
+      this.currentUser.joinRoom({
+        roomId: 15868783 //Users
+      })
+      .then(() => {
+        console.log('Added user to room')
+      })
+      .catch(err => {
+        console.log(`Couldn't join room because: ${err}`)
+      })
       console.log(this.currentUser.rooms);
       var desiredRoomsName = key + '.' + CHATKIT_USER_NAME
       var roomExists = this.currentUser.rooms.filter(room => (room.name == desiredRoomsName));

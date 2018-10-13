@@ -39,7 +39,8 @@ class CreateProfile extends Component {
                                   firebase.auth().onAuthStateChanged( ( user ) => {
                                       if(user) {
                                         const {uid} = user;
-                                        this.updateFirebase(this.state, pictureuri, mime = 'image/jpg', uid )
+                                        this.updateFirebase(this.state, pictureuri, mime = 'image/jpg', uid );
+                                        this.addToUsersRoom();
                                       }
                                       else {
                                         alert('Oops, there was an error with account registration!');

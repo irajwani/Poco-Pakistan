@@ -522,14 +522,14 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
             large
             disabled = { conditionMet ? false : true}
             buttonStyle={{
-                backgroundColor: "#5bea94",
+                backgroundColor: "#22681d",
                 width: 280,
                 height: 80,
                 borderColor: "transparent",
                 borderWidth: 0,
-                borderRadius: 5
+                borderRadius: 5,
             }}
-            icon={{name: 'cloud-upload', type: 'font-awesome'}}
+            icon={{name: 'check-all', type: 'material-community'}}
             title='SUBMIT TO MARKET'
             onPress={() => { 
                 this.updateFirebase(this.state, pictureuris, mime = 'image/jpg', uid , this.state.name);

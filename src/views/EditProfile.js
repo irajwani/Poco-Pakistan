@@ -125,7 +125,7 @@ class EditProfile extends Component {
                     firebase.database().ref().update(profileupdates);
 
                     //create a new user and add him to Users room
-                    this.addToUsersRoom();
+                    //this.addToUsersRoom();
                     resolve(url)
                 })
                 .catch((error) => {

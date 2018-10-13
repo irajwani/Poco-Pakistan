@@ -11,7 +11,7 @@ import { CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_INSTANCE_LOCATOR } from '../cr
 import {material} from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
 
-const noChatsText = "You have not initiated any chats. You may initiate a conversation with a seller by choosing to 'Buy' a product from the Marketplace";
+const noChatsText = "You have not initiated any chats. Converse with a seller by choosing to 'Buy' a product from the Marketplace";
 
 const {width} = Dimensions.get('window')
 
@@ -51,9 +51,10 @@ class Chats extends Component {
       .then( (currentUser) => {
 
       this.currentUser = currentUser;
-      //perform the following process across all rooms currentUser is a part of except for the common Users Room
-      for(let i = 1; i < this.currentUser.rooms.length; i++) {
-          
+      if(this.currentUser.rooms.length>1) {
+        //perform the following process across all rooms currentUser is a part of except for the common Users Room
+        for(let i = 1; i < this.currentUser.rooms.length; i++) {
+            
           var {createdByUserId, name, id} = this.currentUser.rooms[i]
           var productText, productImageURL;
           
@@ -68,11 +69,16 @@ class Chats extends Component {
           
           var obj;
           var chatUpdates = {};
-          var buyer = users[0,0].name;
-          var buyerAvatar = users[0,0].avatarURL;
-          var seller = users[0,1].name;
-          var sellerAvatar = users[0,1].avatarURL
-          obj = { productText: productText, productImageURL: productImageURL, createdByUserId: createdByUserId, name: name, id: id, seller: seller, sellerAvatar: sellerAvatar, buyer: buyer, buyerAvatar: buyerAvatar};
+          var buyer = users[0,1].name;
+          var buyerAvatar = users[0,1].avatarURL ? users[0,1].avatarURL : '';
+          var seller = users[0,0].name;
+          var sellerAvatar = users[0,0].avatarURL ? users[0,0].avatarURL : '';
+          obj = { 
+            productText: productText, productImageURL: productImageURL, 
+            createdByUserId: createdByUserId, name: name, id: id, 
+            seller: seller, sellerAvatar: sellerAvatar, 
+            buyer: buyer, buyerAvatar: buyerAvatar
+          };
           chats.push(obj);
           chatUpdates['/Users/' + CHATKIT_USER_NAME + '/chats/' + i + '/'] = obj;
           firebase.database().ref().update(chatUpdates);
@@ -83,6 +89,13 @@ class Chats extends Component {
       }
       console.log(chats);
       this.setState({chats});
+      }
+
+      else {
+        console.log('NO CHATS');
+        this.setState({noChats: true})
+      }
+      
       })
 
 
@@ -122,7 +135,7 @@ class Chats extends Component {
     return (
       <ScrollView 
         contentContainerStyle={{
-          paddingTop: 15,
+          paddingTop: 20,
           flexDirection: 'column',
           flexGrow: 1,
           justifyContent: 'flex-start',
@@ -135,19 +148,33 @@ class Chats extends Component {
             <View key={chat.name} style={{flexDirection: 'column', padding: 5}}>
               <View style={styles.separator}/>
               <View style={styles.rowContainer}>
-                <Image source={ {uri: chat.productImageURL }} style={[styles.profilepic, styles.productcolor]} />
-                  <View style={styles.infoandbuttoncontainer}>
-                    <Text style={[styles.info, styles.productinfo]}>{chat.productText.name}</Text>
-                    <Text style={[styles.info, styles.sellerinfo]}>From: {(chat.seller.split(' '))[0]}</Text>
-                    <Button
+                
+                <Image source={ {uri: chat.productImageURL }} style={[styles.productprofilepic, styles.productcolor]} />
+                
+                <View style={styles.infoandbuttoncontainer}>
+                  <Text style={[styles.info, styles.productinfo]}>From & For,</Text>
+                  <Text style={[styles.info, styles.sellerinfo]}>{(chat.seller.split(' '))[0]} & {(chat.buyer.split(' '))[0]}</Text>
+                  <View style={styles.membersRow}>
+                    {chat.sellerAvatar ?
+                      <Image source={ {uri: chat.sellerAvatar } } style={[styles.profilepic, styles.profilecolor]} />
+                      :
+                      <Image source={ require('../images/blank.jpg') } style={[styles.profilepic, styles.profilecolor]} />
+                    }
+                    {chat.buyerAvatar ?
+                      <Image source={ {uri: chat.buyerAvatar } } style={[styles.profilepic, styles.profilecolor]} />
+                      :
+                      <Image source={ require('../images/blank.jpg') } style={[styles.profilepic, styles.profilecolor]} />
+                    }
+                  </View>   
+                </View>
+
+                <Button
                       small
                       buttonStyle={styles.messagebutton}
-                      icon={{name: 'email', type: 'material-community'}}
+                      icon={{name: 'forum', type: 'material-community'}}
                       title="TALK"
                       onPress={() => { this.navToChat(chat.id) } } 
-                    />
-                  </View>
-                <Image source={ {uri: chat.sellerAvatar }} style={[styles.profilepic, styles.profilecolor]} />
+                />  
                   
 
               </View>
@@ -188,15 +215,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff'
   },
-  profilepic: {
+  membersRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center'
+  },
+  productprofilepic: {
     borderWidth:1,
     alignItems:'center',
     justifyContent:'center',
     width:95,
     height:95,
     backgroundColor:'#fff',
-    borderRadius: 47,
+    borderRadius: 48,
     borderWidth: 2
+  },
+  profilepic: {
+    borderWidth:1,
+    alignItems:'center',
+    justifyContent:'center',
+    width:35,
+    height:35,
+    backgroundColor:'#fff',
+    borderRadius: 18,
+    borderWidth: 0.4
 
 },
   profilecolor: {
@@ -207,29 +249,30 @@ const styles = StyleSheet.create({
   },
 infoandbuttoncontainer: {
   flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  paddingTop: 5,
-  paddingBottom: 5
+  alignItems: 'stretch',
+  justifyContent: 'space-around',
+  padding: 10,
+  //paddingTop: 5,
+  //paddingBottom: 5,
 },
 info: {
   ...material.subheading,
 },  
 productinfo: {
   color: "#800000",
-  fontSize: 15
+  fontSize: 11
 },
 sellerinfo: {
-  fontSize: 12,
-  color: "#07686d"
+  fontSize: 13,
+  color: "#185b10"
 },
 messagebutton: {
-  backgroundColor: "#86bb71",
+  backgroundColor: "#051e03",
   width: 75,
   height: 45,
   borderWidth: 2,
   borderRadius: 5,
-  borderColor: "#187fe0"
+  borderColor: "#185b10"
 },
 separator: {
   backgroundColor: 'black',
@@ -238,4 +281,22 @@ separator: {
 },  
 })
 
+
+{/* <View style={styles.infoandbuttoncontainer}>
+                    <Text style={[styles.info, styles.productinfo]}>{chat.productText.name}</Text>
+                    <Text style={[styles.info, styles.sellerinfo]}>From: {(chat.seller.split(' '))[0]}</Text>
+                    <Button
+                      small
+                      buttonStyle={styles.messagebutton}
+                      icon={{name: 'email', type: 'material-community'}}
+                      title="TALK"
+                      onPress={() => { this.navToChat(chat.id) } } 
+                    />
+                  </View>
+
+                {chat.sellerAvatar ?
+                  <Image source={ {uri: chat.sellerAvatar } } style={[styles.profilepic, styles.profilecolor]} />
+                  :
+                  <Image source={ require('../images/blank.jpg') } style={[styles.profilepic, styles.profilecolor]} />
+                }   */}
 

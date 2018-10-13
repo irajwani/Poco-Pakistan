@@ -5,6 +5,7 @@ import { Hoshi, Jiro } from 'react-native-textinput-effects';
 import { TextField } from 'react-native-material-textfield';
 import NumericInput from 'react-native-numeric-input'
 import {Button, ButtonGroup, Divider} from 'react-native-elements';
+import CustomModalPicker from '../components/CustomModalPicker';
 import RNFetchBlob from 'react-native-fetch-blob';
 import MultipleAddButton from '../components/MultipleAddButton';
 import accounting from 'accounting'
@@ -29,6 +30,7 @@ class EditItem extends Component {
       super(props);
       const {params} = this.props.navigation.state;
       const {text} = params.data;
+      const postKey = params.data.key;
       const {name, brand, price, months} = text;
       switch(text.gender) {
         case 'Men':
@@ -80,6 +82,7 @@ class EditItem extends Component {
           months: months,
           description: text.description ? text.description : '',
           typing: true,
+          postKey: postKey,
       }
   }
 
@@ -253,13 +256,15 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
     //this.createRoom(newPostKey);
     
 
-    return {database: firebase.database().ref().update(updates),
-            storage: this.uploadToStore(pictureuris, uid, postKey)}
+    return {
+        database: firebase.database().ref().update(updates),
+        storage: this.uploadToStore(pictureuris, uid, postKey, mime)
+           }
 
 }
 
-  uploadToStore = (pictureuris, uid, postKey) => {
-      
+  uploadToStore = (pictureuris, uid, postKey, mime) => {
+    console.log(pictureuris);  
     pictureuris.forEach( (uri, index) => {
         
         var storageUpdates = {};
@@ -370,7 +375,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
     const uid = firebase.auth().currentUser.uid; 
     const {params} = this.props.navigation.state
     const pictureuris = params ? params.pictureuris : 'nothing here'
-    const postKey = params.data.key;
+    console.log(pictureuris);
     //const picturebase64 = params ? params.base64 : 'nothing here'
     //Lenient condition, Array.isArray(pictureuris) && pictureuris.length >= 1
     var conditionMet = (this.state.name) && (this.state.months > 0) && (this.state.price > 0) && (Array.isArray(pictureuris) && pictureuris.length >= 1)
@@ -560,20 +565,22 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
             </KeyboardAvoidingView>
             {/* RESUBMIT EDITED PRODUCT */}
             <Button
-            large
             disabled = { conditionMet ? false : true}
             buttonStyle={{
-                backgroundColor: "#5bea94",
+                backgroundColor: "#22681d",
                 width: 280,
                 height: 80,
                 borderColor: "transparent",
-                borderWidth: 0,
-                borderRadius: 5
+                borderWidth: 2,
+                borderRadius: 25,
+                padding: 10,
             }}
-            icon={{name: 'cloud-upload', type: 'font-awesome'}}
+            icon={{name: 'check-all', type: 'material-community'}}
             title='(RE)SUBMIT TO MARKET'
             onPress={() => { 
-                this.updateFirebase(this.state, pictureuris, mime = 'image/jpg', uid , this.state.name, postKey); 
+                this.updateFirebase(this.state, pictureuris, mime = 'image/jpg', uid , this.state.name, this.state.postKey);
+                alert('Your product has been revised and resubmitted to market.\nPlease close NottMyStyle and re-log in to refresh the Marketplace');
+                this.props.navigation.navigate('ProfilePage'); 
                   } }
 
             />
@@ -584,13 +591,16 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
                 width: 280,
                 height: 60,
                 borderColor: "transparent",
-                borderWidth: 0,
-                borderRadius: 25
+                borderWidth: 3,
+                borderRadius: 25,
+                borderColor: 'white'
             }}
             icon={{name: 'delete-empty', type: 'material-community'}}
             title='DELETE PRODUCT'
             onPress={() => { 
-                this.deleteProduct(uid, postKey);
+                this.deleteProduct(uid, this.state.postKey);
+                alert('Your product has been successfully deleted. Please close NottMyStyle and re-log in to see changes');
+                this.props.navigation.navigate('ProfilePage');
                   } }
 
             />

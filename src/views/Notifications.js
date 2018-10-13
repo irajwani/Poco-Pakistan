@@ -8,7 +8,7 @@ import { PacmanIndicator } from 'react-native-indicators';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Button } from 'react-native-elements';
 
-const noNotificationsText = 'The NottMyStyle team believes the status of your products to be alright, thus you have no notifications'
+const noNotificationsText = "The NottMyStyle team believes your products don't warrant any stats yet 👌, thus you have no notifications"
 
 const {width} = Dimensions.get('window');
 

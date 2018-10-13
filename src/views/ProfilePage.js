@@ -88,10 +88,10 @@ class ProfilePage extends Component {
     database.then( (d) => {
       //get name of current user to track who left comments on this persons UserComments component  
       var insaanKaNaam = d.Users[firebase.auth().currentUser.uid].profile.name;  
-
+      console.log(insaanKaNaam);
       //get list of comments for specific product
       var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: Date.now() } };
-      
+      console.log(comments);
       this.setState({ comments, name: insaanKaNaam });
       console.log(comments);
 
