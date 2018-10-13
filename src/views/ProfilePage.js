@@ -61,7 +61,8 @@ class ProfilePage extends Component {
     database.then( (d) => {
       
       var soldProducts = 0;
-
+      //relies on fact that when user profile was initially created,
+      //we appended a products: '' entry under a particular uid's branch
       for(var p of Object.values(d.Users[your_uid].products)) {
         if(p.sold) {
           soldProducts++

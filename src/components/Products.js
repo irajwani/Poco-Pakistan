@@ -288,7 +288,8 @@ class Products extends Component {
   }
 
   navToEditItem(item) {
-    this.props.navigation.navigate('EditItem', {data: item, pictureuris: item.uris})
+    this.props.navigation.navigate('EditItem', {data: item,});
+    alert('Please take brand new pictures');
   }
 
   navToChat(uid, key) {
@@ -786,7 +787,7 @@ const styles = StyleSheet.create({
 
   price: {
     ...material.display3,
-    fontSize: 35,
+    fontSize: 28,
     fontWeight: 'bold',
     color: 'black'
   },
@@ -794,7 +795,7 @@ const styles = StyleSheet.create({
   brand: {
       ...material.display1,
       fontFamily: 'AmericanTypewriter-Condensed',
-      fontSize: 25,
+      fontSize: 20,
       fontStyle: 'normal',
       color: iOSColors.lightGray
   },
@@ -802,7 +803,7 @@ const styles = StyleSheet.create({
   size: {
       ...material.display2,
       fontStyle: 'normal',
-      fontSize: 20,
+      fontSize: 16,
       color: iOSColors.midGray
   },
 });

@@ -258,18 +258,20 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
 
     return {
         database: firebase.database().ref().update(updates),
-        storage: this.uploadToStore(pictureuris, uid, postKey, mime)
+        storage: this.uploadToStore(pictureuris, uid, postKey)
            }
 
 }
 
-  uploadToStore = (pictureuris, uid, postKey, mime) => {
-    console.log(pictureuris);  
+  uploadToStore = (pictureuris, uid, postKey) => {
+    console.log(pictureuris);
+    var storageUpdates;  
     pictureuris.forEach( (uri, index) => {
         
-        var storageUpdates = {};
+        storageUpdates = {};
 
         const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
+        //const uploadUri = uri
         let uploadBlob = null
         const imageRef = firebase.storage().ref().child(`Users/${uid}/${postKey}/${index}`);
         fs.readFile(uploadUri, 'base64')
@@ -374,7 +376,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
   render() {
     const uid = firebase.auth().currentUser.uid; 
     const {params} = this.props.navigation.state
-    const pictureuris = params ? params.pictureuris : 'nothing here'
+    const pictureuris = params.pictureuris ? params.pictureuris : 'nothing here'
     console.log(pictureuris);
     //const picturebase64 = params ? params.base64 : 'nothing here'
     //Lenient condition, Array.isArray(pictureuris) && pictureuris.length >= 1
@@ -579,7 +581,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
             title='(RE)SUBMIT TO MARKET'
             onPress={() => { 
                 this.updateFirebase(this.state, pictureuris, mime = 'image/jpg', uid , this.state.name, this.state.postKey);
-                alert('Your product has been revised and resubmitted to market.\nPlease close NottMyStyle and re-log in to refresh the Marketplace');
+                alert('Your product has been revised and resubmitted to Market.\nPlease close NottMyStyle and re-log in to refresh the Market');
                 this.props.navigation.navigate('ProfilePage'); 
                   } }
 
