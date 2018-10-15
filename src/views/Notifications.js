@@ -60,8 +60,13 @@ class Notifications extends Component {
 
     if(noNotifications) {
       return (
-        <View style={{flex: 1, alignItems: 'center'}}>
+        <View style={{flex: 1, alignItems: 'center', padding: 10, justifyContent: 'space-between'}}>
           <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'green'}}>{noNotificationsText}</Text>
+          <Button 
+                buttonStyle={styles.notifsbutton}
+                title="Chats"
+                onPress={()=>this.navToChats()}
+          />  
         </View>
       )
     }

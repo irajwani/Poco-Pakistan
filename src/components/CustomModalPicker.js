@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     },
     selectedOption: {
       ...material.display1,
-      fontSize: 16,
-      color: 'gray'
+      fontSize: 19,
+      color: '#2f5093'
     }
 })

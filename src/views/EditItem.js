@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Platform, Text, StyleSheet, View, Image, KeyboardAvoidingView, ScrollView, Picker } from 'react-native'
 import {withNavigation} from 'react-navigation';
+
 import { Hoshi, Jiro } from 'react-native-textinput-effects';
 import { TextField } from 'react-native-material-textfield';
 import NumericInput from 'react-native-numeric-input'
@@ -10,11 +11,18 @@ import RNFetchBlob from 'react-native-fetch-blob';
 import MultipleAddButton from '../components/MultipleAddButton';
 import accounting from 'accounting'
 import ProductLabel from '../components/ProductLabel.js';
-import { material } from 'react-native-typography';
+import { material, iOSColors } from 'react-native-typography';
+import { PacmanIndicator } from 'react-native-indicators';
+
 import firebase from '../cloud/firebase.js';
 import Chatkit from "@pusher/chatkit";
 import { CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_INSTANCE_LOCATOR, CHATKIT_SECRET_KEY } from '../credentials/keys';
 
+const babyBlue='#94c2ed';
+const basicBlue = '#2c7dc9'
+const darkGreen = '#0d4f10';
+const limeGreen = '#2e770f';
+const slimeGreen = '#53b73c';
 
 const Blob = RNFetchBlob.polyfill.Blob;
 const fs = RNFetchBlob.fs;
@@ -191,6 +199,7 @@ showPicker(gender) {
 
 updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey) => {
     // : if request.auth != null;
+    this.setState({isUploading: true});
     var gender;
     switch(data.gender) {
         case 0:
@@ -266,7 +275,8 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
   uploadToStore = (pictureuris, uid, postKey) => {
     console.log(pictureuris);
     var storageUpdates;  
-    pictureuris.forEach( (uri, index) => {
+    var picturesProcessed = 0;
+    pictureuris.forEach( (uri, index, array) => {
         
         storageUpdates = {};
 
@@ -290,43 +300,26 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
         .then((url) => {
             console.log(url);
             storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/' + index + '/'] = url;
-            firebase.database().ref().update(storageUpdates);  
+            firebase.database().ref().update(storageUpdates);
+            picturesProcessed++;
+            if(picturesProcessed == array.length) {
+                this.callBackForProductUploadCompletion();
+            }  
         })
     } )
 
-    // for(const uri of pictureuris) {
-    //     var i = 0;
-    //     console.log(i);
-        
-    //     const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
-    //     let uploadBlob = null
-    //     const imageRef = firebase.storage().ref().child(`Users/${uid}/${newPostKey}/${i}`);
-    //     fs.readFile(uploadUri, 'base64')
-    //     .then((data) => {
-    //     return Blob.build(data, { type: `${mime};BASE64` })
-    //     })
-    //     .then((blob) => {
-    //     console.log('got to blob')
-    //     i++;
-    //     uploadBlob = blob
-    //     return imageRef.put(blob, { contentType: mime })
-    //     })
-    //     .then(() => {
-    //     uploadBlob.close()
-    //     return imageRef.getDownloadURL()
-    //     })
-    //     .then((url) => {
-    //         console.log(url);
-    //     })
-        
-        
-    // }
+  }
+
+  callBackForProductUploadCompletion = () => {
+    alert('Your product has been revised and resubmitted to Market.\nPlease close NottMyStyle and re-log in to refresh the Market');
+    this.props.navigation.navigate('ProfilePage'); 
   }
 
   deleteProduct(uid, key) {
-    firebase.database().ref('/Users/' + uid + '/products/' + key).remove( 
-        ()=>{
-        alert('Your product has been successfully deleted.\n Please restart the app and wait a few seconds for these changes to take effect.')
+    firebase.database().ref('/Users/' + uid + '/products/' + key)
+    .remove( ()=>{
+        this.setState({isUploading: false,})
+        alert('Your product has been successfully deleted. Please close NottMyStyle and re-log in to see changes');
         this.props.navigation.navigate('ProfilePage');
     })
     .then( () => {
@@ -338,42 +331,43 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
 
   }
 
-  createRoom(key) {
-    //create a new room with product id, and add buyer as member of room.  
+//   createRoom(key) {
+//     //create a new room with product id, and add buyer as member of room.  
 
-    const CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
-    // This will create a `tokenProvider` object. This object will be later used to make a Chatkit Manager instance.
-    const tokenProvider = new Chatkit.TokenProvider({
-        url: CHATKIT_TOKEN_PROVIDER_ENDPOINT
-      });
+//     const CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
+//     // This will create a `tokenProvider` object. This object will be later used to make a Chatkit Manager instance.
+//     const tokenProvider = new Chatkit.TokenProvider({
+//         url: CHATKIT_TOKEN_PROVIDER_ENDPOINT
+//       });
   
-    // This will instantiate a `chatManager` object. This object can be used to subscribe to any number of rooms and users and corresponding messages.
-    // For the purpose of this example we will use single room-user pair.
-    const chatManager = new Chatkit.ChatManager({
-    instanceLocator: CHATKIT_INSTANCE_LOCATOR,
-    userId: CHATKIT_USER_NAME,
-    tokenProvider: tokenProvider
-    });
+//     // This will instantiate a `chatManager` object. This object can be used to subscribe to any number of rooms and users and corresponding messages.
+//     // For the purpose of this example we will use single room-user pair.
+//     const chatManager = new Chatkit.ChatManager({
+//     instanceLocator: CHATKIT_INSTANCE_LOCATOR,
+//     userId: CHATKIT_USER_NAME,
+//     tokenProvider: tokenProvider
+//     });
 
     
-    //In order to subscribe to the messages this user is receiving in this room, we need to `connect()` the `chatManager` and have a hook on `onNewMessage`. There are several other hooks that you can use for various scenarios. A comprehensive list can be found [here](https://docs.pusher.com/chatkit/reference/javascript#connection-hooks).
-    chatManager.connect().then(currentUser => { 
-        this.currentUser = currentUser;
-        this.currentUser.createRoom({
-            name: key,
-            private: false,
-            addUserIds: null
-          }).then(room => {
-            console.log(`Created room called ${room.name}`)
-          })
-          .catch(err => {
-            console.log(`Error creating room ${err}`)
-          })
-    })
-  }
+//     //In order to subscribe to the messages this user is receiving in this room, we need to `connect()` the `chatManager` and have a hook on `onNewMessage`. There are several other hooks that you can use for various scenarios. A comprehensive list can be found [here](https://docs.pusher.com/chatkit/reference/javascript#connection-hooks).
+//     chatManager.connect().then(currentUser => { 
+//         this.currentUser = currentUser;
+//         this.currentUser.createRoom({
+//             name: key,
+//             private: false,
+//             addUserIds: null
+//           }).then(room => {
+//             console.log(`Created room called ${room.name}`)
+//           })
+//           .catch(err => {
+//             console.log(`Error creating room ${err}`)
+//           })
+//     })
+//   }
 
 
   render() {
+    const {isUploading} = this.state;
     const uid = firebase.auth().currentUser.uid; 
     const {params} = this.props.navigation.state
     const pictureuris = params.pictureuris ? params.pictureuris : 'nothing here'
@@ -387,6 +381,15 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
     //this.setState(incrementPrice);
     //const picturebase64 = params.base64;
     //console.log(pictureuri);
+
+    if(isUploading) {
+        return (
+            <View style={{flex: 1}}>
+                <PacmanIndicator color='#800000' />
+            </View>
+        )
+    }
+
     return (
       
     
@@ -402,18 +405,22 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
 
             <MultipleAddButton navToComponent = {'EditItem'} pictureuris={pictureuris}/>
 
-            <Divider style={{  backgroundColor: '#fff', height: 12 }} />
+            <Divider style={{  backgroundColor: '#fff', height: 18 }} />
 
-        {/* 0. Gender */}
-        
+            {/* 0. Gender */}
+
             <ButtonGroup
                 onPress={ (index) => {this.setState({gender: index})}}
                 selectedIndex={this.state.gender}
                 buttons={ ['Men', 'Accessories', 'Women'] }
-                
+                containerStyle={styles.buttonGroupContainer}
+                buttonStyle={styles.buttonGroup}
+                textStyle={styles.buttonGroupText}
+                selectedTextStyle={styles.buttonGroupSelectedText}
+                selectedButtonStyle={styles.buttonGroupSelectedContainer}
             />
             {/* Type of clothing */}
-            <Divider style={{  backgroundColor: '#fff', height: 12 }} />
+            <Divider style={{  backgroundColor: '#fff', height: 23 }} />
 
             <View style={styles.modalPicker}>
                 <Text style={styles.subHeading}>Product Type</Text>
@@ -432,32 +439,42 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
             source={ require('../images/blank.jpg') } /> */}
         {/* 2. Product Name */}
             <Jiro
-                    label={'Product Name'}
+                    label={'Name'}
                     value={this.state.name}
                     onChangeText={name => this.setState({ name })}
                     autoCorrect={false}
                     // this is used as active border color
-                    borderColor={'#800000'}
+                    borderColor={babyBlue}
                     // this is used to set backgroundColor of label mask.
                     // please pass the backgroundColor of your TextInput container.
                     backgroundColor={'#F9F7F6'}
-                    inputStyle={{ color: '#800000' }}
+                    inputStyle={{ color: basicBlue }}
             />
-            <Text>{this.state.name}</Text>
 
             <Jiro
-                    label={'Product Brand'}
+                    label={'Brand'}
                     value={this.state.brand}
                     onChangeText={brand => this.setState({ brand })}
                     autoCorrect={false}
                     // this is used as active border color
-                    borderColor={'#800000'}
+                    borderColor={babyBlue}
                     // this is used to set backgroundColor of label mask.
                     // please pass the backgroundColor of your TextInput container.
                     backgroundColor={'#F9F7F6'}
-                    inputStyle={{ color: '#800000' }}
+                    inputStyle={{ color: basicBlue }}
             />
-            <Text>{this.state.brand}</Text>
+
+            {/* Product Description/Material */}
+            <TextField 
+                label='Brief description of product (Optional)' 
+                value={this.state.description}
+                onChangeText = { (desc)=>{this.setState({description: desc})}}
+                multiline = {true}
+                characterRestriction = {180}
+                textColor={basicBlue}
+                tintColor={darkGreen}
+                baseColor={babyBlue}
+            />
 
         {/* 3. Product Price */}
 
@@ -473,10 +490,10 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
                     backgroundColor={'#F9F7F6'}
                     inputStyle={{ color: '#800000' }}
             />
-            <Text>{this.formatMoney(this.state.price)}</Text>
+            <Text>£{this.state.price}</Text>
             {/* Original Price */}
             <Jiro
-                    label={'Original Price (GBP)'}
+                    label={'Retail Price (Optional)'}
                     value={this.state.original_price}
                     onChangeText={original_price => this.setState({ original_price })}
                     autoCorrect={false}
@@ -487,15 +504,19 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
                     backgroundColor={'#F9F7F6'}
                     inputStyle={{ color: '#800000' }}
             />
-            <Text>{this.formatMoney(this.state.original_price)}</Text>
+            <Text>£{this.state.original_price}</Text>
 
             {/* Size */}
             <ProductLabel color='#1271b5' title='Select a Size'/> 
             <ButtonGroup
-            onPress={ (index) => {this.setState({size: index})}}
-            selectedIndex={this.state.size}
-            buttons={ ['XS', 'S', 'M', 'L', 'XL', 'XXL'] }
-                
+                onPress={ (index) => {this.setState({size: index})}}
+                selectedIndex={this.state.size}
+                buttons={ ['XS', 'S', 'M', 'L', 'XL', 'XXL'] }
+                containerStyle={styles.buttonGroupContainer}
+                buttonStyle={styles.buttonGroup}
+                textStyle={styles.buttonGroupText}
+                selectedTextStyle={styles.buttonGroupSelectedText}
+                selectedButtonStyle={styles.buttonGroupSelectedContainer}
             />
             {/* product condition */}
             <Divider style={{  backgroundColor: '#fff', height: 12 }} />
@@ -512,7 +533,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
                 </CustomModalPicker> 
                 <Text style={styles.optionSelected}>{this.state.condition}</Text>
             </View>    
-
+            <Divider style={{  backgroundColor: '#fff', height: 15 }} />
             {/* product age (months) */}
             <View style = { {alignItems: 'center', flexDirection: 'column'} } >
              <NumericInput 
@@ -527,44 +548,15 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
                 iconSize={25}
                 valueType='real'
                 rounded 
-                textColor='#B0228C' 
+                textColor='black' 
                 iconStyle={{ color: 'white' }} 
                 upDownButtonsBackgroundColor='#E56B70'
-                rightButtonBackgroundColor='#EA3788' 
-                leftButtonBackgroundColor='#E56B70'
+                rightButtonBackgroundColor={limeGreen} 
+                leftButtonBackgroundColor={darkGreen}
                 containerStyle={ {justifyContent: 'space-evenly', padding: 10,} }    
                 />
              <Text> Months since you bought the product </Text>
             </View>
-            <Divider style={{  backgroundColor: '#fff', height: 15 }} />
-            {/* Product Description/Material */}
-            <KeyboardAvoidingView behavior='padding' enabled={this.state.typing}
-                 >
-            <Button
-                 
-                title='Press if done typing in description'
-                onPress = {() => {this.setState( { typing: false } )}}
-                buttonStyle={{
-                backgroundColor: "#3b5998",
-                width: 280,
-                height: 40,
-                borderColor: "transparent",
-                borderWidth: 0,
-                borderRadius: 5
-            }}
-            />     
-            <TextField 
-                label="Brief description of product"
-                value={this.state.description}
-                onChangeText = { (desc)=>{this.setState({description: desc})}}
-                multiline = {true}
-                characterRestriction = {180}
-                textColor={'rgb(15, 63, 140)'}
-                tintColor={'rgb(15, 63, 140)'}
-                baseColor={'rgb(59, 169, 186)'}
-            />
-            
-            </KeyboardAvoidingView>
             {/* RESUBMIT EDITED PRODUCT */}
             <Button
             disabled = { conditionMet ? false : true}
@@ -581,8 +573,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
             title='(RE)SUBMIT TO MARKET'
             onPress={() => { 
                 this.updateFirebase(this.state, pictureuris, mime = 'image/jpg', uid , this.state.name, this.state.postKey);
-                alert('Your product has been revised and resubmitted to Market.\nPlease close NottMyStyle and re-log in to refresh the Market');
-                this.props.navigation.navigate('ProfilePage'); 
+                
                   } }
 
             />
@@ -601,8 +592,6 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
             title='DELETE PRODUCT'
             onPress={() => { 
                 this.deleteProduct(uid, this.state.postKey);
-                alert('Your product has been successfully deleted. Please close NottMyStyle and re-log in to see changes');
-                this.props.navigation.navigate('ProfilePage');
                   } }
 
             />
@@ -656,6 +645,27 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 18,
         color: '#0c5925'
+    },
+
+
+    buttonGroupText: {
+        ...material.display1,
+        fontFamily: 'Iowan Old Style',
+        fontSize: 17,
+        fontWeight: '300',
+    },
+
+    buttonGroupSelectedText: {
+        color: darkGreen
+    },
+
+    buttonGroupContainer: {
+        height: 40,
+        backgroundColor: iOSColors.lightGray
+    },
+    
+    buttonGroupSelectedContainer: {
+        backgroundColor: limeGreen
     },
 })
 

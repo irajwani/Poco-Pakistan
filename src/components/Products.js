@@ -3,20 +3,15 @@ import PropTypes from 'prop-types'
 import { Dimensions, View, Image, StyleSheet, ScrollView, TouchableOpacity, } from 'react-native';
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import { Text,  } from 'native-base';
-import {Button} from 'react-native-elements'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { material, systemWeights, human, iOSUIKit, iOSColors } from 'react-native-typography'
+import { material, iOSUIKit, iOSColors } from 'react-native-typography'
 import firebase from '../cloud/firebase.js';
 import {database} from '../cloud/database';
 import * as Animatable from 'react-native-animatable';
-import Collapsible from 'react-native-collapsible';
 import Accordion from 'react-native-collapsible/Accordion';
 
 import PushNotification from 'react-native-push-notification';
 
-import Chatkit from "@pusher/chatkit";
-import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
-import { PacmanIndicator } from 'react-native-indicators';
 
 
 var {height, width} = Dimensions.get('window');
@@ -270,141 +265,8 @@ class Products extends Component {
     alert("This product has been removed from your WishList.\nThe heart icon will be devoid of color to portray this\nwhen you re-log into NottMyStyle");
   }
 
-  setSaleTo(soldStatus, uid, productKey) {
-    var updates={};
-    updates['Users/' + uid + '/products/' + productKey + '/sold/'] = soldStatus;
-    firebase.database().ref().update(updates);
-    //just alert user this product has been marked as sold, and will show as such on their next visit to the app.
-    var status = soldStatus ? 'sold' : 'available for purchase'
-    alert(`Product has been marked as ${status}.\n If you wish to see the effects of this change immediately,\n please close and re-open NottMyStyle`)
-
-  }
-
-  navToComments(uid, productKey, text, name, uri) {
-    console.log('navigating to Comments section')
-    this.props.navigation.navigate('Comments', {likes: text.likes, uid: uid, productKey: productKey, uri: uri, text: text, time: text.time, name: name})
-  }
-
   navToProductDetails(data) {
       this.props.navigation.navigate('ProductDetails', {data: data})
-  }
-
-  findRoomId(rooms, desiredRoomsName) {
-    for(var room of rooms ) {
-      
-      if(room.name === desiredRoomsName) {return room.id}
-    }
-  }
-
-  navToEditItem(item) {
-    this.props.navigation.navigate('EditItem', {data: item,});
-    alert('Please take brand new pictures');
-  }
-
-  navToChat(uid, key) {
-
-    //if you posted this product yourself, then buying it is trivial,
-    //and you should see a modal saying 'you own this product already'
-    this.setState({navToChatLoading: true});
-    console.log(key);
-    //create separate Chats branch
-    const CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
-    const tokenProvider = new Chatkit.TokenProvider({
-      url: CHATKIT_TOKEN_PROVIDER_ENDPOINT
-    });
-  
-    // This will instantiate a `chatManager` object. This object can be used to subscribe to any number of rooms and users and corresponding messages.
-    // For the purpose of this example we will use single room-user pair.
-    const chatManager = new Chatkit.ChatManager({
-      instanceLocator: CHATKIT_INSTANCE_LOCATOR,
-      userId: CHATKIT_USER_NAME,
-      tokenProvider: tokenProvider
-    });
-  
-    chatManager.connect().then(currentUser => {
-      
-      this.currentUser = currentUser;
-      this.currentUser.joinRoom({
-        roomId: 15868783 //Users
-      })
-      .then(() => {
-        console.log('Added user to room')
-      })
-      .catch(err => {
-        console.log(`Couldn't join room because: ${err}`)
-      })
-      console.log(this.currentUser.rooms);
-      var desiredRoomsName = key + '.' + CHATKIT_USER_NAME
-      var roomExists = this.currentUser.rooms.filter(room => (room.name == desiredRoomsName));
-      //create a new room for specifically for this buyer, seller and product & navigate to the chat room
-      //unless the room already exists, in which case, just navigate to it
-
-      if(this.currentUser.rooms.length > 0 && roomExists.length > 0) {
-        console.log('no need to create a brand new room');
-        this.setState({navToChatLoading: false});
-        this.props.navigation.navigate( 'CustomChat', {id: this.findRoomId(this.currentUser.rooms, desiredRoomsName)} )
-
-      }
-      else {
-        this.currentUser.createRoom({
-          //base the room name on the following pattern: sellers uid + dot + product key + dot + buyers uid
-          name: desiredRoomsName,
-          private: false,
-          addUserIds: [uid]
-        }).then(room => {
-          console.log(`Created room called ${room.name}`)
-          this.setState({navToChatLoading: false});
-          this.props.navigation.navigate( 'CustomChat', {id: this.findRoomId(this.currentUser.rooms, desiredRoomsName)} )
-        })
-        .catch(err => {
-          console.log(`Error creating room ${err}`)
-        })
-      }
-
-        
-      
-      
-
-      
-      
-
-      // if(this.currentUser.rooms.length > 0 && roomExists.length > 0 ) {
-      //   //first check if you've already subscribed to this room
-      //   for(var room of this.currentUser.rooms) {
-      //     var {name} = room;
-      //     console.log(name);
-      //     if(name === key) { 
-      //       console.log('navigating to room')
-            
-      //       this.props.navigation.navigate( 'CustomChat', {key: key, id: this.findRoom(this.currentUser.rooms, key)} )
-      //                     }
-  
-      //   }
-  
-      //   //subscribe to room and navigate to it
-        
-      // } else {
-      //   //subscribe to at least the room for this product
-      //   console.log('subscribe to your very first product chat room')
-      //   this.currentUser.getJoinableRooms().then( (rooms) => {  
-          
-      //     this.currentUser.joinRoom( {
-      //       roomId: this.findRoom(rooms, key)
-      //     })
-      //     setTimeout(() => {
-      //       this.props.navigation.navigate( 'CustomChat', {key: key, id: this.findRoom(rooms, key)} )
-      //     }, 1000);
-      //     //this.setState({id: this.findRoom(rooms, key) });  
-  
-      //   }  )
-        
-        
-        
-  
-      // }
-      
-      
-    });
   }
 
 
@@ -458,26 +320,30 @@ class Products extends Component {
                 <Text style={styles.soldText}>SOLD</Text>
                 <Image 
                 source={{uri: section.uris[0]}}
-                style={{ height: 133, width: (width/2 - 7), zIndex: -1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, resizeMode: 'cover' }} 
+                style={{ height: 153, width: (width/2 - 7), zIndex: -1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, resizeMode: 'cover' }} 
                 />
               </View>
               
              :
              <Image 
                 source={{uri: section.uris[0]}}
-                style={{ height: 133, width: (width/2 - 7), zIndex: -1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, resizeMode: 'cover' }} 
+                style={{ height: 153, width: (width/2 - 7), zIndex: -1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, resizeMode: 'cover' }} 
              />
             }  
         </View>
 
         {section.text.original_price > 0 ?
           <View style= { styles.headerPriceMagnifyingGlassRow }>
-            <Text style={styles.original_price} >
-              £{section.text.original_price}
-            </Text>
-            <Text style={styles.price} >
-              £{section.text.price}
-            </Text>
+            
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+              <Text style={styles.original_price} >
+                £{section.text.original_price}
+              </Text>
+              <Text style={styles.price} >
+                £{section.text.price}
+              </Text>
+            </View>
+
             {isActive? 
               <Icon name="chevron-up" 
                     size={30} 
@@ -494,9 +360,13 @@ class Products extends Component {
           </View>        
         :
           <View style= { styles.headerPriceMagnifyingGlassRow }>
-            <Text style={styles.price} >
-              £{section.text.price}
-            </Text>
+            
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+              <Text style={styles.price} >
+                £{section.text.price}
+              </Text>
+            </View>
+
             {isActive? 
               <Icon name="chevron-up" 
                     size={30} 
@@ -546,99 +416,6 @@ class Products extends Component {
           Size: {section.text.size}
         </Animatable.Text>
         
-        <View style={ styles.buyReviewRow }  >
-            {this.state.productKeys.includes(section.key) ? 
-                <Button
-                    buttonStyle={{
-                        backgroundColor: "#186f87",
-                        width: 80,
-                        height: 40,
-                        
-                    }}
-                    icon={{name: 'lead-pencil', type: 'material-community'}}
-                    title='EDIT'
-                    onPress = { () => { 
-                        console.log('going to edit item details');
-                        //subscribe to room key
-                        this.navToEditItem(section);
-                        } }
-
-                    /> 
-                : 
-                <Button
-                    buttonStyle={{
-                        backgroundColor: "#186f87",
-                        width: 80,
-                        height: 40,
-                        
-                    }}
-                    icon={{name: 'credit-card', type: 'font-awesome'}}
-                    title='BUY'
-                    onPress = { () => { 
-                        console.log('going to chat');
-                        //subscribe to room key
-                        this.navToChat(section.uid, section.key);
-                        } }
-
-                    />}
-            
-            {this.props.showYourProducts ?
-              section.text.sold ? 
-              <View style={{flexDirection: 'column',}}>
-                <Text style={{color: '#0e4406', fontSize: 8 }}>Confirm</Text>
-                <Text style={{color: '#0e4406', fontSize: 8 }}>Sale</Text>
-                <Icon
-                    name="check-circle" 
-                    size={30}  
-                    color={'#0e4406'}
-                    onPress = {() => {console.log('setting product status to available for purchase'); this.setSaleTo(false, section.uid, section.key)}}
-                />
-               </View>  
-               : 
-               <View style={{flexDirection: 'column',}}>
-                <Text style={{color: '#0e4406', fontSize: 5 }}>Confirm</Text>
-                <Text style={{color: '#0e4406', fontSize: 5 }}>Sale</Text>
-                <Icon
-                    name="check-circle" 
-                    size={30}  
-                    color={'black'}
-                    onPress = {() => {console.log('setting product status to sold'); this.setSaleTo(true, section.uid, section.key)}}
-                />
-               </View>
-              
-            :
-              <Icon
-                name="tooltip-edit" 
-                size={20}  
-                color={'#0e4406'}
-                onPress = { () => { 
-                            this.navToComments(section.uid, section.key, section.text, this.state.name, section.uris[0]);
-                            } }
-            />}
-
-            
-        </View>
-
-        {/* <Button
-                  
-                  buttonStyle={{
-                      backgroundColor: "#156a87",
-                      width: 100,
-                      height: 40,
-                      borderColor: "transparent",
-                      borderWidth: 0,
-                      borderRadius: 5
-                  }}
-                  icon={{name: 'pencil', type: 'font-awesome'}}
-                  title='WRITE A REVIEW'
-                  onPress = { () => { 
-                    this.navToComments(section.uid, section.key, section.text, this.state.name);
-                    } }
-
-                  />            */}
-
-        
-        
       </Animatable.View>
     );
   }
@@ -668,14 +445,6 @@ class Products extends Component {
                 <Text>You haven't liked any items on the marketplace yet.</Text>
             </View>
         )
-    }
-
-    if(navToChatLoading) {
-      return(
-        <View style={{flex: 1}}>
-          <PacmanIndicator color='#186f87' />
-        </View>
-      )
     }
     
     return (
@@ -807,7 +576,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     width: (width / 2) - 0,
     //width/2 - 10
-    height: 120,
+    height: 70,
     //200
     //marginLeft: 2,
     //marginRight: 2,
@@ -815,7 +584,6 @@ const styles = StyleSheet.create({
     paddingTop: 3,
     paddingRight: 7,
     paddingLeft: 7,
-    justifyContent: 'space-between'
   },
   content: {
     padding: 20,
@@ -825,7 +593,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     width: (width / 2) - 0,
     //width/2 - 10
-    height: 170,
+    height: 190,
     //200
     //marginLeft: 2,
     //marginRight: 2,
@@ -865,7 +633,7 @@ const styles = StyleSheet.create({
 
   original_price: {
     ...material.display2,
-    fontSize: 20,
+    fontSize: 17,
     fontWeight: 'bold',
     color: 'black',
     textDecorationLine: 'line-through',
@@ -873,14 +641,14 @@ const styles = StyleSheet.create({
 
   price: {
     ...material.display3,
-    fontSize: 20,
+    fontSize: 17,
     fontWeight: 'bold',
     color: limeGreen
   },
 
   brand: {
       ...material.display1,
-      fontFamily: 'AmericanTypewriter-Condensed',
+      fontFamily: 'Iowan Old Style',
       fontSize: 18,
       fontStyle: 'normal',
       color: iOSColors.black

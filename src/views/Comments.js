@@ -6,6 +6,8 @@ import { material, systemWeights, human, iOSUIKit } from 'react-native-typograph
 import {withNavigation} from 'react-navigation';
 import {database} from '../cloud/database';
 import firebase from '../cloud/firebase';
+import { PacmanIndicator } from 'react-native-indicators';
+
 
 //for each comment, use their time of post as the key
 function timeSince(date) {

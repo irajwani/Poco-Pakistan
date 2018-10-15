@@ -11,7 +11,7 @@ import { CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_INSTANCE_LOCATOR } from '../cr
 import {material} from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
 
-const noChatsText = "You have not initiated any chats. Converse with a seller by choosing to 'Buy' a product from the Marketplace";
+const noChatsText = "You have not initiated any chats 😳. Converse with a seller by choosing to 'Buy' a product from the Marketplace";
 
 const {width} = Dimensions.get('window')
 
@@ -126,8 +126,13 @@ class Chats extends Component {
 
     if(this.state.noChats) {
       return (
-        <View style={{flex: 1, alignItems: 'center'}}>
+        <View style={{flex: 1, alignItems: 'center', padding: 10, justifyContent: 'space-between'}}>
           <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'blue'}}>{noChatsText}</Text>
+          <Button 
+                buttonStyle={styles.notifsbutton}
+                title="Notifications"
+                onPress={()=>this.navToNotifications()}
+          /> 
         </View>
       )
     }

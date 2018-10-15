@@ -9,8 +9,6 @@ import RNFetchBlob from 'react-native-fetch-blob';
 import { Sae, Fumi } from 'react-native-textinput-effects';
 import firebase from '../cloud/firebase.js';
 import MultipleAddButton from '../components/MultipleAddButton.js';
-import Chatkit from "@pusher/chatkit";
-import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
 
 
 const Blob = RNFetchBlob.polyfill.Blob;
@@ -40,7 +38,8 @@ class CreateProfile extends Component {
                                       if(user) {
                                         const {uid} = user;
                                         this.updateFirebase(this.state, pictureuri, mime = 'image/jpg', uid );
-                                        this.addToUsersRoom();
+                                        alert('Your account has been created. Please use your credentials to Sign In.\n');
+                                        this.props.navigation.navigate('SignIn'); 
                                       }
                                       else {
                                         alert('Oops, there was an error with account registration!');
@@ -212,7 +211,7 @@ class CreateProfile extends Component {
         />
 
         <Sae
-            label={'Nottingham, UK'}
+            label={'City, Country Code (UK)'}
             iconClass={FontAwesomeIcon}
             iconName={'globe'}
             iconColor={'#0a3f93'}
@@ -257,8 +256,6 @@ class CreateProfile extends Component {
             title='SAVE'
             onPress={() => {
                             this.createProfile(this.state.email, this.state.pass, pictureuris[0]);
-                            alert('Your account has been created. Please use your credentials to Sign In.\n')
-                            this.props.navigation.navigate('SignIn'); 
                             } } 
         />
         
