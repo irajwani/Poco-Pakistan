@@ -54,37 +54,37 @@ class CreateProfile extends Component {
                     });
   }
 
-  addToUsersRoom() {
+//   addToUsersRoom() {
     
-    const CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
+//     const CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
 
-    const tokenProvider = new Chatkit.TokenProvider({
-        url: CHATKIT_TOKEN_PROVIDER_ENDPOINT
-      });
+//     const tokenProvider = new Chatkit.TokenProvider({
+//         url: CHATKIT_TOKEN_PROVIDER_ENDPOINT
+//       });
   
-    // This will instantiate a `chatManager` object. This object can be used to subscribe to any number of rooms and users and corresponding messages.
-    // For the purpose of this example we will use single room-user pair.
-    const chatManager = new Chatkit.ChatManager({
-    instanceLocator: CHATKIT_INSTANCE_LOCATOR,
-    userId: CHATKIT_USER_NAME,
-    tokenProvider: tokenProvider
-    });
+//     // This will instantiate a `chatManager` object. This object can be used to subscribe to any number of rooms and users and corresponding messages.
+//     // For the purpose of this example we will use single room-user pair.
+//     const chatManager = new Chatkit.ChatManager({
+//     instanceLocator: CHATKIT_INSTANCE_LOCATOR,
+//     userId: CHATKIT_USER_NAME,
+//     tokenProvider: tokenProvider
+//     });
 
-    chatManager.connect().then(currentUser => {
-        this.currentUser = currentUser;
-        console.log(this.currentUser);
-        var {rooms} = this.currentUser;
-        console.log(rooms); 
-        this.currentUser.joinRoom({
-            roomId: 15868783 //Users
-          })
-            .then(() => {
-              console.log('Added user to room')
-            })
-        }
-    )
-    //otherwise this function does nothing;
-  }
+//     chatManager.connect().then(currentUser => {
+//         this.currentUser = currentUser;
+//         console.log(this.currentUser);
+//         var {rooms} = this.currentUser;
+//         console.log(rooms); 
+//         this.currentUser.joinRoom({
+//             roomId: 15868783 //Users
+//           })
+//             .then(() => {
+//               console.log('Added user to room')
+//             })
+//         }
+//     )
+//     //otherwise this function does nothing;
+//   }
 
   updateFirebase(data, uri, mime = 'image/jpg', uid) {
     
@@ -155,8 +155,8 @@ class CreateProfile extends Component {
                     profileupdates['/Users/' + uid + '/profile/' + 'uri/'] = url ;
                     firebase.database().ref().update(profileupdates);
 
-                    //Add user to general Users chat room
-                    //this.addToUsersRoom();
+                    
+                    
                     resolve(url)
                 })
                 .catch((error) => {
