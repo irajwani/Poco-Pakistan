@@ -21,6 +21,9 @@ import { PacmanIndicator } from 'react-native-indicators';
 
 var {height, width} = Dimensions.get('window');
 
+const limeGreen = '#2e770f';
+const profoundPink = '#c64f5f';
+
 class Products extends Component {
   constructor(props) {
       super(props);
@@ -216,9 +219,10 @@ class Products extends Component {
           }
           return null;
         })
-
+        //need to also append it to your list of collection keys
 
         this.setState({ productsl, productsr } );
+        alert("This product has been added to your WishList.\nThe heart icon will be filled in to portray this\nwhen you re-log into NottMyStyle");
 
 
       }
@@ -231,7 +235,11 @@ class Products extends Component {
     console.log('decrement number of likes');
     var userCollectionUpdates = {};
     userCollectionUpdates['/Users/' + firebase.auth().currentUser.uid + '/collection/' + key + '/'] = false;
-    firebase.database().ref().update(userCollectionUpdates);
+    firebase.database().ref('/Users/' + firebase.auth().currentUser.uid + '/collection/' + key)
+    .remove( 
+      ()=>{
+      console.log('product has been deleted');
+  });
     //ask user to confirm if they'd like to unlike this product
     var updates = {};
     likes -= 1;
@@ -254,11 +262,12 @@ class Products extends Component {
       }
       return null;
     })
-
+    //need to remove this products key from user's collection Keys
     //var collectionKeys = this.state.collectionKeys.filter( (productKey) => productKey !== key)
 
 
     this.setState({ productsl, productsr } );
+    alert("This product has been removed from your WishList.\nThe heart icon will be devoid of color to portray this\nwhen you re-log into NottMyStyle");
   }
 
   setSaleTo(soldStatus, uid, productKey) {
@@ -267,7 +276,7 @@ class Products extends Component {
     firebase.database().ref().update(updates);
     //just alert user this product has been marked as sold, and will show as such on their next visit to the app.
     var status = soldStatus ? 'sold' : 'available for purchase'
-    alert(`Product has been marked as ${status}.\n If you wish to see the effects of this change immediately,\n please close and open NottMyStyle`)
+    alert(`Product has been marked as ${status}.\n If you wish to see the effects of this change immediately,\n please close and re-open NottMyStyle`)
 
   }
 
@@ -422,20 +431,25 @@ class Products extends Component {
 
         <View style={{ flex: 1, position: 'relative' }}>
             <View style={styles.likesRow}>
+              {/* if this product is already in your collection, you have the option to dislike the product,
+                  reducing its total number of likes by 1,
+                  and remove it from your collection. If not already in your collection, you may do the opposite. */}
+              {this.state.collectionKeys.includes(section.key) ? 
+                <Icon name="heart" 
+                          size={25} 
+                          color='#800000'
+                          onLongPress={() => {this.decrementLikes(section.text.likes, section.uid, section.key)}}
+                          
 
-              {this.state.collectionKeys.includes(section.key) ? <Icon name="heart" 
-                        size={25} 
-                        color='#800000'
-                        onLongPress={() => {this.decrementLikes(section.text.likes, section.uid, section.key)}}
-                        
+                /> 
+              :  
+                <Icon name="heart-outline" 
+                          size={25} 
+                          color='#800000'
+                          onPress={() => {this.incrementLikes(section.text.likes, section.uid, section.key)}}
 
-              /> :  
-              <Icon name="heart-outline" 
-                        size={25} 
-                        color={iOSColors.white}
-                        onPress={() => {this.incrementLikes(section.text.likes, section.uid, section.key)}}
-
-              />}
+                />
+              }
 
               <Text style={styles.likes}>{section.text.likes}</Text>
             </View>
@@ -444,17 +458,60 @@ class Products extends Component {
                 <Text style={styles.soldText}>SOLD</Text>
                 <Image 
                 source={{uri: section.uris[0]}}
-                style={{ height: 190, width: (width/2 - 18), zIndex: -1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, resizeMode: 'cover' }} 
+                style={{ height: 133, width: (width/2 - 7), zIndex: -1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, resizeMode: 'cover' }} 
                 />
               </View>
               
              :
              <Image 
                 source={{uri: section.uris[0]}}
-                style={{ height: 190, width: (width/2 - 18), zIndex: -1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, resizeMode: 'cover' }} 
+                style={{ height: 133, width: (width/2 - 7), zIndex: -1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, resizeMode: 'cover' }} 
              />
             }  
-        </View>        
+        </View>
+
+        {section.text.original_price > 0 ?
+          <View style= { styles.headerPriceMagnifyingGlassRow }>
+            <Text style={styles.original_price} >
+              £{section.text.original_price}
+            </Text>
+            <Text style={styles.price} >
+              £{section.text.price}
+            </Text>
+            {isActive? 
+              <Icon name="chevron-up" 
+                    size={30} 
+                    color='black'
+              />
+            :
+              <Icon name="chevron-down" 
+                    size={30} 
+                    color='black'
+              />
+            }
+            
+
+          </View>        
+        :
+          <View style= { styles.headerPriceMagnifyingGlassRow }>
+            <Text style={styles.price} >
+              £{section.text.price}
+            </Text>
+            {isActive? 
+              <Icon name="chevron-up" 
+                    size={30} 
+                    color='black'
+              />
+            :
+              <Icon name="chevron-down" 
+                    size={30} 
+                    color='black'
+              />
+            }
+            
+            
+          </View>
+        }  
 
                 
 
@@ -466,32 +523,27 @@ class Products extends Component {
     return (
       <Animatable.View
         duration={400}
-        style={[styles.card, isActive ? styles.active : styles.inactive]}
+        style={[styles.contentCard, isActive ? styles.active : styles.inactive]}
         transition="backgroundColor"
       >
           
-        <View style= { styles.priceMagnifyingGlassRow } >
-            <Animatable.Text style={styles.price} animation={isActive ? 'bounceInRight' : undefined}>
-            £{section.text.price}
-            </Animatable.Text>
-            <Icon name="magnify" 
-                  size={22} 
-                  color='#082b8c'
-                  onPress={ () => { 
-                      console.log('navigating to full details');
-                      this.navToProductDetails(section); 
-                      }}  
-            />
-        </View>
-            
         
-
-        <Animatable.Text style={styles.brand} animation={isActive ? 'lightSpeedIn' : undefined}>
-          {section.text.brand}
-        </Animatable.Text>
+        <Animatable.View style={styles.priceMagnifyingGlassRow} transition='backgroundColor'>
+          <Animatable.Text style={styles.brand} animation={isActive ? 'bounceInRight' : undefined}>
+            {section.text.brand}
+          </Animatable.Text>
+          <Icon name="magnify" 
+                size={22} 
+                color={limeGreen}
+                onPress={ () => { 
+                    console.log('navigating to full details');
+                    this.navToProductDetails(section); 
+                    }}  
+          />
+        </Animatable.View>  
         
-        <Animatable.Text style={styles.size} animation={isActive ? 'slideInLeft' : undefined}>
-          {section.text.size}
+        <Animatable.Text style={styles.size} animation={isActive ? 'bounceInLeft' : undefined}>
+          Size: {section.text.size}
         </Animatable.Text>
         
         <View style={ styles.buyReviewRow }  >
@@ -683,14 +735,22 @@ const styles = StyleSheet.create({
     paddingTop: 20,
       },
 
+  headerPriceMagnifyingGlassRow: {
+    flexDirection: 'row', justifyContent: 'space-between', 
+    paddingTop: 2,
+    paddingLeft: 5,
+    paddingRight: 5,
+    paddingBottom: 0 
+  },    
+
   priceMagnifyingGlassRow: {
-    flexDirection: 'row', justifyContent: 'space-between', padding: 10 
+    flexDirection: 'row', justifyContent: 'space-between', padding: 5 
   },    
 
   likesRow: {
     flexDirection: 'row',
-    backgroundColor: iOSColors.lightGray2,
-    marginLeft: 95,
+    //backgroundColor: iOSColors.lightGray2,
+    marginRight: 95,
   },
   
   buyReviewRow: {
@@ -703,16 +763,17 @@ const styles = StyleSheet.create({
     fontFamily: 'Iowan Old Style', 
     fontSize: 25, 
     fontWeight: 'bold',
-    color: '#800000',
+    color: 'black',
     transform: [{ rotate: '-45deg'}],
-    borderColor: "#800000",
+    borderColor: "black",
     borderWidth: 2,
-    borderRadius: 10
+    borderRadius: 10,
+    borderStyle: 'dashed'
   },
   
   likes: {
     ...iOSUIKit.largeTitleEmphasized,
-    color: '#c61919',
+    color: profoundPink,
     padding: 2,
     marginLeft: 4,
   },
@@ -742,23 +803,40 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
   },
+  contentCard: {
+    backgroundColor: '#fff',
+    width: (width / 2) - 0,
+    //width/2 - 10
+    height: 120,
+    //200
+    //marginLeft: 2,
+    //marginRight: 2,
+    marginTop: 2,
+    paddingTop: 3,
+    paddingRight: 7,
+    paddingLeft: 7,
+    justifyContent: 'space-between'
+  },
   content: {
     padding: 20,
     backgroundColor: '#fff',
   },
   card: {
     backgroundColor: '#fff',
-    width: (width / 2) - 10,
-    height: 200,
-    marginLeft: 2,
-    marginRight: 2,
+    width: (width / 2) - 0,
+    //width/2 - 10
+    height: 170,
+    //200
+    //marginLeft: 2,
+    //marginRight: 2,
     marginTop: 2,
-    padding: 5,
+    padding: 0,
     justifyContent: 'space-between'
   } ,
   //controls the color of the collapsible card when activated
   active: {
-    backgroundColor: '#96764c',
+    backgroundColor: '#fff',
+    //#96764c
     //#f4d29a
     //#b78b3e
     //#7c5d34
@@ -785,26 +863,35 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 
+  original_price: {
+    ...material.display2,
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'black',
+    textDecorationLine: 'line-through',
+  },
+
   price: {
     ...material.display3,
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: 'black'
+    color: limeGreen
   },
 
   brand: {
       ...material.display1,
       fontFamily: 'AmericanTypewriter-Condensed',
-      fontSize: 20,
+      fontSize: 18,
       fontStyle: 'normal',
-      color: iOSColors.lightGray
+      color: iOSColors.black
   },
 
   size: {
       ...material.display2,
+      fontFamily: 'Iowan Old Style',
       fontStyle: 'normal',
-      fontSize: 16,
-      color: iOSColors.midGray
+      fontSize: 13,
+      color: iOSColors.black
   },
 });
 

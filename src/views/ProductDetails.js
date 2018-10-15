@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import {ScrollView, View, Text, Image, Dimensions, StyleSheet} from 'react-native';
 import { withNavigation } from 'react-navigation';
+import firebase from '../cloud/firebase';
+
 import CustomCarousel from '../components/CustomCarousel';
 import CustomComments from '../components/CustomComments';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -10,6 +12,7 @@ import { Divider } from 'react-native-elements';
 
 import { iOSColors, iOSUIKit } from 'react-native-typography';
 import MoreDetailsListItem from '../components/MoreDetailsListItem';
+
 
 var {height, width} = Dimensions.get('window');
 
@@ -35,13 +38,29 @@ class ProductDetails extends Component {
     }, 4);
   }
 
+  removeFalsyValuesFrom(object) {
+    const newObject = {};
+    Object.keys(object).forEach((property) => {
+      if (object[property]) {newObject[property] = object[property]}
+    })
+    return Object.values(newObject);
+  }
+
   getProfile(data) {
     database.then( (d) => {
+      const uid = firebase.auth().currentUser.uid;
+
+      //get profile info of seller of product
       const profile = d.Users[data.uid].profile;
-      const collectionKeys = Object.keys(d.Users[data.uid].collection);  
+
+      //get collection keys of current user
+      var collection = d.Users[uid].collection ? d.Users[uid].collection : null;
+      var rawCollectionKeys = collection ? Object.keys(collection) : []
+      var collectionKeys = rawCollectionKeys ? this.removeFalsyValuesFrom(rawCollectionKeys) : ['nothing'] ;  
 
       var soldProducts = 0;
 
+      //get profile data of seller of product
       for(var p of Object.values(d.Users[data.uid].products)) {
         if(p.sold) {
           soldProducts++
@@ -57,28 +76,28 @@ class ProductDetails extends Component {
     })
   }
 
-  incrementLikes(likes, uid, key) {
-    //add like to product, and add this product to user's collection; if already in collection, modal shows user
-    //theyve already liked the product
-    if(this.state.collectionKeys.includes(key)) {
-      console.log("you've already liked this product")
+  // incrementLikes(likes, uid, key) {
+  //   //add like to product, and add this product to user's collection; if already in collection, modal shows user
+  //   //theyve already liked the product
+  //   if(this.state.collectionKeys.includes(key)) {
+  //     console.log("you've already liked this product")
 
-    } 
+  //   } 
     
-    else {
-      var userCollectionUpdates = {};
-      userCollectionUpdates['/Users/' + uid + '/collection/' + key + '/'] = true;
-      firebase.database().ref().update(updates);
+  //   else {
+  //     var userCollectionUpdates = {};
+  //     userCollectionUpdates['/Users/' + uid + '/collection/' + key + '/'] = true;
+  //     firebase.database().ref().update(updates);
 
-      var updates = {};
-      likes += 1;
-      var postData = likes;
-      updates['/Users/' + uid + '/products/' + key + '/likes/'] = postData;
-      firebase.database().ref().update(updates);
+  //     var updates = {};
+  //     likes += 1;
+  //     var postData = likes;
+  //     updates['/Users/' + uid + '/products/' + key + '/likes/'] = postData;
+  //     firebase.database().ref().update(updates);
 
-    }
+  //   }
     
-  }
+  // }
 
   render() {
     const { params } = this.props.navigation.state;
@@ -124,14 +143,14 @@ class ProductDetails extends Component {
 
               {this.state.collectionKeys.includes(params.data.key) ? 
                   <Icon name="heart" 
-                        size={35} 
+                        size={22} 
                         color='#800000'
                         onPress={() => { alert("you've already liked this product"); }}
 
               /> : <Icon name="heart-outline" 
-                        size={35} 
-                        color={iOSColors.gray}
-                        onPress={() => {this.incrementLikes(params.data.text.likes, params.data.uid, params.data.key)}}
+                        size={22} 
+                        color='#800000'
+                        onPress={() => {alert('You may like this product directly from marketplace page')}}
 
               />}
 
@@ -244,7 +263,7 @@ const styles = StyleSheet.create( {
   likesRow: {
     flexDirection: 'row',
     backgroundColor: iOSColors.white,
-    marginLeft: 130,
+    marginLeft: 60,
   },
 
   likes: {

@@ -89,3 +89,18 @@ exports.updateOldUser = functions.database.ref('/Users/{uid}/{profile}/uri').onU
     
     return null;
 } );
+
+//FUNCTION NUMBAH 3
+//Problem: When user deletes all products, it wipes away the whole products branch. 
+//This func creates an empty products branch for the user.
+exports.updateEmptyProducts = functions.database.ref('/Users/{uid}/products').onDelete(
+    (snapshot, context) => {
+        console.log(`User: ${context.params.uid} deleted all products`);
+        var updates = {};
+        
+        updates['/Users/' + context.params.uid + '/products/'] = '';
+        admin.database().ref().update(updates);
+
+        return null;
+    }
+)

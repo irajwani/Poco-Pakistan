@@ -324,7 +324,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
   }
 
   deleteProduct(uid, key) {
-    firebase.database().ref('/Users/' + uid + '/products/' + key + '/').remove( 
+    firebase.database().ref('/Users/' + uid + '/products/' + key).remove( 
         ()=>{
         alert('Your product has been successfully deleted.\n Please restart the app and wait a few seconds for these changes to take effect.')
         this.props.navigation.navigate('ProfilePage');
