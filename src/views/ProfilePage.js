@@ -128,7 +128,7 @@ class ProfilePage extends Component {
                   style={ styles.gear }
                           size={30} 
                           color={iOSColors.gray}
-                          onPress={() => this.props.navigation.navigate('EditProfile')}
+                          onPress={() => this.props.navigation.navigate('Settings')}
 
             />
 

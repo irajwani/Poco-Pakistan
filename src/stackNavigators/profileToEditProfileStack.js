@@ -8,9 +8,11 @@ import YourProducts from '../views/YourProducts';
 import EditItem from '../views/EditItem';
 import Users from '../views/Users';
 import UserComments from '../views/UserComments';
+import Settings from '../views/Settings';
 
 export const profileToEditProfileStack = createStackNavigator({
     ProfilePage: ProfilePage,
+    Settings: Settings,
     EditProfile: EditProfile,
     MultipleAddButton: MultipleAddButton,
     MultiplePictureCamera: MultiplePictureCamera,

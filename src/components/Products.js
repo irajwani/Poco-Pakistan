@@ -138,6 +138,7 @@ class Products extends Component {
         var rawCollectionKeys = collection ? Object.keys(collection) : []
         var collectionKeys = rawCollectionKeys ? this.removeFalsyValuesFrom(rawCollectionKeys) : ['nothing'] ;  
         var all = d.Products;
+        console.log(all);
         var yourProducts = all.filter((product) => productKeys.includes(product.key) );
         
         if(showAllProducts) {
