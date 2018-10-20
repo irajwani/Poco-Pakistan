@@ -44,6 +44,14 @@ class CustomChat extends Component {
     // In order to subscribe to the messages this user is receiving in this room, we need to `connect()` the `chatManager` and have a hook on `onNewMessage`. There are several other hooks that you can use for various scenarios. A comprehensive list can be found [here](https://docs.pusher.com/chatkit/reference/javascript#connection-hooks).
     chatManager.connect().then(currentUser => {
       this.currentUser = currentUser;
+      // this.currentUser.setReadCursor({
+      //   roomId: id,
+      //   position: ,
+      // })
+      const cursor = this.currentUser.readCursor({
+        roomId: id
+      })
+      console.log(cursor); 
       this.currentUser.subscribeToRoom({
         //roomId: this.currentUser.rooms[0].id,
         roomId: id,
@@ -74,6 +82,21 @@ class CustomChat extends Component {
 
   }
 
+  componentWillUnmount() {
+    const {params} = this.props.navigation.state;
+    const id = params ? params.id : null;
+    this.currentUser.setReadCursor({
+        roomId: id,
+        position: this.state.newestReadMessageId,
+    })
+    .then(() => {
+      console.log('Success!')
+    })
+    .catch(err => {
+      console.log(`Error setting cursor: ${err}`)
+    })
+  }
+
   //onReceive function not supposed to be here?
   //Think he's using renderMessage to produce the UI which receives the messages as props
   onReceive(data) {
@@ -93,7 +116,8 @@ class CustomChat extends Component {
     };
 
     this.setState(previousState => ({
-      messages: GiftedChat.append(previousState.messages, incomingMessage)
+      messages: GiftedChat.append(previousState.messages, incomingMessage),
+      newestReadMessageId: id
     }));
   }
   /////////////////

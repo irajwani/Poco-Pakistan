@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {  Dimensions, StyleSheet, ScrollView, View, Image } from 'react-native'
+import { Dimensions, StyleSheet, ScrollView, View, Image } from 'react-native'
 import {Text} from 'native-base'
 import {Button} from 'react-native-elements';
 
