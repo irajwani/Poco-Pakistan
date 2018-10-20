@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, ScrollView, Platform } from 'react-native';
+import { Dimensions, Text, StyleSheet, View, ScrollView, Platform, Modal, TouchableHighlight } from 'react-native';
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import {Fab} from 'native-base';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -9,7 +9,13 @@ import RNFetchBlob from 'react-native-fetch-blob';
 import { Sae, Fumi } from 'react-native-textinput-effects';
 import firebase from '../cloud/firebase.js';
 import MultipleAddButton from '../components/MultipleAddButton.js';
+// import { material } from 'react-native-typography';
+import { Eula, TsAndCs, PrivacyPolicy } from '../legal/Documents.js';
+import { confirmBlue, rejectRed } from '../colors.js';
 
+const {width} = Dimensions.get('window');
+
+const limeGreen = '#2e770f';
 
 const Blob = RNFetchBlob.polyfill.Blob;
 const fs = RNFetchBlob.fs;
@@ -28,7 +34,14 @@ class CreateProfile extends Component {
           uri: undefined,
           insta: '',
           fabActive: true,
+          modalVisible: false,
+          termsModalVisible: false,
+          privacyModalVisible: false,
       }
+  }
+
+  setModalVisible = (visible) => {
+    this.setState({modalVisible: visible});
   }
 
   createProfile = (email, pass, pictureuri) => {
@@ -170,7 +183,7 @@ class CreateProfile extends Component {
     const {params} = this.props.navigation.state
     const pictureuris = params ? params.pictureuris : 'nothing here'
     var conditionMet = (this.state.name) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1)
-
+    console.log(this.state.modalVisible);
     return (
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={{textAlign: 'center'}}>Choose Profile Picture:</Text>
@@ -241,6 +254,103 @@ class CreateProfile extends Component {
                 
         />
 
+        {/* Modal to show legal docs and agree to them before one can create Profile */}
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}
+        >
+          <View style={styles.modal}>
+            
+            <Text style={styles.modalHeader}>End-User License Agreement for NottMyStyle</Text>
+            <ScrollView contentContainerStyle={styles.licenseContainer}>
+                <Text>{Eula}</Text>
+            </ScrollView>
+            <View style={styles.documentOpenerContainer}>
+                <Text style={styles.documentOpener} onPress={() => {this.setState({modalVisible: false, termsModalVisible: true})}}>
+                    Terms & Conditions
+                </Text>
+                <Text style={styles.documentOpener} onPress={() => {this.setState({modalVisible: false, privacyModalVisible: true})}}>
+                    See Privacy Policy
+                </Text>
+            </View>
+            <View style={styles.decisionButtons}>
+                <Button
+                    title='Reject' 
+                    titleStyle={{ fontWeight: "300" }}
+                    buttonStyle={{
+                    backgroundColor: rejectRed,
+                    //#2ac40f
+                    width: (width)*0.40,
+                    height: 45,
+                    borderColor: "#226b13",
+                    borderWidth: 0,
+                    borderRadius: 10,
+                    }}
+                    containerStyle={{ marginTop: 0, marginBottom: 0 }}
+                    onPress={() => {this.setModalVisible(false); }} 
+                />
+                <Button
+                    title='Accept' 
+                    titleStyle={{ fontWeight: "300" }}
+                    buttonStyle={{
+                    backgroundColor: confirmBlue,
+                    //#2ac40f
+                    width: (width)*0.40,
+                    height: 45,
+                    borderColor: "#226b13",
+                    borderWidth: 0,
+                    borderRadius: 10,
+                    }}
+                    containerStyle={{ marginTop: 0, marginBottom: 0 }}
+                    onPress={() => {this.createProfile(this.state.email, this.state.pass, pictureuris[0]);}} 
+                />
+            </View>
+
+          </View>
+        </Modal>
+
+        {/* Modal to show Terms and Conditions */}
+        <Modal
+          animationType="fade"
+          transparent={false}
+          visible={this.state.termsModalVisible}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}
+        >
+            <View style={styles.modal}>
+                <ScrollView contentContainerStyle={styles.licenseContainer}>
+                    <Text>{TsAndCs}</Text>
+                </ScrollView>
+                <Text onPress={() => { this.setState({modalVisible: true, termsModalVisible: false}) }} style={styles.gotIt}>
+                    Got It!
+                </Text>
+            </View>
+        </Modal>
+
+        {/* Modal to show Privacy Policy */}
+        <Modal
+          animationType="fade"
+          transparent={false}
+          visible={this.state.privacyModalVisible}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}
+        >
+            <View style={styles.modal}>
+                <ScrollView contentContainerStyle={styles.licenseContainer}>
+                    <Text>{PrivacyPolicy}</Text>
+                </ScrollView>
+                <Text onPress={() => { this.setState({modalVisible: true, privacyModalVisible: false}) }} style={styles.gotIt}>
+                    Got It!
+                </Text>
+            </View>
+        </Modal>
+
         <Button
             disabled = { conditionMet ? false : true}
             large
@@ -255,7 +365,7 @@ class CreateProfile extends Component {
             icon={{name: 'save', type: 'font-awesome'}}
             title='SAVE'
             onPress={() => {
-                            this.createProfile(this.state.email, this.state.pass, pictureuris[0]);
+                            this.setModalVisible(true);
                             } } 
         />
         
@@ -269,11 +379,63 @@ export default withNavigation(CreateProfile);
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'column',
-        justifyContent: 'space-evenly',
+        justifyContent: 'center',
         //alignItems: 'center',
-        paddingTop: 20,
-        paddingLeft: 20,
-        paddingRight: 20,
+        paddingTop: 10,
+        paddingLeft: 10,
+        paddingRight: 10,
 
+    },
+    modal: {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', padding: 10, marginTop: 22},
+    modalHeader: {
+        textAlign: 'center',
+        fontSize: 20,
+        fontFamily: 'Iowan Old Style',
+        fontWeight: "bold"
+    },
+    acceptText: {
+        fontSize: 20,
+        color: 'blue'
+    },
+    rejectText: {
+        fontSize: 20,
+        color: 'red'
+    },
+    hideModal: {
+      fontSize: 20,
+      color: 'green',
+      fontWeight:'bold'
+    },
+    licenseContainer: {
+        flexGrow: 0.8, 
+        backgroundColor: '#fff',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        paddingTop: 5
+    },
+    documentOpenerContainer: {
+        height: 100,
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        padding: 10,
+        paddingBottom: 15,
+        alignItems: 'center'
+    },
+    documentOpener: {
+        color: limeGreen,
+        fontSize: 25,
+        fontFamily: 'Times New Roman'
+    },
+    decisionButtons: {
+        width: width - 30,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    gotIt: {
+        fontWeight: "bold",
+        color: limeGreen,
+        fontSize: 20
     }
 })
+
