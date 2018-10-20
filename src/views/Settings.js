@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dimensions, Text, StyleSheet, View, TouchableOpacity } from 'react-native'
+import { Dimensions, Text, Modal, StyleSheet, View, TouchableOpacity, TouchableHighlight } from 'react-native'
 import { withNavigation } from 'react-navigation';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -7,6 +7,8 @@ import { material, iOSUIKit, iOSColors } from 'react-native-typography'
 
 import * as Animatable from 'react-native-animatable';
 import Accordion from 'react-native-collapsible/Accordion';
+
+import {Eula, TsAndCs, PrivacyPolicy, ContactUs} from '../legal/Documents.js';
 
 const {width} = Dimensions.get('window');
 
@@ -29,9 +31,15 @@ class Settings extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      activeDocument: 'End User License Agreement',
       activeSection: false,
       collapsed: true,
+      modalVisible: false,
     };
+  }
+
+  setModalVisible(visible) {
+    this.setState({modalVisible: visible});
   }
 
   //switch between collapsed and expanded states
@@ -80,7 +88,7 @@ class Settings extends Component {
           <Animatable.Text onPress={ section.settings.length == 1 ? 
             () => {this.props.navigation.navigate('EditProfile')}
             :
-            () => { console.log('show selected document') } 
+            () => { this.setState({ activeDocument: setting, modalVisible: true }) } 
           } style={styles.contentText} animation={isActive ? 'bounceInLeft' : undefined}>
             {setting}
           </Animatable.Text>
@@ -93,10 +101,30 @@ class Settings extends Component {
 
   render() {
 
-    const {activeSection} = this.state;
+    const {activeSection, activeDocument} = this.state;
+
+    var selectedDocument;
+    switch(activeDocument) {
+      case 'End User License Agreement':
+        selectedDocument = Eula;
+        break;
+      case 'Terms & Conditions':
+        selectedDocument = TsAndCs;
+        break;
+      case 'Privacy Policy':
+        selectedDocument = PrivacyPolicy;
+        break;
+      case 'Contact Us':
+        selectedDocument = ContactUs;
+        break;
+      default:
+        selectedDocument = Eula;
+        break;  
+    }
     
     return (
       <View style={styles.container}>
+
         <Accordion
           activeSection={activeSection}
           sections={settings}
@@ -106,6 +134,26 @@ class Settings extends Component {
           duration={100}
           onChange={this.setSection}
         />
+
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}
+        >
+          <View style={styles.modal}>
+            <Text>{selectedDocument}</Text>
+            <TouchableHighlight
+              onPress={() => {
+                this.setModalVisible(!this.state.modalVisible);
+              }}>
+              <Text style={styles.hideModal}>Hide Modal</Text>
+            </TouchableHighlight>
+          </View>
+        </Modal>
+
       </View>
     )
   }
@@ -120,6 +168,14 @@ const styles = StyleSheet.create({
       justifyContent: 'flex-start',
       padding: 10,
       marginTop: 20
+    },
+
+    modal: {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', padding: 10, marginTop: 22},
+    hideModal: {
+      ...material.display1,
+      fontSize: 20,
+      color: 'green',
+      fontWeight:'bold'
     },
 
     headerCard: {
