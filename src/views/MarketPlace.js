@@ -10,6 +10,7 @@ class MarketPlace extends Component {
       showWishList: false
     }
   }
+
   render() {
     
     return <Products showAllProducts={true}/>

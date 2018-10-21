@@ -24,6 +24,14 @@ var {height, width} = Dimensions.get('window');
 const limeGreen = '#2e770f';
 const profoundPink = '#c64f5f';
 
+function removeFalsyValuesFrom(object) {
+  const newObject = {};
+  Object.keys(object).forEach((property) => {
+    if (object[property]) {newObject[property] = object[property]}
+  })
+  return Object.keys(newObject);
+}
+
 class ProductDetails extends Component {
 
   constructor(props){
@@ -46,28 +54,25 @@ class ProductDetails extends Component {
     }, 4);
   }
 
-  removeFalsyValuesFrom(object) {
-    const newObject = {};
-    Object.keys(object).forEach((property) => {
-      if (object[property]) {newObject[property] = object[property]}
-    })
-    return Object.values(newObject);
-  }
-
   getProfile(data) {
     database.then( (d) => {
       const uid = firebase.auth().currentUser.uid;
-
+      const otherUserUid = data.uid;
       //get profile info of seller of product
       const profile = d.Users[data.uid].profile;
 
-      //get keys of user's products
+      //get keys of current user's products
       var productKeys = d.Users[uid].products ? Object.keys(d.Users[uid].products) : [];
+
+      //get usersBlocked for current user
+      var rawUsersBlocked = d.Users[uid].usersBlocked ? d.Users[firebase.auth().currentUser.uid].usersBlocked : {};
+      var yourUsersBlocked = removeFalsyValuesFrom(rawUsersBlocked);
+      console.log(yourUsersBlocked);
 
       //get collection keys of current user
       var collection = d.Users[uid].collection ? d.Users[uid].collection : null;
-      var rawCollectionKeys = collection ? Object.keys(collection) : []
-      var collectionKeys = rawCollectionKeys ? this.removeFalsyValuesFrom(rawCollectionKeys) : ['nothing'] ;  
+      var rawCollection = collection ? collection : {}
+      var collectionKeys = removeFalsyValuesFrom(rawCollection);  
 
       var soldProducts = 0;
 
@@ -82,7 +87,7 @@ class ProductDetails extends Component {
 
       var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: Date.now() } };
 
-      this.setState( {profile, numberProducts, soldProducts, comments, productKeys, collectionKeys} )
+      this.setState( {yourUsersBlocked, otherUserUid, profile, numberProducts, soldProducts, comments, productKeys, collectionKeys} )
     })
     .then( () => {
       this.setState({isGetting: false})
@@ -162,7 +167,7 @@ class ProductDetails extends Component {
       }
       else {
         this.currentUser.createRoom({
-          //base the room name on the following pattern: sellers uid + dot + product key + dot + buyers uid
+          //base the room name on the following pattern: product key + dot + buyers uid
           name: desiredRoomsName,
           private: false,
           addUserIds: [uid]
@@ -181,8 +186,10 @@ class ProductDetails extends Component {
   }
 
   navToOtherUserProfilePage = () => {
-    const {profile, numberProducts, soldProducts, comments} = this.state;
-    this.props.navigation.navigate('OtherUserProfilePage', {profile: profile, numberProducts: numberProducts, soldProducts: soldProducts, comments: comments});
+    //Since we already perform some data retrieval on this page,
+    //extract information for: the UI on next page AND the uid of the user to be able to block them from sending messages.
+    const {yourUsersBlocked, otherUserUid, profile, numberProducts, soldProducts, comments} = this.state;
+    this.props.navigation.navigate('OtherUserProfilePage', {usersBlocked: yourUsersBlocked, uid: otherUserUid, profile: profile, numberProducts: numberProducts, soldProducts: soldProducts, comments: comments});
   }
 
   render() {
@@ -201,8 +208,6 @@ class ProductDetails extends Component {
     };
     const description = text.description;
     const {comments} = text;
-
-    console.log("videos: updating")
 
     if (isGetting) {
       return (

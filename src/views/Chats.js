@@ -17,6 +17,14 @@ const noChatsText = "You have not initiated any chats 😳. Converse with a sell
 
 const {width} = Dimensions.get('window')
 
+function removeFalsyValuesFrom(object) {
+  const newObject = {};
+  Object.keys(object).forEach((property) => {
+    if (object[property]) {newObject[property] = object[property]}
+  })
+  return Object.keys(newObject);
+}
+
 class Chats extends Component {
 
   constructor(props) {
@@ -53,7 +61,36 @@ class Chats extends Component {
       .then( (currentUser) => {
 
       this.currentUser = currentUser;
+      
+      ////////
+      ///// leave the rooms for which you've blocked Users
+      ///// use the removeFalsyValues function because some uid keys could have falsy values if one decides to unblock user.
+      var rawUsersBlocked = d.Users[firebase.auth().currentUser.uid].usersBlocked ? d.Users[firebase.auth().currentUser.uid].usersBlocked : {};
+      var usersBlocked = removeFalsyValuesFrom(rawUsersBlocked);
+      console.log(usersBlocked);
+      ///////
+
       if(this.currentUser.rooms.length>1) {
+        //if any room name has a blockedUser name in it, leave that room
+        for(let i = 1; i < this.currentUser.rooms.length; i++) { 
+          
+          var {users, id} = this.currentUser.rooms[i];
+          var buyer = users[0,1].id;
+          var seller = users[0,0].id;
+          console.log(buyer);
+          if(usersBlocked.includes(buyer) || usersBlocked.includes(seller)) {
+            this.currentUser.leaveRoom({
+              roomId: id
+            })
+            .then( () => console.log(`user successfully removed from room with ID: ${id}`))
+            .catch( (err) => console.log(err))
+          }
+        }
+
+      }
+
+      if(this.currentUser.rooms.length>1) {
+
         //perform the following process across all rooms currentUser is a part of except for the common Users Room
         for(let i = 1; i < this.currentUser.rooms.length; i++) {
             

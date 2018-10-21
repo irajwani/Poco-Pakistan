@@ -50,10 +50,28 @@ class OtherUserProfilePage extends Component {
       this.setState({showBlockOrReportModal: true})
   }
 
+  blockUser = (uid) => {
+    var blockUserUpdates = {};
+    blockUserUpdates['/Users/' + firebase.auth().currentUser.uid + '/usersBlocked/' + uid + '/'] = true;
+    firebase.database().ref().update(blockUserUpdates)  
+    alert("This individual may no longer converse with you by choosing to purchase your products on the Market");
+  }
+
+  unblockUser = (uid) => {
+    var blockUserUpdates = {};
+    blockUserUpdates['/Users/' + firebase.auth().currentUser.uid + '/usersBlocked/' + uid + '/'] = false;
+    firebase.database().ref().update(blockUserUpdates)  
+    alert("This individual may now attempt to purchase your products from the market.");
+  }
+
+  reportUser = () => {
+
+  }
+
   render() {
 
     const {params} = this.props.navigation.state;
-    const {profile, numberProducts, soldProducts, comments} = params;
+    const {usersBlocked, uid, profile, numberProducts, soldProducts, comments} = params;
 
     
     const gradientColors = ['#7de853','#0baa26', '#064711'];
@@ -145,12 +163,20 @@ class OtherUserProfilePage extends Component {
           <View style={styles.modal}>
             <Text style={styles.modalHeader}>Block or Report This User</Text>
             <Text style={styles.modalText}>If you block this user, then they cannot initiate a chat with you regarding one of your products.</Text>
-            <Text style={styles.modalText}>If you feel this user has breached the Terms and Conditions for usage of NottMyStyle (for example, through proliferation of malicious content, or improper language), then please explain this to the NottMyStyle Team by choosing to Report this user.</Text>
+            <Text style={styles.modalText}>This will delete all chats you have with this individual, so if you decide to unblock this user later, they will have to initiate new chats with you.</Text>
+            <Text style={styles.modalText}>If you feel this user has breached the Terms and Conditions for usage of NottMyStyle (for example, through proliferation of malicious content, or improper language), then please explain this to the NottMyStyle Team by selecting Report User.</Text>
             <View style={styles.documentOpenerContainer}>
-                <Text style={styles.blockUser} onPress={() => {}}>
-                    Block User
-                </Text>
-                <Text style={styles.reportUser} onPress={() => {}}>
+                {usersBlocked.includes(uid) ?
+                    <Text style={styles.blockUser} onPress={() => {this.unblockUser(uid)}}>
+                        Unblock User
+                    </Text>
+                :
+                    <Text style={styles.blockUser} onPress={() => {this.blockUser(uid)}}>
+                        Block User
+                    </Text>
+                }
+                
+                <Text style={styles.reportUser} onPress={() => {this.reportUser()}}>
                     Report User
                 </Text>
             </View>
@@ -158,7 +184,7 @@ class OtherUserProfilePage extends Component {
                 onPress={() => {
                   this.setState( {showBlockOrReportModal: false} )
                 }}>
-                <Text style={styles.hideModal}>I Changed My Mind</Text>
+                <Text style={styles.hideModal}>Hide Modal</Text>
             </TouchableHighlight>
           </View>
        </Modal>  
@@ -334,7 +360,7 @@ const styles = StyleSheet.create({
 
 } ,
 
-modal: {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', padding: 10, marginTop: 22},
+modal: {flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', padding: 30, marginTop: 22},
 modalHeader: {
     textAlign: 'center',
     fontSize: 20,
@@ -348,6 +374,7 @@ modalText: {
     fontWeight: "normal"
 },
 hideModal: {
+    paddingTop: 40,
     fontSize: 20,
     color: 'green',
     fontWeight:'bold'
@@ -358,6 +385,7 @@ documentOpenerContainer: {
     flexDirection: 'column',
     justifyContent: 'space-between',
     padding: 10,
+    paddingTop: 20,
     paddingBottom: 15,
     alignItems: 'center'
 },

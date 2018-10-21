@@ -120,7 +120,7 @@ class Products extends Component {
     Object.keys(object).forEach((property) => {
       if (object[property]) {newObject[property] = object[property]}
     })
-    return Object.values(newObject);
+    return Object.keys(newObject);
   }
 
 
@@ -134,9 +134,10 @@ class Products extends Component {
 
         var productKeys = d.Users[uid].products ? Object.keys(d.Users[uid].products) : [];
         //need to filter d.Users.uid.collection for only those keys that have values of true
+        //get collection keys of current user
         var collection = d.Users[uid].collection ? d.Users[uid].collection : null;
-        var rawCollectionKeys = collection ? Object.keys(collection) : []
-        var collectionKeys = rawCollectionKeys ? this.removeFalsyValuesFrom(rawCollectionKeys) : ['nothing'] ;  
+        var rawCollection = collection ? collection : {}
+        var collectionKeys = removeFalsyValuesFrom(rawCollection);    
         var all = d.Products;
         console.log(all);
         var yourProducts = all.filter((product) => productKeys.includes(product.key) );

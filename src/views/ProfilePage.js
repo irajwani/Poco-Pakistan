@@ -71,6 +71,7 @@ class ProfilePage extends Component {
       var numberProducts = Object.keys(d.Users[your_uid].products).length
       
       var {country, insta, name, size, uri} = d.Users[your_uid].profile
+      
       // var name = d.Users[your_uid].profile.name;
       // var email = d.Users[your_uid].profile.email;
       // var insta = d.Users[your_uid].profile.insta;
