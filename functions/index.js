@@ -66,7 +66,7 @@ exports.createNewUser = functions.database.ref('/Users/{uid}/profile/').onCreate
 } );
 //FUNCTION NUMBAH 2
 //Going to assume people will only change their pictures, and not their names
-exports.updateOldUser = functions.database.ref('/Users/{uid}/{profile}/uri').onUpdate( 
+exports.updateOldUser = functions.database.ref('/Users/{uid}/{profile}/uri').onWrite( 
     (snapshot, context) => { 
     console.log('User updated profile picture');
     var uri = snapshot.after.val();

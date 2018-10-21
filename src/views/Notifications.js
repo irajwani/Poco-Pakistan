@@ -8,6 +8,8 @@ import { PacmanIndicator } from 'react-native-indicators';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Button } from 'react-native-elements';
 
+import { lightGreen } from '../colors';
+
 const noNotificationsText = "The NottMyStyle team believes your products don't warrant any stats yet 👌, thus you have no notifications"
 
 const {width} = Dimensions.get('window');
@@ -60,13 +62,23 @@ class Notifications extends Component {
 
     if(noNotifications) {
       return (
-        <View style={{flex: 1, alignItems: 'center', padding: 10, justifyContent: 'space-between'}}>
-          <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'green'}}>{noNotificationsText}</Text>
-          <Button 
+        <View style={styles.container}>
+          <View style={styles.upperNavTab}>
+              <Button 
                 buttonStyle={styles.notifsbutton}
+                textStyle={{fontSize: 18, color: 'black'}}
                 title="Chats"
                 onPress={()=>this.navToChats()}
-          />  
+              />
+              <Button 
+                buttonStyle={styles.chatsbutton}
+                textStyle={{fontSize: 18, color: 'black'}}
+                title="Notifications"
+              />
+          </View>
+          
+          <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'green'}}>{noNotificationsText}</Text>
+          
         </View>
       )
     }
@@ -106,11 +118,7 @@ class Notifications extends Component {
             </View>
         ))
         }
-        <Button 
-                buttonStyle={styles.notifsbutton}
-                title="Chats"
-                onPress={()=>this.navToChats()}
-        />  
+          
       </ScrollView>
     )
   }
@@ -119,14 +127,33 @@ class Notifications extends Component {
 export default withNavigation(Notifications);
 
 const styles = StyleSheet.create({
-    notifsbutton: {
-        backgroundColor: "#20b590",
-        width: 200,
-        height: 50,
-        borderWidth: 2,
-        borderRadius: 0,
-        borderColor: "#0c5911"
-      },
+  container: {
+    flexDirection: 'column',
+    marginTop: 22,
+    backgroundColor: lightGreen
+  },
+  upperNavTab: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: lightGreen,
+  },
+  chatsbutton: {
+    backgroundColor: lightGreen,
+    width: width/2 - 30,
+    height: 50,
+    borderWidth: 0,
+    borderRadius: 0,
+    borderColor: "#0c5911"
+  },
+  notifsbutton: {
+    backgroundColor: "#fff",
+    width: width/2 - 30,
+    height: 50,
+    borderWidth: 1,
+    borderRadius: 0,
+    borderColor: "#0c5911"
+  },
     daysElapsedColumn: {
         flexDirection: 'column',
         justifyContent: 'center',

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {ScrollView, View, Text, Image, Dimensions, StyleSheet} from 'react-native';
+import {ScrollView, View, Text, Image, TouchableOpacity, Dimensions, StyleSheet} from 'react-native';
 import {Button} from 'react-native-elements';
 
 import { withNavigation } from 'react-navigation';
@@ -80,7 +80,9 @@ class ProductDetails extends Component {
       
       var numberProducts = Object.keys(d.Users[data.uid].products).length
 
-      this.setState( {profile, numberProducts, soldProducts, productKeys, collectionKeys} )
+      var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: Date.now() } };
+
+      this.setState( {profile, numberProducts, soldProducts, comments, productKeys, collectionKeys} )
     })
     .then( () => {
       this.setState({isGetting: false})
@@ -176,6 +178,11 @@ class ProductDetails extends Component {
       
       
     });
+  }
+
+  navToOtherUserProfilePage = () => {
+    const {profile, numberProducts, soldProducts, comments} = this.state;
+    this.props.navigation.navigate('OtherUserProfilePage', {profile: profile, numberProducts: numberProducts, soldProducts: soldProducts, comments: comments});
   }
 
   render() {
@@ -473,10 +480,12 @@ class ProductDetails extends Component {
         <View style={profileRowStyles.separator}/>
         <View style={profileRowStyles.rowContainer}>
           {/* row containing profile picture, and user details */}
-          <Image source={ {uri: profile.uri }} style={profileRowStyles.profilepic} />
+          <TouchableOpacity onPress={() => this.navToOtherUserProfilePage()}>
+            <Image source={ {uri: profile.uri }} style={profileRowStyles.profilepic} />
+          </TouchableOpacity>
           <View style={profileRowStyles.textContainer}>
             
-            <Text style={profileRowStyles.name}>
+            <Text onPress={() => this.navToOtherUserProfilePage()} style={profileRowStyles.name}>
               {profile.name}
             </Text>
             <Text style={profileRowStyles.email}>
@@ -510,7 +519,7 @@ class ProductDetails extends Component {
                   <Text style={styles.keyText}>{key === 'original_price' ? 'RETAIL PRICE' : key.toUpperCase()}</Text>
               </View>
               <View style={ styles.valueContainer }>
-                  <Text style={styles.valueText}>{details[key]}</Text>
+                  <Text style={styles.valueText}>{key === 'original_price' ? `£${details[key]}` : details[key]}</Text>
               </View>
             </View>
 

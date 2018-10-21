@@ -1,19 +1,20 @@
 import React, { Component } from 'react'
-import { Dimensions, Text, StyleSheet, ScrollView, View, Image, TouchableHighlight } from 'react-native'
+import { Dimensions, Modal, Text, StyleSheet, ScrollView, View, Image, TouchableHighlight } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Button, Divider} from 'react-native-elements'
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import firebase from '../cloud/firebase.js';
-import {database} from '../cloud/database';
-import { iOSColors, iOSUIKit, human } from 'react-native-typography';
+import { iOSColors } from 'react-native-typography';
 import LinearGradient from 'react-native-linear-gradient'
 import ReviewsList from '../components/ReviewsList.js';
 import { PacmanIndicator } from 'react-native-indicators';
+import { bobbyBlue } from '../colors.js';
 const {width, height} = Dimensions.get('window');
+
 
 const resizeMode = 'center';
 
-class ProfilePage extends Component {
+class OtherUserProfilePage extends Component {
 
   static navigationOptions = {
     header: null
@@ -39,82 +40,24 @@ class ProfilePage extends Component {
       soldProducts: 0,
       sellItem: false,
       products: [],
-      isGetting: true,
+      showBlockOrReportModal: false,
 
     }
 
   }
 
-  componentWillMount() {
-    setTimeout(() => {
-      const uid = firebase.auth().currentUser.uid;
-      this.getProducts(uid);
-      this.getComments(uid);
-    }, 1000);
-    
+  showBlockOrReport = () => {
+      this.setState({showBlockOrReportModal: true})
   }
-
-  getProducts(your_uid) {
-    console.log(your_uid);
-    const keys = [];
-    database.then( (d) => {
-      
-      var soldProducts = 0;
-      //relies on fact that when user profile was initially created,
-      //we appended a products: '' entry under a particular uid's branch
-      for(var p of Object.values(d.Users[your_uid].products)) {
-        if(p.sold) {
-          soldProducts++
-        }
-      }
-      
-      var numberProducts = Object.keys(d.Users[your_uid].products).length
-      
-      var {country, insta, name, size, uri} = d.Users[your_uid].profile
-      // var name = d.Users[your_uid].profile.name;
-      // var email = d.Users[your_uid].profile.email;
-      // var insta = d.Users[your_uid].profile.insta;
-
-      console.log(name);
-      this.setState({ name, country, uri, insta, numberProducts, soldProducts })
-    })
-    .catch( (err) => {console.log(err) })
-    
-  }
-
-  getComments(uid) {
-    console.log(uid);
-    const keys = [];
-    database.then( (d) => {
-      //get name of current user to track who left comments on this persons UserComments component  
-      // var insaanKaNaam = d.Users[firebase.auth().currentUser.uid].profile.name;  
-      // console.log(insaanKaNaam);
-      //get list of comments for specific product
-      var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: Date.now() } };
-      console.log(comments);
-      this.setState({ comments });
-      console.log(comments);
-
-    })
-    .then( () => { console.log('here');this.setState( {isGetting: false} );  } )
-    .catch( (err) => {console.log(err) })
-    
-}
 
   render() {
-    var {isGetting, comments} = this.state;
-    console.log(comments)
+
+    const {params} = this.props.navigation.state;
+    const {profile, numberProducts, soldProducts, comments} = params;
+
+    
     const gradientColors = ['#7de853','#0baa26', '#064711'];
     const gradientColors2 = ['#0a968f','#6ee5df', ];
-
-    if(isGetting){
-      return(
-        <View style={{flex: 1}}>
-          <PacmanIndicator color='#28a526' />
-        </View>
-      )
-    }
- 
 
     return (
       <View style={styles.mainContainer}>
@@ -132,21 +75,26 @@ class ProfilePage extends Component {
             />
 
             
-            {this.state.uri ? 
-              <Image style= {styles.profilepic} source={ {uri: this.state.uri} }/>
+            {profile.uri ? 
+              <Image style= {styles.profilepic} source={ {uri: profile.uri} }/>
               : 
               <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>
             } 
             
 
-            
+            <Icon name="alert-octagon" 
+                  style={styles.users}
+                          size={30} 
+                          color={'#020002'}
+                          onPress={() => {this.showBlockOrReport()}}
+            />
 
           </View>  
 
           <View style={styles.profileText}>
-            <Text style={styles.name}>{this.state.name}</Text>
-            <Text style={styles.pos}>{this.state.country} </Text>
-            <Text style={styles.insta}>@{this.state.insta} </Text>
+            <Text style={styles.name}>{profile.name}</Text>
+            <Text style={styles.pos}>{profile.country} </Text>
+            <Text style={styles.insta}>@{profile.insta} </Text>
             
           </View>
 
@@ -160,42 +108,60 @@ class ProfilePage extends Component {
       <View style={styles.midContainer}>
         <View style={ {flexDirection: 'row',} }>
           <View style={styles.numberCard}>
-            <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.numberProducts}>{this.state.numberProducts} </Text>
+            <Text onPress={() => {}} style={styles.numberProducts}>{numberProducts} </Text>
             <Text style={styles.subText}>ON SALE</Text>
           </View>
           <Divider style={{  backgroundColor: '#47474f', width: 3, height: 60 }} />
           <View style={styles.numberCard}>
-            <Text style={styles.numberProducts}>{this.state.soldProducts} </Text>
+            <Text style={styles.numberProducts}>{soldProducts} </Text>
             <Text style={styles.subText}>SOLD</Text>
           </View>    
         </View>
       </View>
       
-      {/* User Reviews */}
+
+      
+        
+
+      
+
       <View style={styles.footerContainer} >
 
         <ScrollView contentContainerStyle={styles.halfPageScroll}>
-          <View style={ {backgroundColor: '#f2ece3'} }>
-          {Object.keys(comments).map(
-                  (comment) => (
-                  <View key={comment} style={styles.rowContainer}>
-                      
-                      <View style={styles.textContainer}>
-                          <Text style={ styles.naam }> {comments[comment].name} </Text>
-                          <Text style={styles.comment}> {comments[comment].text}  </Text>
-                          <Text style={ styles.commentTime }> { comments[comment].time } </Text>
-                      </View>
-                      <View style={styles.separator}/>   
-                      
-                  </View>
-                  
-              )
-                      
-              )}
-          </View>
+          <ReviewsList reviews={comments}/>
         </ScrollView> 
 
       </View>
+
+      {/* Modal to select if whether you wish to block or report user */}
+      <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.showBlockOrReportModal}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}
+       >
+          <View style={styles.modal}>
+            <Text style={styles.modalHeader}>Block or Report This User</Text>
+            <Text style={styles.modalText}>If you block this user, then they cannot initiate a chat with you regarding one of your products.</Text>
+            <Text style={styles.modalText}>If you feel this user has breached the Terms and Conditions for usage of NottMyStyle (for example, through proliferation of malicious content, or improper language), then please explain this to the NottMyStyle Team by choosing to Report this user.</Text>
+            <View style={styles.documentOpenerContainer}>
+                <Text style={styles.blockUser} onPress={() => {}}>
+                    Block User
+                </Text>
+                <Text style={styles.reportUser} onPress={() => {}}>
+                    Report User
+                </Text>
+            </View>
+            <TouchableHighlight
+                onPress={() => {
+                  this.setState( {showBlockOrReportModal: false} )
+                }}>
+                <Text style={styles.hideModal}>I Changed My Mind</Text>
+            </TouchableHighlight>
+          </View>
+       </Modal>  
 
       </View>
       
@@ -208,15 +174,7 @@ class ProfilePage extends Component {
 
 }
 
-export default ProfilePage;
-
-// line 143 <Icon name="account-multiple" 
-// style={styles.users}
-// size={30} 
-// color={'#189fe2'}
-// onPress={() => this.props.navigation.navigate('Users')}
-
-// />
+export default OtherUserProfilePage;
 
 const styles = StyleSheet.create({
   linearGradient: {
@@ -374,48 +332,45 @@ const styles = StyleSheet.create({
     paddingLeft: 25,
     paddingRight: 25
 
-}, 
-naam: {
-  ...iOSUIKit.caption2,
-  fontSize: 11,
-  color: '#37a1e8'
+} ,
 
+modal: {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', padding: 10, marginTop: 22},
+modalHeader: {
+    textAlign: 'center',
+    fontSize: 20,
+    fontFamily: 'Iowan Old Style',
+    fontWeight: "bold"
 },
-
-title: {
-  ...human.headline,
-  fontSize: 20,
-  color: '#656565'
+modalText: {
+    textAlign: 'justify',
+    fontSize: 15,
+    fontFamily: 'Times New Roman',
+    fontWeight: "normal"
 },
+hideModal: {
+    fontSize: 20,
+    color: 'green',
+    fontWeight:'bold'
+  },
 
-comment: {
-  ...iOSUIKit.bodyEmphasized,
-  fontSize: 25,
-  color: 'black',
-},  
-
-commentTime: {
-  fontSize: 12,
-  color: '#1f6010'
+documentOpenerContainer: {
+    height: 100,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    padding: 10,
+    paddingBottom: 15,
+    alignItems: 'center'
 },
-
-rowContainer: {
-  flexDirection: 'column',
-  padding: 14
+blockUser: {
+    color: '#800000',
+    fontSize: 25,
+    fontFamily: 'Times New Roman'
 },
-
-textContainer: {
-flex: 1,
-flexDirection: 'column',
-alignContent: 'center',
-padding: 5,
+reportUser: {
+    color: bobbyBlue,
+    fontSize: 25,
+    fontFamily: 'Times New Roman',
 },
-
-separator: {
-width: width,
-height: 2,
-backgroundColor: '#111110'
-},  
 
 });
 

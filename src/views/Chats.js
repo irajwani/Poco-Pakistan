@@ -11,6 +11,8 @@ import { CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_INSTANCE_LOCATOR } from '../cr
 import {material} from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
 
+import { lightGreen } from '../colors';
+
 const noChatsText = "You have not initiated any chats 😳. Converse with a seller by choosing to 'Buy' a product from the Marketplace";
 
 const {width} = Dimensions.get('window')
@@ -126,75 +128,98 @@ class Chats extends Component {
 
     if(this.state.noChats) {
       return (
-        <View style={{flex: 1, alignItems: 'center', padding: 10, justifyContent: 'space-between'}}>
-          <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'blue'}}>{noChatsText}</Text>
-          <Button 
-                buttonStyle={styles.notifsbutton}
-                title="Notifications"
-                onPress={()=>this.navToNotifications()}
-          /> 
+        <View style={styles.container}>
+          <View style={styles.upperNavTab}>
+            <Button 
+              buttonStyle={styles.chatsbutton}
+              textStyle={{fontSize: 18, color: 'black'}}
+              title="Chats"
+              
+            />
+            <Button 
+              buttonStyle={styles.notifsbutton}
+              textStyle={{fontSize: 18, color: 'black'}}
+              title="Notifications"
+              onPress={()=>this.navToNotifications()}
+            />
+          </View>
+          <View style={{flex: 1, alignItems: 'center', padding: 10, justifyContent: 'space-between'}}>
+            <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'blue'}}>{noChatsText}</Text> 
+          </View>
         </View>
       )
     }
     
     return (
-      <ScrollView 
-        contentContainerStyle={{
-          paddingTop: 20,
-          flexDirection: 'column',
-          flexGrow: 1,
-          justifyContent: 'flex-start',
-          alignItems: 'center'
-        }}
-      >
-             
-        {chats.map( (chat) => {
-          return(
-            <View key={chat.name} style={{flexDirection: 'column', padding: 5}}>
-              <View style={styles.separator}/>
-              <View style={styles.rowContainer}>
-                
-                <Image source={ {uri: chat.productImageURL }} style={[styles.productprofilepic, styles.productcolor]} />
-                
-                <View style={styles.infoandbuttoncontainer}>
-                  <Text style={[styles.info, styles.productinfo]}>From & For,</Text>
-                  <Text style={[styles.info, styles.sellerinfo]}>{(chat.seller.split(' '))[0]} & {(chat.buyer.split(' '))[0]}</Text>
-                  <View style={styles.membersRow}>
-                    {chat.sellerAvatar ?
-                      <Image source={ {uri: chat.sellerAvatar } } style={[styles.profilepic, styles.profilecolor]} />
-                      :
-                      <Image source={ require('../images/blank.jpg') } style={[styles.profilepic, styles.profilecolor]} />
-                    }
-                    {chat.buyerAvatar ?
-                      <Image source={ {uri: chat.buyerAvatar } } style={[styles.profilepic, styles.profilecolor]} />
-                      :
-                      <Image source={ require('../images/blank.jpg') } style={[styles.profilepic, styles.profilecolor]} />
-                    }
-                  </View>   
-                </View>
-
-                <Button
-                      small
-                      buttonStyle={styles.messagebutton}
-                      icon={{name: 'forum', type: 'material-community'}}
-                      title="TALK"
-                      onPress={() => { this.navToChat(chat.id) } } 
-                />  
+      <View style={styles.container}>
+        <View style={styles.upperNavTab}>
+          <Button 
+            buttonStyle={styles.chatsbutton}
+            textStyle={{fontSize: 18, color: 'black'}}
+            title="Chats"
+            
+          />
+          <Button 
+            buttonStyle={styles.notifsbutton}
+            textStyle={{fontSize: 18, color: 'black'}}
+            title="Notifications"
+            onPress={()=>this.navToNotifications()}
+          />
+        </View>
+        <ScrollView 
+          contentContainerStyle={{
+            paddingTop: 0,
+            flexDirection: 'column',
+            flexGrow: 1,
+            justifyContent: 'flex-start',
+            alignItems: 'center'
+          }}
+        >
+              
+          {chats.map( (chat) => {
+            return(
+              <View key={chat.name} style={{flexDirection: 'column', padding: 5}}>
+                <View style={styles.separator}/>
+                <View style={styles.rowContainer}>
                   
+                  <Image source={ {uri: chat.productImageURL }} style={[styles.productprofilepic, styles.productcolor]} />
+                  
+                  <View style={styles.infoandbuttoncontainer}>
+                    <Text style={[styles.info, styles.productinfo]}>Chat Between:</Text>
+                    <Text style={[styles.info, styles.sellerinfo]}>{(chat.seller.split(' '))[0]} & {(chat.buyer.split(' '))[0]}</Text>
+                    <View style={styles.membersRow}>
+                      {chat.sellerAvatar ?
+                        <Image source={ {uri: chat.sellerAvatar } } style={[styles.profilepic, styles.profilecolor]} />
+                        :
+                        <Image source={ require('../images/blank.jpg') } style={[styles.profilepic, styles.profilecolor]} />
+                      }
+                      {chat.buyerAvatar ?
+                        <Image source={ {uri: chat.buyerAvatar } } style={[styles.profilepic, styles.profilecolor]} />
+                        :
+                        <Image source={ require('../images/blank.jpg') } style={[styles.profilepic, styles.profilecolor]} />
+                      }
+                    </View>   
+                  </View>
 
+                  <Button
+                        small
+                        buttonStyle={styles.messagebutton}
+                        icon={{name: 'forum', type: 'material-community'}}
+                        title="TALK"
+                        onPress={() => { this.navToChat(chat.id) } } 
+                  />  
+                    
+
+                </View>
+                <View style={styles.separator}/>
               </View>
-              <View style={styles.separator}/>
-            </View>
+              
+            )
+              
+            })}
             
-          )
-            
-          })}
-        <Button 
-                buttonStyle={styles.notifsbutton}
-                title="Notifications"
-                onPress={()=>this.navToNotifications()}
-        />  
-      </ScrollView>
+        </ScrollView>
+      </View>
     )
   }
 }
@@ -202,11 +227,30 @@ class Chats extends Component {
 export default withNavigation(Chats)
 
 const styles = StyleSheet.create({
-  notifsbutton: {
-    backgroundColor: "#20b590",
-    width: 200,
+  container: {
+    flexDirection: 'column',
+    marginTop: 22,
+    backgroundColor: lightGreen
+  },
+  upperNavTab: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: lightGreen,
+  },
+  chatsbutton: {
+    backgroundColor: lightGreen,
+    width: width/2 - 30,
     height: 50,
-    borderWidth: 2,
+    borderWidth: 0,
+    borderRadius: 0,
+    borderColor: "#0c5911"
+  },
+  notifsbutton: {
+    backgroundColor: "#fff",
+    width: width/2 - 30,
+    height: 50,
+    borderWidth: 1,
     borderRadius: 0,
     borderColor: "#0c5911"
   },
@@ -264,15 +308,17 @@ info: {
   ...material.subheading,
 },  
 productinfo: {
-  color: "#800000",
-  fontSize: 11
+  color: "black",
+  fontSize: 11,
+  fontFamily: 'Iowan Old Style',
 },
 sellerinfo: {
   fontSize: 13,
-  color: "#185b10"
+  color: "#185b10",
+  fontFamily: 'Times New Roman'
 },
 messagebutton: {
-  backgroundColor: "#051e03",
+  backgroundColor: "#185b10",
   width: 75,
   height: 45,
   borderWidth: 2,
