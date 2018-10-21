@@ -13,8 +13,15 @@ import Accordion from 'react-native-collapsible/Accordion';
 import PushNotification from 'react-native-push-notification';
 
 
-
 var {height, width} = Dimensions.get('window');
+
+function removeFalsyValuesFrom(object) {
+  const newObject = {};
+  Object.keys(object).forEach((property) => {
+    if (object[property]) {newObject[property] = object[property]}
+  })
+  return Object.keys(newObject);
+}
 
 const limeGreen = '#2e770f';
 const profoundPink = '#c64f5f';
@@ -113,14 +120,6 @@ class Products extends Component {
         firebase.database().ref().update(notificationUpdates);
       }
     }
-  }
-
-  removeFalsyValuesFrom(object) {
-    const newObject = {};
-    Object.keys(object).forEach((property) => {
-      if (object[property]) {newObject[property] = object[property]}
-    })
-    return Object.keys(newObject);
   }
 
 

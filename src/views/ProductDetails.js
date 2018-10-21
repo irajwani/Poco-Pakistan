@@ -29,7 +29,7 @@ function removeFalsyValuesFrom(object) {
   Object.keys(object).forEach((property) => {
     if (object[property]) {newObject[property] = object[property]}
   })
-  return Object.keys(newObject);
+  return Object.values(newObject);
 }
 
 class ProductDetails extends Component {

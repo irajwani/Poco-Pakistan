@@ -70,6 +70,8 @@ class Chats extends Component {
       console.log(usersBlocked);
       ///////
 
+      console.log(this.currentUser.rooms.length);
+
       if(this.currentUser.rooms.length>1) {
         //if any room name has a blockedUser name in it, leave that room
         for(let i = 1; i < this.currentUser.rooms.length; i++) { 
@@ -88,6 +90,8 @@ class Chats extends Component {
         }
 
       }
+
+      console.log(this.currentUser.rooms.length);
 
       if(this.currentUser.rooms.length>1) {
 
