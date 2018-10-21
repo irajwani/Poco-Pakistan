@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
-import { Dimensions, Modal, Text, StyleSheet, ScrollView, View, Image, TouchableHighlight } from 'react-native'
+import { Dimensions, Modal, Text, StyleSheet, ScrollView, View, Image, TextInput, TouchableHighlight, TouchableWithoutFeedback, Keyboard } from 'react-native'
+import email from 'react-native-email'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import {Button, Divider} from 'react-native-elements'
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import firebase from '../cloud/firebase.js';
@@ -8,11 +10,19 @@ import { iOSColors } from 'react-native-typography';
 import LinearGradient from 'react-native-linear-gradient'
 import ReviewsList from '../components/ReviewsList.js';
 import { PacmanIndicator } from 'react-native-indicators';
-import { bobbyBlue } from '../colors.js';
+import { bobbyBlue, lightGreen } from '../colors.js';
+import { Hoshi, Sae } from 'react-native-textinput-effects';
+import { TextField } from 'react-native-material-textfield';
 const {width, height} = Dimensions.get('window');
 
 
 const resizeMode = 'center';
+
+const DismissKeyboardView = ({children}) => (
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+        {children}
+    </TouchableWithoutFeedback>
+)
 
 class OtherUserProfilePage extends Component {
 
@@ -41,6 +51,8 @@ class OtherUserProfilePage extends Component {
       sellItem: false,
       products: [],
       showBlockOrReportModal: false,
+      report: '',
+      showReportUserModal: false
 
     }
 
@@ -64,12 +76,25 @@ class OtherUserProfilePage extends Component {
     alert("This individual may now attempt to purchase your products from the market.");
   }
 
-  reportUser = () => {
+  reportUser = (uid) => {
+    this.setState({showBlockOrReportModal: false, showReportUserModal: true});
+  }
 
+  sendReport = (uid, report) => {
+    const recipients = ['imadrajwani@gmail.com'] // string or array of email addresses
+    email(recipients, {
+        // Optional additional arguments
+        //cc: ['bazzy@moo.com', 'doooo@daaa.com'], // string or array of email addresses
+        //bcc: 'mee@mee.com', // string or array of email addresses
+        subject: `Report regarding User: ${uid}` ,
+        body: report
+    })
+    .catch(console.error)
   }
 
   render() {
 
+    const {report} = this.state;
     const {params} = this.props.navigation.state;
     const {usersBlocked, uid, profile, numberProducts, soldProducts, comments} = params;
 
@@ -100,7 +125,7 @@ class OtherUserProfilePage extends Component {
             } 
             
 
-            <Icon name="alert-octagon" 
+            <Icon name="account-alert" 
                   style={styles.users}
                           size={30} 
                           color={'#020002'}
@@ -164,7 +189,7 @@ class OtherUserProfilePage extends Component {
             <Text style={styles.modalHeader}>Block or Report This User</Text>
             <Text style={styles.modalText}>If you block this user, then they cannot initiate a chat with you regarding one of your products.</Text>
             <Text style={styles.modalText}>This will delete all chats you have with this individual, so if you decide to unblock this user later, they will have to initiate new chats with you.</Text>
-            <Text style={styles.modalText}>If you feel this user has breached the Terms and Conditions for usage of NottMyStyle (for example, through proliferation of malicious content, or improper language), then please explain this to the NottMyStyle Team by selecting Report User.</Text>
+            <Text style={styles.modalText}>If you believe this user has breached the Terms and Conditions for usage of NottMyStyle (for example, through proliferation of malicious content, or improper language), then please explain this to the NottMyStyle Team through email by selecting Report User.</Text>
             <View style={styles.documentOpenerContainer}>
                 {usersBlocked.includes(uid) ?
                     <Text style={styles.blockUser} onPress={() => {this.unblockUser(uid)}}>
@@ -187,9 +212,56 @@ class OtherUserProfilePage extends Component {
                 <Text style={styles.hideModal}>Hide Modal</Text>
             </TouchableHighlight>
           </View>
-       </Modal>  
+       </Modal>
+
+       {/* Modal to input Report to User */}
+       <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.showReportUserModal}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}
+       >
+        <DismissKeyboardView>
+            <View style={styles.reportModal}>
+                <Text style={styles.reportModalHeader}>Please Explain What You Wish To Report About This User</Text>
+                <TextInput
+                    style={{width: width - 40, height: 120, borderColor: bobbyBlue, borderWidth: 1}}
+                    onChangeText={(report) => this.setState({report})}
+                    value={this.state.report}
+                    multiline={true}
+                    numberOfLines={4}
+                />
+                <Button
+                    title='Send' 
+                    titleStyle={{ fontWeight: "300" }}
+                    buttonStyle={{
+                    backgroundColor: bobbyBlue,
+                    //#2ac40f
+                    width: (width)*0.40,
+                    height: 40,
+                    borderColor: "#226b13",
+                    borderWidth: 0,
+                    borderRadius: 20,
+                    
+                    }}
+                    containerStyle={{ marginTop: 0, marginBottom: 0 }}
+                    onPress={() => {this.sendReport(uid, report);}} 
+                />
+                
+                <TouchableHighlight
+                    onPress={() => {
+                        this.setState( {showReportUserModal: false} )
+                    }}>
+                    <Text style={styles.hideModal}>Hide Modal</Text>
+                </TouchableHighlight>
+            </View>
+          </DismissKeyboardView>
+        </Modal>  
 
       </View>
+        
       
 
 
@@ -400,6 +472,14 @@ reportUser: {
     fontFamily: 'Times New Roman',
 },
 
+reportModal: {flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', padding: 25, marginTop: 22},
+reportModalHeader: {
+    textAlign: 'center',
+    fontSize: 20,
+    fontFamily: 'Iowan Old Style',
+    fontWeight: "bold",
+    paddingBottom: 20,
+},
 });
 
 {/* <TouchableHighlight onPress={() => {firebase.auth().signOut()
