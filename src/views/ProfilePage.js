@@ -9,6 +9,7 @@ import { iOSColors, iOSUIKit, human } from 'react-native-typography';
 import LinearGradient from 'react-native-linear-gradient'
 import ReviewsList from '../components/ReviewsList.js';
 import { PacmanIndicator } from 'react-native-indicators';
+import { highlightGreen, graphiteGray } from '../colors.js';
 const {width, height} = Dimensions.get('window');
 
 const resizeMode = 'center';
@@ -91,7 +92,10 @@ class ProfilePage extends Component {
       // var insaanKaNaam = d.Users[firebase.auth().currentUser.uid].profile.name;  
       // console.log(insaanKaNaam);
       //get list of comments for specific product
-      var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: Date.now() } };
+      var date = (new Date()).getDate();
+      var month = (new Date()).getMonth();
+      var year = (new Date()).getFullYear();
+      var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: `${year}/${month}/${date}`, uri: '' } };
       console.log(comments);
       this.setState({ comments });
       console.log(comments);
@@ -162,17 +166,19 @@ class ProfilePage extends Component {
 
       {/* Number of Products on Market and Sold Cards */}
       <View style={styles.midContainer}>
-        <View style={ {flexDirection: 'row',} }>
+        
           <View style={styles.numberCard}>
             <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.numberProducts}>{this.state.numberProducts} </Text>
-            <Text style={styles.subText}>ON SALE</Text>
+            <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.subText}>ON SALE</Text>
           </View>
-          <Divider style={{  backgroundColor: '#47474f', width: 3, height: 60 }} />
+
+          <Divider style={{  backgroundColor: '#47474f', width: 1.5, height: 60, marginTop: 8, }} />
+
           <View style={styles.numberCard}>
             <Text style={styles.numberProducts}>{this.state.soldProducts} </Text>
             <Text style={styles.subText}>SOLD</Text>
           </View>    
-        </View>
+        
       </View>
       
       {/* User Reviews */}
@@ -183,14 +189,30 @@ class ProfilePage extends Component {
           <Text style={styles.reviewsHeader}>REVIEWS</Text>
           {Object.keys(comments).map(
                   (comment) => (
-                  <View key={comment} style={styles.rowContainer}>
-                      
-                      <View style={styles.textContainer}>
-                          <Text style={ styles.naam }> {comments[comment].name} </Text>
-                          <Text style={styles.comment}> {comments[comment].text}  </Text>
-                          <Text style={ styles.commentTime }> { comments[comment].time } </Text>
+                  <View key={comment} style={styles.commentContainer}>
+
+                      <View style={styles.commentPicAndTextRow}>
+
+                        {comment.uri ?
+                          <Image style= {styles.commentPic} source={ {uri: comment.uri} }/>
+                        :
+                          <Image style= {styles.commentPic} source={ require('../images/companyLogo2.png') }/>
+                        }
+                          
+                        <View style={styles.textContainer}>
+                            <Text style={ styles.commentName }> {comments[comment].name} </Text>
+                            <Text style={styles.comment}> {comments[comment].text}  </Text>
+                        </View>
+
                       </View>
-                      <View style={styles.separator}/>   
+
+                      <View style={styles.commentTimeRow}>
+
+                        <Text style={ styles.commentTime }> {comments[comment].time} </Text>
+
+                      </View>
+
+                      {comment.uri ? <View style={styles.separator}/> : null}
                       
                   </View>
                   
@@ -245,18 +267,29 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
-    paddingTop: 10,
+    paddingTop: 15,
 
   },
 
-  numberCard: {
-    flex: 1,
-    alignItems: 'center',
+  midContainer: {
+    flexDirection: 'row',
+    width: width,
+    height: height/7.5,
     backgroundColor: '#cdcdd6',
-    width: (width/2) - 20,
+    justifyContent: 'center'
+  },
+
+  numberCard: {
+    justifyContent: 'center',
+    alignContent: 'center',
+    alignItems: 'center',
+    width: width/2 - 20,
     height: 60,
     //55
-    padding: 5,
+    paddingTop: 20,
+    paddingBottom: 5,
+    paddingLeft: 30,
+    paddingRight: 30,
     borderWidth: 0,
     borderColor: '#020202',
     borderRadius: 0,
@@ -265,12 +298,8 @@ const styles = StyleSheet.create({
   subText: {
     fontFamily: 'Iowan Old Style',
     fontSize: 18,
-    fontWeight: '400'
-  },
-
-  midContainer: {
-    //0.2
-    padding: 0,
+    fontWeight: '400',
+    color: graphiteGray,
   },
 
   footerContainer: {
@@ -313,7 +342,8 @@ const styles = StyleSheet.create({
   picRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignContent: 'center',
+    alignContent: 'flex-start',
+    height: height/5
     // alignItems: 'flex-start',
   },
   gearAndPicColumn: {
@@ -322,7 +352,7 @@ const styles = StyleSheet.create({
     // flexDirection: 'row',
     // justifyContent: 'space-evenly',
     // alignItems: 'center',
-    paddingTop:10,
+    marginTop:10,
     width: width - 40,
     // paddingRight: 0,
     
@@ -352,9 +382,9 @@ const styles = StyleSheet.create({
   },
   numberProducts: {
     fontFamily: 'Arial',
-    fontSize: 32,
-    color: 'black',
-    fontWeight: 'bold'
+    fontSize: 28,
+    color: graphiteGray,
+    fontWeight: 'normal'
   },
   soldProducts: {
     fontSize: 16,
@@ -409,15 +439,56 @@ title: {
   color: '#656565'
 },
 
+reviewsHeader: {
+  fontFamily: 'Iowan Old Style',
+  fontSize: 24,
+  fontWeight: "normal",
+  paddingLeft: 10
+},
+
+commentContainer: {
+  flexDirection: 'column',
+},
+
+commentPicAndTextRow: {
+  flexDirection: 'row',
+  width: width - 20,
+  padding: 10
+},
+
+commentPic: {
+  //flex: 1,
+  width: 70,
+  height: 70,
+  alignSelf: 'center',
+  borderRadius: 35,
+  borderColor: '#fff',
+  borderWidth: 0
+},
+
+commentName: {
+  color: highlightGreen,
+  fontSize: 16,
+  fontWeight: "500",
+  textAlign: "left"
+},
+
 comment: {
-  ...iOSUIKit.bodyEmphasized,
-  fontSize: 25,
+  fontSize: 16,
   color: 'black',
+  textAlign: "center",
 },  
 
+commentTimeRow: {
+  justifyContent: 'flex-end',
+  alignContent: 'flex-end',
+  alignItems: 'flex-end',
+},
+
 commentTime: {
-  fontSize: 12,
-  color: '#1f6010'
+  textAlign: "right",
+  fontSize: 16,
+  color: iOSColors.black
 },
 
 rowContainer: {
@@ -428,7 +499,6 @@ rowContainer: {
 textContainer: {
 flex: 1,
 flexDirection: 'column',
-alignContent: 'center',
 padding: 5,
 },
 
