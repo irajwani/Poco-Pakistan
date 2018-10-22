@@ -41,21 +41,7 @@ class Chats extends Component {
     setTimeout(() => {
       this.getChats();
     }, 5000);
-
-
-    // setTimeout(() => {
-    //   for(var i = 0; i < 2; i++) {
-    //     switch(i) {
-    //       case 0:
-    //         this.leaveYourRooms();
-    //         break;
-    //       case 1:
-    //         this.getChats();
-    //       default:
-    //         break;  
-    //     }
-    //   }
-    // }, 1000);
+    
   }
 
   leaveYourRooms() {

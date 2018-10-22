@@ -123,7 +123,9 @@ class ProfilePage extends Component {
 
         <LinearGradient style={styles.linearGradient} colors={gradientColors} >
         <View style={styles.header}>
-          <View style={styles.gearAndPicRow}>
+
+         <View style={styles.gearAndPicColumn}>
+          <View style={styles.gearRow}>
             <Icon name="settings" 
                   style={ styles.gear }
                           size={30} 
@@ -131,18 +133,19 @@ class ProfilePage extends Component {
                           onPress={() => this.props.navigation.navigate('Settings')}
 
             />
+          </View>  
 
-            
+          <View style={styles.picRow}>
             {this.state.uri ? 
               <Image style= {styles.profilepic} source={ {uri: this.state.uri} }/>
               : 
               <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>
             } 
-            
-
-            
-
           </View>  
+         </View>     
+            
+
+            
 
           <View style={styles.profileText}>
             <Text style={styles.name}>{this.state.name}</Text>
@@ -176,7 +179,8 @@ class ProfilePage extends Component {
       <View style={styles.footerContainer} >
 
         <ScrollView contentContainerStyle={styles.halfPageScroll}>
-          <View style={ {backgroundColor: '#f2ece3'} }>
+          <View style={ {backgroundColor: '#fff'} }>
+          <Text style={styles.reviewsHeader}>REVIEWS</Text>
           {Object.keys(comments).map(
                   (comment) => (
                   <View key={comment} style={styles.rowContainer}>
@@ -260,7 +264,7 @@ const styles = StyleSheet.create({
 
   subText: {
     fontFamily: 'Iowan Old Style',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '400'
   },
 
@@ -299,13 +303,29 @@ const styles = StyleSheet.create({
     paddingRight: 0,
     marginLeft: 0
   },
-  gearAndPicRow: {
-    flex: 1.4,
+
+  gearRow: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    paddingTop:20,
-    paddingRight: 0,
+    justifyContent: 'flex-start',
+    alignContent: 'flex-start',
+  },
+
+  picRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignContent: 'center',
+    // alignItems: 'flex-start',
+  },
+  gearAndPicColumn: {
+    flexDirection: 'column',
+    // flex: 1.4,
+    // flexDirection: 'row',
+    // justifyContent: 'space-evenly',
+    // alignItems: 'center',
+    paddingTop:10,
+    width: width - 40,
+    // paddingRight: 0,
+    
   },
   profilepicWrap: {
     backgroundColor: 'black',
@@ -326,13 +346,13 @@ const styles = StyleSheet.create({
   },
   name: {
     marginTop: 5,
-    fontSize: 27,
+    fontSize: 24,
     color: '#fff',
     fontWeight: 'normal'
   },
   numberProducts: {
     fontFamily: 'Arial',
-    fontSize: 25,
+    fontSize: 32,
     color: 'black',
     fontWeight: 'bold'
   },
@@ -343,16 +363,16 @@ const styles = StyleSheet.create({
   }
   ,
   pos: {
-    fontSize: 20,
+    fontSize: 18,
     color: '#fff',
     fontWeight: '600',
     fontStyle: 'italic'
   },
   insta: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#fff',
     fontWeight: '600',
-    fontStyle: 'normal'
+    fontStyle: 'italic'
   },
 
   companyLogoContainer: {

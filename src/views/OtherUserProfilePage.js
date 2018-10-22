@@ -92,6 +92,12 @@ class OtherUserProfilePage extends Component {
     .catch(console.error)
   }
 
+  navToUserComments = () => {
+    const {params} = this.props.navigation.state;
+    const {uid, comments, profile, yourProfile} = params;
+    this.props.navigation.navigate('UserComments', {yourProfile: yourProfile, profile: profile, comments: comments, uid: uid})
+  }
+
   render() {
 
     const {report} = this.state;
@@ -122,9 +128,15 @@ class OtherUserProfilePage extends Component {
               <Image style= {styles.profilepic} source={ {uri: profile.uri} }/>
               : 
               <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>
-            } 
-            
+            }
 
+            <Icon name="account-edit" 
+                  style={styles.users}
+                          size={30} 
+                          color={bobbyBlue}
+                          onPress={() => {this.navToUserComments()}}
+            /> 
+            
             <Icon name="account-alert" 
                   style={styles.users}
                           size={30} 

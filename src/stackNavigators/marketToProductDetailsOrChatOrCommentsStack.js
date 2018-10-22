@@ -6,12 +6,14 @@ import CustomChat from '../views/CustomChat';
 import Comments from '../views/Comments';
 import YourProducts from '../views/YourProducts';
 import OtherUserProfilePage from '../views/OtherUserProfilePage';
+import UserComments from '../views/UserComments';
 
 export const marketToProductDetailsOrChatOrCommentsStack = createStackNavigator({
     MarketPlace: MarketPlace,
     YourProducts: YourProducts,
     ProductDetails: ProductDetails,
     OtherUserProfilePage: OtherUserProfilePage,
+    UserComments: UserComments,
     Comments: Comments,
     CustomChat: CustomChat,
 },

@@ -52,33 +52,39 @@ class UserComments extends Component {
         
     }
 
-    componentWillMount () {
+    componentWillMount() {
         const {params} = this.props.navigation.state;
-        Keyboard.addListener('keyboardWillShow', this.keyboardWillShow.bind(this))
-        Keyboard.addListener('keyboardWillHide', this.keyboardWillHide.bind(this))
-        setTimeout(() => {
-            this.getComments(params.uid);
-          }, 4);
+        const {comments} = params;
+        this.setState({comments});
     }
 
-    getComments(uid) {
-        console.log(uid);
-        const keys = [];
-        database.then( (d) => {
-          //get name of current user to track who left comments on this persons UserComments component  
-          var insaanKaNaam = d.Users[firebase.auth().currentUser.uid].profile.name;  
+    // componentWillMount () {
+    //     const {params} = this.props.navigation.state;
+    //     Keyboard.addListener('keyboardWillShow', this.keyboardWillShow.bind(this))
+    //     Keyboard.addListener('keyboardWillHide', this.keyboardWillHide.bind(this))
+    //     setTimeout(() => {
+    //         this.getComments(params.uid);
+    //       }, 4);
+    // }
 
-          //get list of comments for specific product
-          var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: 'No Reviews have been left for this seller. Be the first to review this individual', name: 'NottMyStyle Team', time: Date.now() } };
+    // getComments(uid) {
+    //     console.log(uid);
+    //     const keys = [];
+    //     database.then( (d) => {
+    //       //get name of current user to track who left comments on this persons UserComments component  
+    //       var insaanKaNaam = d.Users[firebase.auth().currentUser.uid].profile.name;  
+
+    //       //get list of comments for specific product
+    //       var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: 'No Reviews have been left for this seller. Be the first to review this individual', name: 'NottMyStyle Team', time: Date.now() } };
           
-          this.setState({ comments, name: insaanKaNaam });
-          console.log(comments);
+    //       this.setState({ comments, name: insaanKaNaam });
+    //       console.log(comments);
     
-        })
-        .then( () => { console.log('here');this.setState( {isGetting: false} );  } )
-        .catch( (err) => {console.log(err) })
+    //     })
+    //     .then( () => { console.log('here');this.setState( {isGetting: false} );  } )
+    //     .catch( (err) => {console.log(err) })
         
-    }
+    // }
 
     keyboardWillShow (e) {
         let newSize = Dimensions.get('window').height - e.endCoordinates.height
@@ -93,43 +99,44 @@ class UserComments extends Component {
         this.setState({ commentString: event.nativeEvent.text });
     }
 
-    uploadComment(name, comment, uid ) {
-        var timeCommented = Date.now();
+    uploadComment(name, comment, uid, uri ) {
+        
+        var timeCommentedKey = Date.now();
+        var date = (new Date()).getDate();
+        var month = (new Date()).getMonth();
+        var year = (new Date()).getFullYear();
+        var timeCommented = `${year}/${month}/${date}`;
+        
         var updates = {}
-        var postData = {text: comment, name: name, time: timeCommented }
+        var postData = {text: comment, name: name, time: timeCommented, uri: uri }
         this.state.comments[timeCommented] = postData;
         this.setState({ comments : this.state.comments });
-        updates['/Users/' + uid + '/comments/' + timeCommented + '/'] = postData
+        updates['/Users/' + uid + '/comments/' + timeCommentedKey + '/'] = postData
         //firebase.database().ref('Posts').set({posts: this.state.posts})
+        console.log(postData, updates)
         firebase.database().ref().update(updates)
     }
     
     render() {
 
         const {params} = this.props.navigation.state;
+        const {yourProfile, profile, uid} = params;
+        const {name, uri} = yourProfile; //To upload a comment, attach the current Users profile details, in this case their name and profile pic uri
         const {comments} = this.state;
-
-        if(this.state.isGetting) {
-            return ( 
-                <View style={{flex: 1}}>
-                    <PacmanIndicator color='#28a526' />
-                </View>
-            )
-        }
 
         return (
             <View style={styles.wrapper} >
             
             <View style={styles.rowContainer}>
                 {/* row containing profile picture, and user details */}
-               <Image source={ {uri: params.uri }} style={styles.profilepic} />
+               <Image source={ {uri: profile.uri }} style={styles.profilepic} />
                <View style={styles.textContainer}>
                  
                  <Text style={styles.name}>
-                   {params.name}
+                   {profile.name}
                  </Text>
                  <Text style={styles.email}>
-                   {params.country}
+                   {profile.country}
                  </Text>
                </View>
                
@@ -142,7 +149,7 @@ class UserComments extends Component {
                     <View style={styles.textContainer}>
                         <Text style={ styles.naam }> {comments[comment].name} </Text>
                         <Text style={styles.comment}> {comments[comment].text}  </Text>
-                        <Text style={ styles.commentTime }> {timeSince(comments[comment].time)} ago </Text>
+                        <Text style={ styles.commentTime }> {comments[comment].time} </Text>
                     </View>
                     <View style={styles.separator}/>
                  </View>
@@ -166,7 +173,7 @@ class UserComments extends Component {
                 <Icon name="send" 
                         size={50} 
                         color={'#37a1e8'}
-                        onPress={ () => {this.uploadComment(this.state.name , this.state.commentString, params.uid);
+                        onPress={ () => {this.uploadComment(name, this.state.commentString, uid, uri);
                                      this.setState({commentString: ''}); 
                                      }}
                 />

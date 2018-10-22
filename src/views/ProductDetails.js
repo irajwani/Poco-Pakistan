@@ -99,8 +99,8 @@ class ProductDetails extends Component {
       
       var numberProducts = Object.keys(d.Users[data.uid].products).length
 
-      var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: Date.now() } };
-
+      var comments = d.Users[data.uid].comments ? d.Users[data.uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: Date.now(), uri: '' } };
+      
       this.setState( {yourProfile, yourUsersBlocked, otherUserUid, profile, numberProducts, soldProducts, comments, productKeys, collectionKeys} )
     })
     .then( () => {
@@ -202,8 +202,8 @@ class ProductDetails extends Component {
   navToOtherUserProfilePage = () => {
     //Since we already perform some data retrieval on this page,
     //extract information for: the UI on next page AND the uid of the user to be able to block them from sending messages.
-    const {yourUsersBlocked, otherUserUid, profile, numberProducts, soldProducts, comments} = this.state;
-    this.props.navigation.navigate('OtherUserProfilePage', {usersBlocked: yourUsersBlocked, uid: otherUserUid, profile: profile, numberProducts: numberProducts, soldProducts: soldProducts, comments: comments});
+    const {yourProfile, yourUsersBlocked, otherUserUid, profile, numberProducts, soldProducts, comments} = this.state;
+    this.props.navigation.navigate('OtherUserProfilePage', {yourProfile: yourProfile, usersBlocked: yourUsersBlocked, uid: otherUserUid, profile: profile, numberProducts: numberProducts, soldProducts: soldProducts, comments: comments});
   }
 
 
