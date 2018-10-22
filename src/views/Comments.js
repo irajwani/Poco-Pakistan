@@ -7,6 +7,7 @@ import {withNavigation} from 'react-navigation';
 import {database} from '../cloud/database';
 import firebase from '../cloud/firebase';
 import { PacmanIndicator } from 'react-native-indicators';
+import { lightGreen, treeGreen } from '../colors';
 
 
 //for each comment, use their time of post as the key
@@ -275,8 +276,12 @@ const styles = StyleSheet.create({
     },
 
     rowContainer: {
+        marginTop: 22,
         flexDirection: 'row',
-        padding: 20
+        padding: 10,
+        justifyContent: 'space-evenly',
+        alignContent: 'space-between',
+        alignItems: 'center'
       },
 
     profilepic: {
@@ -284,11 +289,11 @@ const styles = StyleSheet.create({
         borderColor:'#207011',
         alignItems:'center',
         justifyContent:'center',
-        width:70,
-        height:70,
+        width:90,
+        height:90,
         backgroundColor:'#fff',
-        borderRadius:50,
-        borderWidth: 2
+        borderRadius:44,
+        borderWidth: 1
     
     },
     
@@ -303,11 +308,12 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignContent: 'center',
         padding: 5,
+        paddingLeft: 10
       },
 
     separator: {
-        height: 1,
-        backgroundColor: 'black'
+        height: 5,
+        backgroundColor: treeGreen
       },
 
   });

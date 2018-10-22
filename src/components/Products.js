@@ -404,7 +404,7 @@ class Products extends Component {
             {section.text.brand}
           </Animatable.Text>
           <Icon name="magnify" 
-                size={22} 
+                size={30} 
                 color={limeGreen}
                 onPress={ () => { 
                     console.log('navigating to full details');

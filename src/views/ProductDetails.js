@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {ScrollView, View, Text, Image, TouchableOpacity, Dimensions, StyleSheet} from 'react-native';
+import {TouchableWithoutFeedback, Keyboard, ScrollView, View, Text, TextInput, Image, TouchableHighlight, TouchableOpacity, Modal, Dimensions, StyleSheet} from 'react-native';
 import {Button} from 'react-native-elements';
 
 import { withNavigation } from 'react-navigation';
@@ -17,6 +17,8 @@ import { PacmanIndicator } from 'react-native-indicators';
 
 import Chatkit from "@pusher/chatkit";
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
+import email from 'react-native-email';
+import { bobbyBlue } from '../colors';
 
 
 var {height, width} = Dimensions.get('window');
@@ -32,6 +34,12 @@ function removeFalsyValuesFrom(object) {
   return Object.values(newObject);
 }
 
+const DismissKeyboardView = ({children}) => (
+  <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      {children}
+  </TouchableWithoutFeedback>
+)
+
 class ProductDetails extends Component {
 
   constructor(props){
@@ -43,6 +51,8 @@ class ProductDetails extends Component {
         email: '',
       },
       collectionKeys: [3],
+      showReportUserModal: false,
+      report: ''
     }
   }
 
@@ -58,6 +68,10 @@ class ProductDetails extends Component {
     database.then( (d) => {
       const uid = firebase.auth().currentUser.uid;
       const otherUserUid = data.uid;
+
+      //get current user's profile info
+      const yourProfile = d.Users[uid].profile;
+
       //get profile info of seller of product
       const profile = d.Users[data.uid].profile;
 
@@ -87,7 +101,7 @@ class ProductDetails extends Component {
 
       var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: Date.now() } };
 
-      this.setState( {yourUsersBlocked, otherUserUid, profile, numberProducts, soldProducts, comments, productKeys, collectionKeys} )
+      this.setState( {yourProfile, yourUsersBlocked, otherUserUid, profile, numberProducts, soldProducts, comments, productKeys, collectionKeys} )
     })
     .then( () => {
       this.setState({isGetting: false})
@@ -192,6 +206,23 @@ class ProductDetails extends Component {
     this.props.navigation.navigate('OtherUserProfilePage', {usersBlocked: yourUsersBlocked, uid: otherUserUid, profile: profile, numberProducts: numberProducts, soldProducts: soldProducts, comments: comments});
   }
 
+
+
+  reportItem = (yourInformation, productInformation) => {
+    const recipients = ['imadrajwani@gmail.com'] // string or array of email addresses
+    const {report} = this.state
+    const {uid, key, text,} = productInformation
+    const {name} = text
+    email(recipients, {
+        // Optional additional arguments
+        //cc: ['bazzy@moo.com', 'doooo@daaa.com'], // string or array of email addresses
+        //bcc: 'mee@mee.com', // string or array of email addresses
+        subject: `Report regarding product: ${key} from User: ${uid}` ,
+        body: report + '\n' + 'Cheers!\n' + yourInformation.name
+    })
+    .catch(console.error)
+  }
+
   render() {
     const { params } = this.props.navigation.state;
     const { data } = params;
@@ -267,7 +298,8 @@ class ProductDetails extends Component {
                 £{text.price}
               </Text>
             </View>
-
+            {/* ownership product --> 2 things, edit item, confirm sale or unconfirm sale
+                when youre an interested buyer --> 3 things, buy item, review item, report item */}
             {this.state.productKeys.includes(data.key) ?
               
               data.text.sold ? 
@@ -360,7 +392,15 @@ class ProductDetails extends Component {
                   onPress = { () => { 
                               this.navToComments(data.uid, data.key, data.text, profile.name, data.uris[0]);
                               } }
-                />  
+                />
+                <Icon
+                  name="alert" 
+                  size={35}  
+                  color={'#800'}
+                  onPress = { () => { 
+                              this.setState({showReportUserModal: true})
+                              } }
+                />
               </View> 
           }
 
@@ -469,6 +509,15 @@ class ProductDetails extends Component {
                   onPress = { () => { 
                               this.navToComments(data.uid, data.key, data.text, profile.name, data.uris[0]);
                               } }
+                />
+
+                <Icon
+                  name="alert" 
+                  size={35}  
+                  color={'#800'}
+                  onPress = { () => { 
+                              this.setState({showReportUserModal: true})
+                              } }
                 />  
               </View> 
           }
@@ -531,11 +580,54 @@ class ProductDetails extends Component {
         )
         ) }
 
-        {/* buy button */}
-
         {/* comments */}
 
         <CustomComments comments={comments} currentUsersName={profile.name}/>
+
+        {/* Modal to input Report about product */}
+       <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.showReportUserModal}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}
+       >
+        <DismissKeyboardView>
+            <View style={styles.reportModal}>
+                <Text style={styles.reportModalHeader}>Please Explain What You Wish To Report About This Product</Text>
+                <TextInput
+                    style={{width: width - 40, height: 120, marginBottom: 50, borderColor: bobbyBlue, borderWidth: 1}}
+                    onChangeText={(report) => this.setState({report})}
+                    value={this.state.report}
+                    multiline={true}
+                    numberOfLines={4}
+                />
+                <Button
+                    title='Send' 
+                    titleStyle={{ fontWeight: "300" }}
+                    buttonStyle={{
+                    backgroundColor: bobbyBlue,
+                    //#2ac40f
+                    width: (width)*0.40,
+                    height: 40,
+                    borderColor: "#226b13",
+                    borderWidth: 0,
+                    borderRadius: 20,
+                    }}
+                    containerStyle={{ marginTop: 0, marginBottom: 0 }}
+                    onPress={() => {this.reportItem(this.state.yourProfile, data)}} 
+                />
+                
+                <TouchableHighlight
+                    onPress={() => {
+                        this.setState( {showReportUserModal: false} )
+                    }}>
+                    <Text style={styles.hideModal}>Hide Modal</Text>
+                </TouchableHighlight>
+            </View>
+          </DismissKeyboardView>
+        </Modal>
 
       </ScrollView> 
     );
@@ -656,6 +748,22 @@ valueText: {
     fontSize: 18,
     fontWeight: '300'
 
+},
+
+reportModal: {flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', padding: 25, marginTop: 22},
+reportModalHeader: {
+    textAlign: 'center',
+    fontSize: 20,
+    fontFamily: 'Iowan Old Style',
+    fontWeight: "bold",
+    paddingBottom: 20,
+},
+
+hideModal: {
+  paddingTop: 40,
+  fontSize: 20,
+  color: 'green',
+  fontWeight:'bold'
 },
 
 } )

@@ -76,7 +76,7 @@ class OtherUserProfilePage extends Component {
     alert("This individual may now attempt to purchase your products from the market.");
   }
 
-  reportUser = (uid) => {
+  reportUser = () => {
     this.setState({showBlockOrReportModal: false, showReportUserModal: true});
   }
 
