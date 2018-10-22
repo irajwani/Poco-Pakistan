@@ -18,7 +18,7 @@ import { PacmanIndicator } from 'react-native-indicators';
 import Chatkit from "@pusher/chatkit";
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
 import email from 'react-native-email';
-import { bobbyBlue } from '../colors';
+import { bobbyBlue, woodBrown } from '../colors';
 
 
 var {height, width} = Dimensions.get('window');
@@ -367,7 +367,7 @@ class ProductDetails extends Component {
 
                     
               :
-              <View style={{flexDirection: 'row'}}>
+              <View style={{flexDirection: 'row', paddingRight: 10, justifyContent: 'space-around', alignItems: 'center', alignContent: 'center'}}>
                 <Button
                     buttonStyle={{
                         backgroundColor: "#186f87",
@@ -386,16 +386,16 @@ class ProductDetails extends Component {
                     />
 
                 <Icon
-                  name="tooltip-edit" 
-                  size={35}  
-                  color={'#0e4406'}
+                  name="lead-pencil" 
+                  size={40}  
+                  color={woodBrown}
                   onPress = { () => { 
                               this.navToComments(data.uid, data.key, data.text, profile.name, data.uris[0]);
                               } }
                 />
                 <Icon
                   name="alert" 
-                  size={35}  
+                  size={40}  
                   color={'#800'}
                   onPress = { () => { 
                               this.setState({showReportUserModal: true})
@@ -484,7 +484,7 @@ class ProductDetails extends Component {
 
                     
               :
-              <View style={{flexDirection: 'row'}}>
+              <View style={{flexDirection: 'row', paddingRight: 10, justifyContent: 'space-around', alignItems: 'center', alignContent: 'center'}}>
                 <Button
                     buttonStyle={{
                         backgroundColor: "#186f87",
@@ -503,9 +503,9 @@ class ProductDetails extends Component {
                     />
 
                 <Icon
-                  name="tooltip-edit" 
-                  size={35}  
-                  color={'#0e4406'}
+                  name="lead-pencil" 
+                  size={40}  
+                  color={woodBrown}
                   onPress = { () => { 
                               this.navToComments(data.uid, data.key, data.text, profile.name, data.uris[0]);
                               } }
@@ -513,7 +513,7 @@ class ProductDetails extends Component {
 
                 <Icon
                   name="alert" 
-                  size={35}  
+                  size={40}  
                   color={'#800'}
                   onPress = { () => { 
                               this.setState({showReportUserModal: true})
