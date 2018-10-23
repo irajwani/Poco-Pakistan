@@ -221,7 +221,7 @@ class SignIn extends Component {
 
                 <View style={ { justifyContent: 'center', flexDirection: 'column', flex: 0.65, paddingRight: 40, paddingLeft: 40, paddingTop: 5}}>
                     <View style={styles.companyLogoContainer}>
-                        <Image source={require('../images/companyLogo.jpg')} style={styles.companyLogo}/>
+                        <Image source={require('../images/companyLogo2.png')} style={styles.companyLogo}/>
                     </View>
                     
                     <Hoshi

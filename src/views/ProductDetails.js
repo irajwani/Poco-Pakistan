@@ -18,7 +18,8 @@ import { PacmanIndicator } from 'react-native-indicators';
 import Chatkit from "@pusher/chatkit";
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
 import email from 'react-native-email';
-import { bobbyBlue, woodBrown } from '../colors';
+import { bobbyBlue, woodBrown, highlightGreen } from '../colors';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 
 var {height, width} = Dimensions.get('window');
@@ -51,8 +52,9 @@ class ProductDetails extends Component {
         email: '',
       },
       collectionKeys: [3],
+      productComments: '',
       showReportUserModal: false,
-      report: ''
+      report: '',
     }
   }
 
@@ -99,9 +101,16 @@ class ProductDetails extends Component {
       
       var numberProducts = Object.keys(d.Users[data.uid].products).length
 
-      var comments = d.Users[data.uid].comments ? d.Users[data.uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: Date.now(), uri: '' } };
+      var date = (new Date()).getDate();
+      var month = (new Date()).getMonth();
+      var year = (new Date()).getFullYear();
+
+      var comments = d.Users[data.uid].comments ? d.Users[data.uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: `${year}/${month.length == 2 ? month : '0' + month }/${date}`, uri: '' } };
       
-      this.setState( {yourProfile, yourUsersBlocked, otherUserUid, profile, numberProducts, soldProducts, comments, productKeys, collectionKeys} )
+      var productComments = d.Users[data.uid].products[data.key].comments ? d.Users[data.uid].products[data.key].comments : {a: {text: 'No Reviews have been left for this product yet.', name: 'NottMyStyle Team', time: `${year}/${month.length == 2 ? month : '0' + month }/${date}`, uri: '' } };
+      
+      
+      this.setState( {yourProfile, yourUsersBlocked, otherUserUid, profile, numberProducts, soldProducts, comments, productComments, productKeys, collectionKeys} )
     })
     .then( () => {
       this.setState({isGetting: false})
@@ -206,6 +215,11 @@ class ProductDetails extends Component {
     this.props.navigation.navigate('OtherUserProfilePage', {yourProfile: yourProfile, usersBlocked: yourUsersBlocked, uid: otherUserUid, profile: profile, numberProducts: numberProducts, soldProducts: soldProducts, comments: comments});
   }
 
+  navToProductComments = (productInformation) => {
+    const {yourProfile, productComments, otherUserUid} = this.state;
+    this.props.navigation.navigate('ProductComments', {productInformation: productInformation, key: productInformation.key, comments: productComments, yourProfile: yourProfile, uid: otherUserUid });
+  }
+
 
 
   reportItem = (yourInformation, productInformation) => {
@@ -227,7 +241,7 @@ class ProductDetails extends Component {
     const { params } = this.props.navigation.state;
     const { data } = params;
     
-    const { isGetting, profile, navToChatLoading } = this.state;
+    const { isGetting, profile, navToChatLoading, productComments } = this.state;
     const text = data.text;
     const details = {
       gender: text.gender,
@@ -386,14 +400,6 @@ class ProductDetails extends Component {
                     />
 
                 <Icon
-                  name="lead-pencil" 
-                  size={40}  
-                  color={woodBrown}
-                  onPress = { () => { 
-                              this.navToComments(data.uid, data.key, data.text, profile.name, data.uris[0]);
-                              } }
-                />
-                <Icon
                   name="alert" 
                   size={40}  
                   color={'#800'}
@@ -503,15 +509,6 @@ class ProductDetails extends Component {
                     />
 
                 <Icon
-                  name="lead-pencil" 
-                  size={40}  
-                  color={woodBrown}
-                  onPress = { () => { 
-                              this.navToComments(data.uid, data.key, data.text, profile.name, data.uris[0]);
-                              } }
-                />
-
-                <Icon
                   name="alert" 
                   size={40}  
                   color={'#800'}
@@ -581,8 +578,56 @@ class ProductDetails extends Component {
         ) }
 
         {/* comments */}
+        
 
-        <CustomComments comments={comments} currentUsersName={profile.name}/>
+          
+          <View style={styles.reviewsHeaderContainer}>
+            <Text style={styles.reviewsHeader}>REVIEWS</Text>
+            <FontAwesomeIcon 
+              name="edit" 
+              style={styles.users}
+              size={35} 
+              color={iOSColors.black}
+              onPress={() => {this.navToProductComments(data)}}
+            /> 
+          </View>
+          
+          {Object.keys(productComments).map(
+                  (comment) => (
+                  <View key={comment} style={styles.commentContainer}>
+
+                      <View style={styles.commentPicAndTextRow}>
+
+                        {productComments[comment].uri ?
+                          <Image style= {styles.commentPic} source={ {uri: productComments[comment].uri} }/>
+                        :
+                          <Image style= {styles.commentPic} source={ require('../images/companyLogo2.png') }/>
+                        }
+                          
+                        <View style={styles.textContainer}>
+                            <Text style={ styles.commentName }> {productComments[comment].name} </Text>
+                            <Text style={styles.comment}> {productComments[comment].text}  </Text>
+                        </View>
+
+                      </View>
+
+                      <View style={styles.commentTimeRow}>
+
+                        <Text style={ styles.commentTime }> {productComments[comment].time} </Text>
+
+                      </View>
+
+                      {productComments[comment].uri ? <View style={styles.separator}/> : null}
+                      
+                  </View>
+                  
+              )
+                      
+              )}
+          
+        
+
+        
 
         {/* Modal to input Report about product */}
        <Modal
@@ -597,7 +642,7 @@ class ProductDetails extends Component {
             <View style={styles.reportModal}>
                 <Text style={styles.reportModalHeader}>Please Explain What You Wish To Report About This Product</Text>
                 <TextInput
-                    style={{width: width - 40, height: 120, marginBottom: 50, borderColor: bobbyBlue, borderWidth: 1}}
+                    style={styles.reportInput}
                     onChangeText={(report) => this.setState({report})}
                     value={this.state.report}
                     multiline={true}
@@ -766,6 +811,87 @@ hideModal: {
   fontWeight:'bold'
 },
 
+reportInput: {width: width - 40, height: 120, marginBottom: 50, borderColor: bobbyBlue, borderWidth: 1},
+
+
+halfPageScroll: {
+    
+},
+
+reviewsHeaderContainer: {
+  flexDirection: 'row',
+  paddingTop: 5,
+  width: width-15,
+  justifyContent: 'space-between'
+},
+
+users: {
+  flex: 0,
+  paddingLeft: 60,
+  paddingRight: 0,
+  marginLeft: 0
+},
+
+reviewsHeader: {
+  fontFamily: 'Iowan Old Style',
+  fontSize: 24,
+  fontWeight: "normal",
+  paddingLeft: 10
+},
+
+commentContainer: {
+  flexDirection: 'column',
+},
+
+commentPicAndTextRow: {
+  flexDirection: 'row',
+  width: width - 20,
+  padding: 10
+},
+
+commentPic: {
+  //flex: 1,
+  width: 70,
+  height: 70,
+  alignSelf: 'center',
+  borderRadius: 35,
+  borderColor: '#fff',
+  borderWidth: 0
+},
+
+textContainer: {
+  flex: 1,
+  flexDirection: 'column',
+  padding: 5,
+  },
+
+commentName: {
+  color: highlightGreen,
+  fontSize: 16,
+  fontWeight: "500",
+  textAlign: "left"
+},
+
+comment: {
+  fontSize: 16,
+  color: 'black',
+  textAlign: "center",
+},  
+
+commentTimeRow: {
+  justifyContent: 'flex-end',
+  alignContent: 'flex-end',
+  alignItems: 'flex-end',
+},
+
+commentTime: {
+  textAlign: "right",
+  fontSize: 16,
+  color: iOSColors.black
+},
+
+
+
 } )
 
 const profileRowStyles = StyleSheet.create( {
@@ -819,4 +945,5 @@ separator: {
   backgroundColor: 'black',
   padding: 2,
 },
+
 } )

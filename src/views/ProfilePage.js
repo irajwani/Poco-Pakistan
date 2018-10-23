@@ -95,7 +95,7 @@ class ProfilePage extends Component {
       var date = (new Date()).getDate();
       var month = (new Date()).getMonth();
       var year = (new Date()).getFullYear();
-      var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: `${year}/${month}/${date}`, uri: '' } };
+      var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: `${year}/${month.length == 2 ? month : '0' + month }/${date}`, uri: '' } };
       console.log(comments);
       this.setState({ comments });
       console.log(comments);
@@ -193,8 +193,8 @@ class ProfilePage extends Component {
 
                       <View style={styles.commentPicAndTextRow}>
 
-                        {comment.uri ?
-                          <Image style= {styles.commentPic} source={ {uri: comment.uri} }/>
+                        {comments[comment].uri ?
+                          <Image style= {styles.commentPic} source={ {uri: comments[comment].uri} }/>
                         :
                           <Image style= {styles.commentPic} source={ require('../images/companyLogo2.png') }/>
                         }
@@ -212,7 +212,7 @@ class ProfilePage extends Component {
 
                       </View>
 
-                      {comment.uri ? <View style={styles.separator}/> : null}
+                      {comments[comment].uri ? <View style={styles.separator}/> : null}
                       
                   </View>
                   

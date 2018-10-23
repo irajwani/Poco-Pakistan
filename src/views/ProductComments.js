@@ -10,9 +10,9 @@ import { PacmanIndicator } from 'react-native-indicators';
 import { highlightGreen, treeGreen } from '../colors';
 //for each comment, use their time of post as the key
 
-const {width, height} = Dimensions.get('window');
+const {width, height} = Dimensions.get('window')
 
-class UserComments extends Component {
+class ProductComments extends Component {
 
     constructor(props) {
         super(props);
@@ -51,7 +51,7 @@ class UserComments extends Component {
         this.setState({ commentString: event.nativeEvent.text });
     }
 
-    uploadComment(name, comment, uid, uri ) {
+    uploadComment(name, comment, uid, uri, productKey ) {
         
         var timeCommentedKey = Date.now();
         var date = (new Date()).getDate();
@@ -63,7 +63,7 @@ class UserComments extends Component {
         var postData = {text: comment, name: name, time: timeCommented, uri: uri }
         this.state.comments[timeCommentedKey] = postData;
         this.setState({ comments : this.state.comments });
-        updates['/Users/' + uid + '/comments/' + timeCommentedKey + '/'] = postData
+        updates['/Users/' + uid + '/products/' + productKey + '/comments/' + timeCommentedKey + '/'] = postData
         //firebase.database().ref('Posts').set({posts: this.state.posts})
         console.log(postData, updates)
         firebase.database().ref().update(updates)
@@ -72,7 +72,8 @@ class UserComments extends Component {
     render() {
 
         const {params} = this.props.navigation.state;
-        const {yourProfile, profile, uid} = params;
+        const {productInformation, key, yourProfile, profile, uid} = params;
+        const {uris, text} = productInformation //For row containing product Information
         const {name, uri} = yourProfile; //To upload a comment, attach the current Users profile details, in this case their name and profile pic uri
         const {comments} = this.state;
 
@@ -80,15 +81,18 @@ class UserComments extends Component {
             <ScrollView contentContainerStyle={styles.contentContainer} >
             
             <View style={styles.rowContainer}>
-                {/* row containing profile picture, and user details */}
-               <Image source={ {uri: profile.uri }} style={styles.profilepic} />
-               <View style={styles.profileTextContainer}>
+                {/* row containing picture, and details for product */}
+               <Image source={ {uri: uris[0] }} style={styles.profilepic} />
+               <View style={styles.productTextContainer}>
                  
                  <Text style={styles.name}>
-                   {profile.name}
+                   {text.name}
                  </Text>
-                 <Text style={styles.country}>
-                   {profile.country}
+                 <Text style={styles.price}>
+                   Price: £{text.price}
+                 </Text>
+                 <Text style={styles.brand}>
+                   {text.brand.toUpperCase()}
                  </Text>
                </View>
                
@@ -144,7 +148,7 @@ class UserComments extends Component {
                 <Icon name="send" 
                         size={50} 
                         color={'#37a1e8'}
-                        onPress={ () => {this.uploadComment(name, this.state.commentString, uid, uri);
+                        onPress={ () => {this.uploadComment(name, this.state.commentString, uid, uri, key);
                                      this.setState({commentString: ''}); 
                                      }}
                 />
@@ -155,7 +159,7 @@ class UserComments extends Component {
     }
 }
 
-export default withNavigation(UserComments)
+export default withNavigation(ProductComments)
 
 const styles = StyleSheet.create({
 
@@ -214,7 +218,7 @@ const styles = StyleSheet.create({
         borderRadius: 5
     },
 
-    profileTextContainer: {
+    productTextContainer: {
         flexDirection: 'column',
         justifyContent: 'center',
         alignContent: 'flex-start',
@@ -223,15 +227,21 @@ const styles = StyleSheet.create({
 
     name: {
         ...material.headline,
-        fontSize: 22,
-        color: treeGreen,
+        fontSize: 18,
+        color: '#207011',
+        fontFamily: 'Times New Roman'
     },
 
-    country: {
-        fontSize: 18,
-        fontFamily: 'Iowan Old Style',
+    price: {
         color: 'black',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        fontSize: 18
+    },
+
+    brand: {
+        fontFamily: 'Iowan Old Style',
+        fontSize: 22,
+        color: 'gray'
     },
 
     email: {
@@ -274,7 +284,7 @@ const styles = StyleSheet.create({
         backgroundColor: iOSColors.lightGray2
       },
 
-      profilepic: {
+    profilepic: {
         width: 100,
         height: 100,
         alignSelf: 'center',
@@ -293,7 +303,8 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         alignContent: 'center',
-        padding: 5,
+        paddingTop: 5,
+        paddingBottom: 5
       },
 
     separator: {
@@ -301,55 +312,55 @@ const styles = StyleSheet.create({
         backgroundColor: 'black'
       },
 
-      commentContainer: {
-        flexDirection: 'column',
-        },
-        
-        commentPicAndTextRow: {
-        flexDirection: 'row',
-        width: width - 20,
-        padding: 10
-        },
-        
-        commentPic: {
-        //flex: 1,
-        width: 70,
-        height: 70,
-        alignSelf: 'center',
-        borderRadius: 35,
-        borderColor: '#fff',
-        borderWidth: 0
-        },
-        
-        textContainer: {
-        flex: 1,
-        flexDirection: 'column',
-        padding: 5,
-        },
-        
-        commentName: {
-        color: highlightGreen,
-        fontSize: 16,
-        fontWeight: "500",
-        textAlign: "left"
-        },
-        
-        comment: {
-        fontSize: 16,
-        color: 'black',
-        textAlign: "center",
-        },  
-        
-        commentTimeRow: {
-        justifyContent: 'flex-end',
-        alignContent: 'flex-end',
-        alignItems: 'flex-end',
-        },
-        
-        commentTime: {
-        textAlign: "right",
-        fontSize: 16,
-        color: iOSColors.black
-        },  
+    commentContainer: {
+    flexDirection: 'column',
+    },
+    
+    commentPicAndTextRow: {
+    flexDirection: 'row',
+    width: width - 20,
+    padding: 10
+    },
+    
+    commentPic: {
+    //flex: 1,
+    width: 70,
+    height: 70,
+    alignSelf: 'center',
+    borderRadius: 35,
+    borderColor: '#fff',
+    borderWidth: 0
+    },
+    
+    textContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    padding: 5,
+    },
+    
+    commentName: {
+    color: highlightGreen,
+    fontSize: 16,
+    fontWeight: "500",
+    textAlign: "left"
+    },
+    
+    comment: {
+    fontSize: 16,
+    color: 'black',
+    textAlign: "center",
+    },  
+    
+    commentTimeRow: {
+    justifyContent: 'flex-end',
+    alignContent: 'flex-end',
+    alignItems: 'flex-end',
+    },
+    
+    commentTime: {
+    textAlign: "right",
+    fontSize: 16,
+    color: iOSColors.black
+    },  
 
   });

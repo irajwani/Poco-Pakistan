@@ -6,11 +6,11 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import {Button, Divider} from 'react-native-elements'
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import firebase from '../cloud/firebase.js';
-import { iOSColors } from 'react-native-typography';
+import { iOSColors, iOSUIKit, human,  } from 'react-native-typography';
 import LinearGradient from 'react-native-linear-gradient'
 import ReviewsList from '../components/ReviewsList.js';
 import { PacmanIndicator } from 'react-native-indicators';
-import { bobbyBlue, lightGreen } from '../colors.js';
+import { bobbyBlue, lightGreen, highlightGreen, graphiteGray } from '../colors.js';
 import { Hoshi, Sae } from 'react-native-textinput-effects';
 import { TextField } from 'react-native-material-textfield';
 const {width, height} = Dimensions.get('window');
@@ -103,6 +103,7 @@ class OtherUserProfilePage extends Component {
     const {report} = this.state;
     const {params} = this.props.navigation.state;
     const {usersBlocked, uid, profile, numberProducts, soldProducts, comments} = params;
+    console.log(comments);
 
     
     const gradientColors = ['#7de853','#0baa26', '#064711'];
@@ -114,35 +115,31 @@ class OtherUserProfilePage extends Component {
 
         <LinearGradient style={styles.linearGradient} colors={gradientColors} >
         <View style={styles.header}>
-          <View style={styles.gearAndPicRow}>
-            <Icon name="settings" 
-                  style={ styles.gear }
-                          size={30} 
-                          color={iOSColors.gray}
-                          onPress={() => this.props.navigation.navigate('Settings')}
+          <View style={styles.gearAndPicColumn}>
+            <View style={styles.gearRow}>
+              <Icon name="settings" 
+                    style={ styles.gear }
+                            size={30} 
+                            color={iOSColors.gray}
+                            onPress={() => this.props.navigation.navigate('Settings')}
 
-            />
-
-            
-            {profile.uri ? 
-              <Image style= {styles.profilepic} source={ {uri: profile.uri} }/>
-              : 
-              <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>
-            }
-
-            <Icon name="account-edit" 
+              />
+              <Icon name="account-alert" 
                   style={styles.users}
-                          size={30} 
-                          color={bobbyBlue}
-                          onPress={() => {this.navToUserComments()}}
-            /> 
-            
-            <Icon name="account-alert" 
-                  style={styles.users}
-                          size={30} 
-                          color={'#020002'}
-                          onPress={() => {this.showBlockOrReport()}}
-            />
+                  size={30} 
+                  color={'#020002'}
+                  onPress={() => {this.showBlockOrReport()}}
+              />
+            </View>  
+
+            <View style={styles.picRow}>
+              {profile.uri ? 
+                <Image style= {styles.profilepic} source={ {uri: profile.uri} }/>
+                : 
+                <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>
+              } 
+            </View>
+
 
           </View>  
 
@@ -161,17 +158,19 @@ class OtherUserProfilePage extends Component {
 
       {/* Number of Products on Market and Sold Cards */}
       <View style={styles.midContainer}>
-        <View style={ {flexDirection: 'row',} }>
+        
           <View style={styles.numberCard}>
-            <Text onPress={() => {}} style={styles.numberProducts}>{numberProducts} </Text>
+            <Text style={styles.numberProducts}>{numberProducts} </Text>
             <Text style={styles.subText}>ON SALE</Text>
           </View>
-          <Divider style={{  backgroundColor: '#47474f', width: 3, height: 60 }} />
+
+          <Divider style={{  backgroundColor: '#47474f', width: 1.5, height: 60, marginTop: 8, }} />
+
           <View style={styles.numberCard}>
             <Text style={styles.numberProducts}>{soldProducts} </Text>
             <Text style={styles.subText}>SOLD</Text>
           </View>    
-        </View>
+        
       </View>
       
 
@@ -179,12 +178,56 @@ class OtherUserProfilePage extends Component {
         
 
       
-
+          {/* Other User's Reviews */}
       <View style={styles.footerContainer} >
 
         <ScrollView contentContainerStyle={styles.halfPageScroll}>
-          <ReviewsList reviews={comments}/>
-        </ScrollView> 
+          <View style={ {backgroundColor: '#fff'} }>
+
+          <View style={styles.reviewsHeaderContainer}>
+            <Text style={styles.reviewsHeader}>REVIEWS</Text>
+            <FontAwesomeIcon 
+              name="edit" 
+              style={styles.users}
+              size={35} 
+              color={iOSColors.black}
+              onPress={() => {this.navToUserComments()}}
+            /> 
+          </View>  
+          {Object.keys(comments).map(
+                  (comment) => (
+                  <View key={comment} style={styles.commentContainer}>
+
+                      <View style={styles.commentPicAndTextRow}>
+
+                        {comments[comment].uri ?
+                          <Image style= {styles.commentPic} source={ {uri: comments[comment].uri} }/>
+                        :
+                          <Image style= {styles.commentPic} source={ require('../images/companyLogo2.png') }/>
+                        }
+                          
+                        <View style={styles.textContainer}>
+                            <Text style={ styles.commentName }> {comments[comment].name} </Text>
+                            <Text style={styles.comment}> {comments[comment].text}  </Text>
+                        </View>
+
+                      </View>
+
+                      <View style={styles.commentTimeRow}>
+
+                        <Text style={ styles.commentTime }> {comments[comment].time} </Text>
+
+                      </View>
+
+                      {comments[comment].uri ? <View style={styles.separator}/> : null}
+                      
+                  </View>
+                  
+              )
+                      
+              )}
+          </View>
+        </ScrollView>  
 
       </View>
 
@@ -239,7 +282,7 @@ class OtherUserProfilePage extends Component {
             <View style={styles.reportModal}>
                 <Text style={styles.reportModalHeader}>Please Explain What You Wish To Report About This User</Text>
                 <TextInput
-                    style={{width: width - 40, height: 120, borderColor: bobbyBlue, borderWidth: 1}}
+                    style={styles.reportInput}
                     onChangeText={(report) => this.setState({report})}
                     value={this.state.report}
                     multiline={true}
@@ -308,18 +351,29 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
-    paddingTop: 10,
+    paddingTop: 15,
 
   },
 
-  numberCard: {
-    flex: 1,
-    alignItems: 'center',
+  midContainer: {
+    flexDirection: 'row',
+    width: width,
+    height: height/7.5,
     backgroundColor: '#cdcdd6',
-    width: (width/2) - 20,
+    justifyContent: 'center'
+  },
+
+  numberCard: {
+    justifyContent: 'center',
+    alignContent: 'center',
+    alignItems: 'center',
+    width: width/2 - 20,
     height: 60,
     //55
-    padding: 5,
+    paddingTop: 20,
+    paddingBottom: 5,
+    paddingLeft: 30,
+    paddingRight: 30,
     borderWidth: 0,
     borderColor: '#020202',
     borderRadius: 0,
@@ -327,13 +381,9 @@ const styles = StyleSheet.create({
 
   subText: {
     fontFamily: 'Iowan Old Style',
-    fontSize: 16,
-    fontWeight: '400'
-  },
-
-  midContainer: {
-    //0.2
-    padding: 0,
+    fontSize: 18,
+    fontWeight: '400',
+    color: graphiteGray,
   },
 
   footerContainer: {
@@ -366,13 +416,31 @@ const styles = StyleSheet.create({
     paddingRight: 0,
     marginLeft: 0
   },
-  gearAndPicRow: {
-    flex: 1.4,
+
+  gearRow: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    paddingTop:20,
-    paddingRight: 0,
+    width: width - 30,
+    justifyContent: 'space-between',
+    // alignContent: 'flex-start',
+  },
+
+  picRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignContent: 'flex-start',
+    height: height/5
+    // alignItems: 'flex-start',
+  },
+  gearAndPicColumn: {
+    flexDirection: 'column',
+    // flex: 1.4,
+    // flexDirection: 'row',
+    // justifyContent: 'space-evenly',
+    // alignItems: 'center',
+    marginTop:10,
+    width: width - 40,
+    // paddingRight: 0,
+    
   },
   profilepicWrap: {
     backgroundColor: 'black',
@@ -393,15 +461,15 @@ const styles = StyleSheet.create({
   },
   name: {
     marginTop: 5,
-    fontSize: 27,
+    fontSize: 24,
     color: '#fff',
     fontWeight: 'normal'
   },
   numberProducts: {
     fontFamily: 'Arial',
-    fontSize: 25,
-    color: 'black',
-    fontWeight: 'bold'
+    fontSize: 28,
+    color: graphiteGray,
+    fontWeight: 'normal'
   },
   soldProducts: {
     fontSize: 16,
@@ -410,16 +478,16 @@ const styles = StyleSheet.create({
   }
   ,
   pos: {
-    fontSize: 20,
+    fontSize: 18,
     color: '#fff',
     fontWeight: '600',
     fontStyle: 'italic'
   },
   insta: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#fff',
     fontWeight: '600',
-    fontStyle: 'normal'
+    fontStyle: 'italic'
   },
 
   companyLogoContainer: {
@@ -442,7 +510,95 @@ const styles = StyleSheet.create({
     paddingLeft: 25,
     paddingRight: 25
 
-} ,
+}, 
+naam: {
+  ...iOSUIKit.caption2,
+  fontSize: 11,
+  color: '#37a1e8'
+
+},
+
+title: {
+  ...human.headline,
+  fontSize: 20,
+  color: '#656565'
+},
+
+reviewsHeaderContainer: {
+  flexDirection: 'row',
+  paddingTop: 5,
+  width: width-15,
+  justifyContent: 'space-between'
+},
+
+reviewsHeader: {
+  fontFamily: 'Iowan Old Style',
+  fontSize: 24,
+  fontWeight: "normal",
+  paddingLeft: 10
+},
+
+commentContainer: {
+  flexDirection: 'column',
+},
+
+commentPicAndTextRow: {
+  flexDirection: 'row',
+  width: width - 20,
+  padding: 10
+},
+
+commentPic: {
+  //flex: 1,
+  width: 70,
+  height: 70,
+  alignSelf: 'center',
+  borderRadius: 35,
+  borderColor: '#fff',
+  borderWidth: 0
+},
+
+commentName: {
+  color: highlightGreen,
+  fontSize: 16,
+  fontWeight: "500",
+  textAlign: "left"
+},
+
+comment: {
+  fontSize: 16,
+  color: 'black',
+  textAlign: "center",
+},  
+
+commentTimeRow: {
+  justifyContent: 'flex-end',
+  alignContent: 'flex-end',
+  alignItems: 'flex-end',
+},
+
+commentTime: {
+  textAlign: "right",
+  fontSize: 16,
+  color: iOSColors.black
+},
+
+rowContainer: {
+  flexDirection: 'column',
+  padding: 14
+},
+
+textContainer: {
+flex: 1,
+flexDirection: 'column',
+padding: 5,
+},
+
+separator: {
+width: width,
+height: 2,
+backgroundColor: '#111110'
+},  
 
 modal: {flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', padding: 30, marginTop: 22},
 modalHeader: {
@@ -465,7 +621,7 @@ hideModal: {
   },
 
 documentOpenerContainer: {
-    height: 100,
+    height: 130,
     flexDirection: 'column',
     justifyContent: 'space-between',
     padding: 10,
@@ -474,12 +630,12 @@ documentOpenerContainer: {
     alignItems: 'center'
 },
 blockUser: {
-    color: '#800000',
+    color: 'black',
     fontSize: 25,
     fontFamily: 'Times New Roman'
 },
 reportUser: {
-    color: bobbyBlue,
+    color: 'black',
     fontSize: 25,
     fontFamily: 'Times New Roman',
 },
@@ -492,6 +648,9 @@ reportModalHeader: {
     fontWeight: "bold",
     paddingBottom: 20,
 },
+
+reportInput: {width: width - 40, height: 120, marginBottom: 50, borderColor: bobbyBlue, borderWidth: 1}
+
 });
 
 {/* <TouchableHighlight onPress={() => {firebase.auth().signOut()
