@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Platform, Text, StyleSheet, View, Image, KeyboardAvoidingView, ScrollView, Picker } from 'react-native'
+import { Dimensions, Platform, Text, StyleSheet, View, Image, KeyboardAvoidingView, ScrollView, Picker } from 'react-native'
 import {withNavigation} from 'react-navigation';
 import { Hoshi, Jiro } from 'react-native-textinput-effects';
 import { TextField } from 'react-native-material-textfield';
@@ -15,12 +15,15 @@ import Chatkit from "@pusher/chatkit";
 import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
 import { material, iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
+import { confirmBlue, treeGreen, woodBrown, rejectRed } from '../colors';
 
 const babyBlue='#94c2ed';
 const basicBlue = '#2c7dc9'
 const darkGreen = '#0d4f10';
 const limeGreen = '#2e770f';
 const slimeGreen = '#53b73c';
+
+const {height, width} = Dimensions.get('window');
 
 const Blob = RNFetchBlob.polyfill.Blob;
 const fs = RNFetchBlob.fs;
@@ -55,7 +58,7 @@ class CreateItem extends Component {
   showPicker(gender) {
     if (gender == 0) {
         return ( 
-            <Picker selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
+            <Picker style={styles.picker} itemStyle={[styles.pickerText, styles.men]} selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
                <Picker.Item label = "Formal Shirts" value = "Formal Shirts" />
                <Picker.Item label = "Casual Shirts" value = "Casual Shirts" />
                <Picker.Item label = "Jackets" value = "Jackets" />
@@ -69,7 +72,7 @@ class CreateItem extends Component {
 
     else if (gender == 1) {
         return (
-            <Picker selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
+            <Picker style={styles.picker} itemStyle={[styles.pickerText, styles.accessories]} selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
                <Picker.Item label = "Watches" value = "Watches" />
                <Picker.Item label = "Bracelets" value = "Bracelets" />
                <Picker.Item label = "Jewellery" value = "Jewellery" />
@@ -81,7 +84,7 @@ class CreateItem extends Component {
 
     else if (gender == 2) {
         return (
-            <Picker selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
+            <Picker style={styles.picker} itemStyle={[styles.pickerText, styles.women]} selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
                <Picker.Item label = "Tops" value = "Tops" />
                <Picker.Item label = "Skirts" value = "Skirts" />
                <Picker.Item label = "Dresses" value = "Dresses" />
@@ -441,7 +444,7 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
             <View style={styles.modalPicker}>
                 <Text style={styles.subHeading}>Product Condition</Text>
                 <CustomModalPicker>
-                    <Picker selectedValue = {this.state.condition} onValueChange={ (condition) => {this.setState({condition})} } >
+                    <Picker style={styles.picker} itemStyle={[styles.pickerText, {color: 'black'}]} selectedValue = {this.state.condition} onValueChange={ (condition) => {this.setState({condition})} } >
                         <Picker.Item label = "New with tags" value = "New with tags" />
                         <Picker.Item label = "New" value = "New" />
                         <Picker.Item label = "Very good" value = "Very good" />
@@ -539,6 +542,32 @@ const styles = StyleSheet.create({
         textDecorationLine: 'underline',
     },
 
+    picker: {
+        width: width-80,
+        // justifyContent: 'center',
+        // alignContent: 'center',
+        //alignItems: 'center'
+        // height: height/2
+    },
+
+    pickerText: {
+        fontFamily: 'Cochin',
+        fontSize: 22,
+        fontWeight: 'bold'
+    },
+
+    men: {
+        color: confirmBlue
+    },
+
+    accessories: {
+        color: woodBrown
+    },
+
+    women: {
+        color: rejectRed
+    },
+
     optionSelected: {
         ...material.display1,
         fontWeight: 'bold',
@@ -568,4 +597,3 @@ const styles = StyleSheet.create({
 })
 
 export default withNavigation(CreateItem)
-

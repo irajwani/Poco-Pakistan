@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
-import { Text, View, Modal, TouchableHighlight, StyleSheet } from 'react-native'
+import { Dimensions, Text, View, Modal, TouchableHighlight, StyleSheet } from 'react-native'
 import { material } from 'react-native-typography';
+import { bobbyBlue } from '../colors';
+
+const {width} = Dimensions.get('window');
 
 export default class CustomModalPicker extends Component {
     state = {
@@ -48,16 +51,16 @@ export default class CustomModalPicker extends Component {
 }
 
 const styles = StyleSheet.create({
-    modal: {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', padding: 30, marginTop: 22},
+    modal: {flexDirection: 'column', justifyContent: 'center', alignContent: 'center', alignItems: 'center', padding: 30, marginTop: 22},
     hideModal: {
-      ...material.display1,
       fontSize: 20,
       color: 'green',
-      fontWeight:'bold'
+      fontWeight:'bold',
+      textAlign: 'center'
     },
     selectedOption: {
       ...material.display1,
       fontSize: 19,
-      color: '#2f5093'
+      color: bobbyBlue
     }
 })

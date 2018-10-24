@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Dimensions, View, Image, StyleSheet, ScrollView, TouchableOpacity, } from 'react-native';
+import { Dimensions, View, Image, StyleSheet, ScrollView, TouchableOpacity, TouchableHighlight, Modal } from 'react-native';
+import { Button } from 'react-native-elements';
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import { Text,  } from 'native-base';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -37,6 +38,8 @@ class Products extends Component {
         activeSectionR: false,
         collapsed: true,
         navToChatLoading: false,
+        showFilterModal: false,
+        selectedBrand: '',
       };
       //this.navToChat = this.navToChat.bind(this);
   }
@@ -48,6 +51,16 @@ class Products extends Component {
     setTimeout(() => {
       this.getPageSpecificProducts();
     }, 1000);
+  }
+
+  componentDidMount() {
+    this.dataRetrievalTimerId = setInterval( 
+      () => this.getPageSpecificProducts(), 
+      300000) //approximately every 5 minutes
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.dataRetrievalTimerId);
   }
 
   initializePushNotifications = () => {
@@ -125,8 +138,10 @@ class Products extends Component {
 
   getPageSpecificProducts = () => {
     
+    const {selectedBrand} = this.state;
     const keys = [];
     database.then( (d) => {
+        console.log('retrieving array of products')
       //Only pull the products that are in this user's collection
         const {showAllProducts, showCollection, showYourProducts} = this.props;
         const uid = firebase.auth().currentUser.uid;
@@ -138,6 +153,9 @@ class Products extends Component {
         var rawCollection = collection ? collection : {}
         var collectionKeys = removeFalsyValuesFrom(rawCollection);    
         var all = d.Products;
+        
+        all = selectedBrand == '' ? all : all.filter( (product) => product.text.brand == selectedBrand );
+
         console.log(all);
         var yourProducts = all.filter((product) => productKeys.includes(product.key) );
         
@@ -421,6 +439,32 @@ class Products extends Component {
     );
   }
 
+  renderFilterModal = () => {
+    return (
+      
+      <Modal
+      animationType="slide"
+      transparent={false}
+      visible={this.state.showFilterModal}
+      onRequestClose={() => {
+        Alert.alert('Modal has been closed.');
+      }}
+      >
+    
+        <View style={styles.filterModal}>
+            
+            <TouchableHighlight
+                onPress={() => {
+                    this.setState( {showFilterModal: false} )
+                }}>
+                <Text>Hide Modal</Text>
+            </TouchableHighlight>
+        </View>
+      
+    </Modal>
+    )
+  }
+
   // componentWillMount() {
   //   var products = this.getProducts();
   //   return products;
@@ -451,31 +495,48 @@ class Products extends Component {
     return (
 
       
-      <ScrollView
-             contentContainerStyle={styles.contentContainerStyle}
-      >
+          <View style={styles.container}>
+            <ScrollView
+                  contentContainerStyle={styles.contentContainerStyle}
+            >
+              
+              <Accordion
+                activeSection={activeSectionL}
+                sections={productsl}
+                touchableComponent={TouchableOpacity}
+                renderHeader={this.renderHeader}
+                renderContent={this.renderContent}
+                duration={400}
+                onChange={this.setSectionL}
+              />
+
+              <Accordion
+                activeSection={activeSectionR}
+                sections={productsr}
+                touchableComponent={TouchableOpacity}
+                renderHeader={this.renderHeader}
+                renderContent={this.renderContent}
+                duration={400}
+                onChange={this.setSectionR}
+              />
+
+              
+
+              {this.renderFilterModal()}
+
+            </ScrollView>
+            <View style={styles.filterButtonContainer}>
+              <Button  
+                  buttonStyle={styles.filterButtonStyle}
+                  icon={{name: 'filter', type: 'material-community'}}
+                  title='Filter'
+                  onPress={() => this.setState({ showFilterModal: true }) } 
+              />
+            </View>
+          </View>
+
         
-        <Accordion
-          activeSection={activeSectionL}
-          sections={productsl}
-          touchableComponent={TouchableOpacity}
-          renderHeader={this.renderHeader}
-          renderContent={this.renderContent}
-          duration={400}
-          onChange={this.setSectionL}
-        />
-
-        <Accordion
-          activeSection={activeSectionR}
-          sections={productsr}
-          touchableComponent={TouchableOpacity}
-          renderHeader={this.renderHeader}
-          renderContent={this.renderContent}
-          duration={400}
-          onChange={this.setSectionR}
-        />
-
-      </ScrollView> 
+      
             
     )
   
@@ -497,6 +558,15 @@ Products.defaultProps = {
 export default withNavigation(Products);
 
 const styles = StyleSheet.create({
+
+  container: {
+    width: width,
+    // height: height,
+    flexDirection: 'column',
+    alignItems: 'center',
+    // justifyContent: 'center',
+    
+  },
 
   contentContainerStyle: {
     flexGrow: 4,   
@@ -547,17 +617,7 @@ const styles = StyleSheet.create({
     padding: 2,
     marginLeft: 4,
   },
-  
-  mainContainer:{
-    marginTop:15,
-    marginLeft:20,
-    marginRight:20
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: '#F5FCFF',
-  },
+
   title: {
     textAlign: 'center',
     fontSize: 22,
@@ -662,6 +722,30 @@ const styles = StyleSheet.create({
       fontSize: 13,
       color: iOSColors.black
   },
+
+  
+  ////////////////////////////////// 
+  ////////////////////// Partition between marketplace styles and modal styles
+
+  filterModal: {flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', padding: 25, marginTop: 22},
+
+  filterButtonStyle : {
+    backgroundColor: 'black',
+    width: 80,
+    height: 37,
+    borderRadius: 20,
+    // justifyContent: 'center',
+    // alignItems:'center',
+    // alignContent: 'center',
+    position: 'absolute',
+    bottom: 30,
+  },
+
+  filterButtonContainer: {
+    marginRight: width/4.0,
+    
+  },
+
 });
 
 
