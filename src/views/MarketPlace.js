@@ -13,13 +13,7 @@ class MarketPlace extends Component {
 
   render() {
     
-    return <Products showAllProducts={true}/>
-          
-    
-
-    
-    
-    
+    return <Products showYourProducts={false} showCollection={false}/>
 
   }
 }

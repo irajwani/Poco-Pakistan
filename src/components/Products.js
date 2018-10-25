@@ -13,6 +13,16 @@ import Accordion from 'react-native-collapsible/Accordion';
 
 import PushNotification from 'react-native-push-notification';
 
+const settings = [ 
+  {
+    header: 'Personalization',
+    settings: ['Edit Personal Details']
+  }, 
+  {
+    header: 'Support',
+    settings: ['End User License Agreement', 'Terms & Conditions', 'Privacy Policy', 'Contact Us'] 
+  }
+]
 
 var {height, width} = Dimensions.get('window');
 
@@ -22,6 +32,10 @@ function removeFalsyValuesFrom(object) {
     if (object[property]) {newObject[property] = object[property]}
   })
   return Object.keys(newObject);
+}
+
+function onlyUnique(value, index, self) { 
+  return self.indexOf(value) === index;
 }
 
 const limeGreen = '#2e770f';
@@ -38,7 +52,11 @@ class Products extends Component {
         activeSectionR: false,
         collapsed: true,
         navToChatLoading: false,
+        ///////
+        ///////
+        filters: '',
         showFilterModal: false,
+        activeFilterSection: false,
         selectedBrand: '',
       };
       //this.navToChat = this.navToChat.bind(this);
@@ -53,15 +71,15 @@ class Products extends Component {
     }, 1000);
   }
 
-  componentDidMount() {
-    this.dataRetrievalTimerId = setInterval( 
-      () => this.getPageSpecificProducts(), 
-      300000) //approximately every 5 minutes
-  }
+  // componentDidMount() {
+  //   this.dataRetrievalTimerId = setInterval( 
+  //     () => this.getPageSpecificProducts(), 
+  //     300000) //approximately every 5 minutes
+  // }
 
-  componentWillUnmount() {
-    clearInterval(this.dataRetrievalTimerId);
-  }
+  // componentWillUnmount() {
+  //   clearInterval(this.dataRetrievalTimerId);
+  // }
 
   initializePushNotifications = () => {
     PushNotification.configure({
@@ -143,7 +161,7 @@ class Products extends Component {
     database.then( (d) => {
         console.log('retrieving array of products')
       //Only pull the products that are in this user's collection
-        const {showAllProducts, showCollection, showYourProducts} = this.props;
+        const {showCollection, showYourProducts} = this.props;
         const uid = firebase.auth().currentUser.uid;
 
         var productKeys = d.Users[uid].products ? Object.keys(d.Users[uid].products) : [];
@@ -153,41 +171,40 @@ class Products extends Component {
         var rawCollection = collection ? collection : {}
         var collectionKeys = removeFalsyValuesFrom(rawCollection);    
         var all = d.Products;
-        
-        all = selectedBrand == '' ? all : all.filter( (product) => product.text.brand == selectedBrand );
 
-        console.log(all);
+        var filters = [{header: "Brand", values: []}, {header: "Type", values: []}, {header: "Size", values: []},];
+        
+        // all = selectedBrand == '' ? all : all.filter( (product) => product.text.brand == selectedBrand );
+
         var yourProducts = all.filter((product) => productKeys.includes(product.key) );
+        console.log(all, showCollection, showYourProducts);
+        if(showCollection == true) {
+          all = all.filter((product) => collectionKeys.includes(product.key) );
+        }
+
+        if(showYourProducts == true) {
+          //we need to identify which products have a notification set to True for a price reduction
+          //loop over yourProducts and if you have a shouldReducePrice boolean of true, then schedule a notification for this individual for after thirty minutes
+          this.shouldSendNotifications(yourProducts, uid);
+          all = all.filter((product) => productKeys.includes(product.key) );
+        }
+
+        //now that we have the actual list of products we'd like to work with:
+        //extract the values which shall represent the filter choices
+        console.log(all);
+        for(var i = 1; i < all.length ; i++) {
+          filters[0].values.push(all[i].text.brand);
+          filters[1].values.push(all[i].text.type);
+          filters[2].values.push(all[i].text.size);
+        }
+
+        //filters.forEach( (category) => category.values.filter(onlyUnique) )
         
-        if(showAllProducts) {
-            all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
-            var name = d.Users[uid].profile.name;
-            var productsl = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 )
-            var productsr = all.slice( Math.round(all.length/2) , all.length + 1);
-            this.setState({ productsl, productsr, name, collectionKeys, productKeys });
-        }
-
-        if(showCollection) {
-            all = all.filter((product) => collectionKeys.includes(product.key) );
-            all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
-            var name = d.Users[uid].profile.name;
-            var productsl = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 )
-            var productsr = all.slice( Math.round(all.length/2) , all.length + 1);
-            //get goods already in user's collection
-            this.setState({ productsl, productsr, name, collectionKeys, productKeys });
-        }
-
-        if(showYourProducts) {
-            //we need to identify which products have a notification set to True for a price reduction
-            //loop over yourProducts and if you have a shouldReducePrice boolean of true, then schedule a notification for this individual for after thirty minutes
-            this.shouldSendNotifications(yourProducts, uid);
-            all = all.filter((product) => productKeys.includes(product.key) );
-            all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
-            var name = d.Users[uid].profile.name;
-            var productsl = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 )
-            var productsr = all.slice( Math.round(all.length/2) , all.length + 1);
-            this.setState({ productsl, productsr, name, collectionKeys, productKeys });
-        }
+        all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
+        var name = d.Users[uid].profile.name;
+        var productsl = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 )
+        var productsr = all.slice( Math.round(all.length/2) , all.length + 1);
+        this.setState({ filters, productsl, productsr, name, collectionKeys, productKeys });
 
     })
     .then( () => { console.log('finished loading');this.setState( {isGetting: false} );  } )
@@ -439,7 +456,54 @@ class Products extends Component {
     );
   }
 
+  setFilterSection = section => {
+    this.setState({ activeFilterSection: section });
+  };
+
+  renderFilterHeader = (section, _, isActive) => {
+    return (
+      <Animatable.View
+        duration={200}
+        style={[styles.headerFilterCard, isActive ? styles.active : styles.inactive]}
+        transition="backgroundColor"
+      >
+
+        <Text style={styles.headerFilterText}>
+          {section.header}
+        </Text>
+        {isActive? 
+          <Icon name="chevron-up" 
+                size={30} 
+                color='black'
+          />
+        :
+          <Icon name="chevron-down" 
+                size={30} 
+                color='black'
+          />
+        }
+      </Animatable.View>
+    )
+  }
+
+  renderFilterContent = (section, _, isActive) => {
+    return (
+      <Animatable.View
+        duration={200}
+        style={[styles.contentFilterCard, isActive ? styles.active : styles.inactive]}
+        transition="backgroundColor"
+      >
+        {section.values.map( (value) => (
+          <Animatable.Text onPress={()=>{  }} style={styles.contentFilterText} animation={isActive ? 'bounceInLeft' : undefined}>
+            {value}
+          </Animatable.Text>
+        ))}
+      </Animatable.View>
+    )
+  }
+
   renderFilterModal = () => {
+    const {filters} = this.state
     return (
       
       <Modal
@@ -452,6 +516,16 @@ class Products extends Component {
       >
     
         <View style={styles.filterModal}>
+
+            <Accordion
+              activeSection={this.state.activeFilterSection}
+              sections={filters}
+              touchableComponent={TouchableOpacity}
+              renderHeader={this.renderFilterHeader}
+              renderContent={this.renderFilterContent}
+              duration={100}
+              onChange={this.setFilterSection}
+            />
             
             <TouchableHighlight
                 onPress={() => {
@@ -464,11 +538,6 @@ class Products extends Component {
     </Modal>
     )
   }
-
-  // componentWillMount() {
-  //   var products = this.getProducts();
-  //   return products;
-  // }
   
 
 
@@ -506,7 +575,7 @@ class Products extends Component {
                 touchableComponent={TouchableOpacity}
                 renderHeader={this.renderHeader}
                 renderContent={this.renderContent}
-                duration={400}
+                duration={200}
                 onChange={this.setSectionL}
               />
 
@@ -516,11 +585,9 @@ class Products extends Component {
                 touchableComponent={TouchableOpacity}
                 renderHeader={this.renderHeader}
                 renderContent={this.renderContent}
-                duration={400}
+                duration={200}
                 onChange={this.setSectionR}
               />
-
-              
 
               {this.renderFilterModal()}
 
@@ -543,17 +610,15 @@ class Products extends Component {
   }
 }
 
-Products.PropTypes = {
-    showAllProducts: PropTypes.bool,
-    showCollection: PropTypes.bool,
-    showAllProducts: PropTypes.bool,
-}
+// Products.PropTypes = {
+//     showCollection: PropTypes.bool,
+//     showYourProducts: PropTypes.bool,
+// }
 
-Products.defaultProps = {
-    showAllProducts: true,
-    showCollection: false,
-    showAllProducts: false,
-}
+// Products.defaultProps = {
+//     showCollection: false,
+//     showYourProducts: false,
+// }
 
 export default withNavigation(Products);
 
@@ -744,6 +809,32 @@ const styles = StyleSheet.create({
   filterButtonContainer: {
     marginRight: width/4.0,
     
+  },
+
+  headerFilterCard: {
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    paddingTop: 2,
+    paddingLeft: 5,
+    paddingRight: 5,
+    paddingBottom: 0, 
+    height: 40
+  },
+
+  contentFilterCard: {
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    height: 200,
+    padding: 10,
+  },
+  headerFilterText: {
+    ...material.headline,
+    fontSize: 20
+  },
+  contentFilterText: {
+    ...material.body1,
+    color: limeGreen,
+    fontSize: 20
   },
 
 });

@@ -5,7 +5,7 @@ import Products from '../components/Products';
 class Collection extends Component {
   render() {
     return (
-      <Products showCollection={true} showAllProducts={false} showYourProducts={false} />
+      <Products showCollection={true} showYourProducts={false} />
     )
   }
 }
