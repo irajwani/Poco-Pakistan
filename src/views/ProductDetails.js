@@ -223,7 +223,7 @@ class ProductDetails extends Component {
 
 
   reportItem = (yourInformation, productInformation) => {
-    const recipients = ['imadrajwani@gmail.com'] // string or array of email addresses
+    const recipients = ['nottmystyle.help@gmail.com'] // string or array of email addresses
     const {report} = this.state
     const {uid, key, text,} = productInformation
     const {name} = text

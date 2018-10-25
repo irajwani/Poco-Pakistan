@@ -81,7 +81,7 @@ class OtherUserProfilePage extends Component {
   }
 
   sendReport = (uid, report) => {
-    const recipients = ['imadrajwani@gmail.com'] // string or array of email addresses
+    const recipients = ['nottmystyle.help@gmail.com'] // string or array of email addresses
     email(recipients, {
         // Optional additional arguments
         //cc: ['bazzy@moo.com', 'doooo@daaa.com'], // string or array of email addresses

@@ -12,17 +12,10 @@ import * as Animatable from 'react-native-animatable';
 import Accordion from 'react-native-collapsible/Accordion';
 
 import PushNotification from 'react-native-push-notification';
+import { PacmanIndicator } from 'react-native-indicators';
+import { graphiteGray, lightGreen, rejectRed } from '../colors.js';
 
-const settings = [ 
-  {
-    header: 'Personalization',
-    settings: ['Edit Personal Details']
-  }, 
-  {
-    header: 'Support',
-    settings: ['End User License Agreement', 'Terms & Conditions', 'Privacy Policy', 'Contact Us'] 
-  }
-]
+const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace"
 
 var {height, width} = Dimensions.get('window');
 
@@ -67,7 +60,7 @@ class Products extends Component {
       this.initializePushNotifications();
     }, 1000);
     setTimeout(() => {
-      this.getPageSpecificProducts();
+      this.getPageSpecificProducts(selectedValue = '', category = '');
     }, 1000);
   }
 
@@ -154,9 +147,8 @@ class Products extends Component {
   }
 
 
-  getPageSpecificProducts = () => {
+  getPageSpecificProducts = (selectedValue, category) => {
     
-    const {selectedBrand} = this.state;
     const keys = [];
     database.then( (d) => {
         console.log('retrieving array of products')
@@ -196,9 +188,30 @@ class Products extends Component {
           filters[0].values.push(all[i].text.brand);
           filters[1].values.push(all[i].text.type);
           filters[2].values.push(all[i].text.size);
+          if(i == all.length - 1) {
+            filters[0].values = filters[0].values.filter(onlyUnique);
+            filters[1].values = filters[1].values.filter(onlyUnique);
+            filters[2].values = filters[2].values.filter(onlyUnique);
+          }
         }
 
-        //filters.forEach( (category) => category.values.filter(onlyUnique) )
+        if(selectedValue && category) {
+          //filter for a specific value based on the category selected.
+          switch(category) {
+            case "Brand":
+              all = all.filter( (product) => product.text.brand == selectedValue )
+              break;
+            case "Type":
+              all = all.filter( (product) => product.text.type == selectedValue )
+              break;
+            case "Size":
+              all = all.filter( (product) => product.text.size == selectedValue )
+              break;
+            default:
+              break;
+          }
+          
+        }
         
         all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
         var name = d.Users[uid].profile.name;
@@ -463,7 +476,7 @@ class Products extends Component {
   renderFilterHeader = (section, _, isActive) => {
     return (
       <Animatable.View
-        duration={200}
+        duration={300}
         style={[styles.headerFilterCard, isActive ? styles.active : styles.inactive]}
         transition="backgroundColor"
       >
@@ -487,14 +500,38 @@ class Products extends Component {
   }
 
   renderFilterContent = (section, _, isActive) => {
+
+    if(section.header == "Brand") {
+      return (
+        <ScrollView contentContainerStyle={styles.contentContainerStyle}>
+          <Animatable.View
+          duration={300}
+          style={[styles.contentFilterCard, isActive ? styles.active : styles.inactive]}
+          transition="backgroundColor"
+        >
+          {section.values.map( (value, index) => (
+            <Animatable.Text 
+              onPress={()=>{this.getPageSpecificProducts(value, section.header); this.setState({showFilterModal: false})}} 
+              style={styles.contentFilterText} animation={isActive ? 'bounceInDown' : undefined}
+            >
+              {value}
+            </Animatable.Text>
+          ))}
+        </Animatable.View>
+      </ScrollView>
+      )
+    }
     return (
       <Animatable.View
-        duration={200}
+        duration={300}
         style={[styles.contentFilterCard, isActive ? styles.active : styles.inactive]}
         transition="backgroundColor"
       >
-        {section.values.map( (value) => (
-          <Animatable.Text onPress={()=>{  }} style={styles.contentFilterText} animation={isActive ? 'bounceInLeft' : undefined}>
+        {section.values.map( (value, index) => (
+          <Animatable.Text 
+            onPress={()=>{this.getPageSpecificProducts(value, section.header); this.setState({showFilterModal: false})}} 
+            style={styles.contentFilterText} animation={isActive ? 'bounceInDown' : undefined}
+          >
             {value}
           </Animatable.Text>
         ))}
@@ -526,6 +563,16 @@ class Products extends Component {
               duration={100}
               onChange={this.setFilterSection}
             />
+
+            <Button  
+              buttonStyle={styles.removeFiltersButtonStyle}
+              icon={{name: 'filter-remove', type: 'material-community'}}
+              title='Remove Filters'
+              onPress={() => {
+                  this.getPageSpecificProducts(selectedValue = '', category = '');
+                  this.setState( {showFilterModal: false} );
+                }}
+            />
             
             <TouchableHighlight
                 onPress={() => {
@@ -538,8 +585,6 @@ class Products extends Component {
     </Modal>
     )
   }
-  
-
 
   render() {
 
@@ -547,16 +592,21 @@ class Products extends Component {
 
     if(isGetting) {
       return ( 
-        <View>
-          <Text>Loading...</Text>
+        <View style={{flex: 1}}>
+          <PacmanIndicator color={graphiteGray} />
         </View>
       )
     }
 
     if(emptyCollection) {
         return (
-            <View>
-                <Text>You haven't liked any items on the marketplace yet.</Text>
+            <View style={{
+              flexDirection: 'column',
+              marginTop: 22,
+              backgroundColor: lightGreen
+            }}
+            >
+                <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'green'}}>{emptyCollectionText}</Text>
             </View>
         )
     }
@@ -835,6 +885,17 @@ const styles = StyleSheet.create({
     ...material.body1,
     color: limeGreen,
     fontSize: 20
+  },
+
+  removeFiltersButtonStyle : {
+    backgroundColor: rejectRed,
+    width: width/3 + 40,
+    height: 37,
+    borderRadius: 20,
+    // justifyContent: 'center',
+    // alignItems:'center',
+    // alignContent: 'center',
+  
   },
 
 });
