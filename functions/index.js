@@ -73,8 +73,6 @@ exports.updateOldUser = functions.database.ref('/Users/{uid}/{profile}/uri').onW
     var uid = context.params.uid;
     console.log(uri, uid);
     
-    //and if the user doesn't already have a room, right now the promise will be rejected 
-    //and this function will update the user's properties.
     chatkit.updateUser({
         id: uid,
         avatarURL: uri

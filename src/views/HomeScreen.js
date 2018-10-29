@@ -31,12 +31,14 @@ const HomeScreen = TabNavigator(
                 tabBarIcon: ({ focused, tintColor }) => {
                   const { routeName } = navigation.state;
                   let iconName;
+                  let iconSize = 25;
                   if (routeName === 'Profile') {
                     iconName = 'account-circle';
                   } else if (routeName === 'Market') {
                     iconName = 'shopping';
                   } else if (routeName === 'Sell') {
                       iconName = 'plus-circle-outline';
+                      iconSize = 35;
                     }
 
                     else if (routeName === 'Chats') {
@@ -49,7 +51,7 @@ const HomeScreen = TabNavigator(
           
                   // You can return any component that you like here! We usually use an
                   // icon component from react-native-vector-icons
-                  return <Icon name={iconName} size={25} color={tintColor} />;
+                  return <Icon name={iconName} size={iconSize} color={tintColor} />;
                 },
               }),
               tabBarComponent: TabBarBottom,

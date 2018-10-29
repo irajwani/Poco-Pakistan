@@ -1,20 +1,21 @@
 import React, { Component } from 'react'
-import { Dimensions, Text, StyleSheet, View, ScrollView, Platform, Modal, TouchableHighlight } from 'react-native';
+import { Dimensions, Text, StyleSheet, View, ScrollView, Platform, Modal, TouchableHighlight, TouchableOpacity } from 'react-native';
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import {Fab} from 'native-base';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ButtonGroup, Button, Divider} from 'react-native-elements';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import RNFetchBlob from 'react-native-fetch-blob';
-import { Sae, Fumi } from 'react-native-textinput-effects';
+import { Sae, Fumi, Kohana } from 'react-native-textinput-effects';
 import firebase from '../cloud/firebase.js';
 import MultipleAddButton from '../components/MultipleAddButton.js';
-// import { material } from 'react-native-typography';
+import { iOSColors } from 'react-native-typography';
 import { Eula, TsAndCs, PrivacyPolicy } from '../legal/Documents.js';
-import { confirmBlue, rejectRed } from '../colors.js';
+import { confirmBlue, rejectRed, woodBrown, treeGreen, bobbyBlue, highlightGreen, profoundPink, poopBrown, darkBlue, tealBlue } from '../colors.js';
+import { PacmanIndicator } from 'react-native-indicators';
 
 const {width} = Dimensions.get('window');
-
+const info = "In order to sign up, ensure that the values you input above meet the following conditions:\n1. Take a profile picture of yourself. If you wish to keep your image a secret, just take a picture of your finger pressed against your camera lens to simulate a dark blank photo.\n2. Use a legitimate email address as other buyers and sellers may contact you if the functionality in NottMyStyle is erroneous for some reason.\n3. Your Password's length must be greater than or equal to 6 characters.\n4. Please limit the length of your name to 40 characters.\n5. An Example answer to the 'city, country abbreviation' field is: 'Nottingham, UK' "
 const limeGreen = '#2e770f';
 
 const Blob = RNFetchBlob.polyfill.Blob;
@@ -28,7 +29,9 @@ class CreateProfile extends Component {
       this.state = {
           email: '',
           pass: '',
-          name: '',
+          pass2: '',
+          firstName: '',
+          lastName: '',
           country: '',
           size: 1,
           uri: undefined,
@@ -37,6 +40,8 @@ class CreateProfile extends Component {
           modalVisible: false,
           termsModalVisible: false,
           privacyModalVisible: false,
+          infoModalVisible: false,
+          createProfileLoading: false,
       }
   }
 
@@ -45,6 +50,7 @@ class CreateProfile extends Component {
   }
 
   createProfile = (email, pass, pictureuri) => {
+      this.setState({createProfileLoading: true});
       firebase.auth().createUserWithEmailAndPassword(email, pass)
                     .then(() => {
                                   firebase.auth().onAuthStateChanged( ( user ) => {
@@ -127,7 +133,7 @@ class CreateProfile extends Component {
     }
 
     var postData = {
-        name: data.name,
+        name: data.firstName + " " + data.lastName, //data.firstName.concat(" ", data.lastName)
         country: data.country,
         size: data.size,
         insta: data.insta
@@ -166,8 +172,7 @@ class CreateProfile extends Component {
                     var profileupdates = {};
                     profileupdates['/Users/' + uid + '/profile/' + 'uri/'] = url ;
                     firebase.database().ref().update(profileupdates);
-
-                    
+                    this.setState({createProfileLoading: false});
                     
                     resolve(url)
                 })
@@ -182,76 +187,134 @@ class CreateProfile extends Component {
   render() {
     const {params} = this.props.navigation.state
     const pictureuris = params ? params.pictureuris : 'nothing here'
-    var conditionMet = (this.state.name) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1)
-    console.log(this.state.modalVisible);
+    var conditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1) && (this.state.pass == this.state.pass2) && (this.state.pass.length >= 6);
+
+    if(this.state.createProfileLoading) {
+        return (
+            <View style={{flex: 1}}>
+                <PacmanIndicator color={profoundPink} />
+            </View>
+        )
+    }
+
     return (
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={{textAlign: 'center'}}>Choose Profile Picture:</Text>
+        <Text style={{fontFamily: 'Cochin', fontWeight: '800', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text>
         <MultipleAddButton navToComponent = {'CreateProfile'} pictureuris={pictureuris} />
 
         <Sae
             label={'Email Address'}
             iconClass={FontAwesomeIcon}
             iconName={'envelope'}
-            iconColor={'#633d23'}
+            iconColor={'gray'}
             value={this.state.email}
             onChangeText={email => this.setState({ email })}
             autoCorrect={false}
-            inputStyle={{ color: '#633d23' }}
+            inputStyle={{ color: 'black' }}
         />
 
         <Sae
             label={'Password'}
             iconClass={FontAwesomeIcon}
             iconName={'user-secret'}
-            iconColor={'#633d23'}
+            iconColor={tealBlue}
             value={this.state.pass}
             onChangeText={pass => this.setState({ pass })}
             autoCorrect={false}
             secureTextEntry
-            inputStyle={{ color: '#633d23' }}
+            inputStyle={{ color: tealBlue }}
         />
 
         <Sae
-            label={'FirstName LastName'}
+            label={'Retype Password'}
             iconClass={FontAwesomeIcon}
-            iconName={'users'}
-            iconColor={'#0a3f93'}
-            value={this.state.name}
-            onChangeText={name => this.setState({ name })}
+            iconName={'user-secret'}
+            iconColor={darkBlue}
+            value={this.state.pass2}
+            onChangeText={pass2 => this.setState({ pass2 })}
             autoCorrect={false}
-            inputStyle={{ color: '#0a3f93' }}
+            secureTextEntry
+            inputStyle={{ color: darkBlue }}
         />
 
+        {(this.state.pass == this.state.pass2) && (this.state.pass.length > 0) ?
+        <View style={styles.passwordStatusRow}>
+         <Text style={[styles.passwordStatusText, {color: treeGreen}]}>Passwords Match!</Text>
+         <Icon 
+            name="verified" 
+            size={30} 
+            color={treeGreen}
+         />
+        </View> 
+        :
+        <View style={styles.passwordStatusRow}>
+         <Text style={[styles.passwordStatusText, {color: rejectRed}]}>Passwords Don't Match!</Text>
+         <Icon 
+            name="alert-circle" 
+            size={30} 
+            color={rejectRed}
+         />
+        </View> 
+        }
+
+        
+            <Sae
+                style={styles.nameInput}
+                label={'First Name'}
+                iconClass={Icon}
+                iconName={'account'}
+                iconColor={'black'}
+                value={this.state.firstName}
+                onChangeText={firstName => this.setState({ firstName })}
+                autoCorrect={false}
+                inputStyle={{ color: 'black' }}
+            />
+            <Sae
+                style={styles.nameInput}
+                label={'Last Name'}
+                iconClass={FontAwesomeIcon}
+                iconName={'users'}
+                iconColor={'black'}
+                value={this.state.lastName}
+                onChangeText={lastName => this.setState({ lastName })}
+                autoCorrect={false}
+                inputStyle={{ color: 'black' }}
+            />
+        
+
         <Sae
-            label={'City, Country Code (UK)'}
+            label={'City, Country Abbreviation'}
             iconClass={FontAwesomeIcon}
             iconName={'globe'}
-            iconColor={'#0a3f93'}
+            iconColor={highlightGreen}
             value={this.state.country}
             onChangeText={country => this.setState({ country })}
             autoCorrect={false}
-            inputStyle={{ color: '#0b4f1c' }}
+            inputStyle={{ color: highlightGreen }}
         />
 
         <Sae
             label={'@instagram_handle'}
             iconClass={FontAwesomeIcon}
             iconName={'instagram'}
-            iconColor={'#0a3f93'}
+            iconColor={profoundPink}
             value={this.state.insta}
             onChangeText={insta => this.setState({ insta })}
             autoCorrect={false}
-            inputStyle={{ color: '#770d0d' }}
+            inputStyle={{ color: profoundPink }}
         />
 
         
-        <Text>What size clothes do you wear?</Text>
+        <Text style={{fontFamily: 'Cochin', fontWeight: '800', fontSize: 20, textAlign: 'center', marginTop: 10}}>What size clothes do you wear?</Text>
         <ButtonGroup
             onPress={ (index) => {this.setState({size: index})}}
             selectedIndex={this.state.size}
             buttons={ ['XS', 'S', 'M', 'L', 'XL', 'XXL'] }
-                
+            containerStyle={styles.buttonGroupContainer}
+            buttonStyle={styles.buttonGroup}
+            textStyle={styles.buttonGroupText}
+            selectedTextStyle={styles.buttonGroupSelectedText}
+            selectedButtonStyle={styles.buttonGroupSelectedContainer}
         />
 
         {/* Modal to show legal docs and agree to them before one can create Profile */}
@@ -351,23 +414,44 @@ class CreateProfile extends Component {
             </View>
         </Modal>
 
-        <Button
-            disabled = { conditionMet ? false : true}
-            large
-            buttonStyle={{
-                backgroundColor: "#5bea94",
-                width: 250,
-                height: 80,
-                borderColor: "transparent",
-                borderWidth: 0,
-                borderRadius: 5
-            }}
-            icon={{name: 'save', type: 'font-awesome'}}
-            title='SAVE'
-            onPress={() => {
-                            this.setModalVisible(true);
-                            } } 
-        />
+        {/* Modal to explicate details required to sign up */}
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.infoModalVisible}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}
+        >
+            <View style={styles.modal}>
+                <ScrollView contentContainerStyle={styles.licenseContainer}>
+                    <Text style={styles.info}>{info}</Text>
+                </ScrollView>
+                <Text onPress={() => { this.setState({infoModalVisible: false}) }} style={styles.gotIt}>
+                    Got It!
+                </Text>
+            </View>
+        </Modal>
+        
+        <TouchableOpacity disabled = {conditionMet ? true: false} onPress={()=>this.setState({infoModalVisible: true})}>
+            <Button
+                disabled = { conditionMet ? false : true}
+                large
+                buttonStyle={{
+                    backgroundColor: treeGreen,
+                    width: width - 50,
+                    height: 85,
+                    borderColor: "transparent",
+                    borderWidth: 0,
+                    borderRadius: 5
+                }}
+                icon={{name: 'save', type: 'font-awesome'}}
+                title='SAVE'
+                onPress={() => {
+                                this.setModalVisible(true);
+                                } } 
+            />
+        </TouchableOpacity>
         
       </ScrollView>
     )
@@ -378,12 +462,15 @@ export default withNavigation(CreateProfile);
 
 const styles = StyleSheet.create({
     container: {
+        flexGrow: 1, 
         flexDirection: 'column',
         justifyContent: 'center',
+        paddingBottom: 30,
         //alignItems: 'center',
-        paddingTop: 10,
+        marginTop: 22,
         paddingLeft: 10,
         paddingRight: 10,
+        backgroundColor: 'white'
 
     },
     modal: {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', padding: 10, marginTop: 22},
@@ -436,6 +523,49 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: limeGreen,
         fontSize: 20
+    },
+
+    passwordStatusRow: {
+        flexDirection: 'row',
+        width: width - 30,
+        height: 40,
+        marginTop: 30,
+        paddingHorizontal: 10,
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+
+    passwordStatusText: {
+        fontSize: 20,
+        fontWeight: "bold",
+        fontFamily: "Cochin"
+    },
+
+    buttonGroupText: {
+        fontFamily: 'Iowan Old Style',
+        fontSize: 17,
+        fontWeight: '300',
+    },
+
+    buttonGroupSelectedText: {
+        color: 'black'
+    },
+
+    buttonGroupContainer: {
+        height: 40,
+        backgroundColor: iOSColors.lightGray,
+        marginBottom: 10,
+    },
+    
+    buttonGroupSelectedContainer: {
+        backgroundColor: limeGreen
+    },
+
+    info: {
+        fontFamily: 'Iowan Old Style',
+        fontSize: 15,
+        textAlign: 'auto',
+        letterSpacing: 1.5
     }
 })
 

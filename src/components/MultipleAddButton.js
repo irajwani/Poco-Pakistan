@@ -144,7 +144,7 @@ const styles = StyleSheet.create( {
     width: 150,
     height: 150,
     borderRadius: 100,
-    borderColor: '#0d8ace',
+    borderColor: 'green',
     borderWidth: 5,
     
   },
@@ -165,7 +165,7 @@ const styles = StyleSheet.create( {
     alignSelf: 'stretch',
     borderRadius: 40,
     borderWidth: 3,
-    borderColor: '#166aba',
+    borderColor: 'green',
     padding: 10,
     
   },
