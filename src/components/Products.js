@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Dimensions, View, Image, StyleSheet, ScrollView, TouchableOpacity, TouchableHighlight, Modal } from 'react-native';
-import { Button } from 'react-native-elements';
+import { Button, SearchBar, CheckBox } from 'react-native-elements';
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import { Text,  } from 'native-base';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -15,7 +15,8 @@ import PushNotification from 'react-native-push-notification';
 import { PacmanIndicator } from 'react-native-indicators';
 import { graphiteGray, lightGreen, rejectRed } from '../colors.js';
 
-const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace"
+const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace";
+const noResultsFromSearchText = "Your search is fruitless"
 
 var {height, width} = Dimensions.get('window');
 
@@ -51,6 +52,7 @@ class Products extends Component {
         showFilterModal: false,
         activeFilterSection: false,
         selectedBrand: '',
+        brandSearchTerm: '',
       };
       //this.navToChat = this.navToChat.bind(this);
   }
@@ -60,7 +62,7 @@ class Products extends Component {
       this.initializePushNotifications();
     }, 1000);
     setTimeout(() => {
-      this.getPageSpecificProducts(selectedValue = '', category = '');
+      this.getPageSpecificProducts(chosenBrand = '', chosenType = '', chosenSize = '');
     }, 1000);
   }
 
@@ -147,7 +149,7 @@ class Products extends Component {
   }
 
 
-  getPageSpecificProducts = (selectedValue, category) => {
+  getPageSpecificProducts = (chosenBrand, chosenType, chosenSize) => {
     
     const keys = [];
     database.then( (d) => {
@@ -164,10 +166,13 @@ class Products extends Component {
         var collectionKeys = removeFalsyValuesFrom(rawCollection);    
         var all = d.Products;
 
-        var filters = [{header: "Brand", values: []}, {header: "Type", values: []}, {header: "Size", values: []},];
+        //var filters = [{header: "Brand", values: []}, {header: "Type", values: []}, {header: "Size", values: []},];
         
         // all = selectedBrand == '' ? all : all.filter( (product) => product.text.brand == selectedBrand );
 
+
+        //OF COURSE, the FIRST/TOP level of "filtering" that dictates what products are displayed is if whether:
+        //Viewing all products, only liked products, or your products
         var yourProducts = all.filter((product) => productKeys.includes(product.key) );
         console.log(all, showCollection, showYourProducts);
         if(showCollection == true) {
@@ -181,43 +186,62 @@ class Products extends Component {
           all = all.filter((product) => productKeys.includes(product.key) );
         }
 
-        //now that we have the actual list of products we'd like to work with:
-        //extract the values which shall represent the filter choices
-        console.log(all);
-        for(var i = 1; i < all.length ; i++) {
-          filters[0].values.push(all[i].text.brand);
-          filters[1].values.push(all[i].text.type);
-          filters[2].values.push(all[i].text.size);
-          if(i == all.length - 1) {
-            filters[0].values = filters[0].values.filter(onlyUnique);
-            filters[1].values = filters[1].values.filter(onlyUnique);
-            filters[2].values = filters[2].values.filter(onlyUnique);
-          }
-        }
+        //Second Level is to extract list of information to be displayed in the filterModal
+        //first extract the list of current brands:
+        var brands = [];
+        all.forEach((product)=> {
+          brands.push(product.text.brand);
+        })
+        //TODO: problematic search? right now results are strings that include your searched for string
+        // brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ) 
+        brands = brands.filter(onlyUnique);
 
-        if(selectedValue && category) {
-          //filter for a specific value based on the category selected.
-          switch(category) {
-            case "Brand":
-              all = all.filter( (product) => product.text.brand == selectedValue )
-              break;
-            case "Type":
-              all = all.filter( (product) => product.text.type == selectedValue )
-              break;
-            case "Size":
-              all = all.filter( (product) => product.text.size == selectedValue )
-              break;
-            default:
-              break;
-          }
-          
-        }
+        //Third Level is optional and will be enforced when user has a selectedValue to filter products
+        all = chosenBrand ? all.filter( (product) => product.text.brand == chosenBrand) : all;
         
+
+
+        //now that we have the actual list of products we'd like to work with:
+        //extract the values which shall represent the filter choices only for the brands,
+        //provide all values for type and size
+        //TODO: screen to show 'no products match your search'
+        // console.log(all);
+        // for(var i = 1; i < all.length ; i++) {
+        //   filters[0].values.push(all[i].text.brand);
+        //   filters[1].values.push(all[i].text.type);
+        //   filters[2].values.push(all[i].text.size);
+        //   if(i == all.length - 1) {
+        //     //remove all duplicate values from these categories
+        //     filters[0].values = filters[0].values.filter(onlyUnique);
+        //     filters[1].values = filters[1].values.filter(onlyUnique);
+        //     filters[2].values = filters[2].values.filter(onlyUnique);
+        //   }
+        // }
+
+        // if(selectedValue && category) {
+        //   //filter for a specific value based on the category selected.
+        //   switch(category) {
+        //     case "Brand":
+        //       all = all.filter( (product) => product.text.brand == selectedValue )
+        //       break;
+        //     case "Type":
+        //       all = all.filter( (product) => product.text.type == selectedValue )
+        //       break;
+        //     case "Size":
+        //       all = all.filter( (product) => product.text.size == selectedValue )
+        //       break;
+        //     default:
+        //       break;
+        //   }
+          
+        // }
+
+        //Final Level is to sort the products in descending order of the number of likes
         all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
         var name = d.Users[uid].profile.name;
         var productsl = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 )
         var productsr = all.slice( Math.round(all.length/2) , all.length + 1);
-        this.setState({ filters, productsl, productsr, name, collectionKeys, productKeys });
+        this.setState({ brands, productsl, productsr, name, collectionKeys, productKeys });
 
     })
     .then( () => { console.log('finished loading');this.setState( {isGetting: false} );  } )
@@ -540,7 +564,13 @@ class Products extends Component {
   }
 
   renderFilterModal = () => {
-    const {filters} = this.state
+
+    var {brands, brandSearchTerm} = this.state
+    brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ) 
+    brands = brands.filter(onlyUnique);
+
+    var terms = []
+
     return (
       
       <Modal
@@ -554,22 +584,43 @@ class Products extends Component {
     
         <View style={styles.filterModal}>
 
-            <Accordion
-              activeSection={this.state.activeFilterSection}
-              sections={filters}
-              touchableComponent={TouchableOpacity}
-              renderHeader={this.renderFilterHeader}
-              renderContent={this.renderFilterContent}
-              duration={100}
-              onChange={this.setFilterSection}
+          <View style={{flexDirection: 'row', width: width, }}>
+            <SearchBar
+              clearIcon={{ color: 'gray' }}
+              round
+              searchIcon={{ size: 20 }}
+              onChangeText={(brandSearchTerm)=>{this.setState({ brandSearchTerm })}}
+              onClearText={()=>this.setState({brandSearchTerm: ''})}
+              placeholder='Which Brand?'
             />
+          </View>
+
+          <ScrollView contentContainerStyle={styles.filterScrollContainer}>
+            {brands? 
+              brands.map((brand, index,) => (
+                <View style={styles.filterOptionRow} key={index}>
+                
+                  <Text onPress={() => {
+                    this.getPageSpecificProducts(brand, chosenType = '', chosenSize = '');
+                    this.setState({showFilterModal: false})}}
+                  >
+                    {brand}
+                  </Text>
+                </View>
+              ))
+            :
+              <Text>{noResultsFromSearchText}</Text>
+            }
+          </ScrollView>            
+
+            
 
             <Button  
               buttonStyle={styles.removeFiltersButtonStyle}
               icon={{name: 'filter-remove', type: 'material-community'}}
               title='Remove Filters'
               onPress={() => {
-                  this.getPageSpecificProducts(selectedValue = '', category = '');
+                  this.getPageSpecificProducts('','','');
                   this.setState( {showFilterModal: false} );
                 }}
             />
@@ -678,7 +729,7 @@ const styles = StyleSheet.create({
     width: width,
     // height: height,
     flexDirection: 'column',
-    alignItems: 'center',
+    //alignItems: 'center',
     // justifyContent: 'center',
     
   },
@@ -689,6 +740,11 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     paddingTop: 20,
       },
+
+  filterScrollContainer: {
+    flexDirection: 'column',
+    height: height/3
+  },    
 
   headerPriceMagnifyingGlassRow: {
     flexDirection: 'row', justifyContent: 'space-between', 
@@ -849,6 +905,8 @@ const styles = StyleSheet.create({
     width: 80,
     height: 37,
     borderRadius: 20,
+    alignItems: 'center',
+    alignContent: 'center',
     // justifyContent: 'center',
     // alignItems:'center',
     // alignContent: 'center',
@@ -857,8 +915,12 @@ const styles = StyleSheet.create({
   },
 
   filterButtonContainer: {
-    marginRight: width/4.0,
-    
+    justifyContent: 'center',
+    alignContent: 'center',
+    alignItems: 'center',
+    marginRight: width/3.6,
+    // position: 'absolute',
+    // bottom: 30
   },
 
   headerFilterCard: {
@@ -887,6 +949,12 @@ const styles = StyleSheet.create({
     fontSize: 20
   },
 
+  filterOptionRow: {
+    flexDirection: 'row',
+    width: width/1.2,
+    justifyContent: 'space-between',
+  },
+
   removeFiltersButtonStyle : {
     backgroundColor: rejectRed,
     width: width/3 + 40,
@@ -897,6 +965,8 @@ const styles = StyleSheet.create({
     // alignContent: 'center',
   
   },
+
+  
 
 });
 
@@ -925,4 +995,16 @@ const styles = StyleSheet.create({
             // icon={{name: 'credit-card', type: 'font-awesome'}}
             // title='BUY'
             // onPress = { () => { navigate('CustomChat', {key: '-LLEL8jZIaK_AmjuXhUb'}) } }
+
+            // />
+
+
+            // <Accordion
+            //   activeSection={this.state.activeFilterSection}
+            //   sections={filters}
+            //   touchableComponent={TouchableOpacity}
+            //   renderHeader={this.renderFilterHeader}
+            //   renderContent={this.renderFilterContent}
+            //   duration={100}
+            //   onChange={this.setFilterSection}
             // />

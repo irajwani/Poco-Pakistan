@@ -188,7 +188,8 @@ class CreateProfile extends Component {
     const {params} = this.props.navigation.state
     const pictureuris = params ? params.pictureuris : 'nothing here'
     var conditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1) && (this.state.pass == this.state.pass2) && (this.state.pass.length >= 6);
-
+    var passwordConditionMet = (this.state.pass == this.state.pass2) && (this.state.pass.length > 0);
+    
     if(this.state.createProfileLoading) {
         return (
             <View style={{flex: 1}}>
@@ -237,7 +238,7 @@ class CreateProfile extends Component {
             inputStyle={{ color: darkBlue }}
         />
 
-        {(this.state.pass == this.state.pass2) && (this.state.pass.length > 0) ?
+        {passwordConditionMet ?
         <View style={styles.passwordStatusRow}>
          <Text style={[styles.passwordStatusText, {color: treeGreen}]}>Passwords Match!</Text>
          <Icon 
