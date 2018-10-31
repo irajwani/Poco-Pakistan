@@ -3,19 +3,19 @@ import { Dimensions, Platform, Text, StyleSheet, View, Image, KeyboardAvoidingVi
 import {withNavigation} from 'react-navigation';
 import { Hoshi, Jiro } from 'react-native-textinput-effects';
 import { TextField } from 'react-native-material-textfield';
-import NumericInput from 'react-native-numeric-input'
+// import NumericInput from 'react-native-numeric-input' 
 import {Button, ButtonGroup, Divider} from 'react-native-elements';
 import RNFetchBlob from 'react-native-fetch-blob';
 import MultipleAddButton from '../components/MultipleAddButton';
 import CustomModalPicker from '../components/CustomModalPicker';
 import ProductLabel from '../components/ProductLabel.js';
-import {signInContainer} from '../styles.js';
+// import {signInContainer} from '../styles.js';
 import firebase from '../cloud/firebase.js';
-import Chatkit from "@pusher/chatkit";
-import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
+// import Chatkit from "@pusher/chatkit";
+// import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
 import { material, iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
-import { confirmBlue, treeGreen, woodBrown, rejectRed } from '../colors';
+import { confirmBlue, woodBrown, rejectRed } from '../colors';
 
 const babyBlue='#94c2ed';
 const basicBlue = '#2c7dc9'
@@ -47,7 +47,6 @@ class CreateItem extends Component {
           type: 'Trousers',
           gender: 2,
           condition: 'Good',
-          months: 0,
           insta: '',
           description: '',
           typing: true,
@@ -98,7 +97,13 @@ class CreateItem extends Component {
 }
 
 updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
+        
+    // if(priceIsWrong) {
+    //     alert("You must a choose a non-zero positive real number for the selling price/retail price of this product");
+    //     return;
+    // }
     
+
     this.setState({isUploading: true});
     // : if request.auth != null;
     var gender;
@@ -151,7 +156,6 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
         description: data.description ? data.description : 'Seller did not specify a description',
         gender: gender,
         condition: data.condition,
-        months: data.months,
         sold: false,
         likes: 0,
         comments: '',
@@ -246,7 +250,6 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
                     type: 'Trousers',
                     gender: 2,
                     condition: 'Good',
-                    months: 0,
                     insta: '',
                     description: '',
                     typing: true,
@@ -289,14 +292,16 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
 
 
   render() {
-    const {isUploading} = this.state;
+    const {isUploading, price, original_price} = this.state;
     const uid = firebase.auth().currentUser.uid; 
     const {params} = this.props.navigation.state
     const pictureuris = params ? params.pictureuris : 'nothing here'
     //const picturebase64 = params ? params.base64 : 'nothing here'
     //Lenient condition, Array.isArray(pictureuris) && pictureuris.length >= 1
-    var conditionMet = (this.state.name) && (this.state.months >= 0) && (this.state.price > 0) && (Array.isArray(pictureuris) && pictureuris.length >= 1)
-    console.log(conditionMet);
+    var conditionMet = (this.state.name) && (this.state.price > 0) && (Array.isArray(pictureuris) && pictureuris.length >= 1)
+    //var priceIsWrong = (original_price != '') && ((price == 0) || (price.charAt(0) == 0 ) || (original_price == 0) || (original_price.charAt(0) == 0) )
+
+    //console.log(priceIsWrong);
     //console.log(pictureuri);
     //this.setState({uri: params.uri})
     //this.setState(incrementPrice);
@@ -360,7 +365,7 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
             source={ require('../images/blank.jpg') } /> */}
         {/* 2. Product Name */}
             <Jiro
-                    label={'Name'}
+                    label={'Name (e.g. Green zip up hoodie)'}
                     value={this.state.name}
                     onChangeText={name => this.setState({ name })}
                     autoCorrect={false}
@@ -387,7 +392,7 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
 
             {/* Product Description/Material */}
             <TextField 
-                label='Brief description of product (Optional)' 
+                label="Optional Description (e.g. Great for chilly weather)"
                 value={this.state.description}
                 onChangeText = { (desc)=>{this.setState({description: desc})}}
                 multiline = {true}
@@ -402,7 +407,9 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
             <Jiro
                     label={'Selling Price (GBP)'}
                     value={this.state.price}
-                    onChangeText={price => this.setState({ price })}
+                    onChangeText={price => {
+                        this.setState({ price })
+                        } }
                     autoCorrect={false}
                     // this is used as active border color
                     borderColor={'#800000'}
@@ -410,6 +417,7 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
                     // please pass the backgroundColor of your TextInput container.
                     backgroundColor={'#F9F7F6'}
                     inputStyle={{ color: '#800000' }}
+                    keyboardType='numeric'
             />
             <Text>£{this.state.price}</Text>
             {/* Original Price */}
@@ -424,6 +432,7 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
                     // please pass the backgroundColor of your TextInput container.
                     backgroundColor={'#F9F7F6'}
                     inputStyle={{ color: '#800000' }}
+                    keyboardType='numeric'
             />
             <Text>£{this.state.original_price}</Text>
 
@@ -455,30 +464,8 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
                 <Text style={styles.optionSelected}>{this.state.condition}</Text>
             </View>    
             <Divider style={{  backgroundColor: '#fff', height: 15 }} />
-            {/* product age (months) */}
-            <View style = { {alignItems: 'center', flexDirection: 'column'} } >
-             <NumericInput 
-                value={this.state.months} 
-                onChange={months => this.setState({months})} 
-                type='plus-minus'
-                initValue={0}
-                minValue={0}
-                maxValue={200}
-                totalWidth={240} 
-                totalHeight={50} 
-                iconSize={25}
-                valueType='real'
-                rounded 
-                textColor='black' 
-                iconStyle={{ color: 'white' }} 
-                upDownButtonsBackgroundColor='#E56B70'
-                rightButtonBackgroundColor={limeGreen} 
-                leftButtonBackgroundColor={darkGreen}
-                containerStyle={ {justifyContent: 'space-evenly', padding: 10,} }    
-                />
-             <Text> Months since you bought the product </Text>
-            </View>
-            <Divider style={{  backgroundColor: '#fff', height: 15 }} />
+            
+            
 
             <Button
             large
@@ -597,3 +584,27 @@ const styles = StyleSheet.create({
 })
 
 export default withNavigation(CreateItem)
+
+// {/* product age (months) */}
+// <View style = { {alignItems: 'center', flexDirection: 'column'} } >
+// <NumericInput 
+//    value={this.state.months} 
+//    onChange={months => this.setState({months})} 
+//    type='plus-minus'
+//    initValue={0}
+//    minValue={0}
+//    maxValue={200}
+//    totalWidth={240} 
+//    totalHeight={50} 
+//    iconSize={25}
+//    valueType='real'
+//    rounded 
+//    textColor='black' 
+//    iconStyle={{ color: 'white' }} 
+//    upDownButtonsBackgroundColor='#E56B70'
+//    rightButtonBackgroundColor={limeGreen} 
+//    leftButtonBackgroundColor={darkGreen}
+//    containerStyle={ {justifyContent: 'space-evenly', padding: 10,} }    
+//    />
+// <Text> Months since you bought the product </Text>
+// </View>

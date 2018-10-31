@@ -15,14 +15,14 @@ import { material, iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
 
 import firebase from '../cloud/firebase.js';
-import Chatkit from "@pusher/chatkit";
-import { CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_INSTANCE_LOCATOR, CHATKIT_SECRET_KEY } from '../credentials/keys';
+// import Chatkit from "@pusher/chatkit";
+// import { CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_INSTANCE_LOCATOR, CHATKIT_SECRET_KEY } from '../credentials/keys';
 
 const babyBlue='#94c2ed';
 const basicBlue = '#2c7dc9'
 const darkGreen = '#0d4f10';
 const limeGreen = '#2e770f';
-const slimeGreen = '#53b73c';
+// const slimeGreen = '#53b73c';
 
 const Blob = RNFetchBlob.polyfill.Blob;
 const fs = RNFetchBlob.fs;
@@ -39,7 +39,7 @@ class EditItem extends Component {
       const {params} = this.props.navigation.state;
       const {text} = params.data;
       const postKey = params.data.key;
-      const {name, brand, price, months} = text;
+      const {name, brand, price} = text;
       switch(text.gender) {
         case 'Men':
             var gender = 0
@@ -87,7 +87,6 @@ class EditItem extends Component {
           type: text.type ? text.type : 'Trousers',
           gender: gender,
           condition: text.condition ? text.condition : 'Good',
-          months: months,
           description: text.description ? text.description : '',
           typing: true,
           postKey: postKey,
@@ -250,7 +249,6 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
         description: data.description ? data.description : 'Seller did not specify a description',
         gender: gender,
         condition: data.condition,
-        months: data.months,
         sold: false,
         likes: 0,
         comments: '',
@@ -374,7 +372,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
     console.log(pictureuris);
     //const picturebase64 = params ? params.base64 : 'nothing here'
     //Lenient condition, Array.isArray(pictureuris) && pictureuris.length >= 1
-    var conditionMet = (this.state.name) && (this.state.months > 0) && (this.state.price > 0) && (Array.isArray(pictureuris) && pictureuris.length >= 1)
+    var conditionMet = (this.state.name) && (this.state.price > 0) && (Array.isArray(pictureuris) && pictureuris.length >= 1)
     console.log(conditionMet);
     //console.log(pictureuri);
     //this.setState({uri: params.uri})
@@ -534,29 +532,8 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
                 <Text style={styles.optionSelected}>{this.state.condition}</Text>
             </View>    
             <Divider style={{  backgroundColor: '#fff', height: 15 }} />
-            {/* product age (months) */}
-            <View style = { {alignItems: 'center', flexDirection: 'column'} } >
-             <NumericInput 
-                value={this.state.months} 
-                onChange={months => this.setState({months})} 
-                type='plus-minus'
-                initValue={0}
-                minValue={0}
-                maxValue={200}
-                totalWidth={240} 
-                totalHeight={50} 
-                iconSize={25}
-                valueType='real'
-                rounded 
-                textColor='black' 
-                iconStyle={{ color: 'white' }} 
-                upDownButtonsBackgroundColor='#E56B70'
-                rightButtonBackgroundColor={limeGreen} 
-                leftButtonBackgroundColor={darkGreen}
-                containerStyle={ {justifyContent: 'space-evenly', padding: 10,} }    
-                />
-             <Text> Months since you bought the product </Text>
-            </View>
+            
+            
             {/* RESUBMIT EDITED PRODUCT */}
             <Button
             disabled = { conditionMet ? false : true}
@@ -669,3 +646,25 @@ const styles = StyleSheet.create({
     },
 })
 
+{/* <View style = { {alignItems: 'center', flexDirection: 'column'} } >
+             <NumericInput 
+                value={this.state.months} 
+                onChange={months => this.setState({months})} 
+                type='plus-minus'
+                initValue={0}
+                minValue={0}
+                maxValue={200}
+                totalWidth={240} 
+                totalHeight={50} 
+                iconSize={25}
+                valueType='real'
+                rounded 
+                textColor='black' 
+                iconStyle={{ color: 'white' }} 
+                upDownButtonsBackgroundColor='#E56B70'
+                rightButtonBackgroundColor={limeGreen} 
+                leftButtonBackgroundColor={darkGreen}
+                containerStyle={ {justifyContent: 'space-evenly', padding: 10,} }    
+                />
+             <Text> Months since you bought the product </Text>
+            </View> */}
