@@ -10,6 +10,7 @@ import firebase from '../cloud/firebase.js';
 import {database} from '../cloud/database';
 import * as Animatable from 'react-native-animatable';
 import Accordion from 'react-native-collapsible/Accordion';
+import SelectMultiple from 'react-native-select-multiple'
 
 import PushNotification from 'react-native-push-notification';
 import { PacmanIndicator } from 'react-native-indicators';
@@ -53,6 +54,9 @@ class Products extends Component {
         activeFilterSection: false,
         selectedBrand: '',
         brandSearchTerm: '',
+        selectedBrands: [],
+        selectedTypes: [],
+        selectedSizes: [],
       };
       //this.navToChat = this.navToChat.bind(this);
   }
@@ -565,7 +569,7 @@ class Products extends Component {
 
   renderFilterModal = () => {
 
-    var {brands, brandSearchTerm} = this.state
+    var {brands, brandSearchTerm, selectedBrands, selectedTypes, selectedSizes} = this.state
     brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ) 
     brands = brands.filter(onlyUnique);
 
@@ -597,23 +601,26 @@ class Products extends Component {
 
           <ScrollView contentContainerStyle={styles.filterScrollContainer}>
             {brands? 
-              brands.map((brand, index,) => (
-                <View style={styles.filterOptionRow} key={index}>
-                
-                  <Text onPress={() => {
-                    this.getPageSpecificProducts(brand, chosenType = '', chosenSize = '');
-                    this.setState({showFilterModal: false})}}
-                  >
-                    {brand}
-                  </Text>
-                </View>
-              ))
+              <SelectMultiple
+                items={brands}
+                selectedItems={this.state.selectedBrands}
+                onSelectionsChange={(selectedBrands) => this.setState({ selectedBrands })} 
+              />
             :
               <Text>{noResultsFromSearchText}</Text>
             }
           </ScrollView>            
 
             
+            <Button  
+              buttonStyle={styles.confirmFiltersButtonStyle}
+              icon={{name: 'filter', type: 'material-community'}}
+              title='Confirm Selection'
+              onPress={() => {
+                  this.getPageSpecificProducts(selectedBrands, selectedTypes, selectedSizes);
+                  this.setState( {showFilterModal: false} );
+                }}
+            />
 
             <Button  
               buttonStyle={styles.removeFiltersButtonStyle}
@@ -966,9 +973,32 @@ const styles = StyleSheet.create({
   
   },
 
+  confirmFiltersButtonStyle : {
+    backgroundColor: lightGreen,
+    width: width/3 + 40,
+    height: 37,
+    borderRadius: 20,
+    // justifyContent: 'center',
+    // alignItems:'center',
+    // alignContent: 'center',
+  
+  },
+
   
 
 });
+
+// brands.map((brand, index,) => (
+//   <View style={styles.filterOptionRow} key={index}>
+  
+//     <Text onPress={() => {
+//       this.getPageSpecificProducts(brand, chosenType = '', chosenSize = '');
+//       this.setState({showFilterModal: false})}}
+//     >
+//       {brand}
+//     </Text>
+//   </View>
+// ))
 
 
 {/* <Image
