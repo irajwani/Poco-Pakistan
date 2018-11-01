@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Dimensions, View, Image, KeyboardAvoidingView } from 'react-native';
+import { Dimensions, View, Image, } from 'react-native';
 
 import { Hoshi } from 'react-native-textinput-effects';
 import { PacmanIndicator } from 'react-native-indicators';
@@ -12,8 +12,8 @@ import firebase from '../cloud/firebase.js';
 import {database} from '../cloud/database';
 
 import { systemWeights, iOSColors } from 'react-native-typography';
-import HomeScreen from './HomeScreen';
-import { SignUpToCreateProfileStack } from '../stackNavigators/signUpToEditProfileStack';
+// import HomeScreen from './HomeScreen';
+// import { SignUpToCreateProfileStack } from '../stackNavigators/signUpToEditProfileStack';
 
 
 const {width,} = Dimensions.get('window');
@@ -58,7 +58,10 @@ class SignIn extends Component {
                 firebase.auth().onAuthStateChanged( (user) => {
                     if(user) {
                         console.log(user.uid);
-                        this.setState({loading: false, loggedIn: true})
+                        //could potentially navigate with user properties like uid, name, etc.
+                        this.setState({loading: false});
+                        this.props.navigation.navigate('HomeScreen');
+                        // this.setState({loading: false, loggedIn: true})
                         
                     }
                 })
@@ -185,23 +188,23 @@ class SignIn extends Component {
     }
 
 
-    authChangeListener() {
+    // authChangeListener() {
         
-        firebase.auth().onAuthStateChanged( (user) => {
-            if (user) {
+    //     firebase.auth().onAuthStateChanged( (user) => {
+    //         if (user) {
 
-                this.setState({uid: user.uid, loggedIn: true, isGetting: false});
+    //             this.setState({uid: user.uid, loggedIn: true, isGetting: false});
             
                 
-            } else {
-              alert('no user found');
-            }
+    //         } else {
+    //           alert('no user found');
+    //         }
 
 
-        } )
+    //     } )
 
 
-                  }
+    //               }
 
 
     ///////////////////
@@ -209,11 +212,9 @@ class SignIn extends Component {
 
     render() {
 
-        const {loggedIn, loading, signUpProcedure} = this.state;
+        const {loading, signUpProcedure} = this.state;
     
-        if(loggedIn) {
-            return <HomeScreen/>
-        }
+        
         
         return (
                 
@@ -308,20 +309,8 @@ class SignIn extends Component {
 
 }
 
-// this feeds the singular store whenever the state changes
-const mapStateToProps = (state) => {
-    return {
-        loading: state.loading,
-        loggedIn: state.loggedIn,
-    }
-}
-
-//if we want a component to access the store, we need to map actions to the props
-const mapDispatchToProps = (dispatch) => {
-    return {
-        onSignInPress: (email, pass) => dispatch( {type: 'onSignInPress', email: email, pass: pass } ),
-        //onSignInLoading: () => dispatch( {type: 'onSignInLoading'} )
-    }
-}
-
 export default SignIn;
+
+// if(loggedIn) {
+//     return <HomeScreen/>
+// }

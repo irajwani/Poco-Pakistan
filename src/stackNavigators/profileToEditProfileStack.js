@@ -6,7 +6,7 @@ import MultiplePictureCamera from '../components/MultiplePictureCamera';
 import MultipleAddButton from '../components/MultipleAddButton';
 import YourProducts from '../views/YourProducts';
 import EditItem from '../views/EditItem';
-import Users from '../views/Users';
+// import Users from '../views/Users';
 import UserComments from '../views/UserComments';
 import Settings from '../views/Settings';
 
@@ -18,7 +18,6 @@ export const profileToEditProfileStack = createStackNavigator({
     MultiplePictureCamera: MultiplePictureCamera,
     YourProducts: YourProducts,
     EditItem: EditItem,
-    Users: Users,
     UserComments: UserComments
 },
 {   

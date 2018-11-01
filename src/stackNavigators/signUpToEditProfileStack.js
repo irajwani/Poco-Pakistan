@@ -4,12 +4,14 @@ import CreateProfile from '../views/CreateProfile';
 import SignIn from '../views/SignIn';
 import MultiplePictureCamera from '../components/MultiplePictureCamera';
 import MultipleAddButton from '../components/MultipleAddButton';
+import HomeScreen from '../views/HomeScreen';
 
 export const SignUpToCreateProfileStack = createStackNavigator({
     SignIn: SignIn,
     CreateProfile: CreateProfile,
     MultipleAddButton: MultipleAddButton,
-    MultiplePictureCamera: MultiplePictureCamera
+    MultiplePictureCamera: MultiplePictureCamera,
+    HomeScreen: HomeScreen,
 },
 {   
     initalRouteName: 'SignIn',

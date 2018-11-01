@@ -118,14 +118,14 @@ class OtherUserProfilePage extends Component {
           <View style={styles.gearAndPicColumn}>
             <View style={styles.gearRow}>
               <Icon name="settings" 
-                    style={ styles.gear }
+                    
                             size={30} 
                             color={iOSColors.gray}
                             onPress={() => this.props.navigation.navigate('Settings')}
 
               />
               <Icon name="account-alert" 
-                  style={styles.users}
+                  
                   size={30} 
                   color={'#020002'}
                   onPress={() => {this.showBlockOrReport()}}
@@ -419,9 +419,8 @@ const styles = StyleSheet.create({
 
   gearRow: {
     flexDirection: 'row',
-    width: width - 30,
     justifyContent: 'space-between',
-    // alignContent: 'flex-start',
+    alignContent: 'flex-start',
   },
 
   picRow: {

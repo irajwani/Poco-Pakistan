@@ -130,12 +130,20 @@ class ProfilePage extends Component {
 
          <View style={styles.gearAndPicColumn}>
           <View style={styles.gearRow}>
-            <Icon name="settings" 
-                  style={ styles.gear }
-                          size={30} 
-                          color={iOSColors.gray}
-                          onPress={() => this.props.navigation.navigate('Settings')}
+            <Icon 
+              name="settings" 
+              size={30} 
+              color={iOSColors.gray}
+              onPress={() => this.props.navigation.navigate('Settings')}
 
+            />
+            <Icon 
+              name="logout" 
+              size={30} 
+              color={'#020002'}
+              onPress={() => {
+                firebase.auth().signOut().then( () => this.props.navigation.navigate('SignIn'))
+              }}
             />
           </View>  
 
@@ -335,7 +343,7 @@ const styles = StyleSheet.create({
 
   gearRow: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     alignContent: 'flex-start',
   },
 

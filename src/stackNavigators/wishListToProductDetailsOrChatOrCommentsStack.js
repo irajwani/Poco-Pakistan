@@ -5,6 +5,10 @@ import ProductDetails from '../views/ProductDetails';
 import CustomChat from '../views/CustomChat';
 import Comments from '../views/Comments';
 import YourProducts from '../views/YourProducts';
+import OtherUserProfilePage from '../views/OtherUserProfilePage';
+import UserComments from '../views/UserComments';
+import ProductComments from '../views/ProductComments';
+
 
 export const wishListToProductDetailsOrChatOrCommentsStack = createStackNavigator({
     Collection: Collection,
@@ -12,6 +16,9 @@ export const wishListToProductDetailsOrChatOrCommentsStack = createStackNavigato
     ProductDetails: ProductDetails,
     Comments: Comments,
     CustomChat: CustomChat,
+    ProductComments: ProductComments,
+    OtherUserProfilePage: OtherUserProfilePage,
+    UserComments: UserComments,
 },
 {
     initialRouteName: 'Collection',

@@ -487,6 +487,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
                     // please pass the backgroundColor of your TextInput container.
                     backgroundColor={'#F9F7F6'}
                     inputStyle={{ color: '#800000' }}
+                    keyboardType='numeric'
             />
             <Text>£{this.state.price}</Text>
             {/* Original Price */}
@@ -501,6 +502,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
                     // please pass the backgroundColor of your TextInput container.
                     backgroundColor={'#F9F7F6'}
                     inputStyle={{ color: '#800000' }}
+                    keyboardType='numeric'
             />
             <Text>£{this.state.original_price}</Text>
 
