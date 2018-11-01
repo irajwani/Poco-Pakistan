@@ -59,6 +59,8 @@ class SignIn extends Component {
                     if(user) {
                         console.log(user.uid);
                         //could potentially navigate with user properties like uid, name, etc.
+                        //TODO: once you sign out and nav back to this page, last entered
+                        //password and email are still there
                         this.setState({loading: false});
                         this.props.navigation.navigate('HomeScreen');
                         // this.setState({loading: false, loggedIn: true})

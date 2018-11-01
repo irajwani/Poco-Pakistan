@@ -142,7 +142,7 @@ class ProfilePage extends Component {
               size={30} 
               color={'#020002'}
               onPress={() => {
-                firebase.auth().signOut().then( () => this.props.navigation.navigate('SignIn'))
+                firebase.auth().signOut().then( () => {this.props.navigation.navigate('SignIn'); alert("You have successfully logged out")})
               }}
             />
           </View>  

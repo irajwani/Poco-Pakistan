@@ -181,7 +181,9 @@ class Products extends Component {
         //get collection keys of current user
         var collection = d.Users[uid].collection ? d.Users[uid].collection : null;
         var rawCollection = collection ? collection : {}
-        var collectionKeys = removeFalsyValuesFrom(rawCollection);    
+        var collectionKeys = removeFalsyValuesFrom(rawCollection);
+        var emptyCollection = false;
+        if(collectionKeys.length == 0) {emptyCollection = true}    
         var all = d.Products;
 
         //var filters = [{header: "Brand", values: []}, {header: "Type", values: []}, {header: "Size", values: []},];
@@ -266,7 +268,7 @@ class Products extends Component {
         var name = d.Users[uid].profile.name;
         var productsl = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 )
         var productsr = all.slice( Math.round(all.length/2) , all.length + 1);
-        this.setState({ emptyMarket, types, sizes, brands, productsl, productsr, name, collectionKeys, productKeys });
+        this.setState({ emptyCollection, emptyMarket, types, sizes, brands, productsl, productsr, name, collectionKeys, productKeys });
 
     })
     .then( () => { console.log('finished loading');this.setState( {isGetting: false} );  } )
@@ -714,7 +716,7 @@ class Products extends Component {
       )
     }
 
-    if(emptyMarket) {
+    if(emptyMarket && !emptyCollection) {
       return (
         <View style={{
           flexDirection: 'column',
@@ -737,7 +739,7 @@ class Products extends Component {
       )
     }
 
-    if(emptyCollection) {
+    if(emptyCollection && emptyMarket) {
         return (
             <View style={{
               flexDirection: 'column',
