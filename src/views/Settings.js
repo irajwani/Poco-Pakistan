@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dimensions, Text, Modal, StyleSheet, View, TouchableOpacity, TouchableHighlight } from 'react-native'
+import { Dimensions, Text, Modal, StyleSheet, ScrollView, View, TouchableOpacity, TouchableHighlight } from 'react-native'
 import { withNavigation } from 'react-navigation';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -8,7 +8,7 @@ import { material, iOSUIKit, iOSColors } from 'react-native-typography'
 import * as Animatable from 'react-native-animatable';
 import Accordion from 'react-native-collapsible/Accordion';
 
-import {Eula, TsAndCs, PrivacyPolicy, ContactUs} from '../legal/Documents.js';
+import {EulaTop, EulaLink, EulaBottom, TsAndCs, PrivacyPolicy, ContactUs} from '../legal/Documents.js';
 
 const {width} = Dimensions.get('window');
 
@@ -106,7 +106,7 @@ class Settings extends Component {
     var selectedDocument;
     switch(activeDocument) {
       case 'End User License Agreement':
-        selectedDocument = Eula;
+        selectedDocument = EulaTop + EulaLink + EulaBottom;
         break;
       case 'Terms & Conditions':
         selectedDocument = TsAndCs;
@@ -118,7 +118,7 @@ class Settings extends Component {
         selectedDocument = ContactUs;
         break;
       default:
-        selectedDocument = Eula;
+        selectedDocument = EulaTop + EulaLink + EulaBottom;
         break;  
     }
     
@@ -143,7 +143,7 @@ class Settings extends Component {
             Alert.alert('Modal has been closed.');
           }}
         >
-          <View style={styles.modal}>
+          <ScrollView contentContainerStyle={styles.licenseContainer}>
             <Text>{selectedDocument}</Text>
             <TouchableHighlight
               onPress={() => {
@@ -151,7 +151,7 @@ class Settings extends Component {
               }}>
               <Text style={styles.hideModal}>Hide Modal</Text>
             </TouchableHighlight>
-          </View>
+          </ScrollView>
         </Modal>
 
       </View>
@@ -169,6 +169,15 @@ const styles = StyleSheet.create({
       padding: 10,
       marginTop: 20
     },
+
+    licenseContainer: {
+      marginTop: 22,
+      flexGrow: 0.8, 
+      backgroundColor: '#fff',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      padding: 10
+  },
 
     modal: {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', padding: 10, marginTop: 22},
     hideModal: {

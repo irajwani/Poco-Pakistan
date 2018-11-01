@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dimensions, Text, StyleSheet, View, ScrollView, Platform, Modal, TouchableHighlight, TouchableOpacity } from 'react-native';
+import { Linking, Dimensions, Text, StyleSheet, View, ScrollView, Platform, Modal, TouchableHighlight, TouchableOpacity } from 'react-native';
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import {Fab} from 'native-base';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -10,12 +10,12 @@ import { Sae, Fumi, Kohana } from 'react-native-textinput-effects';
 import firebase from '../cloud/firebase.js';
 import MultipleAddButton from '../components/MultipleAddButton.js';
 import { iOSColors } from 'react-native-typography';
-import { Eula, TsAndCs, PrivacyPolicy } from '../legal/Documents.js';
+import { EulaTop, EulaBottom, TsAndCs, PrivacyPolicy, EulaLink } from '../legal/Documents.js';
 import { confirmBlue, rejectRed, woodBrown, treeGreen, bobbyBlue, highlightGreen, profoundPink, poopBrown, darkBlue, tealBlue } from '../colors.js';
 import { PacmanIndicator } from 'react-native-indicators';
 
 const {width} = Dimensions.get('window');
-const info = "In order to sign up, ensure that the values you input above meet the following conditions:\n1. Take a profile picture of yourself. If you wish to keep your image a secret, just take a picture of your finger pressed against your camera lens to simulate a dark blank photo.\n2. Use a legitimate email address as other buyers and sellers may contact you if the functionality in NottMyStyle is erroneous for some reason.\n3. Your Password's length must be greater than or equal to 6 characters.\n4. Please limit the length of your name to 40 characters.\n5. An Example answer to the 'city, country abbreviation' field is: 'Nottingham, UK' "
+const info = "In order to sign up, ensure that the values you input above meet the following conditions:\n1. Take a profile picture of yourself. If you wish to keep your image a secret, just take a picture of your finger pressed against your camera lens to simulate a dark blank photo.\n2. Use a legitimate email address as other buyers and sellers need a way to contact you if the functionality in NottMyStyle is erroneous for some reason.\n3. Your Password's length must be greater than or equal to 6 characters. To add some security, consider using at least one upper case letter and one symbol like !.\n4. Please limit the length of your name to 40 characters.\n5. An Example answer to the 'city, country abbreviation' field is: 'Nottingham, UK' "
 const limeGreen = '#2e770f';
 
 const Blob = RNFetchBlob.polyfill.Blob;
@@ -200,7 +200,21 @@ class CreateProfile extends Component {
 
     return (
       <ScrollView contentContainerStyle={styles.container}>
+        <View style={ {flexDirection: 'row', height: 40, justifyContent: 'center', alignContent: 'center',} }>
+            <Button  
+                buttonStyle={ {
+                    backgroundColor: 'black',
+                    width: width/3 -20,
+                    height: 37,
+                    borderRadius: 20,
+                }}
+                icon={{name: 'chevron-left', type: 'material-community'}}
+                title='Back'
+                onPress={() => this.props.navigation.navigate('SignIn') } 
+            />
+        </View>
         <Text style={{fontFamily: 'Cochin', fontWeight: '800', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text>
+        
         <MultipleAddButton navToComponent = {'CreateProfile'} pictureuris={pictureuris} />
 
         <Sae
@@ -331,7 +345,9 @@ class CreateProfile extends Component {
             
             <Text style={styles.modalHeader}>End-User License Agreement for NottMyStyle</Text>
             <ScrollView contentContainerStyle={styles.licenseContainer}>
-                <Text>{Eula}</Text>
+                <Text>{EulaTop}</Text>
+                <Text style={{color: bobbyBlue}} onPress={() => Linking.openURL(EulaLink)}>{EulaLink}</Text>
+                <Text>{EulaBottom}</Text>
             </ScrollView>
             <View style={styles.documentOpenerContainer}>
                 <Text style={styles.documentOpener} onPress={() => {this.setState({modalVisible: false, termsModalVisible: true})}}>
@@ -387,6 +403,7 @@ class CreateProfile extends Component {
           }}
         >
             <View style={styles.modal}>
+                <Text style={styles.modalHeader}>Terms & Conditions of Use</Text>
                 <ScrollView contentContainerStyle={styles.licenseContainer}>
                     <Text>{TsAndCs}</Text>
                 </ScrollView>
@@ -406,6 +423,7 @@ class CreateProfile extends Component {
           }}
         >
             <View style={styles.modal}>
+                <Text style={styles.modalHeader}>Privacy Policy of NottMyStyle</Text>
                 <ScrollView contentContainerStyle={styles.licenseContainer}>
                     <Text>{PrivacyPolicy}</Text>
                 </ScrollView>
@@ -436,7 +454,7 @@ class CreateProfile extends Component {
         
         <TouchableOpacity disabled = {conditionMet ? true: false} onPress={()=>this.setState({infoModalVisible: true})}>
             <Button
-                disabled = { conditionMet ? false : true}
+                disabled = {conditionMet ? false: true}
                 large
                 buttonStyle={{
                     backgroundColor: treeGreen,
@@ -448,9 +466,10 @@ class CreateProfile extends Component {
                 }}
                 icon={{name: 'save', type: 'font-awesome'}}
                 title='SAVE'
-                onPress={() => {
-                                this.setModalVisible(true);
-                                } } 
+                onPress={
+                    () => {
+                    this.setModalVisible(true);
+                    }} 
             />
         </TouchableOpacity>
         

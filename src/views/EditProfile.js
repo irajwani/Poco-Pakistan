@@ -110,21 +110,19 @@ class EditProfile extends Component {
 
     return (
       <ScrollView contentContainerStyle={styles.container}>
-        <Button
-            buttonStyle={{
-                backgroundColor: "#0a3f93",
-                width: 50,
-                height: 40,
-                borderColor: "transparent",
-                borderWidth: 0,
-                borderRadius: 90,
-                marginLeft: 200
-            }}
-            icon={{name: 'arrow-left', type: 'font-awesome'}}
-            onPress={() => {
-                            this.props.navigation.goBack(); 
-                            } } 
-        />
+        <View style={ {flexDirection: 'row', height: 40, justifyContent: 'center', alignContent: 'center',} }>
+            <Button  
+                buttonStyle={ {
+                    backgroundColor: 'black',
+                    width: width/3 -20,
+                    height: 37,
+                    borderRadius: 20,
+                }}
+                icon={{name: 'chevron-left', type: 'material-community'}}
+                title='Back'
+                onPress={() => this.props.navigation.goBack() } 
+            />
+        </View>
         <Text style={{textAlign: 'center'}}>Choose Profile Picture:</Text>
         <MultipleAddButton navToComponent = {'EditProfile'} pictureuris={pictureuris} />
 

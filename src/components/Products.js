@@ -10,14 +10,18 @@ import firebase from '../cloud/firebase.js';
 import {database} from '../cloud/database';
 import * as Animatable from 'react-native-animatable';
 import Accordion from 'react-native-collapsible/Accordion';
-import SelectMultiple from 'react-native-select-multiple'
+import SelectMultiple from 'react-native-select-multiple';
+
+// import ScrollableTabView, { ScrollableTabBar, } from 'react-native-scrollable-tab-view';
+// import FacebookTabBar from './FacebookTabBar'
 
 import PushNotification from 'react-native-push-notification';
 import { PacmanIndicator } from 'react-native-indicators';
-import { graphiteGray, lightGreen, rejectRed } from '../colors.js';
+import { graphiteGray, lightGreen, rejectRed, treeGreen } from '../colors.js';
 
-const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace";
-const noResultsFromSearchText = "Your search is fruitless"
+const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace 💔.";
+const noResultsFromSearchText = "Your search does not match the description of any product on the marketplace 🙁.";
+const noResultsFromSearchForSpecificCategoryText = "Your search does not match the description of any product for this specific category 🙁.";
 
 var {height, width} = Dimensions.get('window');
 
@@ -33,6 +37,15 @@ function onlyUnique(value, index, self) {
   return self.indexOf(value) === index;
 }
 
+function extractValuesFrom(arr) {
+  var values = [];
+  arr.forEach( (obj, index, array) => {
+    values.push(obj.value)
+    console.log(values)
+  } )
+  return values;
+}
+
 const limeGreen = '#2e770f';
 const profoundPink = '#c64f5f';
 
@@ -40,6 +53,7 @@ class Products extends Component {
   constructor(props) {
       super(props);
       this.state = {
+        emptyMarket: false,
         emptyCollection: false,
         refreshing: false,
         isGetting: true,
@@ -66,7 +80,7 @@ class Products extends Component {
       this.initializePushNotifications();
     }, 1000);
     setTimeout(() => {
-      this.getPageSpecificProducts(chosenBrand = '', chosenType = '', chosenSize = '');
+      this.getPageSpecificProducts([], [], []);
     }, 1000);
   }
 
@@ -153,7 +167,7 @@ class Products extends Component {
   }
 
 
-  getPageSpecificProducts = (chosenBrand, chosenType, chosenSize) => {
+  getPageSpecificProducts = (selectedBrands, selectedTypes, selectedSizes) => {
     
     const keys = [];
     database.then( (d) => {
@@ -193,6 +207,9 @@ class Products extends Component {
         //Second Level is to extract list of information to be displayed in the filterModal
         //first extract the list of current brands:
         var brands = [];
+        var types = ['Formal Shirts', 'Casual Shirts', 'Jackets', 'Suits', 'Trousers', 'Jeans', 'Shoes', 'Watches', 'Bracelets', 'Jewellery', 'Sunglasses', 'Handbags', 'Tops', 'Skirts', 'Dresses', 'Coats'];
+        var sizes = ['Extra Small', 'Small', 'Medium', 'Large', 'Extra Large', 'Extra Extra Large'];
+
         all.forEach((product)=> {
           brands.push(product.text.brand);
         })
@@ -201,9 +218,13 @@ class Products extends Component {
         brands = brands.filter(onlyUnique);
 
         //Third Level is optional and will be enforced when user has a selectedValue to filter products
-        all = chosenBrand ? all.filter( (product) => product.text.brand == chosenBrand) : all;
-        
+        all = selectedBrands.length > 0 ? all.filter( (product) => selectedBrands.includes(product.text.brand)) : all;
+        all = selectedTypes.length > 0 ? all.filter( (product) => selectedTypes.includes(product.text.type)) : all;
+        all = selectedSizes.length > 0 ? all.filter( (product) => selectedSizes.includes(product.text.size)) : all;
 
+        //After all this filtering, it could be the case that no results match your criteria,
+        var emptyMarket = false;
+        if(all.length == 0) {emptyMarket = true}
 
         //now that we have the actual list of products we'd like to work with:
         //extract the values which shall represent the filter choices only for the brands,
@@ -245,7 +266,7 @@ class Products extends Component {
         var name = d.Users[uid].profile.name;
         var productsl = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 )
         var productsr = all.slice( Math.round(all.length/2) , all.length + 1);
-        this.setState({ brands, productsl, productsr, name, collectionKeys, productKeys });
+        this.setState({ emptyMarket, types, sizes, brands, productsl, productsr, name, collectionKeys, productKeys });
 
     })
     .then( () => { console.log('finished loading');this.setState( {isGetting: false} );  } )
@@ -569,11 +590,12 @@ class Products extends Component {
 
   renderFilterModal = () => {
 
-    var {brands, brandSearchTerm, selectedBrands, selectedTypes, selectedSizes} = this.state
-    brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ) 
+    var {brands, types, sizes, brandSearchTerm, selectedBrands, selectedTypes, selectedSizes} = this.state
+    
+    brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ); 
     brands = brands.filter(onlyUnique);
-
-    var terms = []
+    types = types.filter( (type) => type.includes(brandSearchTerm) ); 
+    sizes = sizes.filter( (size) => size.includes(brandSearchTerm) );
 
     return (
       
@@ -586,30 +608,64 @@ class Products extends Component {
       }}
       >
     
-        <View style={styles.filterModal}>
+        <ScrollView contentContainerStyle={styles.filterModalContainer}>
 
-          <View style={{flexDirection: 'row', width: width, }}>
+          
             <SearchBar
+              lightTheme
               clearIcon={{ color: 'gray' }}
-              round
               searchIcon={{ size: 20 }}
               onChangeText={(brandSearchTerm)=>{this.setState({ brandSearchTerm })}}
               onClearText={()=>this.setState({brandSearchTerm: ''})}
-              placeholder='Which Brand?'
+              placeholder='Which Brand, Type, or Size?'
             />
-          </View>
-
+          
+          <Text style={styles.headerText}>Brands</Text>
           <ScrollView contentContainerStyle={styles.filterScrollContainer}>
-            {brands? 
+
+            {brands.length > 0? 
               <SelectMultiple
                 items={brands}
                 selectedItems={this.state.selectedBrands}
                 onSelectionsChange={(selectedBrands) => this.setState({ selectedBrands })} 
               />
             :
-              <Text>{noResultsFromSearchText}</Text>
+              <Text>{noResultsFromSearchForSpecificCategoryText}</Text>
             }
-          </ScrollView>            
+
+          </ScrollView>
+          <Text style={styles.headerText}>Types</Text>
+          <ScrollView contentContainerStyle={styles.filterScrollContainer}>
+
+            {types.length > 0? 
+              <SelectMultiple
+                items={types}
+                selectedItems={this.state.selectedTypes}
+                onSelectionsChange={(selectedTypes) => this.setState({ selectedTypes })} 
+              />
+            :
+              <Text>{noResultsFromSearchForSpecificCategoryText}</Text>
+            }
+
+          </ScrollView>  
+          <Text style={styles.headerText}>Sizes</Text>
+          <ScrollView contentContainerStyle={styles.filterScrollContainer}>
+
+            {sizes.length > 0? 
+              <SelectMultiple
+                items={sizes}
+                selectedItems={this.state.selectedSizes}
+                onSelectionsChange={(selectedSizes) => this.setState({ selectedSizes })} 
+              />
+            :
+              <Text>{noResultsFromSearchForSpecificCategoryText}</Text>
+            }
+
+          </ScrollView>  
+
+          
+
+                      
 
             
             <Button  
@@ -617,7 +673,7 @@ class Products extends Component {
               icon={{name: 'filter', type: 'material-community'}}
               title='Confirm Selection'
               onPress={() => {
-                  this.getPageSpecificProducts(selectedBrands, selectedTypes, selectedSizes);
+                  this.getPageSpecificProducts(extractValuesFrom(selectedBrands), extractValuesFrom(selectedTypes), extractValuesFrom(selectedSizes));
                   this.setState( {showFilterModal: false} );
                 }}
             />
@@ -627,18 +683,20 @@ class Products extends Component {
               icon={{name: 'filter-remove', type: 'material-community'}}
               title='Remove Filters'
               onPress={() => {
-                  this.getPageSpecificProducts('','','');
-                  this.setState( {showFilterModal: false} );
+                  this.getPageSpecificProducts([],[],[]);
+                  this.setState( {selectedBrands: [], selectedTypes: [], selectedSizes: [], showFilterModal: false} );
                 }}
             />
             
-            <TouchableHighlight
-                onPress={() => {
-                    this.setState( {showFilterModal: false} )
-                }}>
-                <Text>Hide Modal</Text>
-            </TouchableHighlight>
-        </View>
+            <Button  
+              buttonStyle={styles.hideModalButtonStyle}
+              icon={{name: 'chevron-left', type: 'material-community'}}
+              title='Hide Modal'
+              onPress={() => {
+                  this.setState( {showFilterModal: false} );
+                }}
+            />
+        </ScrollView>
       
     </Modal>
     )
@@ -646,12 +704,35 @@ class Products extends Component {
 
   render() {
 
-    var {productsl, activeSectionL, productsr, activeSectionR, isGetting, emptyCollection, navToChatLoading} = this.state;
+    var {productsl, activeSectionL, productsr, activeSectionR, isGetting, emptyMarket, emptyCollection, navToChatLoading} = this.state;
 
     if(isGetting) {
       return ( 
         <View style={{flex: 1}}>
           <PacmanIndicator color={graphiteGray} />
+        </View>
+      )
+    }
+
+    if(emptyMarket) {
+      return (
+        <View style={{
+          flexDirection: 'column',
+          marginTop: 22,
+          height: height/2.2,
+          backgroundColor: lightGreen
+        }}
+        >
+            <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'green'}}>{noResultsFromSearchText}</Text>
+            {this.renderFilterModal()}
+            <View style={styles.filterButtonContainerNoMarket}>
+              <Button  
+                  buttonStyle={styles.filterButtonStyleNoMarket}
+                  icon={{name: 'filter', type: 'material-community'}}
+                  title='Filter'
+                  onPress={() => this.setState({ showFilterModal: true }) } 
+              />
+            </View>
         </View>
       )
     }
@@ -665,6 +746,7 @@ class Products extends Component {
             }}
             >
                 <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'green'}}>{emptyCollectionText}</Text>
+                
             </View>
         )
     }
@@ -750,7 +832,11 @@ const styles = StyleSheet.create({
 
   filterScrollContainer: {
     flexDirection: 'column',
-    height: height/3
+    height: height/3,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: treeGreen,
+    borderWidth: 2
   },    
 
   headerPriceMagnifyingGlassRow: {
@@ -905,7 +991,17 @@ const styles = StyleSheet.create({
   ////////////////////////////////// 
   ////////////////////// Partition between marketplace styles and modal styles
 
-  filterModal: {flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', padding: 25, marginTop: 22},
+  filterModal: {flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: 10, marginTop: 22},
+
+  filterModalContainer: {
+    marginTop: 22,
+    flexGrow: 0.8, 
+    backgroundColor: '#fff',
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    padding: 10,
+  },
 
   filterButtonStyle : {
     backgroundColor: 'black',
@@ -922,6 +1018,26 @@ const styles = StyleSheet.create({
   },
 
   filterButtonContainer: {
+    justifyContent: 'center',
+    alignContent: 'center',
+    alignItems: 'center',
+    marginRight: width/3.6,
+    // position: 'absolute',
+    // bottom: 30
+  },
+
+  filterButtonStyleNoMarket : {
+    backgroundColor: 'black',
+    width: 80,
+    height: 37,
+    borderRadius: 20,
+    // justifyContent: 'center',
+    // alignItems:'center',
+    // alignContent: 'center',
+    
+  },
+
+  filterButtonContainerNoMarket: {
     justifyContent: 'center',
     alignContent: 'center',
     alignItems: 'center',
@@ -962,6 +1078,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 
+  tabView: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: 'rgba(0,0,0,0.01)',
+  },
+
+  tabContent: {
+    borderWidth: 1,
+    backgroundColor: '#fff',
+    borderColor: 'rgba(0,0,0,0.1)',
+    margin: 5,
+    height: 150,
+    padding: 15,
+    shadowColor: '#ccc',
+    shadowOffset: { width: 2, height: 2, },
+    shadowOpacity: 0.5,
+    shadowRadius: 3,
+  },
+
   removeFiltersButtonStyle : {
     backgroundColor: rejectRed,
     width: width/3 + 40,
@@ -984,9 +1119,22 @@ const styles = StyleSheet.create({
   
   },
 
+  hideModalButtonStyle : {
+    backgroundColor: 'black',
+    width: width/3 + 20,
+    height: 37,
+    borderRadius: 20,
+    // justifyContent: 'center',
+    // alignItems:'center',
+    // alignContent: 'center',
+  
+  },
+
   
 
 });
+
+
 
 // brands.map((brand, index,) => (
 //   <View style={styles.filterOptionRow} key={index}>
