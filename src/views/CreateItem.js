@@ -466,25 +466,26 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
             <Divider style={{  backgroundColor: '#fff', height: 15 }} />
             
             
-
-            <Button
-            large
-            disabled = { conditionMet ? false : true}
-            buttonStyle={{
-                backgroundColor: "#22681d",
-                width: 280,
-                height: 80,
-                borderColor: "transparent",
-                borderWidth: 0,
-                borderRadius: 5,
-            }}
-            icon={{name: 'check-all', type: 'material-community'}}
-            title='SUBMIT TO MARKET'
-            onPress={() => { 
-                this.updateFirebaseAndNavToProfile(this.state, pictureuris, mime = 'image/jpg', uid , this.state.name);
-                
-                              } } 
-            />
+            <View style={ {alignItems: 'center'} }>
+                <Button
+                large
+                disabled = { conditionMet ? false : true}
+                buttonStyle={{
+                    backgroundColor: "#22681d",
+                    width: 280,
+                    height: 80,
+                    borderColor: "transparent",
+                    borderWidth: 0,
+                    borderRadius: 5,
+                }}
+                icon={{name: 'check-all', type: 'material-community'}}
+                title='SUBMIT TO MARKET'
+                onPress={() => { 
+                    this.updateFirebaseAndNavToProfile(this.state, pictureuris, mime = 'image/jpg', uid , this.state.name);
+                    
+                                } } 
+                />
+            </View>
 
             <Divider style={{  backgroundColor: '#fff', height: 10 }} />
             
@@ -505,6 +506,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         flexDirection: 'column',
         justifyContent: 'space-between',
+        // alignContent:'center',
+        // alignItems: 'center',
         paddingTop: 15
           
     },

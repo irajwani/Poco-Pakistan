@@ -3,6 +3,7 @@ import { Text, ScrollView, View, Image, StyleSheet, TouchableHighlight } from 'r
 import Icon from 'react-native-vector-icons/FontAwesome'
 import ActionSheet from 'react-native-actionsheet'
 import { withNavigation } from 'react-navigation';
+import { lightGreen, highlightGreen } from '../colors';
 
 class MultipleAddButton extends Component {
   constructor(props) {
@@ -160,12 +161,12 @@ const styles = StyleSheet.create( {
 
   profilepic: {
     flex: 1,
-    width: 100,
+    width: 60,
     height: 100,
-    alignSelf: 'stretch',
-    borderRadius: 40,
-    borderWidth: 3,
-    borderColor: 'green',
+    // alignSelf: 'stretch',
+    borderRadius: 50,
+    borderWidth: 2,
+    borderColor: highlightGreen,
     padding: 10,
     
   },

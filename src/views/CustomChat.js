@@ -4,7 +4,7 @@ import { GiftedChat } from 'react-native-gifted-chat';
 import {withNavigation} from 'react-navigation';
 import firebase from '../cloud/firebase';
 
-import emojiUtils from 'emoji-utils';
+// import emojiUtils from 'emoji-utils';
 
 import Chatkit from "@pusher/chatkit";
 import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
@@ -48,10 +48,10 @@ class CustomChat extends Component {
       //   roomId: id,
       //   position: ,
       // })
-      const cursor = this.currentUser.readCursor({
-        roomId: id
-      })
-      console.log(cursor); 
+      // const cursor = this.currentUser.readCursor({
+      //   roomId: id
+      // })
+      // console.log(cursor); 
       this.currentUser.subscribeToRoom({
         //roomId: this.currentUser.rooms[0].id,
         roomId: id,
@@ -85,16 +85,16 @@ class CustomChat extends Component {
   componentWillUnmount() {
     const {params} = this.props.navigation.state;
     const id = params ? params.id : null;
-    this.currentUser.setReadCursor({
-        roomId: id,
-        position: this.state.newestReadMessageId,
-    })
-    .then(() => {
-      console.log('Success!')
-    })
-    .catch(err => {
-      console.log(`Error setting cursor: ${err}`)
-    })
+    // this.currentUser.setReadCursor({
+    //     roomId: id,
+    //     position: this.state.newestReadMessageId,
+    // })
+    // .then(() => {
+    //   console.log('Success!')
+    // })
+    // .catch(err => {
+    //   console.log(`Error setting cursor: ${err}`)
+    // })
   }
 
   //onReceive function not supposed to be here?
@@ -117,7 +117,6 @@ class CustomChat extends Component {
 
     this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, incomingMessage),
-      newestReadMessageId: id
     }));
   }
   /////////////////

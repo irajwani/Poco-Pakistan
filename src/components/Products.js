@@ -1008,7 +1008,7 @@ const styles = StyleSheet.create({
   filterButtonStyle : {
     backgroundColor: 'black',
     width: 80,
-    height: 37,
+    height: height/15,
     borderRadius: 20,
     alignItems: 'center',
     alignContent: 'center',
@@ -1031,7 +1031,7 @@ const styles = StyleSheet.create({
   filterButtonStyleNoMarket : {
     backgroundColor: 'black',
     width: 80,
-    height: 37,
+    height: height/15,
     borderRadius: 20,
     // justifyContent: 'center',
     // alignItems:'center',
@@ -1102,7 +1102,7 @@ const styles = StyleSheet.create({
   removeFiltersButtonStyle : {
     backgroundColor: rejectRed,
     width: width/3 + 40,
-    height: 37,
+    height: height/15,
     borderRadius: 20,
     // justifyContent: 'center',
     // alignItems:'center',
@@ -1113,7 +1113,7 @@ const styles = StyleSheet.create({
   confirmFiltersButtonStyle : {
     backgroundColor: lightGreen,
     width: width/3 + 40,
-    height: 37,
+    height: height/15,
     borderRadius: 20,
     // justifyContent: 'center',
     // alignItems:'center',
@@ -1124,7 +1124,7 @@ const styles = StyleSheet.create({
   hideModalButtonStyle : {
     backgroundColor: 'black',
     width: width/3 + 20,
-    height: 37,
+    height: height/15,
     borderRadius: 20,
     // justifyContent: 'center',
     // alignItems:'center',

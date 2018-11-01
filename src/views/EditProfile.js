@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, ScrollView, Platform } from 'react-native';
+import { Dimensions, Text, StyleSheet, View, ScrollView, Platform } from 'react-native';
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import {Fab} from 'native-base';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -10,6 +10,7 @@ import { Sae, Fumi } from 'react-native-textinput-effects';
 import firebase from '../cloud/firebase.js';
 import MultipleAddButton from '../components/MultipleAddButton.js';
 
+const {width, height} = Dimensions.get('window')
 
 const Blob = RNFetchBlob.polyfill.Blob;
 const fs = RNFetchBlob.fs;

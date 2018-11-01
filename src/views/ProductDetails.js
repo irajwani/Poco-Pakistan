@@ -275,7 +275,10 @@ class ProductDetails extends Component {
       <ScrollView contentContainerStyle={styles.contentContainer}>
 
         {/* image carousel */}
-        <CustomCarousel data={params.data.uris} />
+        <View style={{alignItems: 'center'}}>
+          <CustomCarousel data={params.data.uris} />
+        </View>
+        
 
         {/* product details */}
         <Text style={styles.brandText}> {text.brand.toUpperCase()} </Text>
@@ -323,7 +326,7 @@ class ProductDetails extends Component {
                     buttonStyle={{
                         backgroundColor: "#186f87",
                         width: 80,
-                        height: 40,
+                        height: height/15,
                         
                     }}
                     icon={{name: 'lead-pencil', type: 'material-community'}}
@@ -355,7 +358,7 @@ class ProductDetails extends Component {
                     buttonStyle={{
                         backgroundColor: "#186f87",
                         width: 80,
-                        height: 40,
+                        height: height/15,
                         
                     }}
                     icon={{name: 'lead-pencil', type: 'material-community'}}
@@ -386,7 +389,7 @@ class ProductDetails extends Component {
                     buttonStyle={{
                         backgroundColor: "#186f87",
                         width: 80,
-                        height: 40,
+                        height: height/15,
                         
                     }}
                     icon={{name: 'credit-card', type: 'font-awesome'}}
@@ -432,7 +435,7 @@ class ProductDetails extends Component {
                     buttonStyle={{
                         backgroundColor: "#186f87",
                         width: 80,
-                        height: 40,
+                        height: height/15,
                         
                     }}
                     icon={{name: 'lead-pencil', type: 'material-community'}}
@@ -464,7 +467,7 @@ class ProductDetails extends Component {
                     buttonStyle={{
                         backgroundColor: "#186f87",
                         width: 80,
-                        height: 40,
+                        height: height/15,
                         
                     }}
                     icon={{name: 'lead-pencil', type: 'material-community'}}
@@ -495,7 +498,7 @@ class ProductDetails extends Component {
                     buttonStyle={{
                         backgroundColor: "#186f87",
                         width: 80,
-                        height: 40,
+                        height: height/15,
                         
                     }}
                     icon={{name: 'credit-card', type: 'font-awesome'}}
@@ -563,13 +566,13 @@ class ProductDetails extends Component {
 
         {/* more details */}
         
-        { Object.keys(details).map( (key) => (
+        { Object.keys(details).map( (key, index) => (
           
             <View style={styles.dalmationContainer}>
-              <View style={ styles.keyContainer }>
+              <View style={ [styles.keyContainer, {backgroundColor: index % 2 == 0 ? bobbyBlue : iOSColors.lightGray2}] }>
                   <Text style={styles.keyText}>{key === 'original_price' ? 'RETAIL PRICE' : key.toUpperCase()}</Text>
               </View>
-              <View style={ styles.valueContainer }>
+              <View style={ [styles.valueContainer, {backgroundColor: index % 2 == 0 ? highlightGreen : iOSColors.black} ] }>
                   <Text style={styles.valueText}>{key === 'original_price' ? `£${details[key]}` : details[key]}</Text>
               </View>
             </View>
@@ -768,7 +771,6 @@ keyContainer: {
     height: 40,
     padding: 5,
     justifyContent: 'center',
-    backgroundColor: iOSColors.customGray
 },
 
 valueContainer: {
@@ -776,7 +778,6 @@ valueContainer: {
     height: 40,
     padding: 5,
     justifyContent: 'center',
-    backgroundColor: iOSColors.black
 },
 
 keyText: {
