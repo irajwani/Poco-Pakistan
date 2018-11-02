@@ -15,7 +15,7 @@ import { confirmBlue, rejectRed, woodBrown, treeGreen, bobbyBlue, highlightGreen
 import { PacmanIndicator } from 'react-native-indicators';
 
 const {height, width} = Dimensions.get('window');
-const info = "In order to sign up, ensure that the values you input above meet the following conditions:\n1. Take a profile picture of yourself. If you wish to keep your image a secret, just take a picture of your finger pressed against your camera lens to simulate a dark blank photo.\n2. Use a legitimate email address as other buyers and sellers need a way to contact you if the functionality in NottMyStyle is erroneous for some reason.\n3. Your Password's length must be greater than or equal to 6 characters. To add some security, consider using at least one upper case letter and one symbol like !.\n4. Please limit the length of your name to 40 characters.\n5. An Example answer to the 'city, country abbreviation' field is: 'Nottingham, UK' "
+const info = "In order to sign up, ensure that the values you input meet the following conditions:\n1. Take a profile picture of yourself. If you wish to keep your image a secret, just take a picture of your finger pressed against your camera lens to simulate a dark blank photo.\n2. Use a legitimate email address as other buyers and sellers need a way to contact you if the functionality in NottMyStyle is erroneous for some reason.\n3. Your Password's length must be greater than or equal to 6 characters. To add some security, consider using at least one upper case letter and one symbol like !.\n4. Please limit the length of your name to 40 characters.\n5. An Example answer to the 'city, country abbreviation' field is: 'Nottingham, UK' "
 const limeGreen = '#2e770f';
 
 const Blob = RNFetchBlob.polyfill.Blob;
@@ -67,7 +67,7 @@ class CreateProfile extends Component {
                                     }
                                       )
                     .catch(() => {
-                      this.setState({ error: 'You already have a NottMyStyle account. Please use your credentials to Sign In', loading: false });
+                      this.setState({ error: 'You already have a NottMyStyle account. Please use your credentials to Sign In', createProfileLoading: false, email: '', pass: '', pass2: '' });
                       alert(this.state.error)
                     });
   }
@@ -200,17 +200,25 @@ class CreateProfile extends Component {
 
     return (
       <ScrollView contentContainerStyle={styles.container}>
-        <View style={ {flexDirection: 'row', height: 40, justifyContent: 'center', alignContent: 'center',} }>
+        <View style={ {flexDirection: 'row', backgroundColor: '#dee0e5', height: 40, justifyContent: 'space-between', borderWidth: 1, borderRadius: 5, borderColor: 'black'} }>
             <Button  
                 buttonStyle={ {
                     backgroundColor: 'black',
-                    width: width/3 -20,
+                    width: width/3 +20,
                     height: height/15,
-                    borderRadius: 20,
+                    borderRadius: 5,
                 }}
                 icon={{name: 'chevron-left', type: 'material-community'}}
                 title='Back'
                 onPress={() => this.props.navigation.navigate('SignIn') } 
+            />
+            <Icon 
+              name="help-circle" 
+              size={height/15} 
+              color={bobbyBlue}
+              onPress={() => {
+                this.setState({infoModalVisible: true})
+              }}
             />
         </View>
         <Text style={{fontFamily: 'Cochin', fontWeight: '800', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text>
