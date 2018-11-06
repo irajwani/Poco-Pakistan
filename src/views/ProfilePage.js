@@ -14,6 +14,8 @@ const {width, height} = Dimensions.get('window');
 
 const resizeMode = 'center';
 
+const noReviewsText = "No Reviews have been\n left for you thus far."
+
 class ProfilePage extends Component {
 
   static navigationOptions = {
@@ -49,17 +51,19 @@ class ProfilePage extends Component {
   componentWillMount() {
     setTimeout(() => {
       const uid = firebase.auth().currentUser.uid;
-      this.getProducts(uid);
+      this.getProfileAndCountOfProductsOnSaleAndSold(uid);
       this.getComments(uid);
     }, 1000);
     
   }
 
-  getProducts(your_uid) {
+  getProfileAndCountOfProductsOnSaleAndSold(your_uid) {
     console.log(your_uid);
     const keys = [];
-    database.then( (d) => {
-      
+    //read the value of refreshed cloud db so a user may seamlessly transition from registration to profile page
+    firebase.database().ref().once("value", (snapshot) => {
+      var d = snapshot.val();
+      // console.log(d.val(), d.Users, your_uid);
       var soldProducts = 0;
       //relies on fact that when user profile was initially created,
       //we appended a products: '' entry under a particular uid's branch
@@ -80,7 +84,35 @@ class ProfilePage extends Component {
       console.log(name);
       this.setState({ name, country, uri, insta, numberProducts, soldProducts })
     })
-    .catch( (err) => {console.log(err) })
+
+    // ////////////////
+
+    // database.then( (d) => {
+      
+    //   var soldProducts = 0;
+    //   //relies on fact that when user profile was initially created,
+    //   //we appended a products: '' entry under a particular uid's branch
+    //   for(var p of Object.values(d.Users[your_uid].products)) {
+    //     if(p.sold) {
+    //       soldProducts++
+    //     }
+    //   }
+      
+    //   var numberProducts = Object.keys(d.Users[your_uid].products).length
+      
+    //   var {country, insta, name, size, uri} = d.Users[your_uid].profile
+      
+    //   // var name = d.Users[your_uid].profile.name;
+    //   // var email = d.Users[your_uid].profile.email;
+    //   // var insta = d.Users[your_uid].profile.insta;
+
+    //   console.log(name);
+    //   this.setState({ name, country, uri, insta, numberProducts, soldProducts })
+    // })
+    // .catch( (err) => {console.log(err) })
+
+
+    //////
     
   }
 
@@ -95,7 +127,7 @@ class ProfilePage extends Component {
       var date = (new Date()).getDate();
       var month = (new Date()).getMonth();
       var year = (new Date()).getFullYear();
-      var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: `${year}/${month.length == 2 ? month : '0' + month }/${date}`, uri: '' } };
+      var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: noReviewsText, name: 'NottMyStyle Team', time: `${year}/${month.length == 2 ? month : '0' + month }/${date}`, uri: '' } };
       console.log(comments);
       this.setState({ comments });
       console.log(comments);
@@ -272,7 +304,7 @@ const styles = StyleSheet.create({
   },
 
   profileText: {
-    flex: 1,
+    // flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
     paddingTop: 15,
@@ -281,7 +313,7 @@ const styles = StyleSheet.create({
 
   midContainer: {
     flexDirection: 'row',
-    width: width,
+    // width: width,
     height: height/7.5,
     backgroundColor: '#cdcdd6',
     justifyContent: 'center'
@@ -291,7 +323,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignContent: 'center',
     alignItems: 'center',
-    width: width/2 - 20,
+    // width: width/2 - 20,
     height: 60,
     //55
     paddingTop: 20,
@@ -311,7 +343,7 @@ const styles = StyleSheet.create({
   },
 
   footerContainer: {
-    flex: 0.5,
+    // flex: 0.5,
     flexDirection: 'column',
     padding: 2
   },
@@ -323,7 +355,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   header: {
-    flex: 1.4,
+    // flex: 1.4,
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 20,
@@ -361,7 +393,7 @@ const styles = StyleSheet.create({
     // justifyContent: 'space-evenly',
     // alignItems: 'center',
     marginTop:10,
-    width: width - 40,
+    // width: width - 40,
     // paddingRight: 0,
     
   },

@@ -12,6 +12,15 @@ const chatkit = new Chatkit.default({
 const admin = require('firebase-admin');
 admin.initializeApp();
 
+
+//local functions:
+function timeSince(date) {
+
+    var seconds = Math.floor((new Date() - date) / 1000);
+    return Math.floor(seconds/86400);
+    
+}
+
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 //
@@ -101,3 +110,70 @@ exports.updateOldUser = functions.database.ref('/Users/{uid}/{profile}/uri').onW
 //         return null;
 //     }
 // )
+
+
+
+//FUNCTION NUMBAH 4 ?
+exports.updateProducts = functions.database.ref('Users/{uid}/{products}').onWrite(
+    (snapshot, context) => {
+        console.log('Initializing Reconstruction of Products Branch');
+
+        admin.database().ref().once("value", (d) => {
+            console.log(d);
+            var uids = Object.keys(d.Users);
+            console.log(uids)
+            var keys = [];
+            //get all keys for each product iteratively across each user
+            for(uid of uids) {
+                if(Object.keys(d.Users[uid]).includes('products') ) {
+                Object.keys(d.Users[uid].products).forEach( (key) => keys.push(key));
+                }
+            }
+            console.log(keys);
+            var products = [];
+            var updates;
+            var chatUpdates = {};
+            var postData;
+            var i = 1;
+            //go through all products in each user's branch and update the Products section of the database
+            for(const uid of uids) {
+                for(const key of keys) {
+
+                if(Object.keys(d.Users[uid]).includes('products') ) {
+
+                    if( Object.keys(d.Users[uid].products).includes(key)  ) {
+                        
+                        var daysElapsed;
+                        daysElapsed = timeSince(d.Users[uid].products[key].time);
+                            
+                        postData = {
+                            key: key, uid: uid, uris: d.Users[uid].products[key].uris, 
+                            text: d.Users[uid].products[key], daysElapsed: daysElapsed, 
+                            shouldReducePrice: (daysElapsed >= 10) && (d.Users[uid].products[key].sold === false) ? true : false,
+                        }
+                            
+                            
+                        updates = {};    
+                        updates['/Products/' + i + '/'] = postData;
+                        admin.database().ref().update(updates);
+                        i++;
+                        console.log(i);
+
+                        
+
+                    }
+                
+                }
+
+                
+                
+                }
+            }
+            
+            
+            return null;
+        })
+
+        return null;
+    }
+)

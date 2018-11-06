@@ -28,7 +28,7 @@ const {width,} = Dimensions.get('window');
 function timeSince(date) {
 
     var seconds = Math.floor((new Date() - date) / 1000);
-    return Math.floor(seconds/86400);;
+    return Math.floor(seconds/86400);
     
 }
 
@@ -42,7 +42,7 @@ class SignIn extends Component {
       }
 
     componentWillMount() {
-        this.updateProducts();
+        //this.updateProducts();
     }
 
     arrayToObject(arr, keyField) {
@@ -154,17 +154,21 @@ class SignIn extends Component {
 
                     if( Object.keys(d.Users[uid].products).includes(key)  ) {
                         
-                            var daysElapsed;
-                            daysElapsed = timeSince(d.Users[uid].products[key].time);
-                            (daysElapsed >= 10) && (d.Users[uid].products[key].sold == false) ? 
-                                postData = {key: key, uid: uid, uris: d.Users[uid].products[key].uris, text: d.Users[uid].products[key], daysElapsed: daysElapsed, shouldReducePrice: true }
-                                :
-                                postData = {key: key, uid: uid, uris: d.Users[uid].products[key].uris, text: d.Users[uid].products[key], daysElapsed: daysElapsed, shouldReducePrice: false };
-                            updates = {};    
-                            updates['/Products/' + i + '/'] = postData;
-                            firebase.database().ref().update(updates);
-                            i++;
-                            console.log(i);
+                        var daysElapsed;
+                        daysElapsed = timeSince(d.Users[uid].products[key].time);
+                            
+                        postData = {
+                            key: key, uid: uid, uris: d.Users[uid].products[key].uris, 
+                            text: d.Users[uid].products[key], daysElapsed: daysElapsed, 
+                            shouldReducePrice: (daysElapsed >= 10) && (d.Users[uid].products[key].sold == false) ? true : false
+                        }
+                            
+                            
+                        updates = {};    
+                        updates['/Products/' + i + '/'] = postData;
+                        firebase.database().ref().update(updates);
+                        i++;
+                        console.log(i);
 
                         
 

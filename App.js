@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { SignUpToCreateProfileStack } from './src/stackNavigators/signUpToEditProfileStack';
+import { SignUpToCreateProfileStack } from './src/stackNavigators/signUpToCreateProfileStack';
 
 // import {Provider} from 'react-redux'
 // import {createStore} from 'redux'
