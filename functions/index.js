@@ -117,9 +117,10 @@ exports.updateOldUser = functions.database.ref('/Users/{uid}/{profile}/uri').onW
 exports.updateProducts = functions.database.ref('Users/{uid}/{products}').onWrite(
     (snapshot, context) => {
         console.log('Initializing Reconstruction of Products Branch');
-
-        admin.database().ref().once("value", (d) => {
-            console.log(d);
+        console.log(`Before: ${snapshot.before.val()}`)
+        console.log(`After: ${snapshot.after.val()}`)
+        admin.database().ref().once("value", (dataFromReference) => {
+            var d = dataFromReference.val();
             var uids = Object.keys(d.Users);
             console.log(uids)
             var keys = [];

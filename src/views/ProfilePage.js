@@ -286,9 +286,7 @@ export default ProfilePage;
 // />
 
 const styles = StyleSheet.create({
-  linearGradient: {
-    flex: 1,
-  },
+  
   halfPageScroll: {
     
   },
@@ -300,7 +298,48 @@ const styles = StyleSheet.create({
   headerContainer: {
     flex: 1,
     flexDirection: 'column',
-    justifyContent: 'space-evenly'
+    justifyContent: 'space-evenly',
+    // backgroundColor: 'pink'
+  },
+
+  linearGradient: {
+    flex: 1,
+  },
+
+  header: {
+    flex: 1,
+    alignItems: 'center',
+    // justifyContent: 'center',
+    padding: 20, //maybe not enough padding to lower gear Icon row into view, but that solution would be bad practice
+    // backgroundColor: 'white',
+    height: height/1.8,
+  },
+
+  gearAndPicColumn: {
+    flexDirection: 'column',
+    flex: 1.0,
+    // flexDirection: 'row',
+    // justifyContent: 'space-evenly',
+    // alignItems: 'center',
+    marginTop:10,
+    // width: width - 40,
+    // paddingRight: 0,
+    // backgroundColor: 'blue',
+    width: width
+  },
+
+  gearRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignContent: 'flex-start',
+  },
+
+  picRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignContent: 'flex-start',
+    height: height/5
+    // alignItems: 'flex-start',
   },
 
   profileText: {
@@ -354,13 +393,6 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     justifyContent: 'space-between'
   },
-  header: {
-    // flex: 1.4,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
-    //backgroundColor: 'black'
-  },
 
   gear: {
     flex: 0,
@@ -372,31 +404,7 @@ const styles = StyleSheet.create({
     paddingRight: 0,
     marginLeft: 0
   },
-
-  gearRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignContent: 'flex-start',
-  },
-
-  picRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignContent: 'flex-start',
-    height: height/5
-    // alignItems: 'flex-start',
-  },
-  gearAndPicColumn: {
-    flexDirection: 'column',
-    // flex: 1.4,
-    // flexDirection: 'row',
-    // justifyContent: 'space-evenly',
-    // alignItems: 'center',
-    marginTop:10,
-    // width: width - 40,
-    // paddingRight: 0,
-    
-  },
+  
   profilepicWrap: {
     backgroundColor: 'black',
     width: 130,

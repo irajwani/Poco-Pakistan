@@ -7,7 +7,7 @@ import { Text,  } from 'native-base';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { material, iOSUIKit, iOSColors } from 'react-native-typography'
 import firebase from '../cloud/firebase.js';
-import {database} from '../cloud/database';
+// import {database} from '../cloud/database';
 import * as Animatable from 'react-native-animatable';
 import Accordion from 'react-native-collapsible/Accordion';
 import SelectMultiple from 'react-native-select-multiple';
@@ -22,10 +22,10 @@ import { graphiteGray, lightGreen, rejectRed, treeGreen } from '../colors.js';
 const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace 💔.";
 const noResultsFromSearchText = "Your search does not match the description of any product on the marketplace 🙁.";
 const noResultsFromSearchForSpecificCategoryText = "Your search does not match the description of any product for this specific category 🙁.";
-
+const timeToRefresh = 2000;
 var {height, width} = Dimensions.get('window');
 
-function removeFalsyValuesFrom(object) {
+function removeKeysWithFalsyValuesFrom(object) {
   const newObject = {};
   Object.keys(object).forEach((property) => {
     if (object[property]) {newObject[property] = object[property]}
@@ -108,7 +108,7 @@ class Products extends Component {
           console.log( 'NOTIFICATION:', notification, userInteraction );
           if(userInteraction) {
             //this.props.navigation.navigate('YourProducts');
-            alert('You may edit individual product details by:\n  Navigate to your profile.\n Then tap the number of products on sale');
+            alert("To edit a particular product's details, magnify to show full product details \n Select Edit Item. \n (Be warned, you will have to take new pictures)");
           }
           
           //userInteraction ? this.navToEditItem() : console.log('user hasnt pressed notification, so do nothing');
@@ -143,7 +143,7 @@ class Products extends Component {
     for(var product of arrayOfProducts) {
       if(product.shouldReducePrice) {
         console.log('should reduce price');
-        var date = new Date(Date.now() + (1200 * 1000)) // in 20 minutes
+        var date = new Date(Date.now() + (1200 * 1000)) // in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
         var message = `Nobody has initiated a chat with you about your product named, ${product.text.name}, since its submission on the market ${product.daysElapsed} days ago 🤔. Perhaps you should change it's selling price?`;
 
         PushNotification.localNotificationSchedule({
@@ -170,109 +170,78 @@ class Products extends Component {
   getPageSpecificProducts = (selectedBrands, selectedTypes, selectedSizes) => {
     
     const keys = [];
-    database.then( (d) => {
-        console.log('retrieving array of products')
-      //Only pull the products that are in this user's collection
-        const {showCollection, showYourProducts} = this.props;
-        const uid = firebase.auth().currentUser.uid;
+    firebase.database().ref().on("value", (snapshot) => {
+      var d = snapshot.val();
+      console.log('retrieving array of products')
+      //Only pull the products that are in this user's collection for the WishList tab.
+      const {showCollection, showYourProducts} = this.props;
+      const uid = firebase.auth().currentUser.uid;
 
-        var productKeys = d.Users[uid].products ? Object.keys(d.Users[uid].products) : [];
-        //need to filter d.Users.uid.collection for only those keys that have values of true
-        //get collection keys of current user
-        var collection = d.Users[uid].collection ? d.Users[uid].collection : null;
-        var rawCollection = collection ? collection : {}
-        var collectionKeys = removeFalsyValuesFrom(rawCollection);
-        var emptyCollection = false;
-        if(collectionKeys.length == 0) {emptyCollection = true}    
-        var all = d.Products;
+      var productKeys = d.Users[uid].products ? Object.keys(d.Users[uid].products) : [];
+      //need to filter d.Users.uid.collection for only those keys that have values of true
+      //get collection keys of current user
+      var collection = d.Users[uid].collection ? d.Users[uid].collection : null;
+      var rawCollection = collection ? collection : {}
+      var collectionKeys = removeKeysWithFalsyValuesFrom(rawCollection);
+      var emptyCollection = false;
+      if(collectionKeys.length == 0) {emptyCollection = true}    
+      var all = d.Products;
 
-        //var filters = [{header: "Brand", values: []}, {header: "Type", values: []}, {header: "Size", values: []},];
-        
-        // all = selectedBrand == '' ? all : all.filter( (product) => product.text.brand == selectedBrand );
+      //var filters = [{header: "Brand", values: []}, {header: "Type", values: []}, {header: "Size", values: []},];
+      
+      // all = selectedBrand == '' ? all : all.filter( (product) => product.text.brand == selectedBrand );
 
 
-        //OF COURSE, the FIRST/TOP level of "filtering" that dictates what products are displayed is if whether:
-        //Viewing all products, only liked products, or your products
-        var yourProducts = all.filter((product) => productKeys.includes(product.key) );
-        console.log(all, showCollection, showYourProducts);
-        if(showCollection == true) {
-          all = all.filter((product) => collectionKeys.includes(product.key) );
-        }
+      //OF COURSE, the FIRST/TOP level of "filtering" that dictates what products are displayed is if whether:
+      //Viewing all products, only liked products, or your products
+      var yourProducts = all.filter((product) => productKeys.includes(product.key) );
+      //console.log(all, showCollection, showYourProducts);
+      if(showCollection == true) {
+        all = all.filter((product) => collectionKeys.includes(product.key) );
+      }
 
-        if(showYourProducts == true) {
-          //we need to identify which products have a notification set to True for a price reduction
-          //loop over yourProducts and if you have a shouldReducePrice boolean of true, then schedule a notification for this individual for after thirty minutes
-          this.shouldSendNotifications(yourProducts, uid);
-          all = all.filter((product) => productKeys.includes(product.key) );
-        }
+      if(showYourProducts == true) {
+        //we need to identify which products have a notification set to True for a price reduction
+        //loop over yourProducts and if you have a shouldReducePrice boolean of true, then schedule a notification for this individual for after thirty minutes
+        this.shouldSendNotifications(yourProducts, uid);
+        all = all.filter((product) => productKeys.includes(product.key) );
+      }
 
-        //Second Level is to extract list of information to be displayed in the filterModal
-        //first extract the list of current brands:
-        var brands = [];
-        var types = ['Formal Shirts', 'Casual Shirts', 'Jackets', 'Suits', 'Trousers', 'Jeans', 'Shoes', 'Watches', 'Bracelets', 'Jewellery', 'Sunglasses', 'Handbags', 'Tops', 'Skirts', 'Dresses', 'Coats'];
-        var sizes = ['Extra Small', 'Small', 'Medium', 'Large', 'Extra Large', 'Extra Extra Large'];
+      //Second Level is to extract list of information to be displayed in the filterModal
+      //first extract the list of current brands:
+      var brands = [];
+      var types = ['Formal Shirts', 'Casual Shirts', 'Jackets', 'Suits', 'Trousers', 'Jeans', 'Shoes', 'Watches', 'Bracelets', 'Jewellery', 'Sunglasses', 'Handbags', 'Tops', 'Skirts', 'Dresses', 'Coats'];
+      var sizes = ['Extra Small', 'Small', 'Medium', 'Large', 'Extra Large', 'Extra Extra Large'];
 
-        all.forEach((product)=> {
-          brands.push(product.text.brand);
-        })
-        //TODO: problematic search? right now results are strings that include your searched for string
-        // brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ) 
-        brands = brands.filter(onlyUnique);
+      all.forEach((product)=> {
+        brands.push(product.text.brand);
+      })
+      //TODO: problematic search? right now results are strings that include your searched for string
+      // brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ) 
+      brands = brands.filter(onlyUnique);
 
-        //Third Level is optional and will be enforced when user has a selectedValue to filter products
-        all = selectedBrands.length > 0 ? all.filter( (product) => selectedBrands.includes(product.text.brand)) : all;
-        all = selectedTypes.length > 0 ? all.filter( (product) => selectedTypes.includes(product.text.type)) : all;
-        all = selectedSizes.length > 0 ? all.filter( (product) => selectedSizes.includes(product.text.size)) : all;
+      //Third Level is optional and will be enforced when user has a selectedValue to filter products
+      all = selectedBrands.length > 0 ? all.filter( (product) => selectedBrands.includes(product.text.brand)) : all;
+      all = selectedTypes.length > 0 ? all.filter( (product) => selectedTypes.includes(product.text.type)) : all;
+      all = selectedSizes.length > 0 ? all.filter( (product) => selectedSizes.includes(product.text.size)) : all;
 
-        //After all this filtering, it could be the case that no results match your criteria,
-        var emptyMarket = false;
-        if(all.length == 0) {emptyMarket = true}
+      //After all this filtering, it could be the case that no results match your criteria,
+      var emptyMarket = false;
+      if(all.length == 0) {emptyMarket = true}
 
-        //now that we have the actual list of products we'd like to work with:
-        //extract the values which shall represent the filter choices only for the brands,
-        //provide all values for type and size
-        //TODO: screen to show 'no products match your search'
-        // console.log(all);
-        // for(var i = 1; i < all.length ; i++) {
-        //   filters[0].values.push(all[i].text.brand);
-        //   filters[1].values.push(all[i].text.type);
-        //   filters[2].values.push(all[i].text.size);
-        //   if(i == all.length - 1) {
-        //     //remove all duplicate values from these categories
-        //     filters[0].values = filters[0].values.filter(onlyUnique);
-        //     filters[1].values = filters[1].values.filter(onlyUnique);
-        //     filters[2].values = filters[2].values.filter(onlyUnique);
-        //   }
-        // }
-
-        // if(selectedValue && category) {
-        //   //filter for a specific value based on the category selected.
-        //   switch(category) {
-        //     case "Brand":
-        //       all = all.filter( (product) => product.text.brand == selectedValue )
-        //       break;
-        //     case "Type":
-        //       all = all.filter( (product) => product.text.type == selectedValue )
-        //       break;
-        //     case "Size":
-        //       all = all.filter( (product) => product.text.size == selectedValue )
-        //       break;
-        //     default:
-        //       break;
-        //   }
-          
-        // }
-
-        //Final Level is to sort the products in descending order of the number of likes
-        all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
-        var name = d.Users[uid].profile.name;
-        var productsl = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 )
-        var productsr = all.slice( Math.round(all.length/2) , all.length + 1);
-        this.setState({ emptyCollection, emptyMarket, types, sizes, brands, productsl, productsr, name, collectionKeys, productKeys });
+      //Final Level is to sort the products in descending order of the number of likes
+      all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
+      var name = d.Users[uid].profile.name;
+      var productsl = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 )
+      var productsr = all.slice( Math.round(all.length/2) , all.length + 1);
+      this.setState({ emptyCollection, emptyMarket, types, sizes, brands, productsl, productsr, name, collectionKeys, productKeys, isGetting: false, });
 
     })
-    .then( () => { console.log('finished loading');this.setState( {isGetting: false} );  } )
-    .catch( (err) => {console.log(err) })
+    
+    
+    
+    // .then( () => { console.log('finished loading');this.setState( {isGetting: false} );  } )
+    // .catch( (err) => {console.log(err) })
     
   }
 
@@ -287,7 +256,7 @@ class Products extends Component {
         console.log('show modal that users already liked this product')
         alert("This product is already in your collection.")
       } 
-      else { 
+      else {
         var userCollectionUpdates = {};
         userCollectionUpdates['/Users/' + firebase.auth().currentUser.uid + '/collection/' + key + '/'] = true;
         firebase.database().ref().update(userCollectionUpdates);
@@ -299,25 +268,34 @@ class Products extends Component {
         updates['/Users/' + uid + '/products/' + key + '/likes/'] = postData;
         firebase.database().ref().update(updates);
         //locally reflect the updated number of likes and updated collection of the user,
-        const {productsl, productsr} = this.state;
+        // by re-pulling data from the cloud
+        alert("This product has been added to your WishList 💕.");
+        setTimeout(() => {
+          this.getPageSpecificProducts([], [], []);  
+        }, timeToRefresh);
         
-        productsl.forEach( (product) => {
-          if(product.key == key) {
-            product.text.likes += 1;
-          } 
-          return null;
-        })
 
-        productsr.forEach( (product) => {
-          if(product.key == key) {
-            product.text.likes += 1;
-          }
-          return null;
-        })
-        //need to also append it to your list of collection keys
+        ////
+        // const {productsl, productsr} = this.state;
+        
+        // productsl.forEach( (product) => {
+        //   if(product.key == key) {
+        //     product.text.likes += 1;
+        //   } 
+        //   return null;
+        // })
 
-        this.setState({ productsl, productsr } );
-        alert("This product has been added to your WishList.\nThe heart icon will be filled in to portray this\nwhen you re-log into NottMyStyle");
+        // productsr.forEach( (product) => {
+        //   if(product.key == key) {
+        //     product.text.likes += 1;
+        //   }
+        //   return null;
+        // })
+        // //need to also append it to your list of collection keys
+
+        // this.setState({ productsl, productsr } );
+        //////
+        
 
 
       }
@@ -330,39 +308,46 @@ class Products extends Component {
     console.log('decrement number of likes');
     var userCollectionUpdates = {};
     userCollectionUpdates['/Users/' + firebase.auth().currentUser.uid + '/collection/' + key + '/'] = false;
-    firebase.database().ref('/Users/' + firebase.auth().currentUser.uid + '/collection/' + key)
-    .remove( 
-      ()=>{
-      console.log('product has been deleted');
-  });
+    firebase.database().ref().update(userCollectionUpdates);
+  //   firebase.database().ref('/Users/' + firebase.auth().currentUser.uid + '/collection/' + key)
+  //   .remove( 
+  //     ()=>{
+  //     console.log('product has been deleted from collection Keys');
+  // });
     //ask user to confirm if they'd like to unlike this product
     var updates = {};
     likes -= 1;
     var postData = likes;
     updates['/Users/' + uid + '/products/' + key + '/likes/'] = postData;
     firebase.database().ref().update(updates);
+    alert("This product has been removed from your WishList 💔.");
+    setTimeout(() => {
+      this.getPageSpecificProducts([], [], []);  
+    }, timeToRefresh);
     //locally reflect the updated number of likes and updated collection of the user,
-    const {productsl, productsr} = this.state;
+
+    /////////
+    // const {productsl, productsr} = this.state;
         
-    productsl.forEach( (product) => {
-      if(product.key == key) {
-        product.text.likes -= 1;
-      } 
-      return null;
-    })
+    // productsl.forEach( (product) => {
+    //   if(product.key == key) {
+    //     product.text.likes -= 1;
+    //   } 
+    //   return null;
+    // })
 
-    productsr.forEach( (product) => {
-      if(product.key == key) {
-        product.text.likes -= 1;
-      }
-      return null;
-    })
-    //need to remove this products key from user's collection Keys
-    //var collectionKeys = this.state.collectionKeys.filter( (productKey) => productKey !== key)
+    // productsr.forEach( (product) => {
+    //   if(product.key == key) {
+    //     product.text.likes -= 1;
+    //   }
+    //   return null;
+    // })
+    // //need to remove this products key from user's collection Keys
+    // //var collectionKeys = this.state.collectionKeys.filter( (productKey) => productKey !== key)
 
 
-    this.setState({ productsl, productsr } );
-    alert("This product has been removed from your WishList.\nThe heart icon will be devoid of color to portray this\nwhen you re-log into NottMyStyle");
+    // this.setState({ productsl, productsr } );
+    //////////
   }
 
   navToProductDetails(data) {
@@ -400,7 +385,7 @@ class Products extends Component {
                 <Icon name="heart" 
                           size={25} 
                           color='#800000'
-                          onLongPress={() => {this.decrementLikes(section.text.likes, section.uid, section.key)}}
+                          onPress={() => {this.decrementLikes(section.text.likes, section.uid, section.key)}}
                           
 
                 /> 
@@ -1149,6 +1134,41 @@ const styles = StyleSheet.create({
 //     </Text>
 //   </View>
 // ))
+
+//now that we have the actual list of products we'd like to work with:
+        //extract the values which shall represent the filter choices only for the brands,
+        //provide all values for type and size
+        //TODO: screen to show 'no products match your search'
+        // console.log(all);
+        // for(var i = 1; i < all.length ; i++) {
+        //   filters[0].values.push(all[i].text.brand);
+        //   filters[1].values.push(all[i].text.type);
+        //   filters[2].values.push(all[i].text.size);
+        //   if(i == all.length - 1) {
+        //     //remove all duplicate values from these categories
+        //     filters[0].values = filters[0].values.filter(onlyUnique);
+        //     filters[1].values = filters[1].values.filter(onlyUnique);
+        //     filters[2].values = filters[2].values.filter(onlyUnique);
+        //   }
+        // }
+
+        // if(selectedValue && category) {
+        //   //filter for a specific value based on the category selected.
+        //   switch(category) {
+        //     case "Brand":
+        //       all = all.filter( (product) => product.text.brand == selectedValue )
+        //       break;
+        //     case "Type":
+        //       all = all.filter( (product) => product.text.type == selectedValue )
+        //       break;
+        //     case "Size":
+        //       all = all.filter( (product) => product.text.size == selectedValue )
+        //       break;
+        //     default:
+        //       break;
+        //   }
+          
+        // }
 
 
 {/* <Image

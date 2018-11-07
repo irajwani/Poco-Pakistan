@@ -248,7 +248,6 @@ class ProductDetails extends Component {
       size: text.size,
       type: text.type,
       condition: text.condition,
-      months: text.months,
       original_price: text.original_price
     };
     const description = text.description;
