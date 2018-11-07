@@ -19,6 +19,7 @@ import PushNotification from 'react-native-push-notification';
 import { PacmanIndicator } from 'react-native-indicators';
 import { graphiteGray, lightGreen, rejectRed, treeGreen } from '../colors.js';
 
+const noProductsOfYourOwnText = "So far, you have not uploaded any items on the marketplace.\nTo make some cash 🤑 and free up closet space, upload an article of clothing on the Market\nfrom the 'Sell' screen.";
 const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace 💔.";
 const noResultsFromSearchText = "Your search does not match the description of any product on the marketplace 🙁.";
 const noResultsFromSearchForSpecificCategoryText = "Your search does not match the description of any product for this specific category 🙁.";
@@ -53,6 +54,7 @@ class Products extends Component {
   constructor(props) {
       super(props);
       this.state = {
+        noProducts: false,
         emptyMarket: false,
         emptyCollection: false,
         refreshing: false,
@@ -178,6 +180,8 @@ class Products extends Component {
       const uid = firebase.auth().currentUser.uid;
 
       var productKeys = d.Users[uid].products ? Object.keys(d.Users[uid].products) : [];
+      var noProducts = false;
+      if(productKeys.length == 0) {noProducts = true}
       //need to filter d.Users.uid.collection for only those keys that have values of true
       //get collection keys of current user
       var collection = d.Users[uid].collection ? d.Users[uid].collection : null;
@@ -234,7 +238,7 @@ class Products extends Component {
       var name = d.Users[uid].profile.name;
       var productsl = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 )
       var productsr = all.slice( Math.round(all.length/2) , all.length + 1);
-      this.setState({ emptyCollection, emptyMarket, types, sizes, brands, productsl, productsr, name, collectionKeys, productKeys, isGetting: false, });
+      this.setState({ noProducts, emptyCollection, emptyMarket, types, sizes, brands, productsl, productsr, name, collectionKeys, productKeys, isGetting: false, });
 
     })
     
@@ -690,8 +694,8 @@ class Products extends Component {
   }
 
   render() {
-
-    var {productsl, activeSectionL, productsr, activeSectionR, isGetting, emptyMarket, emptyCollection, navToChatLoading} = this.state;
+    const {showYourProducts, showCollection} = this.props;
+    var {productsl, activeSectionL, productsr, activeSectionR, isGetting, noProducts, emptyMarket, emptyCollection, navToChatLoading, productKeys} = this.state;
 
     if(isGetting) {
       return ( 
@@ -724,18 +728,35 @@ class Products extends Component {
       )
     }
 
-    if(emptyCollection && emptyMarket) {
+    if(showCollection && emptyCollection && emptyMarket) {
+      
+      
         return (
-            <View style={{
-              flexDirection: 'column',
-              marginTop: 22,
-              backgroundColor: lightGreen
-            }}
-            >
-                <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'green'}}>{emptyCollectionText}</Text>
-                
-            </View>
-        )
+          <View style={{
+            flexDirection: 'column',
+            marginTop: 22,
+            backgroundColor: lightGreen
+          }}
+          >
+              <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'green'}}>{emptyCollectionText}</Text>
+              
+          </View>
+      )
+      
+        
+    }
+
+    if(showYourProducts && noProducts) {
+      return (
+        <View style={{
+          flexDirection: 'column',
+          marginTop: 22,
+          backgroundColor: lightGreen
+        }}
+        >
+          <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'green'}}>{noProductsOfYourOwnText}</Text>
+        </View>
+      )
     }
     
     return (

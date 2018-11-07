@@ -146,8 +146,11 @@ class OtherUserProfilePage extends Component {
           <View style={styles.profileText}>
             <Text style={styles.name}>{profile.name}</Text>
             <Text style={styles.pos}>{profile.country} </Text>
-            <Text style={styles.insta}>@{profile.insta} </Text>
-            
+            {profile.insta ? 
+              <Text style={styles.insta}>@{profile.insta}</Text>
+             : 
+              null
+            }
           </View>
 
           

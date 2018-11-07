@@ -544,9 +544,11 @@ class ProductDetails extends Component {
             <Text style={profileRowStyles.email}>
               {profile.country}
             </Text>
-            <Text style={profileRowStyles.insta}>
-              @{profile.insta}
-            </Text>
+            {profile.insta ? 
+              <Text style={profileRowStyles.insta}>@{profile.insta}</Text>
+             : 
+              null
+            }
             
           </View>
           

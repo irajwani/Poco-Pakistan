@@ -194,8 +194,11 @@ class ProfilePage extends Component {
           <View style={styles.profileText}>
             <Text style={styles.name}>{this.state.name}</Text>
             <Text style={styles.pos}>{this.state.country} </Text>
-            <Text style={styles.insta}>@{this.state.insta} </Text>
-            
+            {this.state.insta ? 
+              <Text style={styles.insta}>@{this.state.insta}</Text>
+             : 
+              null
+            }
           </View>
 
           
