@@ -18,6 +18,7 @@ import SelectMultiple from 'react-native-select-multiple';
 import PushNotification from 'react-native-push-notification';
 import { PacmanIndicator } from 'react-native-indicators';
 import { graphiteGray, lightGreen, rejectRed, treeGreen } from '../colors.js';
+import NothingHereYet from './NothingHereYet.js';
 
 const noProductsOfYourOwnText = "So far, you have not uploaded any items on the marketplace.\nTo make some cash 🤑 and free up closet space, upload an article of clothing on the Market\nfrom the 'Sell' screen.";
 const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace 💔.";
@@ -714,7 +715,7 @@ class Products extends Component {
           backgroundColor: lightGreen
         }}
         >
-            <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'green'}}>{noResultsFromSearchText}</Text>
+            <NothingHereYet specificText={noResultsFromSearchText}/>
             {this.renderFilterModal()}
             <View style={styles.filterButtonContainerNoMarket}>
               <Button  
@@ -729,18 +730,8 @@ class Products extends Component {
     }
 
     if(showCollection && emptyCollection && emptyMarket) {
-      
-      
         return (
-          <View style={{
-            flexDirection: 'column',
-            marginTop: 22,
-            backgroundColor: lightGreen
-          }}
-          >
-              <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'green'}}>{emptyCollectionText}</Text>
-              
-          </View>
+          <NothingHereYet specificText={emptyCollectionText} />
       )
       
         
@@ -748,14 +739,7 @@ class Products extends Component {
 
     if(showYourProducts && noProducts) {
       return (
-        <View style={{
-          flexDirection: 'column',
-          marginTop: 22,
-          backgroundColor: lightGreen
-        }}
-        >
-          <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'green'}}>{noProductsOfYourOwnText}</Text>
-        </View>
+        <NothingHereYet specificText={noProductsOfYourOwnText} />
       )
     }
     

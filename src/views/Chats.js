@@ -12,6 +12,7 @@ import {material} from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
 
 import { lightGreen } from '../colors';
+import NothingHereYet from '../components/NothingHereYet';
 
 const noChatsText = "You have not initiated any chats 😳. Converse with a seller by choosing to 'Buy' a product from the Marketplace";
 
@@ -218,9 +219,7 @@ class Chats extends Component {
               onPress={()=>this.navToNotifications()}
             />
           </View>
-          <View style={{flex: 1, alignItems: 'center', padding: 10, justifyContent: 'space-between'}}>
-            <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'blue'}}>{noChatsText}</Text> 
-          </View>
+          <NothingHereYet specificText={noChatsText} />
         </View>
       )
     }
@@ -305,7 +304,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
     marginTop: 22,
-    backgroundColor: lightGreen
   },
   upperNavTab: {
     flexDirection: 'row',

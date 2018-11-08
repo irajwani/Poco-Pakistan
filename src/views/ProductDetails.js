@@ -18,7 +18,7 @@ import { PacmanIndicator } from 'react-native-indicators';
 import Chatkit from "@pusher/chatkit";
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
 import email from 'react-native-email';
-import { bobbyBlue, woodBrown, highlightGreen } from '../colors';
+import { bobbyBlue, woodBrown, highlightGreen, treeGreen } from '../colors';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 
@@ -26,6 +26,12 @@ var {height, width} = Dimensions.get('window');
 
 const limeGreen = '#2e770f';
 const profoundPink = '#c64f5f';
+
+const chatIcon = {
+  title: 'Chat',
+  color: treeGreen,
+  type:{name: 'message-text', type: 'material-community'}
+}
 
 function removeFalsyValuesFrom(object) {
   const newObject = {};
@@ -386,13 +392,13 @@ class ProductDetails extends Component {
               <View style={{flexDirection: 'row', paddingRight: 10, justifyContent: 'space-around', alignItems: 'center', alignContent: 'center'}}>
                 <Button
                     buttonStyle={{
-                        backgroundColor: "#186f87",
+                        backgroundColor: chatIcon.color,
                         width: 80,
-                        height: height/15,
+                      
                         
                     }}
-                    icon={{name: 'credit-card', type: 'font-awesome'}}
-                    title='BUY'
+                    icon={chatIcon.type}
+                    title={chatIcon.title}
                     onPress = { () => { 
                         console.log('going to chat');
                         //subscribe to room key
@@ -495,13 +501,13 @@ class ProductDetails extends Component {
               <View style={{flexDirection: 'row', paddingRight: 10, justifyContent: 'space-around', alignItems: 'center', alignContent: 'center'}}>
                 <Button
                     buttonStyle={{
-                        backgroundColor: "#186f87",
+                        backgroundColor: chatIcon.color,
                         width: 80,
-                        height: height/15,
+                        
                         
                     }}
-                    icon={{name: 'credit-card', type: 'font-awesome'}}
-                    title='BUY'
+                    icon={chatIcon.type}
+                    title={chatIcon.title}
                     onPress = { () => { 
                         console.log('going to chat');
                         //subscribe to room key
