@@ -9,8 +9,9 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Button } from 'react-native-elements';
 
 import { lightGreen } from '../colors';
+import NothingHereYet from '../components/NothingHereYet';
 
-const noNotificationsText = "The NottMyStyle team believes your products don't warrant any stats yet 👌, thus you have no notifications"
+const noNotificationsText = "The NottMyStyle team believes your products don't warrant any stats yet 👌, thus you have no notifications."
 
 const {width} = Dimensions.get('window');
 
@@ -77,7 +78,7 @@ class Notifications extends Component {
               />
           </View>
           
-          <Text style={{fontFamily: 'Iowan Old Style', fontSize: 30, color: 'green'}}>{noNotificationsText}</Text>
+          <NothingHereYet specificText={noNotificationsText}/>
           
         </View>
       )
@@ -130,7 +131,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
     marginTop: 22,
-    backgroundColor: lightGreen
   },
   upperNavTab: {
     flexDirection: 'row',

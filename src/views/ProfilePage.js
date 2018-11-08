@@ -191,7 +191,7 @@ class ProfilePage extends Component {
 
             
 
-          <View style={styles.profileText}>
+          <View style={styles.profileTextColumn}>
             <Text style={styles.name}>{this.state.name}</Text>
             <Text style={styles.pos}>{this.state.country} </Text>
             {this.state.insta ? 
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
     padding: 0
   },
   headerContainer: {
-    flex: 1,
+    flex: 4,
     flexDirection: 'column',
     justifyContent: 'space-evenly',
     // backgroundColor: 'pink'
@@ -319,8 +319,9 @@ const styles = StyleSheet.create({
   },
 
   gearAndPicColumn: {
+    flex: 3,
     flexDirection: 'column',
-    flex: 1.0,
+    // flex: 1.0,
     // flexDirection: 'row',
     // justifyContent: 'space-evenly',
     // alignItems: 'center',
@@ -328,32 +329,39 @@ const styles = StyleSheet.create({
     // width: width - 40,
     // paddingRight: 0,
     // backgroundColor: 'blue',
-    width: width
+    // width: width
   },
 
   gearRow: {
+    // flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignContent: 'flex-start',
+    // backgroundColor: 'white'
   },
 
   picRow: {
-    flexDirection: 'row',
+    width: 250,
+    // flex: 3.5,
+    // flexDirection: 'row',
     justifyContent: 'center',
-    alignContent: 'flex-start',
-    height: height/5
+    // alignContent: 'flex-start',
+    // height: height/5,
+    // backgroundColor: 'yellow'
     // alignItems: 'flex-start',
   },
 
-  profileText: {
-    // flex: 1,
+  profileTextColumn: {
+    flex: 1.4,
     flexDirection: 'column',
     alignItems: 'center',
-    paddingTop: 15,
+    // paddingTop: 15,
+    // backgroundColor: 'red'
 
   },
 
   midContainer: {
+    flex: 1,
     flexDirection: 'row',
     // width: width,
     height: height/7.5,
@@ -385,7 +393,7 @@ const styles = StyleSheet.create({
   },
 
   footerContainer: {
-    // flex: 0.5,
+    flex: 2,
     flexDirection: 'column',
     padding: 2
   },
