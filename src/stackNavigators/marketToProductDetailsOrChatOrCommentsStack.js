@@ -3,7 +3,6 @@ import {Animated, Easing} from 'react-native';
 import MarketPlace from '../views/MarketPlace';
 import ProductDetails from '../views/ProductDetails';
 import CustomChat from '../views/CustomChat';
-import Comments from '../views/Comments';
 import YourProducts from '../views/YourProducts';
 import OtherUserProfilePage from '../views/OtherUserProfilePage';
 import UserComments from '../views/UserComments';
@@ -16,7 +15,6 @@ export const marketToProductDetailsOrChatOrCommentsStack = createStackNavigator(
     ProductComments: ProductComments,
     OtherUserProfilePage: OtherUserProfilePage,
     UserComments: UserComments,
-    Comments: Comments,
     CustomChat: CustomChat,
 },
 {

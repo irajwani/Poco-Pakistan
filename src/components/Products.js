@@ -885,6 +885,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   headerText: {
+    fontFamily: 'Cochin',
     textAlign: 'center',
     fontSize: 16,
     fontWeight: '500',

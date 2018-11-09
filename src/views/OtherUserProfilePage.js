@@ -143,9 +143,9 @@ class OtherUserProfilePage extends Component {
 
           </View>  
 
-          <View style={styles.profileText}>
+          <View style={styles.profileTextColumn}>
             <Text style={styles.name}>{profile.name}</Text>
-            <Text style={styles.pos}>{profile.country} </Text>
+            <Text style={styles.pos}>{profile.country}</Text>
             {profile.insta ? 
               <Text style={styles.insta}>@{profile.insta}</Text>
              : 
@@ -167,7 +167,7 @@ class OtherUserProfilePage extends Component {
             <Text style={styles.subText}>ON SALE</Text>
           </View>
 
-          <Divider style={{  backgroundColor: '#47474f', width: 1.5, height: 60, marginTop: 8, }} />
+          <Divider style={{  flex: 1, backgroundColor: graphiteGray, height: 80, marginVertical: 3 }} />
 
           <View style={styles.numberCard}>
             <Text style={styles.numberProducts}>{soldProducts} </Text>
@@ -333,9 +333,6 @@ class OtherUserProfilePage extends Component {
 export default OtherUserProfilePage;
 
 const styles = StyleSheet.create({
-  linearGradient: {
-    flex: 1,
-  },
   halfPageScroll: {
     
   },
@@ -345,38 +342,88 @@ const styles = StyleSheet.create({
     padding: 0
   },
   headerContainer: {
-    flex: 1,
+    flex: 4,
     flexDirection: 'column',
-    justifyContent: 'space-evenly'
+    justifyContent: 'space-evenly',
+    // backgroundColor: 'pink'
   },
 
-  profileText: {
+  linearGradient: {
     flex: 1,
+  },
+
+  header: {
+    flex: 1,
+    alignItems: 'center',
+    // justifyContent: 'center',
+    padding: 20, //maybe not enough padding to lower gear Icon row into view, but that solution would be bad practice
+    // backgroundColor: 'white',
+    height: height/1.8,
+  },
+
+  gearAndPicColumn: {
+    flex: 3,
+    flexDirection: 'column',
+    // flex: 1.0,
+    // flexDirection: 'row',
+    // justifyContent: 'space-evenly',
+    // alignItems: 'center',
+    marginTop:10,
+    // width: width - 40,
+    // paddingRight: 0,
+    // backgroundColor: 'blue',
+    // width: width
+  },
+
+  gearRow: {
+    // flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignContent: 'flex-start',
+    // backgroundColor: 'white'
+  },
+
+  picRow: {
+    width: 250,
+    // flex: 3.5,
+    // flexDirection: 'row',
+    justifyContent: 'center',
+    // alignContent: 'flex-start',
+    // height: height/5,
+    // backgroundColor: 'yellow'
+    // alignItems: 'flex-start',
+  },
+
+  profileTextColumn: {
+    flex: 1.4,
     flexDirection: 'column',
     alignItems: 'center',
-    paddingTop: 15,
+    // paddingTop: 15,
+    // backgroundColor: 'red'
 
   },
 
   midContainer: {
+    flex: 1,
     flexDirection: 'row',
-    width: width,
-    height: height/7.5,
+    // width: width,
+    // height: height/7.5,
     backgroundColor: '#cdcdd6',
     justifyContent: 'center'
   },
 
   numberCard: {
+    flex: 79.5,
     justifyContent: 'center',
     alignContent: 'center',
     alignItems: 'center',
-    width: width/2 - 20,
-    height: 60,
+    // width: width/2 - 20,
+    // height: 60,
     //55
-    paddingTop: 20,
-    paddingBottom: 5,
-    paddingLeft: 30,
-    paddingRight: 30,
+    // paddingTop: 20,
+    // paddingBottom: 5,
+    // paddingLeft: 30,
+    // paddingRight: 30,
     borderWidth: 0,
     borderColor: '#020202',
     borderRadius: 0,
@@ -390,7 +437,7 @@ const styles = StyleSheet.create({
   },
 
   footerContainer: {
-    flex: 0.5,
+    flex: 2,
     flexDirection: 'column',
     padding: 2
   },
@@ -420,30 +467,6 @@ const styles = StyleSheet.create({
     marginLeft: 0
   },
 
-  gearRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignContent: 'flex-start',
-  },
-
-  picRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignContent: 'flex-start',
-    height: height/5
-    // alignItems: 'flex-start',
-  },
-  gearAndPicColumn: {
-    flexDirection: 'column',
-    // flex: 1.4,
-    // flexDirection: 'row',
-    // justifyContent: 'space-evenly',
-    // alignItems: 'center',
-    marginTop:10,
-    width: width - 40,
-    // paddingRight: 0,
-    
-  },
   profilepicWrap: {
     backgroundColor: 'black',
     width: 130,

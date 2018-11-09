@@ -34,6 +34,9 @@ class UserComments extends Component {
 
         const {params} = this.props.navigation.state;
         const {comments} = params;
+        var noComments = false;
+        // console.log(typeof comments, comments)
+        // comments.a.text.includes('No Reviews') ? noComments = true : null;
         this.setState({comments});
 
     }
@@ -57,11 +60,11 @@ class UserComments extends Component {
         var date = (new Date()).getDate();
         var month = (new Date()).getMonth();
         var year = (new Date()).getFullYear();
-        var timeCommented = `${year}/${month.length == 2 ? month : '0' + month }/${date}`;
+        var timeCommented = `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`;
         
         var updates = {}
         var postData = {text: comment, name: name, time: timeCommented, uri: uri }
-        this.state.comments[timeCommentedKey] = postData;
+        this.state.comments[timeCommentedKey] = postData; //update the local state with this new comment
         this.setState({ comments : this.state.comments });
         updates['/Users/' + uid + '/comments/' + timeCommentedKey + '/'] = postData
         //firebase.database().ref('Posts').set({posts: this.state.posts})
@@ -74,7 +77,11 @@ class UserComments extends Component {
         const {params} = this.props.navigation.state;
         const {yourProfile, profile, uid} = params;
         const {name, uri} = yourProfile; //To upload a comment, attach the current Users profile details, in this case their name and profile pic uri
-        const {comments} = this.state;
+        
+        var {comments} = this.state;
+        var emptyReviews = Object.keys(comments).length == 1 && Object.keys(comments).includes('a') ? true : false
+        var {a, ...restOfTheComments} = comments;
+        comments = emptyReviews ? {a} : restOfTheComments;
 
         return (
             <ScrollView contentContainerStyle={styles.contentContainer} >
@@ -95,6 +102,7 @@ class UserComments extends Component {
              </View>
              <View style={styles.separator}/>
              
+             {/* List of Comments, if the reviews are purely empty, only show comments.a, and otherwise exclude comments.a */}
              {Object.keys(comments).map(
                   (comment) => (
                   <View key={comment} style={styles.commentContainer}>

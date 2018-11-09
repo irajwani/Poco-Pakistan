@@ -3,7 +3,6 @@ import {Animated, Easing} from 'react-native';
 import Collection from '../views/Collection';
 import ProductDetails from '../views/ProductDetails';
 import CustomChat from '../views/CustomChat';
-import Comments from '../views/Comments';
 import YourProducts from '../views/YourProducts';
 import OtherUserProfilePage from '../views/OtherUserProfilePage';
 import UserComments from '../views/UserComments';
@@ -14,7 +13,6 @@ export const wishListToProductDetailsOrChatOrCommentsStack = createStackNavigato
     Collection: Collection,
     YourProducts: YourProducts,
     ProductDetails: ProductDetails,
-    Comments: Comments,
     CustomChat: CustomChat,
     ProductComments: ProductComments,
     OtherUserProfilePage: OtherUserProfilePage,

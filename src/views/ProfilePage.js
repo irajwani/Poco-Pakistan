@@ -127,8 +127,8 @@ class ProfilePage extends Component {
       var date = (new Date()).getDate();
       var month = (new Date()).getMonth();
       var year = (new Date()).getFullYear();
-      var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: noReviewsText, name: 'NottMyStyle Team', time: `${year}/${month.length == 2 ? month : '0' + month }/${date}`, uri: '' } };
-      console.log(comments);
+      var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: noReviewsText, name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
+      console.log(comments, typeof month, month);
       this.setState({ comments });
       console.log(comments);
 
@@ -193,7 +193,7 @@ class ProfilePage extends Component {
 
           <View style={styles.profileTextColumn}>
             <Text style={styles.name}>{this.state.name}</Text>
-            <Text style={styles.pos}>{this.state.country} </Text>
+            <Text style={styles.pos}>{this.state.country}</Text>
             {this.state.insta ? 
               <Text style={styles.insta}>@{this.state.insta}</Text>
              : 
@@ -215,11 +215,11 @@ class ProfilePage extends Component {
             <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.subText}>ON SALE</Text>
           </View>
 
-          <Divider style={{  backgroundColor: '#47474f', width: 1.5, height: 60, marginTop: 8, }} />
+          <Divider style={{  flex: 1, backgroundColor: graphiteGray, height: 80, marginVertical: 3 }} />
 
           <View style={styles.numberCard}>
-            <Text style={styles.numberProducts}>{this.state.soldProducts} </Text>
-            <Text style={styles.subText}>SOLD</Text>
+            <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.numberProducts}>{this.state.soldProducts} </Text>
+            <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.subText}>SOLD</Text>
           </View>    
         
       </View>
@@ -364,22 +364,23 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     // width: width,
-    height: height/7.5,
+    // height: height/7.5,
     backgroundColor: '#cdcdd6',
     justifyContent: 'center'
   },
 
   numberCard: {
+    flex: 79.5,
     justifyContent: 'center',
     alignContent: 'center',
     alignItems: 'center',
     // width: width/2 - 20,
-    height: 60,
+    // height: 60,
     //55
-    paddingTop: 20,
-    paddingBottom: 5,
-    paddingLeft: 30,
-    paddingRight: 30,
+    // paddingTop: 20,
+    // paddingBottom: 5,
+    // paddingLeft: 30,
+    // paddingRight: 30,
     borderWidth: 0,
     borderColor: '#020202',
     borderRadius: 0,

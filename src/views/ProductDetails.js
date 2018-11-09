@@ -111,10 +111,9 @@ class ProductDetails extends Component {
       var month = (new Date()).getMonth();
       var year = (new Date()).getFullYear();
 
-      var comments = d.Users[data.uid].comments ? d.Users[data.uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: `${year}/${month.length == 2 ? month : '0' + month }/${date}`, uri: '' } };
+      var comments = d.Users[data.uid].comments ? d.Users[data.uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
       
-      var productComments = d.Users[data.uid].products[data.key].comments ? d.Users[data.uid].products[data.key].comments : {a: {text: 'No Reviews have been left for this product yet.', name: 'NottMyStyle Team', time: `${year}/${month.length == 2 ? month : '0' + month }/${date}`, uri: '' } };
-      
+      var productComments = d.Users[data.uid].products[data.key].comments ? d.Users[data.uid].products[data.key].comments : {a: {text: 'No Reviews have been left for this product yet.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
       
       this.setState( {yourProfile, yourUsersBlocked, otherUserUid, profile, numberProducts, soldProducts, comments, productComments, productKeys, collectionKeys} )
     })
@@ -133,10 +132,10 @@ class ProductDetails extends Component {
 
   }
 
-  navToComments(uid, productKey, text, name, uri) {
-    console.log('navigating to Comments section')
-    this.props.navigation.navigate('Comments', {likes: text.likes, uid: uid, productKey: productKey, uri: uri, text: text, time: text.time, name: name})
-  }
+  // navToComments(uid, productKey, text, name, uri) {
+  //   console.log('navigating to Comments section')
+  //   this.props.navigation.navigate('Comments', {likes: text.likes, uid: uid, productKey: productKey, uri: uri, text: text, time: text.time, name: name})
+  // }
 
   findRoomId(rooms, desiredRoomsName) {
     for(var room of rooms ) {
