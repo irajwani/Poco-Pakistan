@@ -7,7 +7,7 @@ import {database} from '../cloud/database';
 import firebase from '../cloud/firebase';
 import { material, systemWeights, human, iOSUIKit, iOSColors } from 'react-native-typography'
 import { PacmanIndicator } from 'react-native-indicators';
-import { highlightGreen, treeGreen } from '../colors';
+import { highlightGreen, treeGreen, profoundPink } from '../colors';
 //for each comment, use their time of post as the key
 
 const {width, height} = Dimensions.get('window');
@@ -71,6 +71,25 @@ class UserComments extends Component {
         console.log(postData, updates)
         firebase.database().ref().update(updates)
     }
+
+    deleteComment(key, uid) {
+        firebase.database().ref('/Users/' + uid + '/comments/' + key + '/')
+        .remove( () => {
+            console.log(`successfully removed user comment: ${this.state.comments[`${key}`]}`);
+        })
+        .then(() => {
+            console.log(this.state.comments)
+            delete this.state.comments[`${key}`];
+
+            // TODO: when all comments are deleted, either locally update the state to show it has no reviews,
+            // OR rework this component to pull from the cloud every time any changes are made.
+            // if(Boolean(Object.keys(this.state.comments)[0])) {
+            //     this.state.comments['a'] = {text: 'No Reviews have been left for this product yet.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' };
+            // }
+            this.setState({comments: this.state.comments});
+        })
+        .catch( (e) => {console.log(e)})
+    }
     
     render() {
 
@@ -84,7 +103,7 @@ class UserComments extends Component {
         comments = emptyReviews ? {a} : restOfTheComments;
 
         return (
-            <ScrollView contentContainerStyle={styles.contentContainer} >
+            <View style={styles.mainContainer} >
             
             <View style={styles.rowContainer}>
                 {/* row containing profile picture, and user details */}
@@ -102,10 +121,24 @@ class UserComments extends Component {
              </View>
              <View style={styles.separator}/>
              
+             <ScrollView style={styles.contentContainerStyle} contentContainerStyle={styles.contentContainer}>
              {/* List of Comments, if the reviews are purely empty, only show comments.a, and otherwise exclude comments.a */}
              {Object.keys(comments).map(
                   (comment) => (
                   <View key={comment} style={styles.commentContainer}>
+
+                        {
+                        comments[comment].uri == uri ?
+                            <View style={styles.deleteCommentRow}>
+                                <Text
+                                onPress={() => this.deleteComment(comment, uid)} 
+                                style={styles.deleteComment}>
+                                    Delete
+                                </Text>
+                            </View>
+                        :
+                            null
+                        }
 
                       <View style={styles.commentPicAndTextRow}>
 
@@ -135,8 +168,8 @@ class UserComments extends Component {
               )
                       
               )}
-             
-            <View style={{flexDirection : 'row', bottom : this.height - this.state.visibleHeight}} >
+            </ScrollView> 
+            <View style={{flex: 0.25, flexDirection : 'row', bottom : this.height - this.state.visibleHeight}} >
                 <Kohana
                     style={{ backgroundColor: '#f9f5ed' }}
                     label={'Comment'}
@@ -158,7 +191,7 @@ class UserComments extends Component {
                 />
                 
             </View>
-           </ScrollView>
+           </View>
         )
     }
 }
@@ -167,12 +200,35 @@ export default withNavigation(UserComments)
 
 const styles = StyleSheet.create({
 
+    rowContainer: {
+        flex: 0.5,
+        // marginTop: 15, 
+        flexDirection: 'row',
+        padding: 20,
+        justifyContent: 'space-evenly',
+        // alignItems: 'stretch',
+        // alignContent: 'space-around',
+        backgroundColor: '#fff'
+      },
+
+    mainContainer: {
+        flex: 1,
+        marginTop: 22,
+        flexDirection: 'column',
+        padding: 10,
+        backgroundColor: '#fff',
+    },
+
+    contentContainerStyle: {
+        flex: 2,
+    },
     contentContainer: {
+        
         flexGrow: 1, 
         backgroundColor: '#fff',
         flexDirection: 'column',
-        justifyContent: 'space-evenly',
-        padding: 10,
+        // justifyContent: 'space-evenly',
+        padding: 5,
         marginTop: 5,
         marginBottom: 5
       },
@@ -223,9 +279,10 @@ const styles = StyleSheet.create({
     },
 
     profileTextContainer: {
+        // flex: 0.5,
         flexDirection: 'column',
         justifyContent: 'center',
-        alignContent: 'flex-start',
+        // alignContent: 'flex-start',
         textAlign: 'justify'
     },
 
@@ -273,16 +330,8 @@ const styles = StyleSheet.create({
         color: '#1f6010'
     },
 
-    rowContainer: {
-        marginTop: 15,
-        flexDirection: 'row',
-        padding: 20,
-        justifyContent: 'space-between',
-        alignContent: 'center',
-        backgroundColor: iOSColors.lightGray2
-      },
-
       profilepic: {
+        // flex: 0.5,
         width: 100,
         height: 100,
         alignSelf: 'center',
@@ -311,6 +360,22 @@ const styles = StyleSheet.create({
 
       commentContainer: {
         flexDirection: 'column',
+        },
+
+        deleteCommentRow: {
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            paddingTop:5,
+            paddingRight:5
+            // alignContent: 'flex-end',
+            // backgroundColor: 'blue'
+        },
+    
+        deleteComment: {
+            fontFamily: 'Cochin',
+            fontSize: 15,
+            color: profoundPink,
+            // textAlign: 'right'
         },
         
         commentPicAndTextRow: {

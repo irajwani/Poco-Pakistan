@@ -115,7 +115,7 @@ class ProductDetails extends Component {
       
       var productComments = d.Users[data.uid].products[data.key].comments ? d.Users[data.uid].products[data.key].comments : {a: {text: 'No Reviews have been left for this product yet.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
       
-      this.setState( {yourProfile, yourUsersBlocked, otherUserUid, profile, numberProducts, soldProducts, comments, productComments, productKeys, collectionKeys} )
+      this.setState( {yourProfile, yourUsersBlocked, uid, otherUserUid, profile, numberProducts, soldProducts, comments, productComments, productKeys, collectionKeys} )
     })
     .then( () => {
       this.setState({isGetting: false})
@@ -246,7 +246,7 @@ class ProductDetails extends Component {
     const { params } = this.props.navigation.state;
     const { data } = params;
     
-    const { isGetting, profile, navToChatLoading, productComments } = this.state;
+    const { isGetting, profile, navToChatLoading, productComments, uid } = this.state;
     const text = data.text;
     const details = {
       gender: text.gender,
@@ -257,6 +257,8 @@ class ProductDetails extends Component {
     };
     const description = text.description;
     const {comments} = text;
+
+    console.log(firebase.auth().currentUser.uid == data.uid, firebase.auth().currentUser.uid, data.uid);
 
     if (isGetting) {
       return (
@@ -279,16 +281,18 @@ class ProductDetails extends Component {
       <ScrollView contentContainerStyle={styles.contentContainer}>
 
         {/* image carousel */}
-        <View style={{alignItems: 'center'}}>
+        <View style={{flex: 2, alignItems: 'center'}}>
           <CustomCarousel data={params.data.uris} />
         </View>
         
-
+        <View style={styles.infoAndButtonsColumn}>
         {/* product details */}
-        <Text style={styles.brandText}> {text.brand.toUpperCase()} </Text>
+        <View style={{flex: 1}}>
+          <Text style={styles.brandText}>{text.brand.toUpperCase()}</Text>
+        </View>
 
         <View style={styles.nameAndLikeRow} >
-          <Text style={styles.nameText}> {text.name.toUpperCase() } </Text>
+          <Text style={styles.nameText}>{text.name.toUpperCase()}</Text>
           <View style={styles.likesRow}>
 
               {this.state.collectionKeys.includes(params.data.key) ? 
@@ -311,7 +315,7 @@ class ProductDetails extends Component {
         {text.original_price > 0 ?
           <View style= { styles.headerPriceMagnifyingGlassRow }>
             
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+            <View style={styles.priceRow}>
               <Text style={styles.original_price} >
                 £{text.original_price}
               </Text>
@@ -325,7 +329,7 @@ class ProductDetails extends Component {
               
               data.text.sold ? 
               
-              <View style={{flexDirection: 'row'}}>
+              <View style={styles.buttonsRow}>
                 <Button
                     buttonStyle={{
                         backgroundColor: "#186f87",
@@ -357,7 +361,7 @@ class ProductDetails extends Component {
               
                :
 
-               <View style={{flexDirection: 'row'}}>
+               <View style={styles.buttonsRow}>
                 <Button
                     buttonStyle={{
                         backgroundColor: "#186f87",
@@ -388,7 +392,7 @@ class ProductDetails extends Component {
 
                     
               :
-              <View style={{flexDirection: 'row', paddingRight: 10, justifyContent: 'space-around', alignItems: 'center', alignContent: 'center'}}>
+              <View style={styles.buttonsRow}>
                 <Button
                     buttonStyle={{
                         backgroundColor: chatIcon.color,
@@ -434,7 +438,7 @@ class ProductDetails extends Component {
               
               data.text.sold ? 
               
-              <View style={{flexDirection: 'row'}}>
+              <View style={styles.buttonsRow}>
                 <Button
                     buttonStyle={{
                         backgroundColor: "#186f87",
@@ -466,7 +470,7 @@ class ProductDetails extends Component {
               
                :
 
-               <View style={{flexDirection: 'row'}}>
+               <View style={styles.buttonsRow}>
                 <Button
                     buttonStyle={{
                         backgroundColor: "#186f87",
@@ -497,7 +501,7 @@ class ProductDetails extends Component {
 
                     
               :
-              <View style={{flexDirection: 'row', paddingRight: 10, justifyContent: 'space-around', alignItems: 'center', alignContent: 'center'}}>
+              <View style={styles.buttonsRow}>
                 <Button
                     buttonStyle={{
                         backgroundColor: chatIcon.color,
@@ -531,19 +535,22 @@ class ProductDetails extends Component {
 
           </View>
         }
-
+        </View>
 
 
         {/* row showing user details */}
         <View style={profileRowStyles.separator}/>
+
         <View style={profileRowStyles.rowContainer}>
           {/* row containing profile picture, and user details */}
-          <TouchableOpacity onPress={() => this.navToOtherUserProfilePage()}>
+          <TouchableOpacity onPress={() => {firebase.auth().currentUser.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage()}}>
             <Image source={ {uri: profile.uri }} style={profileRowStyles.profilepic} />
           </TouchableOpacity>
           <View style={profileRowStyles.textContainer}>
             
-            <Text onPress={() => this.navToOtherUserProfilePage()} style={profileRowStyles.name}>
+            <Text onPress={() => 
+            {firebase.auth().currentUser.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage()}}
+            style={profileRowStyles.name}>
               {profile.name}
             </Text>
             <Text style={profileRowStyles.email}>
@@ -559,11 +566,13 @@ class ProductDetails extends Component {
           
           
         </View>
-        <View style={ {flexDirection: 'row',} }>
+
+        <View style={styles.numberOfProductsSoldRow}>
             <Text style={styles.numberProducts}>Products on Sale: {this.state.numberProducts} </Text>
-            <Divider style={{  backgroundColor: iOSColors.black, width: 3, height: 20 }} />
+            
             <Text style={styles.soldProducts}> Products Sold: {this.state.soldProducts}</Text>
         </View>
+
         <View style={profileRowStyles.separator}/>
 
         
@@ -692,6 +701,7 @@ export default withNavigation(ProductDetails);
 
 const styles = StyleSheet.create( {
   contentContainer: {
+    
     flexGrow: 1, 
     backgroundColor: '#fff',
     flexDirection: 'column',
@@ -701,6 +711,11 @@ const styles = StyleSheet.create( {
     marginBottom: 5
   },
 
+  infoAndButtonsColumn: {
+    flex: 1,
+    flexDirection: 'column',
+  },
+
   brandText: {
     fontFamily: 'Courier-Bold',
     fontSize: 35,
@@ -708,11 +723,12 @@ const styles = StyleSheet.create( {
   },
 
   headerPriceMagnifyingGlassRow: {
+    flex: 1.5,
     flexDirection: 'row', justifyContent: 'space-between', 
     paddingTop: 2,
     paddingLeft: 5,
     paddingRight: 5,
-    paddingBottom: 0 
+    paddingBottom: 0,
   },
 
   original_price: {
@@ -731,20 +747,27 @@ const styles = StyleSheet.create( {
   },
 
   nameAndLikeRow: {
+    flex: 1,
     flexDirection: 'row'
   },
 
   nameText: {
+    flex: 2,
     fontStyle: 'normal',
     fontWeight: 'normal',
     fontSize: 20,
     padding: 10,
+    // backgroundColor: 'red'
   },
 
   likesRow: {
+    flex: 2,
     flexDirection: 'row',
-    backgroundColor: iOSColors.white,
+    justifyContent: 'center',
+    padding: 5,
+    // backgroundColor: iOSColors.white,
     marginLeft: 0,
+    // backgroundColor: 'blue'
   },
 
   likes: {
@@ -755,12 +778,18 @@ const styles = StyleSheet.create( {
     marginLeft: 4,
   },
 
+  priceRow: { flex: 1, flexDirection: 'row', justifyContent: 'flex-start', },
+
+  buttonsRow: {flex: 4, flexDirection: 'row', paddingRight: 10, justifyContent: 'flex-end', },
+
   numberProducts: {
+    flex: 5,
     fontSize: 16,
     color: 'black',
     fontWeight: 'bold'
   },
   soldProducts: {
+    flex: 5,
     fontSize: 16,
     color: 'black',
     fontWeight: 'bold'
@@ -897,6 +926,10 @@ commentTime: {
   color: iOSColors.black
 },
 
+numberOfProductsSoldRow: {
+  flex: 1,
+  flexDirection: 'row'
+},
 
 
 } )
