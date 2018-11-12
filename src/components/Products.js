@@ -15,7 +15,7 @@ import SelectMultiple from 'react-native-select-multiple';
 // import ScrollableTabView, { ScrollableTabBar, } from 'react-native-scrollable-tab-view';
 // import FacebookTabBar from './FacebookTabBar'
 
-import PushNotification from 'react-native-push-notification';
+// import PushNotification from 'react-native-push-notification';
 import { PacmanIndicator } from 'react-native-indicators';
 import { graphiteGray, lightGreen, rejectRed, treeGreen } from '../colors.js';
 import NothingHereYet from './NothingHereYet.js';
@@ -24,6 +24,7 @@ const noProductsOfYourOwnText = "So far, you have not uploaded any items on the 
 const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace 💔.";
 const noResultsFromSearchText = "Your search does not match the description of any product on the marketplace 🙁.";
 const noResultsFromSearchForSpecificCategoryText = "Your search does not match the description of any product for this specific category 🙁.";
+
 const timeToRefresh = 2000;
 var {height, width} = Dimensions.get('window');
 
@@ -80,7 +81,9 @@ class Products extends Component {
 
   componentWillMount() {
     setTimeout(() => {
-      this.initializePushNotifications();
+      console.log('Mounting Products Component')
+      //TODO: Maybe this function is being called too many times which leads to way too many notifications?
+      // this.initializePushNotifications();
     }, 1000);
     setTimeout(() => {
       this.getPageSpecificProducts([], [], []);
@@ -97,77 +100,78 @@ class Products extends Component {
   //   clearInterval(this.dataRetrievalTimerId);
   // }
 
-  initializePushNotifications = () => {
-    PushNotification.configure({
+  // initializePushNotifications = () => {
+  //   PushNotification.configure({
 
-      // (optional) Called when Token is generated (iOS and Android)
-      onRegister: function(token) {
-          console.log( 'TOKEN:', token );
-      },
+  //     // (optional) Called when Token is generated (iOS and Android)
+  //     onRegister: function(token) {
+  //         console.log( 'TOKEN:', token );
+  //     },
   
-      // (required) Called when a remote or local notification is opened or received
-      onNotification: function(notification) {
-          const {userInteraction} = notification;
-          console.log( 'NOTIFICATION:', notification, userInteraction );
-          if(userInteraction) {
-            //this.props.navigation.navigate('YourProducts');
-            alert("To edit a particular product's details, magnify to show full product details \n Select Edit Item. \n (Be warned, you will have to take new pictures)");
-          }
+  //     // (required) Called when a remote or local notification is opened or received
+  //     onNotification: function(notification) {
+  //         const {userInteraction} = notification;
+  //         console.log( 'NOTIFICATION:', notification, userInteraction );
+  //         if(userInteraction) {
+  //           //this.props.navigation.navigate('YourProducts');
+  //           alert("To edit a particular product's details, magnify to show full product details \n Select Edit Item. \n (Be warned, you will have to take new pictures)");
+  //         }
           
-          //userInteraction ? this.navToEditItem() : console.log('user hasnt pressed notification, so do nothing');
-      },
+  //         //userInteraction ? this.navToEditItem() : console.log('user hasnt pressed notification, so do nothing');
+  //     },
   
-      // ANDROID ONLY: GCM Sender ID (optional - not required for local notifications, but is need to receive remote push notifications) 
-      //senderID: "YOUR GCM SENDER ID",
+  //     // ANDROID ONLY: GCM Sender ID (optional - not required for local notifications, but is need to receive remote push notifications) 
+  //     //senderID: "YOUR GCM SENDER ID",
   
-      // IOS ONLY (optional): default: all - Permissions to register.
-      permissions: {
-          alert: true,
-          badge: true,
-          sound: true
-      },
+  //     // IOS ONLY (optional): default: all - Permissions to register.
+  //     permissions: {
+  //         alert: true,
+  //         badge: true,
+  //         sound: true
+  //     },
   
-      // Should the initial notification be popped automatically
-      // default: true
-      popInitialNotification: true,
+  //     // Should the initial notification be popped automatically
+  //     // default: true
+  //     popInitialNotification: true,
   
-      /**
-        * (optional) default: true
-        * - Specified if permissions (ios) and token (android and ios) will requested or not,
-        * - if not, you must call PushNotificationsHandler.requestPermissions() later
-        */
-      requestPermissions: true,
-  });
+  //     /**
+  //       * (optional) default: true
+  //       * - Specified if permissions (ios) and token (android and ios) will requested or not,
+  //       * - if not, you must call PushNotificationsHandler.requestPermissions() later
+  //       */
+  //     requestPermissions: true,
+  // });
 
 
-  }
+  // }
   
-  shouldSendNotifications(arrayOfProducts, your_uid) {
-    for(var product of arrayOfProducts) {
-      if(product.shouldReducePrice) {
-        console.log('should reduce price');
-        var date = new Date(Date.now() + (1200 * 1000)) // in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
-        var message = `Nobody has initiated a chat with you about your product named, ${product.text.name}, since its submission on the market ${product.daysElapsed} days ago 🤔. Perhaps you should change it's selling price?`;
+  // shouldSendNotifications(arrayOfProducts, your_uid) {
+  //   for(var product of arrayOfProducts) {
+  //     if(product.shouldReducePrice) {
+  //       console.log('should reduce price');
+  //       var date = new Date(Date.now() + (1200 * 1000)) // in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
+  //       var message = `Nobody has initiated a chat with you about your product named, ${product.text.name}, since its submission on the market ${product.daysElapsed} days ago 🤔. Perhaps you should change it's selling price?`;
 
-        PushNotification.localNotificationSchedule({
-          message: message,// (required)
-          date: date,
-        });
+  //       PushNotification.localNotificationSchedule({
+  //         message: message,// (required)
+  //         date: date,
+  //         vibrate: false,
+  //       });
 
-        var postData = {
-          name: product.text.name,
-          price: product.text.price,
-          uri: product.uris[0],
-          daysElapsed: product.daysElapsed,
-          message: message,
-          date: date,
-        }
-        var notificationUpdates = {};
-        notificationUpdates['/Users/' + your_uid + '/notifications/' + product.key + '/'] = postData;
-        firebase.database().ref().update(notificationUpdates);
-      }
-    }
-  }
+  //       var postData = {
+  //         name: product.text.name,
+  //         price: product.text.price,
+  //         uri: product.uris[0],
+  //         daysElapsed: product.daysElapsed,
+  //         message: message,
+  //         date: date,
+  //       }
+  //       var notificationUpdates = {};
+  //       notificationUpdates['/Users/' + your_uid + '/notifications/' + product.key + '/'] = postData;
+  //       firebase.database().ref().update(notificationUpdates);
+  //     }
+  //   }
+  // }
 
 
   getPageSpecificProducts = (selectedBrands, selectedTypes, selectedSizes) => {
@@ -199,16 +203,23 @@ class Products extends Component {
 
       //OF COURSE, the FIRST/TOP level of "filtering" that dictates what products are displayed is if whether:
       //Viewing all products, only liked products, or your products
-      var yourProducts = all.filter((product) => productKeys.includes(product.key) );
+      // var yourProducts = all.filter((product) => productKeys.includes(product.key) );
       //console.log(all, showCollection, showYourProducts);
       if(showCollection == true) {
         all = all.filter((product) => collectionKeys.includes(product.key) );
       }
 
       if(showYourProducts == true) {
+        // setTimeout(() => {
+        //   this.initializePushNotifications();
+        // }, 200);
+
+        // setTimeout(() => {
+        //   this.shouldSendNotifications(yourProducts, uid);
+        // }, 3000);
         //we need to identify which products have a notification set to True for a price reduction
         //loop over yourProducts and if you have a shouldReducePrice boolean of true, then schedule a notification for this individual for after thirty minutes
-        this.shouldSendNotifications(yourProducts, uid);
+        
         all = all.filter((product) => productKeys.includes(product.key) );
       }
 
@@ -355,8 +366,8 @@ class Products extends Component {
     //////////
   }
 
-  navToProductDetails(data) {
-      this.props.navigation.navigate('ProductDetails', {data: data})
+  navToProductDetails(data, collectionKeys, productKeys) {
+      this.props.navigation.navigate('ProductDetails', {data: data, collectionKeys: collectionKeys, productKeys: productKeys})
   }
 
 
@@ -497,7 +508,7 @@ class Products extends Component {
                 color={limeGreen}
                 onPress={ () => { 
                     console.log('navigating to full details');
-                    this.navToProductDetails(section); 
+                    this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys); 
                     }}  
           />
         </Animatable.View>  
@@ -683,7 +694,7 @@ class Products extends Component {
             <Button  
               buttonStyle={styles.hideModalButtonStyle}
               icon={{name: 'chevron-left', type: 'material-community'}}
-              title='Hide Modal'
+              title='Back'
               onPress={() => {
                   this.setState( {showFilterModal: false} );
                 }}

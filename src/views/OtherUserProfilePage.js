@@ -197,7 +197,7 @@ class OtherUserProfilePage extends Component {
               onPress={() => {this.navToUserComments()}}
             /> 
           </View>  
-          {Object.keys(comments).map(
+          {comments['a'] ? null : Object.keys(comments).map(
                   (comment) => (
                   <View key={comment} style={styles.commentContainer}>
 
@@ -267,7 +267,7 @@ class OtherUserProfilePage extends Component {
                 onPress={() => {
                   this.setState( {showBlockOrReportModal: false} )
                 }}>
-                <Text style={styles.hideModal}>Hide Modal</Text>
+                <Text style={styles.hideModal}>Back</Text>
             </TouchableHighlight>
           </View>
        </Modal>
@@ -312,7 +312,7 @@ class OtherUserProfilePage extends Component {
                     onPress={() => {
                         this.setState( {showReportUserModal: false} )
                     }}>
-                    <Text style={styles.hideModal}>Hide Modal</Text>
+                    <Text style={styles.hideModal}>Back</Text>
                 </TouchableHighlight>
             </View>
           </DismissKeyboardView>
@@ -439,7 +439,8 @@ const styles = StyleSheet.create({
   footerContainer: {
     flex: 2,
     flexDirection: 'column',
-    padding: 2
+    padding: 2,
+    backgroundColor: '#fff'
   },
 
   headerBackground: {

@@ -43,6 +43,7 @@ class ProfilePage extends Component {
       sellItem: false,
       products: [],
       isGetting: true,
+      noComments: false,
 
     }
 
@@ -124,12 +125,20 @@ class ProfilePage extends Component {
       // var insaanKaNaam = d.Users[firebase.auth().currentUser.uid].profile.name;  
       // console.log(insaanKaNaam);
       //get list of comments for specific product
-      var date = (new Date()).getDate();
-      var month = (new Date()).getMonth();
-      var year = (new Date()).getFullYear();
-      var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: noReviewsText, name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
-      console.log(comments, typeof month, month);
-      this.setState({ comments });
+      // var date = (new Date()).getDate();
+      // var month = (new Date()).getMonth();
+      // var year = (new Date()).getFullYear();
+      // var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: noReviewsText, name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
+      // console.log(comments, typeof month, month);
+      var comments;
+      if(d.Users[uid].comments) {
+        comments = d.Users[uid].comments;
+        this.setState({comments})
+      }
+      else {
+        this.setState({noComments: true})
+      }
+      
       console.log(comments);
 
     })
@@ -230,7 +239,7 @@ class ProfilePage extends Component {
         <ScrollView contentContainerStyle={styles.halfPageScroll}>
           <View style={ {backgroundColor: '#fff'} }>
           <Text style={styles.reviewsHeader}>REVIEWS</Text>
-          {Object.keys(comments).map(
+          {this.state.noComments ? null : Object.keys(comments).map(
                   (comment) => (
                   <View key={comment} style={styles.commentContainer}>
 
@@ -396,7 +405,8 @@ const styles = StyleSheet.create({
   footerContainer: {
     flex: 2,
     flexDirection: 'column',
-    padding: 2
+    padding: 2,
+    backgroundColor: '#fff'
   },
 
   headerBackground: {

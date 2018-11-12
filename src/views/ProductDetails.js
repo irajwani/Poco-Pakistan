@@ -84,17 +84,17 @@ class ProductDetails extends Component {
       const profile = d.Users[data.uid].profile;
 
       //get keys of current user's products
-      var productKeys = d.Users[uid].products ? Object.keys(d.Users[uid].products) : [];
+      // var productKeys = d.Users[uid].products ? Object.keys(d.Users[uid].products) : [];
 
       //get usersBlocked for current user
-      var rawUsersBlocked = d.Users[uid].usersBlocked ? d.Users[firebase.auth().currentUser.uid].usersBlocked : {};
+      var rawUsersBlocked = d.Users[uid].usersBlocked ? d.Users[uid].usersBlocked : {};
       var yourUsersBlocked = removeFalsyValuesFrom(rawUsersBlocked);
       console.log(yourUsersBlocked);
 
       //get collection keys of current user
-      var collection = d.Users[uid].collection ? d.Users[uid].collection : null;
-      var rawCollection = collection ? collection : {}
-      var collectionKeys = removeFalsyValuesFrom(rawCollection);  
+      // var collection = d.Users[uid].collection ? d.Users[uid].collection : null;
+      // var rawCollection = collection ? collection : {}
+      // var collectionKeys = removeFalsyValuesFrom(rawCollection);  
 
       var soldProducts = 0;
 
@@ -111,11 +111,20 @@ class ProductDetails extends Component {
       var month = (new Date()).getMonth();
       var year = (new Date()).getFullYear();
 
-      var comments = d.Users[data.uid].comments ? d.Users[data.uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
+      var comments;
+      if(d.Users[data.uid].comments) {
+        comments = d.Users[data.uid].comments;
+      }
+      else {
+        comments = {a: {text: 'Write a review for this seller using the comment field below.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
+      }
+
+
+      //  = d.Users[data.uid].comments ? d.Users[data.uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
       
       var productComments = d.Users[data.uid].products[data.key].comments ? d.Users[data.uid].products[data.key].comments : {a: {text: 'No Reviews have been left for this product yet.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
       
-      this.setState( {yourProfile, yourUsersBlocked, uid, otherUserUid, profile, numberProducts, soldProducts, comments, productComments, productKeys, collectionKeys} )
+      this.setState( {yourProfile, yourUsersBlocked, uid, otherUserUid, profile, numberProducts, soldProducts, comments, productComments,} )
     })
     .then( () => {
       this.setState({isGetting: false})
@@ -128,7 +137,7 @@ class ProductDetails extends Component {
     firebase.database().ref().update(updates);
     //just alert user this product has been marked as sold, and will show as such on their next visit to the app.
     var status = soldStatus ? 'sold' : 'available for purchase'
-    alert(`Product has been marked as ${status}.\n If you wish to see the effects of this change immediately,\n please close and re-open NottMyStyle`)
+    alert(`Product has been marked as ${status}.\n If you wish to see the effects of this change immediately,\n please go back to the Market`)
 
   }
 
@@ -216,7 +225,7 @@ class ProductDetails extends Component {
   navToOtherUserProfilePage = () => {
     //Since we already perform some data retrieval on this page,
     //extract information for: the UI on next page AND the uid of the user to be able to block them from sending messages.
-    const {yourProfile, yourUsersBlocked, otherUserUid, profile, numberProducts, soldProducts, comments} = this.state;
+    const {yourProfile, yourUsersBlocked, otherUserUid, profile, numberProducts, soldProducts, noComments, comments} = this.state;
     this.props.navigation.navigate('OtherUserProfilePage', {yourProfile: yourProfile, usersBlocked: yourUsersBlocked, uid: otherUserUid, profile: profile, numberProducts: numberProducts, soldProducts: soldProducts, comments: comments});
   }
 
@@ -244,7 +253,7 @@ class ProductDetails extends Component {
 
   render() {
     const { params } = this.props.navigation.state;
-    const { data } = params;
+    const { data, collectionKeys, productKeys } = params;
     
     const { isGetting, profile, navToChatLoading, productComments, uid } = this.state;
     const text = data.text;
@@ -295,11 +304,11 @@ class ProductDetails extends Component {
           <Text style={styles.nameText}>{text.name.toUpperCase()}</Text>
           <View style={styles.likesRow}>
 
-              {this.state.collectionKeys.includes(params.data.key) ? 
+              {collectionKeys.includes(params.data.key) ? 
                   <Icon name="heart" 
                         size={22} 
                         color='#800000'
-                        onPress={() => { alert("you've already liked this product"); }}
+                        onPress={() => { alert("you've already liked this product, but may unlike it from the Market"); }}
 
               /> : <Icon name="heart-outline" 
                         size={22} 
@@ -325,7 +334,7 @@ class ProductDetails extends Component {
             </View>
             {/* ownership product --> 2 things, edit item, confirm sale or unconfirm sale
                 when youre an interested buyer --> 3 things, buy item, review item, report item */}
-            {this.state.productKeys.includes(data.key) ?
+            {productKeys.includes(data.key) ?
               
               data.text.sold ? 
               
@@ -384,7 +393,7 @@ class ProductDetails extends Component {
                   <Icon
                     name="check-circle" 
                     size={30}  
-                    color={'black'}
+                    color={'gray'}
                     onPress = {() => {console.log('setting product status to sold'); this.setSaleTo(true, data.uid, data.key)}}
                   />
                 </View>      
@@ -434,7 +443,7 @@ class ProductDetails extends Component {
               </Text>
             </View>
 
-            {this.state.productKeys.includes(data.key) ?
+            {productKeys.includes(data.key) ?
               
               data.text.sold ? 
               
@@ -569,7 +578,6 @@ class ProductDetails extends Component {
 
         <View style={styles.numberOfProductsSoldRow}>
             <Text style={styles.numberProducts}>Products on Sale: {this.state.numberProducts} </Text>
-            
             <Text style={styles.soldProducts}> Products Sold: {this.state.soldProducts}</Text>
         </View>
 
@@ -610,7 +618,7 @@ class ProductDetails extends Component {
             /> 
           </View>
           
-          {Object.keys(productComments).map(
+          {productComments['a'] ? null : Object.keys(productComments).map(
                   (comment) => (
                   <View key={comment} style={styles.commentContainer}>
 
@@ -686,7 +694,7 @@ class ProductDetails extends Component {
                     onPress={() => {
                         this.setState( {showReportUserModal: false} )
                     }}>
-                    <Text style={styles.hideModal}>Hide Modal</Text>
+                    <Text style={styles.hideModal}>Back</Text>
                 </TouchableHighlight>
             </View>
           </DismissKeyboardView>

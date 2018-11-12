@@ -149,7 +149,7 @@ class Settings extends Component {
               onPress={() => {
                 this.setModalVisible(!this.state.modalVisible);
               }}>
-              <Text style={styles.hideModal}>Hide Modal</Text>
+              <Text style={styles.hideModal}>Back</Text>
             </TouchableHighlight>
           </ScrollView>
         </Modal>

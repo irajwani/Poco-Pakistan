@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Dimensions, View, Image, } from 'react-native';
 
+import PushNotification from 'react-native-push-notification';
+
 import { Hoshi } from 'react-native-textinput-effects';
 import { PacmanIndicator } from 'react-native-indicators';
 import {Button} from 'react-native-elements'
@@ -42,11 +44,95 @@ class SignIn extends Component {
       }
 
     componentWillMount() {
+        this.initializePushNotifications();
         //this.updateProducts();
     }
 
     arrayToObject(arr, keyField) {
         Object.assign({}, ...arr.map(item => ({[item[keyField]]: item})))
+    }
+
+    initializePushNotifications = () => {
+        PushNotification.configure({
+    
+          // (optional) Called when Token is generated (iOS and Android)
+          onRegister: function(token) {
+              console.log( 'TOKEN:', token );
+          },
+      
+          // (required) Called when a remote or local notification is opened or received
+          onNotification: function(notification) {
+              const {userInteraction} = notification;
+              console.log( 'NOTIFICATION:', notification, userInteraction );
+              if(userInteraction) {
+                //this.props.navigation.navigate('YourProducts');
+                alert("To edit a particular product's details, magnify to show full product details \n Select Edit Item. \n (Be warned, you will have to take new pictures)");
+              }
+              
+              //userInteraction ? this.navToEditItem() : console.log('user hasnt pressed notification, so do nothing');
+          },
+      
+          // ANDROID ONLY: GCM Sender ID (optional - not required for local notifications, but is need to receive remote push notifications) 
+          //senderID: "YOUR GCM SENDER ID",
+      
+          // IOS ONLY (optional): default: all - Permissions to register.
+          permissions: {
+              alert: true,
+              badge: true,
+              sound: true
+          },
+      
+          // Should the initial notification be popped automatically
+          // default: true
+          popInitialNotification: true,
+      
+          /**
+            * (optional) default: true
+            * - Specified if permissions (ios) and token (android and ios) will requested or not,
+            * - if not, you must call PushNotificationsHandler.requestPermissions() later
+            */
+          requestPermissions: true,
+      });
+    
+    
+      }
+
+    shouldSendNotifications(arrayOfProducts, your_uid) {
+        for(var product of arrayOfProducts) {
+            if(product.shouldReducePrice) {
+                console.log('should reduce price');
+
+                var month = new Date().getMonth() + 1;
+                var date= new Date().getDate();
+                var year = new Date().getFullYear();
+                
+                //send notification four days after NottMyStyle recognizes this product warrants a price reduction.
+                var notificationDate = new Date( `${date + 4 > 31 ? month + 1 > 12 ? 1 : month + 1 : month}/${date + 4 > 31 ? 1 : date + 4}/${date + 4 > 31 && month + 1 > 12 ? year + 1 : year}`)
+                
+                console.log(month, date)
+
+                // in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
+                var message = `Nobody has initiated a chat with you about your product named, ${product.text.name}, since its submission on the market ${product.daysElapsed} days ago 🤔. Perhaps you should change it's selling price?`;
+
+                PushNotification.localNotificationSchedule({
+                    message: message,// (required)
+                    date: notificationDate,
+                    vibrate: false,
+                });
+
+                var postData = {
+                    name: product.text.name,
+                    price: product.text.price,
+                    uri: product.uris[0],
+                    daysElapsed: product.daysElapsed,
+                    message: message,
+                    date: notificationDate,
+                }
+                var notificationUpdates = {};
+                notificationUpdates['/Users/' + your_uid + '/notifications/' + product.key + '/'] = postData;
+                firebase.database().ref().update(notificationUpdates);
+            }
+        }
     }
     /////////
     ///////// Hello world for Login/Signup Email Authentication
@@ -57,12 +143,20 @@ class SignIn extends Component {
             .then(() => {
                 firebase.auth().onAuthStateChanged( (user) => {
                     if(user) {
-                        console.log(user.uid);
+                        // console.log(user.uid);
                         //could potentially navigate with user properties like uid, name, etc.
                         //TODO: once you sign out and nav back to this page, last entered
                         //password and email are still there
-                        this.setState({loading: false});
-                        this.props.navigation.navigate('HomeScreen');
+                        database.then( (d) => {
+                            var all = d.Products;
+                            var productKeys = d.Users[user.uid].products ? Object.keys(d.Users[user.uid].products) : [];
+                            var yourProducts = all.filter((product) => productKeys.includes(product.key) );
+                            // console.log(yourProducts)
+                            this.shouldSendNotifications(yourProducts,user.uid)
+                            this.setState({loading: false});
+                            this.props.navigation.navigate('HomeScreen');
+                        })
+                        
                         // this.setState({loading: false, loggedIn: true})
                         
                     }
