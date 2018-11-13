@@ -68,11 +68,11 @@ class ProductDetails extends Component {
     const {params} = this.props.navigation.state;
 
     setTimeout(() => {
-      this.getProfile(params.data);
+      this.getUserAndProductAndOtherUserData(params.data);
     }, 4);
   }
 
-  getProfile(data) {
+  getUserAndProductAndOtherUserData(data) {
     database.then( (d) => {
       const uid = firebase.auth().currentUser.uid;
       const otherUserUid = data.uid;
@@ -166,8 +166,12 @@ class ProductDetails extends Component {
     console.log(key);
     //create separate Chats branch
     const CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
+
     const tokenProvider = new Chatkit.TokenProvider({
-      url: CHATKIT_TOKEN_PROVIDER_ENDPOINT
+      url: CHATKIT_TOKEN_PROVIDER_ENDPOINT,
+      query: {
+        user_id: CHATKIT_USER_NAME
+      }
     });
   
     // This will instantiate a `chatManager` object. This object can be used to subscribe to any number of rooms and users and corresponding messages.

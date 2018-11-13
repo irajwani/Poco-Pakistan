@@ -52,7 +52,10 @@ class Chats extends Component {
       //if a uid has a userId with pusher chat kit account
       var CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
       const tokenProvider = new Chatkit.TokenProvider({
-        url: CHATKIT_TOKEN_PROVIDER_ENDPOINT
+        url: CHATKIT_TOKEN_PROVIDER_ENDPOINT,
+        query: {
+          user_id: CHATKIT_USER_NAME
+        }
       });
 
       // This will instantiate a `chatManager` object. This object can be used to subscribe to any number of rooms and users and corresponding messages.
@@ -110,7 +113,10 @@ class Chats extends Component {
       //if a uid has a userId with pusher chat kit account
       var CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
       const tokenProvider = new Chatkit.TokenProvider({
-        url: CHATKIT_TOKEN_PROVIDER_ENDPOINT
+        url: CHATKIT_TOKEN_PROVIDER_ENDPOINT,
+        query: {
+          user_id: CHATKIT_USER_NAME
+        }
       });
 
       // This will instantiate a `chatManager` object. This object can be used to subscribe to any number of rooms and users and corresponding messages.

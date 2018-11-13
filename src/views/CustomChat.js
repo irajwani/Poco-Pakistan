@@ -30,7 +30,10 @@ class CustomChat extends Component {
 
     // This will create a `tokenProvider` object. This object will be later used to make a Chatkit Manager instance.
     const tokenProvider = new Chatkit.TokenProvider({
-      url: CHATKIT_TOKEN_PROVIDER_ENDPOINT
+      url: CHATKIT_TOKEN_PROVIDER_ENDPOINT,
+      query: {
+        user_id: CHATKIT_USER_NAME
+      }
     });
 
     // This will instantiate a `chatManager` object. This object can be used to subscribe to any number of rooms and users and corresponding messages.
