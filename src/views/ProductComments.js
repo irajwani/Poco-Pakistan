@@ -145,7 +145,7 @@ class ProductComments extends Component {
                         {comments[comment].uri ?
                           <Image style= {styles.commentPic} source={ {uri: comments[comment].uri} }/>
                         :
-                          <Image style= {styles.commentPic} source={ require('../images/companyLogo2.png') }/>
+                          <Image style= {styles.commentPic} source={ require('../images/companyLogo2.jpg') }/>
                         }
                           
                         <View style={styles.textContainer}>
