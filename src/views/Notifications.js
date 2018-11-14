@@ -86,8 +86,22 @@ class Notifications extends Component {
     }
 
     return (
+      <View style={styles.container}>
+      <View style={styles.upperNavTab}>
+              <Button 
+                buttonStyle={styles.notifsbutton}
+                textStyle={{fontSize: 18, color: 'black'}}
+                title="Chats"
+                onPress={()=>this.navToChats()}
+              />
+              <Button 
+                buttonStyle={styles.chatsbutton}
+                textStyle={{fontSize: 18, color: 'black'}}
+                title="Notifications"
+              />
+      </View>
       <ScrollView contentContainerStyle={{
-        paddingTop: 15,
+        // paddingTop: 15,
         flexDirection: 'column',
         flexGrow: 1,
         justifyContent: 'flex-start',
@@ -122,6 +136,7 @@ class Notifications extends Component {
         }
           
       </ScrollView>
+      </View>
     )
   }
 }
@@ -133,7 +148,11 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     marginTop: 22,
   },
+  scrollContainer: {
+    flex: 9
+  },
   upperNavTab: {
+    // flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',

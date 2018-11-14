@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Dimensions, Text, View, Modal, TouchableHighlight, StyleSheet } from 'react-native'
 import { material } from 'react-native-typography';
-import { bobbyBlue } from '../colors';
+import { bobbyBlue, optionLabelBlue } from '../colors';
 
 const {width} = Dimensions.get('window');
 
@@ -43,7 +43,7 @@ export default class CustomModalPicker extends Component {
           onPress={() => {
             this.setModalVisible(true);
           }}>
-          <Text style={styles.selectedOption}>Option Selected:</Text>
+          <Text style={styles.selectedOption}>{this.props.subheading}</Text>
         </TouchableHighlight>
       </View>
     )
@@ -59,8 +59,7 @@ const styles = StyleSheet.create({
       textAlign: 'center'
     },
     selectedOption: {
-      ...material.display1,
       fontSize: 19,
-      color: bobbyBlue
+      color: optionLabelBlue
     }
 })

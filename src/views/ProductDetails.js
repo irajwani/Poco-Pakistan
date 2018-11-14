@@ -292,7 +292,7 @@ class ProductDetails extends Component {
 
     return (
 
-      <ScrollView contentContainerStyle={styles.contentContainer}>
+      <ScrollView style={styles.mainContainer} contentContainerStyle={styles.contentContainer}>
 
         {/* image carousel */}
         <View style={{flex: 2, alignItems: 'center'}}>
@@ -348,7 +348,7 @@ class ProductDetails extends Component {
                     buttonStyle={{
                         backgroundColor: "#186f87",
                         width: 80,
-                        height: height/15,
+                        
                         
                     }}
                     icon={{name: 'lead-pencil', type: 'material-community'}}
@@ -380,7 +380,7 @@ class ProductDetails extends Component {
                     buttonStyle={{
                         backgroundColor: "#186f87",
                         width: 80,
-                        height: height/15,
+                        
                         
                     }}
                     icon={{name: 'lead-pencil', type: 'material-community'}}
@@ -457,7 +457,7 @@ class ProductDetails extends Component {
                     buttonStyle={{
                         backgroundColor: "#186f87",
                         width: 80,
-                        height: height/15,
+                        
                         
                     }}
                     icon={{name: 'lead-pencil', type: 'material-community'}}
@@ -489,7 +489,7 @@ class ProductDetails extends Component {
                     buttonStyle={{
                         backgroundColor: "#186f87",
                         width: 80,
-                        height: height/15,
+                        
                         
                     }}
                     icon={{name: 'lead-pencil', type: 'material-community'}}
@@ -713,6 +713,10 @@ class ProductDetails extends Component {
 export default withNavigation(ProductDetails);
 
 const styles = StyleSheet.create( {
+  mainContainer: {
+    marginTop: 20,
+    marginBottom: 3
+  },
   contentContainer: {
     
     flexGrow: 1, 
@@ -720,8 +724,8 @@ const styles = StyleSheet.create( {
     flexDirection: 'column',
     justifyContent: 'space-evenly',
     padding: 10,
-    marginTop: 5,
-    marginBottom: 5
+    // marginTop: 5,
+    // marginBottom: 5
   },
 
   infoAndButtonsColumn: {

@@ -15,13 +15,13 @@ import firebase from '../cloud/firebase.js';
 // import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
 import { material, iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
-import { confirmBlue, woodBrown, rejectRed } from '../colors';
+import { confirmBlue, woodBrown, rejectRed, darkBlue, optionLabelBlue, treeGreen } from '../colors';
 
 const babyBlue='#94c2ed';
 const basicBlue = '#2c7dc9'
 const darkGreen = '#0d4f10';
 const limeGreen = '#2e770f';
-const slimeGreen = '#53b73c';
+// const slimeGreen = '#53b73c';
 
 const {height, width} = Dimensions.get('window');
 
@@ -46,7 +46,7 @@ class CreateItem extends Component {
           size: 2,
           type: 'Trousers',
           gender: 2,
-          condition: 'Good',
+          condition: 'Slightly Used',
           insta: '',
           description: '',
           typing: true,
@@ -54,7 +54,7 @@ class CreateItem extends Component {
       }
   }
 
-  showPicker(gender) {
+  showPicker(gender, subheading) {
     if (gender == 0) {
         return ( 
             <Picker style={styles.picker} itemStyle={[styles.pickerText, styles.men]} selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
@@ -249,7 +249,7 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
                     size: 2,
                     type: 'Trousers',
                     gender: 2,
-                    condition: 'Good',
+                    condition: 'Slightly Used',
                     insta: '',
                     description: '',
                     typing: true,
@@ -326,7 +326,7 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
 
             <Divider style={{  backgroundColor: '#fff', height: 12 }} />
         {/* 1. Product Pictures */}
-            <Text style={{textAlign: 'center'}}>Picture(s) of Product:</Text>
+            <Text style={{textAlign: 'center', color: optionLabelBlue}}>Picture(s) of Product:</Text>
             <Divider style={{  backgroundColor: '#fff', height: 8 }} />
 
             <MultipleAddButton navToComponent = {'CreateItem'} pictureuris={pictureuris}/>
@@ -334,7 +334,7 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
             <Divider style={{  backgroundColor: '#fff', height: 18 }} />
 
         {/* 0. Gender */}
-        
+            <ProductLabel color={optionLabelBlue} title='Product Category'/>
             <ButtonGroup
                 onPress={ (index) => {this.setState({gender: index})}}
                 selectedIndex={this.state.gender}
@@ -346,11 +346,10 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
                 selectedButtonStyle={styles.buttonGroupSelectedContainer}
             />
             {/* Type of clothing */}
-            <Divider style={{  backgroundColor: '#fff', height: 23 }} />
+            
 
             <View style={styles.modalPicker}>
-                <Text style={styles.subHeading}>Product Type</Text>
-                <CustomModalPicker>
+                <CustomModalPicker subheading={'Product Type:'}>
                     {this.showPicker(this.state.gender)}        
                 </CustomModalPicker>
                 <Text style={styles.optionSelected}>{this.state.type}</Text>
@@ -370,7 +369,7 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
                     onChangeText={name => this.setState({ name })}
                     autoCorrect={false}
                     // this is used as active border color
-                    borderColor={babyBlue}
+                    borderColor={treeGreen}
                     // this is used to set backgroundColor of label mask.
                     // please pass the backgroundColor of your TextInput container.
                     backgroundColor={'#F9F7F6'}
@@ -399,7 +398,7 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
                 characterRestriction = {180}
                 textColor={basicBlue}
                 tintColor={darkGreen}
-                baseColor={babyBlue}
+                baseColor={darkBlue}
             />
 
         {/* 3. Product Price */}
@@ -437,7 +436,7 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
             <Text>£{this.state.original_price}</Text>
 
             {/* Size */}
-            <ProductLabel color='#1271b5' title='Select a Size'/> 
+            <ProductLabel color={optionLabelBlue} title='Select a Size'/> 
             <ButtonGroup
                 onPress={ (index) => {this.setState({size: index})}}
                 selectedIndex={this.state.size}
@@ -451,14 +450,12 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
             {/* product condition */}
             <Divider style={{  backgroundColor: '#fff', height: 12 }} />
             <View style={styles.modalPicker}>
-                <Text style={styles.subHeading}>Product Condition</Text>
-                <CustomModalPicker>
+                <CustomModalPicker subheading={'Product Condition:'}>
                     <Picker style={styles.picker} itemStyle={[styles.pickerText, {color: 'black'}]} selectedValue = {this.state.condition} onValueChange={ (condition) => {this.setState({condition})} } >
-                        <Picker.Item label = "New with tags" value = "New with tags" />
-                        <Picker.Item label = "New" value = "New" />
-                        <Picker.Item label = "Very good" value = "Very good" />
-                        <Picker.Item label = "Good" value = "Good" />
-                        <Picker.Item label = "Satisfactory" value = "Satisfactory" />
+                        <Picker.Item label = "New With Tags" value = "New With Tags" />
+                        <Picker.Item label = "New Without Tags" value = "New Without Tags" />
+                        <Picker.Item label = "Slightly Used" value = "Slightly Used" />
+                        <Picker.Item label = "Used" value = "Used" />
                     </Picker>
                 </CustomModalPicker> 
                 <Text style={styles.optionSelected}>{this.state.condition}</Text>

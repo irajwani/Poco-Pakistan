@@ -199,26 +199,29 @@ class CreateProfile extends Component {
     }
 
     return (
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={ {flexDirection: 'row', backgroundColor: '#dee0e5', height: 40, justifyContent: 'space-between', borderWidth: 1, borderRadius: 5, borderColor: 'black'} }>
+      <ScrollView style={styles.mainContainer} contentContainerStyle={styles.container}>
+        <View style={ {flexDirection: 'row', backgroundColor: '#fff', justifyContent: 'space-between', padding: 5 } }>
             <Button  
                 buttonStyle={ {
                     backgroundColor: 'black',
-                    width: width/3 +20,
-                    height: height/15,
+                    // width: width/3 +20,
+                    // height: height/15,
                     borderRadius: 5,
                 }}
                 icon={{name: 'chevron-left', type: 'material-community'}}
                 title='Back'
                 onPress={() => this.props.navigation.navigate('SignIn') } 
             />
-            <Icon 
-              name="help-circle" 
-              size={height/15} 
-              color={bobbyBlue}
-              onPress={() => {
-                this.setState({infoModalVisible: true})
-              }}
+            <Button  
+                buttonStyle={ {
+                    backgroundColor: treeGreen,
+                    // width: width/3 +20,
+                    // height: height/15,
+                    borderRadius: 5,
+                }}
+                icon={{name: 'help', type: 'material-community'}}
+                title='Help'
+                onPress={() => this.setState({infoModalVisible: true}) } 
             />
         </View>
         <Text style={{fontFamily: 'Cochin', fontWeight: '800', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text>
@@ -489,13 +492,17 @@ class CreateProfile extends Component {
 export default withNavigation(CreateProfile);
 
 const styles = StyleSheet.create({
+    mainContainer: {
+        marginTop: 22,
+        borderTopWidth: 1,
+        borderTopColor: treeGreen
+    },
     container: {
         flexGrow: 1, 
         flexDirection: 'column',
         justifyContent: 'center',
         paddingBottom: 30,
-        //alignItems: 'center',
-        marginTop: 22,
+        //alignItems: 'center'
         paddingLeft: 10,
         paddingRight: 10,
         backgroundColor: 'white'

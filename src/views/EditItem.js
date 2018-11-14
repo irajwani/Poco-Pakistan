@@ -86,7 +86,7 @@ class EditItem extends Component {
           size: text.size,
           type: text.type ? text.type : 'Trousers',
           gender: gender,
-          condition: text.condition ? text.condition : 'Good',
+          condition: text.condition ? text.condition : 'Slightly Used',
           description: text.description ? text.description : '',
           typing: true,
           postKey: postKey,
@@ -524,11 +524,10 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
                 <Text style={styles.subHeading}>Product Condition</Text>
                 <CustomModalPicker>
                     <Picker selectedValue = {this.state.condition} onValueChange={ (condition) => {this.setState({condition})} } >
-                        <Picker.Item label = "New with tags" value = "New with tags" />
-                        <Picker.Item label = "New" value = "New" />
-                        <Picker.Item label = "Very good" value = "Very good" />
-                        <Picker.Item label = "Good" value = "Good" />
-                        <Picker.Item label = "Satisfactory" value = "Satisfactory" />
+                        <Picker.Item label = "New With Tags" value = "New With Tags" />
+                        <Picker.Item label = "New Without Tags" value = "New Without Tags" />
+                        <Picker.Item label = "Slightly Used" value = "Slightly Used" />
+                        <Picker.Item label = "Used" value = "Used" />
                     </Picker>
                 </CustomModalPicker> 
                 <Text style={styles.optionSelected}>{this.state.condition}</Text>
