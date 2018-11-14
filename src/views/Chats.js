@@ -3,7 +3,7 @@ import { Dimensions, StyleSheet, ScrollView, View, Image } from 'react-native'
 import {Text} from 'native-base'
 import {Button} from 'react-native-elements';
 
-import {database} from '../cloud/database'
+// import {database} from '../cloud/database'
 import firebase from '../cloud/firebase';
 import { withNavigation } from 'react-navigation';
 import Chatkit from '@pusher/chatkit';
@@ -35,22 +35,24 @@ class Chats extends Component {
 
   componentWillMount() {
 
+    var userIdentificationKey = firebase.auth().currentUser.uid
+
     setTimeout(() => {
-      this.leaveYourRooms();
+      this.leaveYourRooms(userIdentificationKey);
     }, 1000);
 
     setTimeout(() => {
-      this.getChats();
+      this.getChats(userIdentificationKey);
     }, 5000);
     
   }
 
-  leaveYourRooms() {
+  leaveYourRooms(your_uid) {
 
-    database.then( (d) => {
-      
+    firebase.database().ref().once("value", (snapshot) => {
+      var d = snapshot.val()
       //if a uid has a userId with pusher chat kit account
-      var CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
+      var CHATKIT_USER_NAME = your_uid;
       const tokenProvider = new Chatkit.TokenProvider({
         url: CHATKIT_TOKEN_PROVIDER_ENDPOINT,
         query: {
@@ -73,7 +75,7 @@ class Chats extends Component {
         ////////
         ///// leave the rooms for which you've blocked Users
         ///// use the removeFalsyValues function because some uid keys could have falsy values if one decides to unblock user.
-        var rawUsersBlocked = d.Users[firebase.auth().currentUser.uid].usersBlocked ? d.Users[firebase.auth().currentUser.uid].usersBlocked : {};
+        var rawUsersBlocked = d.Users[CHATKIT_USER_NAME].usersBlocked ? d.Users[CHATKIT_USER_NAME].usersBlocked : {};
         var usersBlocked = removeFalsyValuesFrom(rawUsersBlocked);
         console.log(usersBlocked);
         ///////
@@ -99,19 +101,20 @@ class Chats extends Component {
 
       } )
 
-    }
+    })
     
-  )
+  
 
   }
 
-  getChats() {
+  getChats(your_uid) {
     //first generate, and then retrieve chats for particular user
-    database.then( (d) => {
+    firebase.database().ref().once('value', (snapshot) => {
+      var d = snapshot.val();
       var chats = [];
       
       //if a uid has a userId with pusher chat kit account
-      var CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
+      var CHATKIT_USER_NAME = your_uid;
       const tokenProvider = new Chatkit.TokenProvider({
         url: CHATKIT_TOKEN_PROVIDER_ENDPOINT,
         query: {

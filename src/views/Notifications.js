@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Dimensions, Text, Image, View, ScrollView, StyleSheet } from 'react-native'
 import firebase from '../cloud/firebase';
-import { database } from '../cloud/database';
+// import { database } from '../cloud/database';
 import { withNavigation } from 'react-navigation';
 import { material } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
@@ -33,7 +33,8 @@ class Notifications extends Component {
 
   getNotifications() {
     //get chats for particular user
-    database.then( (d) => {
+    firebase.database().ref().once("value", (snapshot) => {
+      var d = snapshot.val();
       const uid = firebase.auth().currentUser.uid;
       if(d.Users[uid].notifications) {
         const notifications = d.Users[uid].notifications 

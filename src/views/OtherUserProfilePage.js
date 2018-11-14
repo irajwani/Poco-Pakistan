@@ -4,15 +4,15 @@ import email from 'react-native-email'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import {Button, Divider} from 'react-native-elements'
-import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
+// import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import firebase from '../cloud/firebase.js';
 import { iOSColors, iOSUIKit, human,  } from 'react-native-typography';
 import LinearGradient from 'react-native-linear-gradient'
-import ReviewsList from '../components/ReviewsList.js';
-import { PacmanIndicator } from 'react-native-indicators';
+// import ReviewsList from '../components/ReviewsList.js';
+// import { PacmanIndicator } from 'react-native-indicators';
 import { bobbyBlue, lightGreen, highlightGreen, graphiteGray } from '../colors.js';
-import { Hoshi, Sae } from 'react-native-textinput-effects';
-import { TextField } from 'react-native-material-textfield';
+// import { Hoshi, Sae } from 'react-native-textinput-effects';
+// import { TextField } from 'react-native-material-textfield';
 const {width, height} = Dimensions.get('window');
 
 

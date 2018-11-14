@@ -52,24 +52,24 @@ class CreateProfile extends Component {
   createProfile = (email, pass, pictureuri) => {
       this.setState({createProfileLoading: true});
       firebase.auth().createUserWithEmailAndPassword(email, pass)
-                    .then(() => {
-                                  firebase.auth().onAuthStateChanged( ( user ) => {
-                                      if(user) {
-                                        const {uid} = user;
-                                        this.updateFirebase(this.state, pictureuri, mime = 'image/jpg', uid );
-                                        alert('Your account has been created. Please use your credentials to Sign In.\n');
-                                        this.props.navigation.navigate('SignIn'); 
-                                      }
-                                      else {
-                                        alert('Oops, there was an error with account registration!');
-                                      }
-                                  })
-                                    }
-                                      )
-                    .catch(() => {
-                      this.setState({ error: 'You already have a NottMyStyle account. Please use your credentials to Sign In', createProfileLoading: false, email: '', pass: '', pass2: '' });
-                      alert(this.state.error)
-                    });
+        .then(() => {
+                        firebase.auth().onAuthStateChanged( ( user ) => {
+                            if(user) {
+                            const {uid} = user;
+                            this.updateFirebase(this.state, pictureuri, mime = 'image/jpg', uid );
+                            alert('Your account has been created. Please use your credentials to Sign In.\n');
+                            this.props.navigation.navigate('SignIn'); 
+                            }
+                            else {
+                            alert('Oops, there was an error with account registration!');
+                            }
+                        })
+                        }
+                            )
+        .catch(() => {
+            this.setState({ error: 'You already have a NottMyStyle account. Please use your credentials to Sign In', createProfileLoading: false, email: '', pass: '', pass2: '' });
+            alert(this.state.error)
+        });
   }
 
 //   addToUsersRoom() {

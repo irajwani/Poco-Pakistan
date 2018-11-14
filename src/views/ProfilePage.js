@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Button, Divider} from 'react-native-elements'
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import firebase from '../cloud/firebase.js';
-import {database} from '../cloud/database';
+// import {database} from '../cloud/database';
 import { iOSColors, iOSUIKit, human } from 'react-native-typography';
 import LinearGradient from 'react-native-linear-gradient'
 import ReviewsList from '../components/ReviewsList.js';
@@ -52,13 +52,12 @@ class ProfilePage extends Component {
   componentWillMount() {
     setTimeout(() => {
       const uid = firebase.auth().currentUser.uid;
-      this.getProfileAndCountOfProductsOnSaleAndSold(uid);
-      this.getComments(uid);
+      this.getProfileAndCountOfProductsOnSaleAndSoldAndComments(uid);
     }, 1000);
     
   }
 
-  getProfileAndCountOfProductsOnSaleAndSold(your_uid) {
+  getProfileAndCountOfProductsOnSaleAndSoldAndComments(your_uid) {
     console.log(your_uid);
     const keys = [];
     //read the value of refreshed cloud db so a user may seamlessly transition from registration to profile page
@@ -77,14 +76,27 @@ class ProfilePage extends Component {
       var numberProducts = Object.keys(d.Users[your_uid].products).length
       
       var {country, insta, name, size, uri} = d.Users[your_uid].profile
+
+      var comments;
+      if(d.Users[your_uid].comments) {
+        comments = d.Users[your_uid].comments;
+        this.setState({ name, country, uri, insta, numberProducts, soldProducts, comments })
+        // this.setState({comments})
+      }
+      else {
+        this.setState({ name, country, uri, insta, numberProducts, soldProducts, noComments: true })
+      }
+      
+      // console.log(comments);
       
       // var name = d.Users[your_uid].profile.name;
       // var email = d.Users[your_uid].profile.email;
       // var insta = d.Users[your_uid].profile.insta;
 
-      console.log(name);
-      this.setState({ name, country, uri, insta, numberProducts, soldProducts })
+      // console.log(name);
+      
     })
+    .then(() => this.setState({isGetting: false}))
 
     // ////////////////
 
@@ -117,39 +129,29 @@ class ProfilePage extends Component {
     
   }
 
-  getComments(uid) {
-    console.log(uid);
-    const keys = [];
-    database.then( (d) => {
-      //get name of current user to track who left comments on this persons UserComments component  
-      // var insaanKaNaam = d.Users[firebase.auth().currentUser.uid].profile.name;  
-      // console.log(insaanKaNaam);
-      //get list of comments for specific product
-      // var date = (new Date()).getDate();
-      // var month = (new Date()).getMonth();
-      // var year = (new Date()).getFullYear();
-      // var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: noReviewsText, name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
-      // console.log(comments, typeof month, month);
-      var comments;
-      if(d.Users[uid].comments) {
-        comments = d.Users[uid].comments;
-        this.setState({comments})
-      }
-      else {
-        this.setState({noComments: true})
-      }
-      
-      console.log(comments);
+//   getComments(uid) {
+//     console.log(uid);
+//     const keys = [];
+//     database.then( (d) => {
+//       //get name of current user to track who left comments on this persons UserComments component  
+//       // var insaanKaNaam = d.Users[firebase.auth().currentUser.uid].profile.name;  
+//       // console.log(insaanKaNaam);
+//       //get list of comments for specific product
+//       // var date = (new Date()).getDate();
+//       // var month = (new Date()).getMonth();
+//       // var year = (new Date()).getFullYear();
+//       // var comments = d.Users[uid].comments ? d.Users[uid].comments : {a: {text: noReviewsText, name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
+//       // console.log(comments, typeof month, month);
 
-    })
-    .then( () => { console.log('here');this.setState( {isGetting: false} );  } )
-    .catch( (err) => {console.log(err) })
+//     })
+//     .then( () => { console.log('here');this.setState( {isGetting: false} );  } )
+//     .catch( (err) => {console.log(err) })
     
-}
+// }
 
   render() {
     var {isGetting, comments} = this.state;
-    console.log(comments)
+    console.log(comments, 'the user has no comments, perfectly harmless')
     const gradientColors = ['#7de853','#0baa26', '#064711'];
     const gradientColors2 = ['#0a968f','#6ee5df', ];
 

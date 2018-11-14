@@ -6,10 +6,10 @@ import { withNavigation } from 'react-navigation';
 import firebase from '../cloud/firebase';
 
 import CustomCarousel from '../components/CustomCarousel';
-import CustomComments from '../components/CustomComments';
+// import CustomComments from '../components/CustomComments';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 // import styles from '../styles.js'
-import { database } from '../cloud/database';
+// import { database } from '../cloud/database';
 import { Divider } from 'react-native-elements';
 
 import { material, iOSColors, iOSUIKit } from 'react-native-typography';
@@ -25,7 +25,7 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 var {height, width} = Dimensions.get('window');
 
 const limeGreen = '#2e770f';
-const profoundPink = '#c64f5f';
+// const profoundPink = '#c64f5f';
 
 const chatIcon = {
   title: 'Chat',
@@ -73,7 +73,8 @@ class ProductDetails extends Component {
   }
 
   getUserAndProductAndOtherUserData(data) {
-    database.then( (d) => {
+    firebase.database().ref().once("value", (snapshot) => {
+      var d = snapshot.val();
       const uid = firebase.auth().currentUser.uid;
       const otherUserUid = data.uid;
 
@@ -271,7 +272,7 @@ class ProductDetails extends Component {
     const description = text.description;
     const {comments} = text;
 
-    console.log(firebase.auth().currentUser.uid == data.uid, firebase.auth().currentUser.uid, data.uid);
+    // console.log(firebase.auth().currentUser.uid == data.uid, firebase.auth().currentUser.uid, data.uid);
 
     if (isGetting) {
       return (

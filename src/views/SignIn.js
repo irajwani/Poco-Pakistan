@@ -143,19 +143,26 @@ class SignIn extends Component {
             .then(() => {
                 firebase.auth().onAuthStateChanged( (user) => {
                     if(user) {
-                        // console.log(user.uid);
+                        console.log('here is 146',user.uid);
                         //could potentially navigate with user properties like uid, name, etc.
                         //TODO: once you sign out and nav back to this page, last entered
                         //password and email are still there
-                        database.then( (d) => {
+                        firebase.database().ref().once('value', (snapshot) => {
+                            var d = snapshot.val();
                             var all = d.Products;
-                            var productKeys = d.Users[user.uid].products ? Object.keys(d.Users[user.uid].products) : [];
-                            var yourProducts = all.filter((product) => productKeys.includes(product.key) );
-                            // console.log(yourProducts)
-                            this.shouldSendNotifications(yourProducts,user.uid)
-                            this.setState({loading: false});
+
+                            //if the user has newly registered, then don't worry about notifications
+                            if(d.Users[user.uid].products) {
+                                console.log('here 155', d.Users[user.uid].products )
+                                var productKeys = d.Users[user.uid].products ? Object.keys(d.Users[user.uid].products) : [];
+                                var yourProducts = all.filter((product) => productKeys.includes(product.key) );
+                                // console.log(yourProducts)
+                                this.shouldSendNotifications(yourProducts,user.uid)
+                            }
+                            
+                            this.setState({loading: false}, () => {console.log('signed in')});
                             this.props.navigation.navigate('HomeScreen');
-                        })
+                        } )
                         
                         // this.setState({loading: false, loggedIn: true})
                         
