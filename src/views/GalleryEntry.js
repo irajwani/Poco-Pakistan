@@ -127,42 +127,9 @@
 // //         this.setState({ index })
 // //     }
 
-// //     soe(num) { //sieve of eratosthenes
-// //         var primes = [];
-// //         for(var i = 0; i <= num; i++) {
-// //             primes[i] = true;
-// //         }
 
-// //         primes[0] = false;
-// //         primes[1] = false;
 
-// //         for (var i = 2; i <= Math.sqrt(num); i++ ) {
-// //             for (var j = 2; j*i <= num; j++) {
-// //                 primes[i*j] = false //mark all non primes as false by using multiple of each index
-// //             }
-// //         }
-// //         var result = []
-// //         for (var i = 0; i < primes.length; i++) {
-// //             if (primes[i] == true) result.push(i)
-// //         }
-// //         console.log(result)
-// //         return result;
-// //     }
 
-// //     bubbleSort(array) {
-// //         for(var i=array.length; i>0; i--) { //first loop starts at the very end of the array and decrements down one below
-// //             for(var j = 0; j<i; j++) { //second loop handles stopping one element earlier on each loop through the array
-// //                 if (array[j] > array[j+1]) {
-// //                     var placeholder = array[j];
-// //                     array[j] = array[j+1]
-// //                     array[j+1] = placeholder
-// //                 }//now just switch neighboring numbers if necessary
-// //             }
-// //         }
-// //         console.log(array)
-// //         return array
-
-// //     }
 
 // //     render() {
         

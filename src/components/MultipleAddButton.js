@@ -1,14 +1,18 @@
 import React, { Component } from 'react'
-import { Text, ScrollView, View, Image, StyleSheet, TouchableHighlight } from 'react-native'
+import { Text, ScrollView, View, Image, StyleSheet, TouchableHighlight, CameraRoll } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import ActionSheet from 'react-native-actionsheet'
 import { withNavigation } from 'react-navigation';
-import { lightGreen, highlightGreen } from '../colors';
+import { lightGreen, highlightGreen, darkBlue, optionLabelBlue } from '../colors';
 
 class MultipleAddButton extends Component {
   constructor(props) {
     super(props);
-    this.state = {cameraToggle: false};
+    this.state = {
+      cameraToggle: false, 
+      showPhotoGallery: false,
+      photoArray: []
+    };
   }
 
   showActionSheet() {
@@ -23,7 +27,14 @@ class MultipleAddButton extends Component {
       this.launchCamera(navToComponent);
 
     }
-    else {this.launchGallery();}
+
+    if (index == 1) {
+      this.launchGallery(navToComponent)
+    }
+    
+    // if (index == 0) {
+    //   return null
+    // }
   }
 
   launchCamera(navToComponent) {
@@ -33,15 +44,29 @@ class MultipleAddButton extends Component {
     
   }
 
-  launchGallery() {
+  launchGallery(navToComponent) {
     console.log('opening Photo Library');
-    alert('We are currently working on this feature. Please select the camera option for now');
+    if(navToComponent == 'CreateProfile' || navToComponent == 'EditProfile') {
+      CameraRoll.getPhotos({ first: 20 })
+      .then(res => {
+        let photoArray = res.edges;
+
+        //now navigate to new component which will collect the image uri for usage and then nav back to create profile
+        this.props.navigation.navigate('ViewPhotos', {photoArray: photoArray, navToComponent: `${navToComponent}` })
+        // this.setState({ showPhotoGallery: true, photoArray: photoArray })
+      })
+    }
+
+    else {
+      alert('We are currently working on this feature. Apologies. Please use the camera for now.')
+    }
+    
   }
 
   render() {
     
     console.log(this.props.pictureuris.length);
-
+    // just have one uri and one image placeholder in the case of creating or editing your profile
     if(this.props.navToComponent == 'EditProfile' || this.props.navToComponent == 'CreateProfile') {
       return (
         <View style={styles.headerBackground}>
@@ -57,11 +82,12 @@ class MultipleAddButton extends Component {
         
           <ActionSheet
           ref={o => this.ActionSheet = o}
-          title={'Choose picture selection option'}
+          title={'Method to Select Picture:'}
           options={['Camera', 'PhotoLibrary', 'cancel']}
           cancelButtonIndex={2}
           destructiveButtonIndex={1}
           onPress={(index) => { console.log(index); this.cameraOrGallery(index, this.props.navToComponent) }}
+          
           />
         
         

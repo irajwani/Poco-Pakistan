@@ -521,75 +521,75 @@ class Products extends Component {
     );
   }
 
-  setFilterSection = section => {
-    this.setState({ activeFilterSection: section });
-  };
+  // setFilterSection = section => {
+  //   this.setState({ activeFilterSection: section });
+  // };
 
-  renderFilterHeader = (section, _, isActive) => {
-    return (
-      <Animatable.View
-        duration={300}
-        style={[styles.headerFilterCard, isActive ? styles.active : styles.inactive]}
-        transition="backgroundColor"
-      >
+  // renderFilterHeader = (section, _, isActive) => {
+  //   return (
+  //     <Animatable.View
+  //       duration={300}
+  //       style={[styles.headerFilterCard, isActive ? styles.active : styles.inactive]}
+  //       transition="backgroundColor"
+  //     >
 
-        <Text style={styles.headerFilterText}>
-          {section.header}
-        </Text>
-        {isActive? 
-          <Icon name="chevron-up" 
-                size={30} 
-                color='black'
-          />
-        :
-          <Icon name="chevron-down" 
-                size={30} 
-                color='black'
-          />
-        }
-      </Animatable.View>
-    )
-  }
+  //       <Text style={styles.headerFilterText}>
+  //         {section.header}
+  //       </Text>
+  //       {isActive? 
+  //         <Icon name="chevron-up" 
+  //               size={30} 
+  //               color='black'
+  //         />
+  //       :
+  //         <Icon name="chevron-down" 
+  //               size={30} 
+  //               color='black'
+  //         />
+  //       }
+  //     </Animatable.View>
+  //   )
+  // }
 
-  renderFilterContent = (section, _, isActive) => {
+  // renderFilterContent = (section, _, isActive) => {
 
-    if(section.header == "Brand") {
-      return (
-        <ScrollView contentContainerStyle={styles.contentContainerStyle}>
-          <Animatable.View
-          duration={300}
-          style={[styles.contentFilterCard, isActive ? styles.active : styles.inactive]}
-          transition="backgroundColor"
-        >
-          {section.values.map( (value, index) => (
-            <Animatable.Text 
-              onPress={()=>{this.getPageSpecificProducts(value, section.header); this.setState({showFilterModal: false})}} 
-              style={styles.contentFilterText} animation={isActive ? 'bounceInDown' : undefined}
-            >
-              {value}
-            </Animatable.Text>
-          ))}
-        </Animatable.View>
-      </ScrollView>
-      )
-    }
-    return (
-      <Animatable.View
-        duration={300}
-        style={[styles.contentFilterCard, isActive ? styles.active : styles.inactive]}
-        transition="backgroundColor"
-      >
-        {section.values.map( (value, index) => (
-          <Animatable.Text 
-            onPress={()=>{this.getPageSpecificProducts(value, section.header); this.setState({showFilterModal: false})}} 
-            style={styles.contentFilterText} animation={isActive ? 'bounceInDown' : undefined}
-          >
-            {value}
-          </Animatable.Text>
-        ))}
-      </Animatable.View>
-    )
-  }
+  //   if(section.header == "Brand") {
+  //     return (
+  //       <ScrollView contentContainerStyle={styles.contentContainerStyle}>
+  //         <Animatable.View
+  //         duration={300}
+  //         style={[styles.contentFilterCard, isActive ? styles.active : styles.inactive]}
+  //         transition="backgroundColor"
+  //       >
+  //         {section.values.map( (value, index) => (
+  //           <Animatable.Text 
+  //             onPress={()=>{this.getPageSpecificProducts(value, section.header); this.setState({showFilterModal: false})}} 
+  //             style={styles.contentFilterText} animation={isActive ? 'bounceInDown' : undefined}
+  //           >
+  //             {value}
+  //           </Animatable.Text>
+  //         ))}
+  //       </Animatable.View>
+  //     </ScrollView>
+  //     )
+  //   }
+  //   return (
+  //     <Animatable.View
+  //       duration={300}
+  //       style={[styles.contentFilterCard, isActive ? styles.active : styles.inactive]}
+  //       transition="backgroundColor"
+  //     >
+  //       {section.values.map( (value, index) => (
+  //         <Animatable.Text 
+  //           onPress={()=>{this.getPageSpecificProducts(value, section.header); this.setState({showFilterModal: false})}} 
+  //           style={styles.contentFilterText} animation={isActive ? 'bounceInDown' : undefined}
+  //         >
+  //           {value}
+  //         </Animatable.Text>
+  //       ))}
+  //     </Animatable.View>
+  //   )
+  // }
 
   renderFilterModal = () => {
 

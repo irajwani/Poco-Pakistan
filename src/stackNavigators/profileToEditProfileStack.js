@@ -9,6 +9,7 @@ import EditItem from '../views/EditItem';
 // import Users from '../views/Users';
 import UserComments from '../views/UserComments';
 import Settings from '../views/Settings';
+import ViewPhotos from '../views/ViewPhotos';
 
 export const profileToEditProfileStack = createStackNavigator({
     ProfilePage: ProfilePage,
@@ -16,6 +17,7 @@ export const profileToEditProfileStack = createStackNavigator({
     EditProfile: EditProfile,
     MultipleAddButton: MultipleAddButton,
     MultiplePictureCamera: MultiplePictureCamera,
+    ViewPhotos: ViewPhotos,
     YourProducts: YourProducts,
     EditItem: EditItem,
     UserComments: UserComments
