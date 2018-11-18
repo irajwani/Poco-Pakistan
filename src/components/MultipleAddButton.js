@@ -47,7 +47,7 @@ class MultipleAddButton extends Component {
   launchGallery(navToComponent) {
     console.log('opening Photo Library');
     if(navToComponent == 'CreateProfile' || navToComponent == 'EditProfile') {
-      CameraRoll.getPhotos({ first: 20 })
+      CameraRoll.getPhotos({ first: 30 })
       .then(res => {
         let photoArray = res.edges;
 

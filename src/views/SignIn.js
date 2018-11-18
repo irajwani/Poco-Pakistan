@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Dimensions, View, Image, } from 'react-native';
 
+
 import PushNotification from 'react-native-push-notification';
 
 import { Hoshi } from 'react-native-textinput-effects';
@@ -11,12 +12,13 @@ import styles from '../styles.js';
 //import GeoAttendance from './geoattendance.js';
 
 import firebase from '../cloud/firebase.js';
-import {database} from '../cloud/database';
+// import {database} from '../cloud/database';
 
 import { systemWeights, iOSColors } from 'react-native-typography';
 // import HomeScreen from './HomeScreen';
 // import { SignUpToCreateProfileStack } from '../stackNavigators/signUpToEditProfileStack';
-
+import {GoogleSignin} from 'react-native-google-signin';
+// var provider = new firebase.auth.GoogleAuthProvider();
 
 const {width,} = Dimensions.get('window');
 //THIS PAGE: 
@@ -44,8 +46,33 @@ class SignIn extends Component {
       }
 
     componentWillMount() {
+        
         this.initializePushNotifications();
         //this.updateProducts();
+    }
+
+    componentDidMount() {
+        GoogleSignin.configure({
+            iosClientId: '791527199565-tcd1e6eak6n5fcis247mg06t37bfig63.apps.googleusercontent.com',
+        })
+        // .then( () => {console.log('google sign in is now possible')})
+    }
+
+    signInWithGoogle = () => {
+        console.log('trying to sign with google')
+        GoogleSignin.signIn()
+        .then((data) => {
+            console.log(data);
+            var {idToken, accessToken} = data;
+            const credential = firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);
+            console.log(credential);
+            return firebase.auth().signInWithCredential(credential);
+            
+        })
+        .then((currentUser) => {
+            console.log(JSON.stringify(currentUser.toJSON()))
+        })
+        .catch( (err) => console.log(err))
     }
 
     arrayToObject(arr, keyField) {
@@ -229,70 +256,70 @@ class SignIn extends Component {
     //     console.log(this.state.data);
     // }
 
-    updateProducts() {
+    // updateProducts() {
 
-        database.then( (d) => {
-            var uids = Object.keys(d.Users);
-            console.log(uids)
-            var keys = [];
-            //get all keys for each product iteratively across each user
-            for(uid of uids) {
-                if(Object.keys(d.Users[uid]).includes('products') ) {
-                Object.keys(d.Users[uid].products).forEach( (key) => keys.push(key));
-                }
-            }
-            console.log(keys);
-            var products = [];
-            var updates;
-            var chatUpdates = {};
-            var postData;
-            var i = 1;
-            //go through all products in each user's branch and update the Products section of the database
-            for(const uid of uids) {
-                for(const key of keys) {
+    //     database.then( (d) => {
+    //         var uids = Object.keys(d.Users);
+    //         console.log(uids)
+    //         var keys = [];
+    //         //get all keys for each product iteratively across each user
+    //         for(uid of uids) {
+    //             if(Object.keys(d.Users[uid]).includes('products') ) {
+    //             Object.keys(d.Users[uid].products).forEach( (key) => keys.push(key));
+    //             }
+    //         }
+    //         console.log(keys);
+    //         var products = [];
+    //         var updates;
+    //         var chatUpdates = {};
+    //         var postData;
+    //         var i = 1;
+    //         //go through all products in each user's branch and update the Products section of the database
+    //         for(const uid of uids) {
+    //             for(const key of keys) {
 
-                if(Object.keys(d.Users[uid]).includes('products') ) {
+    //             if(Object.keys(d.Users[uid]).includes('products') ) {
 
-                    if( Object.keys(d.Users[uid].products).includes(key)  ) {
+    //                 if( Object.keys(d.Users[uid].products).includes(key)  ) {
                         
-                        var daysElapsed;
-                        daysElapsed = timeSince(d.Users[uid].products[key].time);
+    //                     var daysElapsed;
+    //                     daysElapsed = timeSince(d.Users[uid].products[key].time);
                             
-                        postData = {
-                            key: key, uid: uid, uris: d.Users[uid].products[key].uris, 
-                            text: d.Users[uid].products[key], daysElapsed: daysElapsed, 
-                            shouldReducePrice: (daysElapsed >= 10) && (d.Users[uid].products[key].sold == false) ? true : false
-                        }
+    //                     postData = {
+    //                         key: key, uid: uid, uris: d.Users[uid].products[key].uris, 
+    //                         text: d.Users[uid].products[key], daysElapsed: daysElapsed, 
+    //                         shouldReducePrice: (daysElapsed >= 10) && (d.Users[uid].products[key].sold == false) ? true : false
+    //                     }
                             
                             
-                        updates = {};    
-                        updates['/Products/' + i + '/'] = postData;
-                        firebase.database().ref().update(updates);
-                        i++;
-                        console.log(i);
+    //                     updates = {};    
+    //                     updates['/Products/' + i + '/'] = postData;
+    //                     firebase.database().ref().update(updates);
+    //                     i++;
+    //                     console.log(i);
 
                         
 
-                    }
+    //                 }
                 
-                }
+    //             }
 
                 
                 
-                }
-            }
+    //             }
+    //         }
             
             
             
-        })
-        .then( () => {
-            console.log(this.state.products)
+    //     })
+    //     .then( () => {
+    //         console.log(this.state.products)
             
-        })
-        .catch( (err) => console.log(err))
+    //     })
+    //     .catch( (err) => console.log(err))
                 
 
-    }
+    // }
 
 
     // authChangeListener() {
@@ -319,7 +346,7 @@ class SignIn extends Component {
 
     render() {
 
-        const {loading, signUpProcedure} = this.state;
+        const {loading} = this.state;
     
         
         
@@ -397,8 +424,10 @@ class SignIn extends Component {
                             borderRadius: 5
                             }}
                             containerStyle={{ marginTop: 5, marginBottom: 5 }} 
-                            onPress={ () => {this.props.navigation.navigate('CreateProfile')} } />     
-                </View>}
+                            onLongPress={ () => {this.props.navigation.navigate('CreateProfile')} }
+                            onPress = { () => {this.signInWithGoogle()}} />     
+                    </View>
+                }
                     
                     
 

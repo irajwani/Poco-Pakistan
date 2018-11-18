@@ -11,6 +11,8 @@
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
 
+#import <RNGoogleSignin/RNGoogleSignin.h>
+
 @implementation AppDelegate
 ////////////
 // Required to register for notifications
@@ -60,6 +62,17 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
   return YES;
+}
+
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+            options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
+{
+  BOOL handledGoogle = [RNGoogleSignin application:application
+                                           openURL:url sourceApplication:options[UIApplicationOpenURLOptionsSourceApplicationKey]
+                                        annotation: options[UIApplicationOpenURLOptionsAnnotationKey]
+                        ];
+  return handledGoogle;
 }
 
 @end
