@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Dimensions, View, Image, } from 'react-native';
 
-
 import PushNotification from 'react-native-push-notification';
 
 import { Hoshi } from 'react-native-textinput-effects';
@@ -15,9 +14,10 @@ import firebase from '../cloud/firebase.js';
 // import {database} from '../cloud/database';
 
 import { systemWeights, iOSColors } from 'react-native-typography';
+import LinearGradient from 'react-native-linear-gradient';
 // import HomeScreen from './HomeScreen';
 // import { SignUpToCreateProfileStack } from '../stackNavigators/signUpToEditProfileStack';
-import {GoogleSignin} from 'react-native-google-signin';
+import {GoogleSignin, GoogleSigninButton} from 'react-native-google-signin';
 // var provider = new firebase.auth.GoogleAuthProvider();
 
 const {width,} = Dimensions.get('window');
@@ -46,7 +46,6 @@ class SignIn extends Component {
       }
 
     componentWillMount() {
-        
         this.initializePushNotifications();
         //this.updateProducts();
     }
@@ -56,6 +55,25 @@ class SignIn extends Component {
             iosClientId: '791527199565-tcd1e6eak6n5fcis247mg06t37bfig63.apps.googleusercontent.com',
         })
         // .then( () => {console.log('google sign in is now possible')})
+    }
+
+    successfulLoginCallback = (user) => {
+        firebase.database().ref().once('value', (snapshot) => {
+            var d = snapshot.val();
+            var all = d.Products;
+
+            //if the user has newly registered, then don't worry about notifications
+            if(d.Users[user.uid].products) {
+                console.log('here 155', d.Users[user.uid].products )
+                var productKeys = d.Users[user.uid].products ? Object.keys(d.Users[user.uid].products) : [];
+                var yourProducts = all.filter((product) => productKeys.includes(product.key) );
+                // console.log(yourProducts)
+                this.shouldSendNotifications(yourProducts,user.uid)
+            }
+            
+            this.setState({loading: false}, () => {console.log('signed in')});
+            this.props.navigation.navigate('HomeScreen');
+        } )
     }
 
     signInWithGoogle = () => {
@@ -70,7 +88,9 @@ class SignIn extends Component {
             
         })
         .then((currentUser) => {
-            console.log(JSON.stringify(currentUser.toJSON()))
+            this.successfulLoginCallback(currentUser);
+            console.log('successfully signed in');
+            // console.log(JSON.stringify(currentUser.toJSON()))
         })
         .catch( (err) => console.log(err))
     }
@@ -139,8 +159,8 @@ class SignIn extends Component {
                 console.log(month, date)
 
                 // in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
-                var message = `Nobody has initiated a chat with you about your product named, ${product.text.name}, since its submission on the market ${product.daysElapsed} days ago 🤔. Perhaps you should change it's selling price?`;
-
+                var message = `Nobody has initiated a chat about, ${product.text.name} from ${product.text.brand} yet, since its submission on the market ${product.daysElapsed} days ago 🤔. Consider a price reduction from £${product.text.price} \u2192 £${Math.floor(0.80*product.text.price)}?`;
+                console.log(message);
                 PushNotification.localNotificationSchedule({
                     message: message,// (required)
                     date: notificationDate,
@@ -168,28 +188,16 @@ class SignIn extends Component {
         const { email, pass } = this.state; //now that person has input text, their email and password are here
         firebase.auth().signInWithEmailAndPassword(email, pass)
             .then(() => {
+                //This function behaves as an authentication listener for user. 
+                //If user signs in, we only use properties about the user to:
+                //1. notifications update on cloud & local push notification scheduled notifications 4 days from now for each product that deserves a price reduction.
                 firebase.auth().onAuthStateChanged( (user) => {
                     if(user) {
                         console.log('here is 146',user.uid);
                         //could potentially navigate with user properties like uid, name, etc.
                         //TODO: once you sign out and nav back to this page, last entered
                         //password and email are still there
-                        firebase.database().ref().once('value', (snapshot) => {
-                            var d = snapshot.val();
-                            var all = d.Products;
-
-                            //if the user has newly registered, then don't worry about notifications
-                            if(d.Users[user.uid].products) {
-                                console.log('here 155', d.Users[user.uid].products )
-                                var productKeys = d.Users[user.uid].products ? Object.keys(d.Users[user.uid].products) : [];
-                                var yourProducts = all.filter((product) => productKeys.includes(product.key) );
-                                // console.log(yourProducts)
-                                this.shouldSendNotifications(yourProducts,user.uid)
-                            }
-                            
-                            this.setState({loading: false}, () => {console.log('signed in')});
-                            this.props.navigation.navigate('HomeScreen');
-                        } )
+                        this.successfulLoginCallback(user);
                         
                         // this.setState({loading: false, loggedIn: true})
                         
@@ -200,11 +208,14 @@ class SignIn extends Component {
                           //firebase.database().ref('Users/7j2AnQgioWTXP7vhiJzjwXPOdLC3/').set({name: 'Imad Rajwani', attended: 1});
                           })
             .catch( () => {
-                this.setState( {error: 'Authentication failed, please sign up or enter correct credentials.', loading: false } );
-                alert(this.state.error);
-            }
-
-            )
+                //if user fails to sign in with email, try to sign them in with google?
+                this.signInWithGoogle();
+            })
+            .catch( () => {
+                let err = 'Authentication failed, please sign up or enter correct credentials.';
+                this.setState( { loading: false } );
+                alert(err);
+            })
 
     }
 
@@ -392,7 +403,7 @@ class SignIn extends Component {
                         <PacmanIndicator color='#28a526' />
                     </View>
                     :
-                    <View style={{ padding: 20, alignContent: 'center'}}>
+                    <View style={{ padding: 20, alignContent: 'center', backgroundColor: 'white'}}>
                         <Button
                             title='Sign In' 
                             titleStyle={{ fontWeight: "700" }}
@@ -401,8 +412,6 @@ class SignIn extends Component {
                             //#2ac40f
                             //#45bc53
                             //#16994f
-                            width: (width)*0.70,
-                            height: 45,
                             borderColor: "#37a1e8",
                             borderWidth: 0,
                             borderRadius: 5,
@@ -411,21 +420,26 @@ class SignIn extends Component {
                             containerStyle={{ padding: 10, marginTop: 5, marginBottom: 5 }} 
                             onPress={() => {this.onSignInPress()} } 
                         />
+                        <GoogleSigninButton
+                            style={{ width: 200, height: 48 }}
+                            size={GoogleSigninButton.Size.Standard}
+                            color={GoogleSigninButton.Color.Light}
+                            onPress={ () => this.signInWithGoogle() }
+
+                        />
                         <Button
                             title='Create New Account' 
-                            titleStyle={{ fontWeight: "bold" }}
+                            titleStyle={styles.authButtonText}
                             buttonStyle={{
                             backgroundColor: '#368c93',
                             //#2ac40f
-                            width: (width)*0.70,
-                            height: 45,
                             borderColor: "#226b13",
                             borderWidth: 0,
                             borderRadius: 5
                             }}
                             containerStyle={{ marginTop: 5, marginBottom: 5 }} 
-                            onLongPress={ () => {this.props.navigation.navigate('CreateProfile')} }
-                            onPress = { () => {this.signInWithGoogle()}} />     
+                            onPress={ () => {this.props.navigation.navigate('CreateProfile')} }
+                        />     
                     </View>
                 }
                     

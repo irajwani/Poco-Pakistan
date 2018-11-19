@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
   
   }
     ,
+    authButtonText: { fontWeight: "bold" },
     container: {
       alignItems: 'stretch',
       flex: 1
