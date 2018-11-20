@@ -33,7 +33,7 @@ class Chats extends Component {
     this.state = { chats: [], isGetting: true, noChats: false };
   }
 
-  componentWillMount() {
+  componentDidMount() {
 
     var userIdentificationKey = firebase.auth().currentUser.uid
 
@@ -41,10 +41,14 @@ class Chats extends Component {
       this.leaveYourRooms(userIdentificationKey);
     }, 1000);
 
-    setTimeout(() => {
+    this.chatRefreshId = setInterval(() => {
       this.getChats(userIdentificationKey);
     }, 5000);
     
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.chatRefreshId);
   }
 
   leaveYourRooms(your_uid) {
@@ -110,7 +114,7 @@ class Chats extends Component {
   getChats(your_uid) {
     //first generate, and then retrieve chats for particular user
     firebase.database().ref().once('value', (snapshot) => {
-      var d = snapshot.val();
+      var d = snapshot.val(); //to get latest products database
       var chats = [];
       
       //if a uid has a userId with pusher chat kit account
@@ -148,6 +152,8 @@ class Chats extends Component {
             d.Products.forEach( (prod) => {
                 //given the current Room Name, we need the product key to match some part of the room name
                 //to obtain the correct product's properties
+                //note that we only want the product's properties here so it doesn't matter if this loop
+                //comes across ProductKeyX.someBuyer1 or ProductKeyX.someBuyer2
                 if(name.includes(prod.key)) { productText = prod.text; productImageURL = prod.uris[0]; }
             })
             var users = this.currentUser.rooms[i].users

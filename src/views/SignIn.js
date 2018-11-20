@@ -77,6 +77,7 @@ class SignIn extends Component {
     }
 
     signInWithGoogle = () => {
+        !this.state.loading ? this.setState({loading: true}) : null;
         console.log('trying to sign with google')
         GoogleSignin.signIn()
         .then((data) => {

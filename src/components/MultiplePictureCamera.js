@@ -3,6 +3,8 @@ import { Text, StyleSheet, View, ActivityIndicator, TouchableHighlight, Image } 
 import { RNCamera } from 'react-native-camera';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
+import {Button} from 'react-native-elements';
+
 import { withNavigation } from 'react-navigation';
 import { material } from 'react-native-typography';
 
@@ -74,7 +76,20 @@ class MultiplePictureCamera extends Component {
             permissionDialogTitle={'Permission to use camera'}
             permissionDialogMessage={'We need your permission to use your camera phone'}
         >
-        <View style = { { flexDirection: 'row', justifyContent: 'space-between'} }>
+        <View style={styles.backButtonRow}>
+          <Button  
+                  buttonStyle={ {
+                      backgroundColor: 'black',
+                      // width: width/3 +20,
+                      // height: height/15,
+                      borderRadius: 5,
+                  }}
+                  icon={{name: 'chevron-left', type: 'material-community'}}
+                  title='Back'
+                  onPress={() => this.props.navigation.goBack() } 
+              />
+        </View>      
+        <View style = { styles.buttonsRow }>
         {/* confirm button */}
           <View style={styles.confirmButton}>
             <TouchableHighlight disabled={this.state.confirmDisabled} onPress={ () => { this.confirmSelection(navToComponent) }}>
@@ -121,11 +136,12 @@ class MultiplePictureCamera extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        flexDirection: 'column',
+        // flexDirection: 'column',
         backgroundColor: 'black'
       },
       preview: {
         flex: 1,
+        flexDirection: 'column',
         justifyContent: 'flex-end',
         alignItems: 'center'
       },
@@ -133,6 +149,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center'
       },
+      backButtonRow: {flexDirection: 'row', padding: 10, justifyContent: 'flex-start'},
+      buttonsRow: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: 'red'},
       capture: {
         flex: 0,
         backgroundColor: '#fff',
