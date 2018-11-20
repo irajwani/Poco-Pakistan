@@ -9,43 +9,151 @@ import {
   TouchableHighlight
 
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Button } from 'react-native-elements';
-import { treeGreen, highlightGreen } from '../colors';
+import { treeGreen, highlightGreen, graphiteGray, optionLabelBlue } from '../colors';
 
 // import SelectedPhoto from './SelectedPhoto';
+import CustomCarousel from '../components/CustomCarousel';
+
+const profilePictureText = "Pick a Profile Pictcha:";
+const productPictureText = "Pick up to 4 pictures:";
 
 class ViewPhotos extends Component {
-  state = {
+  constructor(props) {
+    super(props);
+    this.state = {
 
-    ds: new ListView.DataSource({
-      rowHasChanged: (r1, r2) => r1 !== r2
-    }),
-
-    showSelectedPhoto: false,
-    //uri of photo you're considering
-    uri: '',
-    //uri of photo you have chosen
-    pictureuris: [],
-
+      ds: new ListView.DataSource({
+        rowHasChanged: (r1, r2) => r1 !== r2
+      }),
+  
+      showSelectedPhoto: false,
+      showSelectedPhotos: false,
+      //uri of photo you're considering
+      uri: '',
+      //uri(s) of photo(s) you have chosen
+      pictureuris: [],
+      temppictureuris: [], //placeholder storage for any 4 pictures you've chosen
+      count: 0,
+  
+    }
   }
+  
 
 
-  renderRow(rowData) {
+  renderRow(rowData, navToComponent) {
     const { uri } = rowData.node.image;
-    return (
-      <TouchableHighlight
-        onPress={() => this.setState({ showSelectedPhoto: true, uri: uri })}>
-        <Image
-          source={{ uri: rowData.node.image.uri }}
-          style={styles.image} />
-      </TouchableHighlight>
-    )
+    // rowData.node.image['selected'] = false;
+
+    if(navToComponent == 'CreateItem' || navToComponent == 'EditItem') {
+      return (
+        <TouchableHighlight
+        onPress={() => {
+          
+            if(!this.state.pictureuris.includes(uri)) {
+              // rowData.node.image['selected'] = true;
+              this.state.pictureuris.push(uri)
+              this.setState({count: this.state.count + 1})
+              if(this.state.pictureuris.length == 4) {
+                this.setState({showSelectedPhotos: true})
+              }
+            } 
+            else {
+              //if the user deselects this image, set selected property to false and reduce count of Selected Images by 1
+              // rowData.node.image['selected'] = false;
+            
+              //identify index of uri that needs to be removed from array, and remove that element based on the value of the index
+              var index = this.state.pictureuris.indexOf(uri);
+              if(index == 0) {
+                this.state.count == 0 ? null : this.setState({ pictureuris: this.state.pictureuris.slice(index + 1, this.state.pictureuris.length), count: this.state.count - 1})
+              }
+              else if(index == this.state.pictureuris.length - 1) {
+                //this uri is last element in pictureuris array
+                this.state.count == 0 ? null : this.setState({ pictureuris: this.state.pictureuris.slice(0, index), count: this.state.count - 1})
+              }
+              else {
+                var left = this.state.pictureuris.slice(0,index)
+                var right = this.state.pictureuris.slice(index + 1, this.state.pictureuris.length)
+                this.state.count == 0 ? null : this.setState({ pictureuris: left.concat(right), count: this.state.count - 1})
+              }
+
+              
+
+
+
+              //minimum value for count is 0, so if the count is already 0, don't subtract 1 from the count
+              
+            }
+          
+          
+         } }>
+          <View style={{flexDirection: 'column', padding: 5, margin: 5}}>
+            <View style={{flexDirection: 'row', }}>
+              <Icon 
+              size={30} 
+              color={this.state.pictureuris.includes(uri) ? optionLabelBlue : graphiteGray} 
+              type='material-community' 
+              name={this.state.pictureuris.includes(uri) ? 'check-circle' : 'check-circle-outline'}
+              />
+            </View>
+            <Image
+              source={{ uri: rowData.node.image.uri }}
+              style={styles.image} />
+          </View>  
+        </TouchableHighlight>
+      )
+    }
+
+    else if(navToComponent == 'CreateProfile' || navToComponent == 'EditProfile') {
+      return (
+
+        <TouchableHighlight
+          style={{padding: 5, }}
+          onPress={() => {
+            this.setState({ showSelectedPhoto: true, uri: uri })
+            } }>
+          <Image
+            source={{ uri: rowData.node.image.uri }}
+            style={styles.image} />
+        </TouchableHighlight>
+      )
+        }
+
   }
 
   render() {
-    const { showSelectedPhoto, uri } = this.state;
+    const { showSelectedPhotos, showSelectedPhoto, uri, count, pictureuris } = this.state;
     const {params} = this.props.navigation.state;
     const {navToComponent, photoArray} = params;
+    console.log(count, pictureuris);
+    if(showSelectedPhotos) {
+      return (
+        <View style={styles.selectedPhotoContainer}>
+          <View style={{margin: 5, padding: 10, alignItems: 'center'}}>
+            <CustomCarousel data={this.state.pictureuris}/>
+          </View>
+          <View style={styles.buttonsColumn}>
+              <Button  
+              buttonStyle={[styles.ModalButtonStyle, {backgroundColor: 'black'}]}
+              icon={{name: 'chevron-left', type: 'material-community'}}
+              title='Back'
+              onPress={() => {
+                  this.setState( {showSelectedPhotos: false, pictureuris: []} );
+                  }}
+              />
+              <Button  
+              buttonStyle={[styles.ModalButtonStyle, {backgroundColor: highlightGreen}]}
+              icon={{name: 'emoticon', type: 'material-community'}}
+              title='Satisfied'
+              onPress={() => {
+                  this.props.navigation.navigate(`${navToComponent}`, {pictureuris: this.state.pictureuris} )
+                  }}
+              />
+          </View>
+        </View>
+      )
+    }
 
     if (showSelectedPhoto) {
       return (
@@ -60,7 +168,7 @@ class ViewPhotos extends Component {
                 icon={{name: 'chevron-left', type: 'material-community'}}
                 title='Back'
                 onPress={() => {
-                    this.setState( {showSelectedPhoto: false} );
+                    this.setState( {showSelectedPhoto: false, pictureuris: []} );
                     }}
                 />
                 <Button  
@@ -77,9 +185,10 @@ class ViewPhotos extends Component {
         
       )
     }
+
     return (
-      <ScrollView style={{ backgroundColor: '#fff', flex: 1 }} contentContainerStyle={styles.contentContainerStyle}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 22 }}>
+      <ScrollView style={{ backgroundColor: '#fff', flex: 1, marginTop: 22, padding: 10 }} contentContainerStyle={styles.contentContainerStyle}>
+        <View style={{ flexDirection: 'row', alignItems: 'center',  }}>
             <Button  
                 buttonStyle={[styles.ModalButtonStyle, {backgroundColor: 'black'}]}
                 icon={{name: 'chevron-left', type: 'material-community'}}
@@ -88,13 +197,25 @@ class ViewPhotos extends Component {
                     this.props.navigation.navigate(`${navToComponent}`);
                     }}
                 />
-          <Text style={{ fontSize: 20, fontWeight: '600' }}>Pick A Profile Pictcha</Text>
+          <Text style={{ fontSize: 20, fontWeight: '600' }}>
+            {navToComponent == 'CreateProfile' || navToComponent == 'EditProfile' ? profilePictureText : productPictureText}
+          </Text>
         </View>
+        
         <ListView
           contentContainerStyle={styles.list}
           dataSource={this.state.ds.cloneWithRows(photoArray)}
-          renderRow={(rowData) => this.renderRow(rowData)}
-          enableEmptySections={true} />
+          renderRow={(rowData) => this.renderRow(rowData, navToComponent)}
+          enableEmptySections={true}
+        />
+
+        {navToComponent == 'CreateItem' || navToComponent == 'EditItem' ?
+        <TouchableHighlight disabled={ this.state.pictureuris.length > 0 ? false : true} onPress={() => this.setState({showSelectedPhotos: true})}>
+          <Text style={{textAlign: 'center', fontFamily: 'Iowan Old Style', fontSize: 20, fontWeight: "900", color: this.state.pictureuris.length > 0 ? treeGreen : graphiteGray }}>Confirm Selection Thus Far?</Text>
+        </TouchableHighlight>
+        :
+        null
+        }
       </ScrollView>
     );
   }
@@ -115,15 +236,22 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap'
   },
 
-  image: {
-    width: 140,
-    height: 150,
-    marginLeft: 10,
-    marginTop: 10,
+  image: { 
+    height: 140, 
+    width: 140, 
+    // zIndex: -1, 
+    // position: 'absolute', 
+    // top: 0, 
+    // left: 0, 
+    // right: 0, 
+    // bottom: 0, 
+    // resizeMode: 'cover',
+    // marginLeft: 10,
+    // marginTop: 10,
     borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#979797'
-  },
+    borderWidth: 2,
+    borderColor: 'black' 
+},
 
   selectedPhotoContainer: {
       backgroundColor: '#fff',

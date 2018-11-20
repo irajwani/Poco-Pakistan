@@ -46,20 +46,17 @@ class MultipleAddButton extends Component {
 
   launchGallery(navToComponent) {
     console.log('opening Photo Library');
-    if(navToComponent == 'CreateProfile' || navToComponent == 'EditProfile') {
-      CameraRoll.getPhotos({ first: 30 })
-      .then(res => {
-        let photoArray = res.edges;
-
-        //now navigate to new component which will collect the image uri for usage and then nav back to create profile
-        this.props.navigation.navigate('ViewPhotos', {photoArray: photoArray, navToComponent: `${navToComponent}` })
-        // this.setState({ showPhotoGallery: true, photoArray: photoArray })
-      })
-    }
-
-    else {
-      alert('We are currently working on this feature. Apologies. Please use the camera for now.')
-    }
+    let photoArray;
+    
+    CameraRoll.getPhotos({ first: 40 })
+    .then(res => {
+      photoArray = res.edges;
+      console.log(photoArray);
+      //now navigate to new component which will collect the image uri for usage and then nav back to create profile
+      this.props.navigation.navigate('ViewPhotos', {photoArray: photoArray, navToComponent: `${navToComponent}` })
+      // this.setState({ showPhotoGallery: true, photoArray: photoArray })
+    })
+    
     
   }
 

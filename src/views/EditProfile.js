@@ -9,6 +9,7 @@ import RNFetchBlob from 'react-native-fetch-blob';
 import { Sae, Fumi } from 'react-native-textinput-effects';
 import firebase from '../cloud/firebase.js';
 import MultipleAddButton from '../components/MultipleAddButton.js';
+import { almostWhite, highlightGreen, profoundPink } from '../colors.js';
 
 const {width, height} = Dimensions.get('window')
 
@@ -21,12 +22,13 @@ class EditProfile extends Component {
   constructor(props) {
       super(props);
       this.state = {
-          name: '',
-          country: '',
-          size: 1,
-          uri: undefined,
-          insta: '',
-          fabActive: true,
+        firstName: '',
+        lastName: '',
+        country: '',
+        size: 1,
+        uri: undefined,
+        insta: '',
+        fabActive: true,
       }
   }
 
@@ -58,7 +60,7 @@ class EditProfile extends Component {
     }
 
     var postData = {
-        name: data.name,
+        name: data.firstName + " " + data.lastName, //data.firstName.concat(" ", data.lastName)
         country: data.country,
         size: data.size,
         insta: data.insta
@@ -107,7 +109,7 @@ class EditProfile extends Component {
     const uid = firebase.auth().currentUser.uid;
     const {params} = this.props.navigation.state
     const pictureuris = params ? params.pictureuris : 'nothing here'
-    var conditionMet = (this.state.name) && (this.state.country) && (pictureuris[0] !== 'nothing here')
+    var conditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (pictureuris[0] !== 'nothing here')
 
     return (
       <ScrollView contentContainerStyle={styles.container}>
@@ -128,45 +130,62 @@ class EditProfile extends Component {
         <MultipleAddButton navToComponent = {'EditProfile'} pictureuris={pictureuris} />
 
         <Sae
-            label={'FirstName LastName'}
+                style={styles.nameInput}
+                label={'First Name'}
+                iconClass={Icon}
+                iconName={'account'}
+                iconColor={'black'}
+                value={this.state.firstName}
+                onChangeText={firstName => this.setState({ firstName })}
+                autoCorrect={false}
+                inputStyle={{ color: 'black' }}
+        />
+        <Sae
+            style={styles.nameInput}
+            label={'Last Name'}
             iconClass={FontAwesomeIcon}
             iconName={'users'}
-            iconColor={'#0a3f93'}
-            value={this.state.name}
-            onChangeText={name => this.setState({ name })}
+            iconColor={'black'}
+            value={this.state.lastName}
+            onChangeText={lastName => this.setState({ lastName })}
             autoCorrect={false}
-            inputStyle={{ color: '#0a3f93' }}
+            inputStyle={{ color: 'black' }}
         />
+        
 
         <Sae
-            label={'City, Country Code (UK)'}
+            label={'City, Country Abbreviation'}
             iconClass={FontAwesomeIcon}
             iconName={'globe'}
-            iconColor={'#0a3f93'}
+            iconColor={highlightGreen}
             value={this.state.country}
             onChangeText={country => this.setState({ country })}
             autoCorrect={false}
-            inputStyle={{ color: '#0b4f1c' }}
+            inputStyle={{ color: highlightGreen }}
         />
 
         <Sae
             label={'@instagram_handle'}
             iconClass={FontAwesomeIcon}
             iconName={'instagram'}
-            iconColor={'#0a3f93'}
+            iconColor={profoundPink}
             value={this.state.insta}
             onChangeText={insta => this.setState({ insta })}
             autoCorrect={false}
-            inputStyle={{ color: '#770d0d' }}
+            inputStyle={{ color: profoundPink }}
         />
 
         
-        <Text>What size clothes do you wear?</Text>
+        <Text style={{fontFamily: 'Cochin', fontWeight: '800', fontSize: 20, textAlign: 'center', marginTop: 10}}>What size clothes do you wear?</Text>
         <ButtonGroup
             onPress={ (index) => {this.setState({size: index})}}
             selectedIndex={this.state.size}
             buttons={ ['XS', 'S', 'M', 'L', 'XL', 'XXL'] }
-                
+            containerStyle={styles.buttonGroupContainer}
+            buttonStyle={styles.buttonGroup}
+            textStyle={styles.buttonGroupText}
+            selectedTextStyle={styles.buttonGroupSelectedText}
+            selectedButtonStyle={styles.buttonGroupSelectedContainer}
         />
 
         <Button
@@ -205,5 +224,24 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
         paddingRight: 20,
 
-    }
+    },
+    buttonGroupText: {
+        fontFamily: 'Iowan Old Style',
+        fontSize: 17,
+        fontWeight: '300',
+    },
+
+    buttonGroupSelectedText: {
+        color: 'black'
+    },
+
+    buttonGroupContainer: {
+        height: 40,
+        backgroundColor: almostWhite,
+        marginBottom: 10,
+    },
+    
+    buttonGroupSelectedContainer: {
+        backgroundColor: highlightGreen
+    },
 })

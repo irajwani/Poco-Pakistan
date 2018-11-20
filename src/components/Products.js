@@ -742,7 +742,9 @@ class Products extends Component {
 
     if(showCollection && emptyCollection && emptyMarket) {
         return (
-          <NothingHereYet specificText={emptyCollectionText} />
+          <View style={{marginTop: 22, backgroundColor: '#fff', padding: 5}}>
+            <NothingHereYet specificText={emptyCollectionText} />
+          </View>
       )
       
         
@@ -750,7 +752,9 @@ class Products extends Component {
 
     if(showYourProducts && noProducts) {
       return (
-        <NothingHereYet specificText={noProductsOfYourOwnText} />
+        <View style={{marginTop: 22, backgroundColor: '#fff', padding: 5}}>
+          <NothingHereYet specificText={noProductsOfYourOwnText} />
+        </View>
       )
     }
     

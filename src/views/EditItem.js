@@ -15,6 +15,8 @@ import { material, iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
 
 import firebase from '../cloud/firebase.js';
+
+import {optionLabelBlue, treeGreen, darkBlue, confirmBlue, woodBrown, rejectRed} from '../colors'
 // import Chatkit from "@pusher/chatkit";
 // import { CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_INSTANCE_LOCATOR, CHATKIT_SECRET_KEY } from '../credentials/keys';
 
@@ -87,7 +89,7 @@ class EditItem extends Component {
           type: text.type ? text.type : 'Trousers',
           gender: gender,
           condition: text.condition ? text.condition : 'Slightly Used',
-          description: text.description ? text.description : '',
+          description: text.description != 'Seller did not specify a description' ? text.description : '',
           typing: true,
           postKey: postKey,
       }
@@ -157,7 +159,7 @@ class EditItem extends Component {
 showPicker(gender) {
     if (gender == 0) {
         return ( 
-            <Picker selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
+            <Picker style={styles.picker} itemStyle={[styles.pickerText, styles.men]} selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
                <Picker.Item label = "Formal Shirts" value = "Formal Shirts" />
                <Picker.Item label = "Casual Shirts" value = "Casual Shirts" />
                <Picker.Item label = "Jackets" value = "Jackets" />
@@ -171,7 +173,7 @@ showPicker(gender) {
 
     else if (gender == 1) {
         return (
-            <Picker selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
+            <Picker style={styles.picker} itemStyle={[styles.pickerText, styles.accessories]} selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
                <Picker.Item label = "Watches" value = "Watches" />
                <Picker.Item label = "Bracelets" value = "Bracelets" />
                <Picker.Item label = "Jewellery" value = "Jewellery" />
@@ -183,7 +185,7 @@ showPicker(gender) {
 
     else if (gender == 2) {
         return (
-            <Picker selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
+            <Picker style={styles.picker} itemStyle={[styles.pickerText, styles.women]} selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
                <Picker.Item label = "Tops" value = "Tops" />
                <Picker.Item label = "Skirts" value = "Skirts" />
                <Picker.Item label = "Dresses" value = "Dresses" />
@@ -317,7 +319,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
     firebase.database().ref('/Users/' + uid + '/products/' + key)
     .remove( ()=>{
         this.setState({isUploading: false,})
-        alert('Your product has been successfully deleted. Please close NottMyStyle and re-log in to see changes');
+        alert('Your product has been successfully deleted.');
         this.props.navigation.navigate('ProfilePage');
     })
     .then( () => {
@@ -369,11 +371,11 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
     const uid = firebase.auth().currentUser.uid; 
     const {params} = this.props.navigation.state
     const pictureuris = params.pictureuris ? params.pictureuris : 'nothing here'
-    console.log(pictureuris);
+    // console.log(pictureuris);
     //const picturebase64 = params ? params.base64 : 'nothing here'
     //Lenient condition, Array.isArray(pictureuris) && pictureuris.length >= 1
     var conditionMet = (this.state.name) && (this.state.price > 0) && (Array.isArray(pictureuris) && pictureuris.length >= 1)
-    console.log(conditionMet);
+    // console.log(conditionMet);
     //console.log(pictureuri);
     //this.setState({uri: params.uri})
     //this.setState(incrementPrice);
@@ -398,15 +400,15 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
 
             <Divider style={{  backgroundColor: '#fff', height: 12 }} />
         {/* 1. Product Pictures */}
-            <Text style={{textAlign: 'center'}}>Picture(s) of Product:</Text>
+        <Text style={{textAlign: 'center', color: optionLabelBlue}}>Picture(s) of Product:</Text>
             <Divider style={{  backgroundColor: '#fff', height: 8 }} />
 
             <MultipleAddButton navToComponent = {'EditItem'} pictureuris={pictureuris}/>
 
             <Divider style={{  backgroundColor: '#fff', height: 18 }} />
 
-            {/* 0. Gender */}
-
+        {/* 0. Gender */}
+            <ProductLabel color={optionLabelBlue} title='Product Category'/>
             <ButtonGroup
                 onPress={ (index) => {this.setState({gender: index})}}
                 selectedIndex={this.state.gender}
@@ -418,11 +420,10 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
                 selectedButtonStyle={styles.buttonGroupSelectedContainer}
             />
             {/* Type of clothing */}
-            <Divider style={{  backgroundColor: '#fff', height: 23 }} />
+            
 
             <View style={styles.modalPicker}>
-                <Text style={styles.subHeading}>Product Type</Text>
-                <CustomModalPicker>
+                <CustomModalPicker subheading={'Product Type:'}>
                     {this.showPicker(this.state.gender)}        
                 </CustomModalPicker>
                 <Text style={styles.optionSelected}>{this.state.type}</Text>
@@ -437,12 +438,12 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
             source={ require('../images/blank.jpg') } /> */}
         {/* 2. Product Name */}
             <Jiro
-                    label={'Name'}
+                    label={'Name (e.g. Green zip up hoodie)'}
                     value={this.state.name}
                     onChangeText={name => this.setState({ name })}
                     autoCorrect={false}
                     // this is used as active border color
-                    borderColor={babyBlue}
+                    borderColor={treeGreen}
                     // this is used to set backgroundColor of label mask.
                     // please pass the backgroundColor of your TextInput container.
                     backgroundColor={'#F9F7F6'}
@@ -464,14 +465,14 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
 
             {/* Product Description/Material */}
             <TextField 
-                label='Brief description of product (Optional)' 
+                label="Optional Description (e.g. Great for chilly weather)"
                 value={this.state.description}
                 onChangeText = { (desc)=>{this.setState({description: desc})}}
                 multiline = {true}
                 characterRestriction = {180}
                 textColor={basicBlue}
                 tintColor={darkGreen}
-                baseColor={babyBlue}
+                baseColor={darkBlue}
             />
 
         {/* 3. Product Price */}
@@ -479,7 +480,9 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
             <Jiro
                     label={'Selling Price (GBP)'}
                     value={this.state.price}
-                    onChangeText={price => this.setState({ price })}
+                    onChangeText={price => {
+                        this.setState({ price })
+                        } }
                     autoCorrect={false}
                     // this is used as active border color
                     borderColor={'#800000'}
@@ -507,7 +510,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
             <Text>£{this.state.original_price}</Text>
 
             {/* Size */}
-            <ProductLabel color='#1271b5' title='Select a Size'/> 
+            <ProductLabel color={optionLabelBlue} title='Select a Size'/> 
             <ButtonGroup
                 onPress={ (index) => {this.setState({size: index})}}
                 selectedIndex={this.state.size}
@@ -521,9 +524,8 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
             {/* product condition */}
             <Divider style={{  backgroundColor: '#fff', height: 12 }} />
             <View style={styles.modalPicker}>
-                <Text style={styles.subHeading}>Product Condition</Text>
-                <CustomModalPicker>
-                    <Picker selectedValue = {this.state.condition} onValueChange={ (condition) => {this.setState({condition})} } >
+                <CustomModalPicker subheading={'Product Condition:'}>
+                    <Picker style={styles.picker} itemStyle={[styles.pickerText, {color: 'black'}]} selectedValue = {this.state.condition} onValueChange={ (condition) => {this.setState({condition})} } >
                         <Picker.Item label = "New With Tags" value = "New With Tags" />
                         <Picker.Item label = "New Without Tags" value = "New Without Tags" />
                         <Picker.Item label = "Slightly Used" value = "Slightly Used" />
@@ -625,6 +627,31 @@ const styles = StyleSheet.create({
         color: '#0c5925'
     },
 
+    picker: {
+        width: 280,
+        // justifyContent: 'center',
+        // alignContent: 'center',
+        //alignItems: 'center'
+        // height: height/2
+    },
+
+    pickerText: {
+        fontFamily: 'Cochin',
+        fontSize: 22,
+        fontWeight: 'bold'
+    },
+
+    men: {
+        color: confirmBlue
+    },
+
+    accessories: {
+        color: woodBrown
+    },
+
+    women: {
+        color: rejectRed
+    },
 
     buttonGroupText: {
         ...material.display1,

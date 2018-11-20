@@ -240,7 +240,7 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
   }
 
   callBackForProductUploadCompletion = () => {
-    alert(`Your product ${this.state.name} is being\n uploaded to the market.\n Sign In again after a few minutes to see it.\n Please do not resubmit the same product.`);
+    alert(`Your product ${this.state.name} is being\nuploaded to the market.\nPlease do not resubmit the same product.`);
     this.setState({ uri: undefined,
                     name: '',
                     brand: '',
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
     },
 
     picker: {
-        width: width-80,
+        width: 280,
         // justifyContent: 'center',
         // alignContent: 'center',
         //alignItems: 'center'

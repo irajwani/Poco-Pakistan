@@ -41,9 +41,24 @@ class Chats extends Component {
       this.leaveYourRooms(userIdentificationKey);
     }, 1000);
 
-    this.chatRefreshId = setInterval(() => {
+
+    setTimeout(() => {
       this.getChats(userIdentificationKey);
     }, 5000);
+
+    //TODO: add refresh button so user may refresh chats manually
+
+    this.chatRefreshId = setInterval(() => {
+      setTimeout(() => {
+        this.leaveYourRooms(userIdentificationKey);
+      }, 1000);
+  
+  
+      setTimeout(() => {
+        this.getChats(userIdentificationKey);
+      }, 5000);
+      // this.getChats(userIdentificationKey);
+    }, 60000); //60 seconds
     
   }
 

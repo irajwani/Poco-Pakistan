@@ -51,9 +51,10 @@ class SignIn extends Component {
     }
 
     componentDidMount() {
-        GoogleSignin.configure({
-            iosClientId: '791527199565-tcd1e6eak6n5fcis247mg06t37bfig63.apps.googleusercontent.com',
-        })
+        //TODO: unmute
+        // GoogleSignin.configure({
+        //     iosClientId: '791527199565-tcd1e6eak6n5fcis247mg06t37bfig63.apps.googleusercontent.com',
+        // })
         // .then( () => {console.log('google sign in is now possible')})
     }
 
@@ -76,25 +77,26 @@ class SignIn extends Component {
         } )
     }
 
-    signInWithGoogle = () => {
-        !this.state.loading ? this.setState({loading: true}) : null;
-        console.log('trying to sign with google')
-        GoogleSignin.signIn()
-        .then((data) => {
-            console.log(data);
-            var {idToken, accessToken} = data;
-            const credential = firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);
-            console.log(credential);
-            return firebase.auth().signInWithCredential(credential);
+    //TODO: unmute
+    // signInWithGoogle = () => {
+    //     !this.state.loading ? this.setState({loading: true}) : null;
+    //     console.log('trying to sign with google')
+    //     GoogleSignin.signIn()
+    //     .then((data) => {
+    //         console.log(data);
+    //         var {idToken, accessToken} = data;
+    //         const credential = firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);
+    //         console.log(credential);
+    //         return firebase.auth().signInWithCredential(credential);
             
-        })
-        .then((currentUser) => {
-            this.successfulLoginCallback(currentUser);
-            console.log('successfully signed in');
-            // console.log(JSON.stringify(currentUser.toJSON()))
-        })
-        .catch( (err) => console.log(err))
-    }
+    //     })
+    //     .then((currentUser) => {
+    //         this.successfulLoginCallback(currentUser);
+    //         console.log('successfully signed in');
+    //         // console.log(JSON.stringify(currentUser.toJSON()))
+    //     })
+    //     .catch( (err) => console.log(err))
+    // }
 
     arrayToObject(arr, keyField) {
         Object.assign({}, ...arr.map(item => ({[item[keyField]]: item})))
@@ -207,16 +209,19 @@ class SignIn extends Component {
                           //this.authChangeListener();
                           //cant do these things:
                           //firebase.database().ref('Users/7j2AnQgioWTXP7vhiJzjwXPOdLC3/').set({name: 'Imad Rajwani', attended: 1});
-                          })
-            .catch( () => {
-                //if user fails to sign in with email, try to sign them in with google?
-                this.signInWithGoogle();
             })
             .catch( () => {
                 let err = 'Authentication failed, please sign up or enter correct credentials.';
                 this.setState( { loading: false } );
                 alert(err);
             })
+
+            //TODO:unmute
+            // .catch( () => {
+            //     //if user fails to sign in with email, try to sign them in with google?
+            //     this.signInWithGoogle();
+            // })
+            
 
     }
 
@@ -404,7 +409,7 @@ class SignIn extends Component {
                         <PacmanIndicator color='#28a526' />
                     </View>
                     :
-                    <View style={{ padding: 20, alignContent: 'center', backgroundColor: 'white'}}>
+                    <View style={{ padding: 20, alignContent: 'center'}}>
                         <Button
                             title='Sign In' 
                             titleStyle={{ fontWeight: "700" }}
@@ -421,13 +426,7 @@ class SignIn extends Component {
                             containerStyle={{ padding: 10, marginTop: 5, marginBottom: 5 }} 
                             onPress={() => {this.onSignInPress()} } 
                         />
-                        <GoogleSigninButton
-                            style={{ width: 200, height: 48 }}
-                            size={GoogleSigninButton.Size.Standard}
-                            color={GoogleSigninButton.Color.Light}
-                            onPress={ () => this.signInWithGoogle() }
-
-                        />
+                        
                         <Button
                             title='Create New Account' 
                             titleStyle={styles.authButtonText}
@@ -465,3 +464,12 @@ export default SignIn;
 // if(loggedIn) {
 //     return <HomeScreen/>
 // }
+
+//TODO:unmute
+{/* <GoogleSigninButton
+                            style={{ width: 200, height: 48 }}
+                            size={GoogleSigninButton.Size.Standard}
+                            color={GoogleSigninButton.Color.Light}
+                            onPress={ () => this.signInWithGoogle() }
+
+                        /> */}

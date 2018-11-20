@@ -66,6 +66,7 @@ class OtherUserProfilePage extends Component {
     var blockUserUpdates = {};
     blockUserUpdates['/Users/' + firebase.auth().currentUser.uid + '/usersBlocked/' + uid + '/'] = true;
     firebase.database().ref().update(blockUserUpdates)  
+    this.setState({showBlockOrReportModal: false});
     alert("This individual may no longer converse with you by choosing to purchase your products on the Market");
   }
 
