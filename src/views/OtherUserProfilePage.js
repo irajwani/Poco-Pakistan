@@ -66,15 +66,16 @@ class OtherUserProfilePage extends Component {
     var blockUserUpdates = {};
     blockUserUpdates['/Users/' + firebase.auth().currentUser.uid + '/usersBlocked/' + uid + '/'] = true;
     firebase.database().ref().update(blockUserUpdates)  
-    this.setState({showBlockOrReportModal: false});
-    alert("This individual may no longer converse with you by choosing to purchase your products on the Market");
+    alert("This individual may no longer converse with you by choosing to purchase your products on the Market.\nGo Back.");
+    // this.setState({showBlockOrReportModal: false});
   }
 
   unblockUser = (uid) => {
     var blockUserUpdates = {};
     blockUserUpdates['/Users/' + firebase.auth().currentUser.uid + '/usersBlocked/' + uid + '/'] = false;
     firebase.database().ref().update(blockUserUpdates)  
-    alert("This individual may now attempt to purchase your products from the market.");
+    alert("This individual may now attempt to purchase your products from the market.\nGo back.");
+    // this.setState({showBlockOrReportModal: false});
   }
 
   reportUser = () => {
@@ -104,11 +105,11 @@ class OtherUserProfilePage extends Component {
     const {report} = this.state;
     const {params} = this.props.navigation.state;
     const {usersBlocked, uid, profile, numberProducts, soldProducts, comments} = params;
-    console.log(comments);
+    // console.log(usersBlocked, uid, usersBlocked.includes(uid));
 
     
     const gradientColors = ['#7de853','#0baa26', '#064711'];
-    const gradientColors2 = ['#0a968f','#6ee5df', ];
+    // const gradientColors2 = ['#0a968f','#6ee5df', ];
 
     return (
       <View style={styles.mainContainer}>

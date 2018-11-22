@@ -38,7 +38,7 @@ function removeFalsyValuesFrom(object) {
   Object.keys(object).forEach((property) => {
     if (object[property]) {newObject[property] = object[property]}
   })
-  return Object.values(newObject);
+  return Object.keys(newObject);
 }
 
 const DismissKeyboardView = ({children}) => (
