@@ -5,6 +5,7 @@ import PushNotification from 'react-native-push-notification';
 
 import { Hoshi } from 'react-native-textinput-effects';
 import { PacmanIndicator } from 'react-native-indicators';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Button} from 'react-native-elements'
 //import AwesomeButtonRick from 'react-native-really-awesome-button/src/themes/rick'
 import styles from '../styles.js';
@@ -19,8 +20,10 @@ import LinearGradient from 'react-native-linear-gradient';
 // import { SignUpToCreateProfileStack } from '../stackNavigators/signUpToEditProfileStack';
 import {GoogleSignin, GoogleSigninButton} from 'react-native-google-signin';
 // var provider = new firebase.auth.GoogleAuthProvider();
-
+import {bobbyBlue} from '../colors'
 const {width,} = Dimensions.get('window');
+
+const googleIconColors = ['#3cba54', '#db3236', '#f4c20d', '#fff']
 //THIS PAGE: 
 //Allows user to sign in or sign up
 //Updates products on firebase db by scouring products from each user's list of products.
@@ -36,13 +39,31 @@ function timeSince(date) {
     
 }
 
+class ViewWithChildAtPosition extends Component { 
+
+    constructor(props){
+        super(props);
+    }
+
+    render() {
+        const {flex} = this.props;
+
+        return (
+            <View style={{flex: flex, backgroundColor: this.props.color ? this.props.color : null, paddingHorizontal: 2, justifyContent: 'center', alignContent: 'center'}}>
+                {this.props.children}
+            </View>
+        )
+        }
+}
+
+
 
 //currently no barrier to logging in and signing up
 class SignIn extends Component {
 
     constructor(props) {
       super(props);
-      this.state = { products: [], email: '', uid: '', pass: '', loading: false, loggedIn: false,};
+      this.state = { products: [], email: '', uid: '', pass: '', loading: false, loggedIn: false, googleIconColor: '#db3236'};
       }
 
     componentWillMount() {
@@ -51,6 +72,14 @@ class SignIn extends Component {
     }
 
     componentDidMount() {
+        let i = 0;
+        
+        setInterval( () => {
+            i++ > 3 ? i = 0 : i++
+            console.log(googleIconColors[i])
+            this.setState({googleIconColor: googleIconColors[i]})
+        }, 2000)
+
         //TODO: unmute
         // GoogleSignin.configure({
         //     iosClientId: '791527199565-tcd1e6eak6n5fcis247mg06t37bfig63.apps.googleusercontent.com',
@@ -409,37 +438,68 @@ class SignIn extends Component {
                         <PacmanIndicator color='#28a526' />
                     </View>
                     :
-                    <View style={{ padding: 20, alignContent: 'center'}}>
-                        <Button
-                            title='Sign In' 
-                            titleStyle={{ fontWeight: "700" }}
-                            buttonStyle={{
-                            backgroundColor: "#16994f",
-                            //#2ac40f
-                            //#45bc53
-                            //#16994f
-                            borderColor: "#37a1e8",
-                            borderWidth: 0,
-                            borderRadius: 5,
-                            
-                            }}
-                            containerStyle={{ padding: 10, marginTop: 5, marginBottom: 5 }} 
-                            onPress={() => {this.onSignInPress()} } 
-                        />
+                    
                         
-                        <Button
-                            title='Create New Account' 
-                            titleStyle={styles.authButtonText}
-                            buttonStyle={{
-                            backgroundColor: '#368c93',
-                            //#2ac40f
-                            borderColor: "#226b13",
-                            borderWidth: 0,
-                            borderRadius: 5
-                            }}
-                            containerStyle={{ marginTop: 5, marginBottom: 5 }} 
-                            onPress={ () => {this.props.navigation.navigate('CreateProfile')} }
-                        />     
+                        <View style={{ flexDirection: 'row', padding: 5, justifyContent: 'space-evenly'}}>
+
+                            <ViewWithChildAtPosition flex={1}  >
+                                <Icon
+                                    name="google" 
+                                    size={30} 
+                                    color={ Math.random() > 0.5 ? '#db3236' : '#3cba54'}
+                                    color={this.state.googleIconColor}
+                                    onPress={() => this.signInWithGoogle()}
+                                />
+                            </ViewWithChildAtPosition>
+
+                            <View style={{flex: 5, flexDirection: 'column', padding: 5, margin: 5, justifyContent: 'space-between'}}>
+                                
+                                    <View style={{ padding: 5 }}>
+                                    <Button
+                                        title='Sign In' 
+                                        titleStyle={{ fontWeight: "700" }}
+                                        buttonStyle={{
+                                        backgroundColor: "#16994f",
+                                        //#2ac40f
+                                        //#45bc53
+                                        //#16994f
+                                        borderColor: "#37a1e8",
+                                        borderWidth: 0,
+                                        borderRadius: 5,
+                                        
+                                        }}
+                                        containerStyle={{  }} 
+                                        onPress={() => {this.onSignInPress()} } 
+                                    />
+                                    </View>
+
+                                    <View style={{ padding:5 }}>
+                                    <Button
+                                        title='Create Account' 
+                                        titleStyle={styles.authButtonText}
+                                        buttonStyle={{
+                                        backgroundColor: '#368c93',
+                                        //#2ac40f
+                                        borderColor: "#226b13",
+                                        borderWidth: 0,
+                                        borderRadius: 5
+                                        }}
+                                        containerStyle={{ }} 
+                                        onPress={ () => {this.props.navigation.navigate('CreateProfile')} }
+                                    />
+                                    </View>
+                                
+                            </View>
+
+                            <ViewWithChildAtPosition flex={1} >
+                                <Icon
+                                    name="facebook-box" 
+                                    size={30} 
+                                    color={'#3b5998'}
+                                    onPress={() => this.signInWithGoogle()}
+                                />
+                            </ViewWithChildAtPosition>
+
                     </View>
                 }
                     
