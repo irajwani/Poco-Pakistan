@@ -14,11 +14,12 @@ import styles from '../styles.js';
 import firebase from '../cloud/firebase.js';
 // import {database} from '../cloud/database';
 
+import {GoogleSignin, GoogleSigninButton} from 'react-native-google-signin';
+
 import { systemWeights, iOSColors } from 'react-native-typography';
-import LinearGradient from 'react-native-linear-gradient';
 // import HomeScreen from './HomeScreen';
 // import { SignUpToCreateProfileStack } from '../stackNavigators/signUpToEditProfileStack';
-import {GoogleSignin, GoogleSigninButton} from 'react-native-google-signin';
+
 // var provider = new firebase.auth.GoogleAuthProvider();
 import {bobbyBlue} from '../colors'
 const {width,} = Dimensions.get('window');
@@ -72,13 +73,13 @@ class SignIn extends Component {
     }
 
     componentDidMount() {
-        let i = 0;
-        
-        setInterval( () => {
-            i++ > 3 ? i = 0 : i++
-            console.log(googleIconColors[i])
-            this.setState({googleIconColor: googleIconColors[i]})
-        }, 2000)
+        // let i = 0;
+
+        // setInterval( () => {
+        //     i++ > 3 ? i = 0 : i++
+        //     console.log(googleIconColors[i])
+        //     this.setState({googleIconColor: googleIconColors[i]})
+        // }, 2000)
 
         //TODO: unmute
         // GoogleSignin.configure({
@@ -92,40 +93,63 @@ class SignIn extends Component {
             var d = snapshot.val();
             var all = d.Products;
 
-            //if the user has newly registered, then don't worry about notifications
-            if(d.Users[user.uid].products) {
-                console.log('here 155', d.Users[user.uid].products )
-                var productKeys = d.Users[user.uid].products ? Object.keys(d.Users[user.uid].products) : [];
-                var yourProducts = all.filter((product) => productKeys.includes(product.key) );
-                // console.log(yourProducts)
-                this.shouldSendNotifications(yourProducts,user.uid)
+            //if the user is a new user (signed in with google):
+            var {Users} = d
+            if(!Object.keys(Users).includes(user.uid)) {
+                this.successfulSignUpCallback(user)
+            } 
+            else {
+            //if the user isn't new, then re update their notifications (if any)
+                if(d.Users[user.uid].products) {
+                    console.log('here 155', d.Users[user.uid].products )
+                    var productKeys = d.Users[user.uid].products ? Object.keys(d.Users[user.uid].products) : [];
+                    var yourProducts = all.filter((product) => productKeys.includes(product.key) );
+                    // console.log(yourProducts)
+                    this.shouldSendNotifications(yourProducts,user.uid)
+                }
+                
+                this.setState({loading: false}, () => {console.log('signed in')});
+                this.props.navigation.navigate('HomeScreen');
             }
+
             
-            this.setState({loading: false}, () => {console.log('signed in')});
-            this.props.navigation.navigate('HomeScreen');
         } )
     }
 
+    successfulSignUpCallback = (user) => {
+        this.props.navigation.navigate('CreateProfile', {})
+    }
+
     //TODO: unmute
-    // signInWithGoogle = () => {
-    //     !this.state.loading ? this.setState({loading: true}) : null;
-    //     console.log('trying to sign with google')
-    //     GoogleSignin.signIn()
-    //     .then((data) => {
-    //         console.log(data);
-    //         var {idToken, accessToken} = data;
-    //         const credential = firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);
-    //         console.log(credential);
-    //         return firebase.auth().signInWithCredential(credential);
+    signInWithGoogle = () => {
+        !this.state.loading ? this.setState({loading: true}) : null;
+        console.log('trying to sign with google')
+        GoogleSignin.signIn()
+        .then((data) => {
+            console.log(data);
+            var {idToken, accessToken} = data;
+            const credential = firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);
+            console.log(credential);
+
             
-    //     })
-    //     .then((currentUser) => {
-    //         this.successfulLoginCallback(currentUser);
-    //         console.log('successfully signed in');
-    //         // console.log(JSON.stringify(currentUser.toJSON()))
-    //     })
-    //     .catch( (err) => console.log(err))
-    // }
+            return firebase.auth().signInWithCredential(credential);
+            
+        })
+        .then((currentUser) => {
+
+            //If NottMyStyle does not know you yet, prompt them to enter details:
+            // - Location
+            // - Insta
+            // - Show Image
+
+            //retrieve database and list of users and check if this users's uid is in that list of users
+
+            this.successfulLoginCallback(currentUser);
+            console.log('successfully signed in:', currentUser);
+            // console.log(JSON.stringify(currentUser.toJSON()))
+        })
+        .catch( (err) => console.log(err))
+    }
 
     arrayToObject(arr, keyField) {
         Object.assign({}, ...arr.map(item => ({[item[keyField]]: item})))

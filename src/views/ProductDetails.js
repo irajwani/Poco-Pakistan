@@ -20,7 +20,7 @@ import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECR
 import email from 'react-native-email';
 import { bobbyBlue, woodBrown, highlightGreen, treeGreen } from '../colors';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
-
+import BackButton from '../components/BackButton';
 
 var {height, width} = Dimensions.get('window');
 
@@ -293,7 +293,7 @@ class ProductDetails extends Component {
     return (
 
       <ScrollView style={styles.mainContainer} contentContainerStyle={styles.contentContainer}>
-
+        <BackButton action={()=>this.props.navigation.goBack()}/>
         {/* image carousel */}
         <View style={{flex: 2, alignItems: 'center'}}>
           <CustomCarousel data={params.data.uris} />

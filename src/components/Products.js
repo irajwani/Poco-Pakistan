@@ -1014,7 +1014,7 @@ const styles = StyleSheet.create({
   filterButtonStyle : {
     backgroundColor: 'black',
     width: 80,
-    height: height/15,
+    // height: 15,
     borderRadius: 20,
     alignItems: 'center',
     alignContent: 'center',
@@ -1022,7 +1022,7 @@ const styles = StyleSheet.create({
     // alignItems:'center',
     // alignContent: 'center',
     position: 'absolute',
-    bottom: 30,
+    bottom: 60,
   },
 
   filterButtonContainer: {

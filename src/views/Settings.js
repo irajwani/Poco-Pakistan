@@ -8,7 +8,10 @@ import { material, iOSUIKit, iOSColors } from 'react-native-typography'
 import * as Animatable from 'react-native-animatable';
 import Accordion from 'react-native-collapsible/Accordion';
 
+
+
 import {EulaTop, EulaLink, EulaBottom, TsAndCs, PrivacyPolicy, ContactUs} from '../legal/Documents.js';
+import BackButton from '../components/BackButton';
 
 const {width} = Dimensions.get('window');
 
@@ -124,6 +127,8 @@ class Settings extends Component {
     
     return (
       <View style={styles.container}>
+
+        <BackButton action={()=>this.props.navigation.goBack()} />
 
         <Accordion
           activeSection={activeSection}

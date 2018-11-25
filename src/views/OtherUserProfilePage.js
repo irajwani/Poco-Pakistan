@@ -119,11 +119,11 @@ class OtherUserProfilePage extends Component {
         <View style={styles.header}>
           <View style={styles.gearAndPicColumn}>
             <View style={styles.gearRow}>
-              <Icon name="settings" 
-                    
-                            size={30} 
-                            color={iOSColors.gray}
-                            onPress={() => this.props.navigation.navigate('Settings')}
+              <Icon 
+                  name="arrow-left"   
+                  size={30} 
+                  color={iOSColors.black}
+                  onPress={() => this.props.navigation.goBack()}
 
               />
               <Icon name="account-alert" 
@@ -382,6 +382,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignContent: 'flex-start',
+    margin: 2
     // backgroundColor: 'white'
   },
 
