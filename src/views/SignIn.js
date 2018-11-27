@@ -14,7 +14,7 @@ import styles from '../styles.js';
 import firebase from '../cloud/firebase.js';
 // import {database} from '../cloud/database';
 
-import {GoogleSignin, GoogleSigninButton} from 'react-native-google-signin';
+import {GoogleSignin} from 'react-native-google-signin'
 
 import { systemWeights, iOSColors } from 'react-native-typography';
 // import HomeScreen from './HomeScreen';
@@ -26,12 +26,20 @@ const {width,} = Dimensions.get('window');
 
 const googleIconColors = ['#3cba54', '#db3236', '#f4c20d', '#fff']
 //THIS PAGE: 
-//Allows user to sign in or sign up
+//Allows user to sign in or sign up and handles the flow specific to standard sign in, or standard sign up, or google sign in, or google sign up.
 //Updates products on firebase db by scouring products from each user's list of products.
 //Updates each user's chats on firebase db by identifying what rooms they are in (which products they currently want to buy or sell) and attaching the relevant information.
 
 
 //var database = firebase.database();
+
+// let i = 0;
+
+        // setInterval( () => {
+        //     i++ > 3 ? i = 0 : i++
+        //     console.log(googleIconColors[i])
+        //     this.setState({googleIconColor: googleIconColors[i]})
+        // }, 2000)
 
 function timeSince(date) {
 
@@ -73,30 +81,35 @@ class SignIn extends Component {
     }
 
     componentDidMount() {
-        // let i = 0;
-
-        // setInterval( () => {
-        //     i++ > 3 ? i = 0 : i++
-        //     console.log(googleIconColors[i])
-        //     this.setState({googleIconColor: googleIconColors[i]})
-        // }, 2000)
-
-        //TODO: unmute
-        // GoogleSignin.configure({
-        //     iosClientId: '791527199565-tcd1e6eak6n5fcis247mg06t37bfig63.apps.googleusercontent.com',
-        // })
+        GoogleSignin.configure({
+            iosClientId: '791527199565-tcd1e6eak6n5fcis247mg06t37bfig63.apps.googleusercontent.com',
+        })
         // .then( () => {console.log('google sign in is now possible')})
+
     }
 
-    successfulLoginCallback = (user) => {
+    // Invoked when onSignInPress() AND signInWithGoogle()  are pressed: 
+    // that is when user presses Sign In Button, or when they choose to sign up or sign in through Google 
+    successfulLoginCallback = (user, googleUserBoolean) => {
         firebase.database().ref().once('value', (snapshot) => {
             var d = snapshot.val();
             var all = d.Products;
+            //If NottMyStyle does not know you yet, prompt them to enter details:
+            // - Location
+            // - Insta
+            // - Show Image
 
-            //if the user is a new user (signed in with google):
+            //retrieve database and list of users and check if this users's uid is in that list of users
+            //if the user is a new user (trying to sign up with google
+            // or
+            // TODO: trying to sign in with google
+            // or
+            // just doesn't exist in the database yet):
             var {Users} = d
             if(!Object.keys(Users).includes(user.uid)) {
-                this.successfulSignUpCallback(user)
+
+                this.attemptSignUp(user, googleUserBoolean)
+
             } 
             else {
             //if the user isn't new, then re update their notifications (if any)
@@ -116,11 +129,16 @@ class SignIn extends Component {
         } )
     }
 
-    successfulSignUpCallback = (user) => {
-        this.props.navigation.navigate('CreateProfile', {})
+    //Invoked when user tries to sign in even though they don't exist in the system yet
+    attemptSignUp = (user, googleUserBoolean) => {
+        //check if user wishes to sign up through standard process (the former) or through google
+        !user ? 
+        this.props.navigation.navigate('CreateProfile', {user: false, googleUserBoolean})
+        :
+        this.props.navigation.navigate('CreateProfile', {user, googleUserBoolean})
     }
 
-    //TODO: unmute
+    //onPress Google Icon
     signInWithGoogle = () => {
         !this.state.loading ? this.setState({loading: true}) : null;
         console.log('trying to sign with google')
@@ -136,15 +154,7 @@ class SignIn extends Component {
             
         })
         .then((currentUser) => {
-
-            //If NottMyStyle does not know you yet, prompt them to enter details:
-            // - Location
-            // - Insta
-            // - Show Image
-
-            //retrieve database and list of users and check if this users's uid is in that list of users
-
-            this.successfulLoginCallback(currentUser);
+            this.successfulLoginCallback(currentUser, googleUserBoolean = true);
             console.log('successfully signed in:', currentUser);
             // console.log(JSON.stringify(currentUser.toJSON()))
         })
@@ -241,7 +251,16 @@ class SignIn extends Component {
     ///////// Hello world for Login/Signup Email Authentication
     onSignInPress() {
         this.setState({ error: '', loading: true });
-        const { email, pass } = this.state; //now that person has input text, their email and password are here
+        const { email, pass } = this.state;
+
+        if (!email || !pass) {
+            alert("You cannot Sign In if your email and/or password fields are blank.")
+        }
+        else if (!pass.length >= 6) {
+            alert("Your password's length must be greater or equal to 6 characters.")
+        }
+        else {
+//now that person has input text, their email and password are here
         firebase.auth().signInWithEmailAndPassword(email, pass)
             .then(() => {
                 //This function behaves as an authentication listener for user. 
@@ -253,7 +272,7 @@ class SignIn extends Component {
                         //could potentially navigate with user properties like uid, name, etc.
                         //TODO: once you sign out and nav back to this page, last entered
                         //password and email are still there
-                        this.successfulLoginCallback(user);
+                        this.successfulLoginCallback(user, googleUserBoolean = false);
                         
                         // this.setState({loading: false, loggedIn: true})
                         
@@ -274,6 +293,10 @@ class SignIn extends Component {
             //     //if user fails to sign in with email, try to sign them in with google?
             //     this.signInWithGoogle();
             // })
+
+        }
+
+        
             
 
     }
@@ -509,7 +532,7 @@ class SignIn extends Component {
                                         borderRadius: 5
                                         }}
                                         containerStyle={{ }} 
-                                        onPress={ () => {this.props.navigation.navigate('CreateProfile')} }
+                                        onPress={ () => {this.attemptSignUp(user = false, googleUser = false)} }
                                     />
                                     </View>
                                 

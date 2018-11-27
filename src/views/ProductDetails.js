@@ -308,7 +308,7 @@ class ProductDetails extends Component {
         <View style={styles.nameAndLikeRow} >
           <Text style={styles.nameText}>{text.name.toUpperCase()}</Text>
           <View style={styles.likesRow}>
-
+  {/* Boolean Row for ability to either like or unlike this product */}
               {collectionKeys.includes(params.data.key) ? 
                   <Icon name="heart" 
                         size={22} 

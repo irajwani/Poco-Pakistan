@@ -266,12 +266,12 @@ class Chats extends Component {
             onPress={()=>this.navToNotifications()}
           />
         </View>
-        <ScrollView 
+        <ScrollView
+          style={{}} 
           contentContainerStyle={{
-            paddingTop: 0,
             flexDirection: 'column',
+            justifyContent: 'center',
             flexGrow: 1,
-            justifyContent: 'flex-start',
             alignItems: 'center'
           }}
         >

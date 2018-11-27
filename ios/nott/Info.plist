@@ -27,6 +27,14 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>-3T6KRJL5P.com.NottMyStyle.nott</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
 				<string>com.googleusercontent.apps.791527199565-tcd1e6eak6n5fcis247mg06t37bfig63</string>
 			</array>
 		</dict>

@@ -169,10 +169,12 @@ export default withNavigation(Settings);
 const styles = StyleSheet.create({
 
     container: {
+      backgroundColor: 'white',
       flexDirection: 'column',
       justifyContent: 'flex-start',
       padding: 10,
-      marginTop: 20
+      marginTop: 20,
+      flex: 1,
     },
 
     licenseContainer: {
