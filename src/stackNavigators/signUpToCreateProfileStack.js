@@ -16,7 +16,7 @@ export const SignUpToCreateProfileStack = createStackNavigator({
     HomeScreen: HomeScreen,
 },
 {   
-    initalRouteName: 'SignIn',
+    initialRouteName: 'SignIn',
     headerMode: 'none',
     mode: 'modal',
     navigationOptions: {

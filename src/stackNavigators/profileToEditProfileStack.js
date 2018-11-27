@@ -23,7 +23,7 @@ export const profileToEditProfileStack = createStackNavigator({
     UserComments: UserComments
 },
 {   
-    initalRouteName: 'ProfilePage',
+    initialRouteName: 'ProfilePage',
     headerMode: 'none',
     mode: 'modal',
     navigationOptions: {

@@ -22,6 +22,7 @@ import { systemWeights, iOSColors } from 'react-native-typography';
 
 // var provider = new firebase.auth.GoogleAuthProvider();
 import {bobbyBlue} from '../colors'
+import { withNavigation } from 'react-navigation';
 const {width,} = Dimensions.get('window');
 
 const googleIconColors = ['#3cba54', '#db3236', '#f4c20d', '#fff']
@@ -136,6 +137,7 @@ class SignIn extends Component {
         this.props.navigation.navigate('CreateProfile', {user: false, googleUserBoolean})
         :
         this.props.navigation.navigate('CreateProfile', {user, googleUserBoolean})
+        
     }
 
     //onPress Google Icon
@@ -532,7 +534,7 @@ class SignIn extends Component {
                                         borderRadius: 5
                                         }}
                                         containerStyle={{ }} 
-                                        onPress={ () => {this.attemptSignUp(user = false, googleUser = false)} }
+                                        onPress={() => this.attemptSignUp(user = false, googleUserBoolean = false)}
                                     />
                                     </View>
                                 
@@ -566,7 +568,7 @@ class SignIn extends Component {
 
 }
 
-export default SignIn;
+export default withNavigation(SignIn);
 
 // if(loggedIn) {
 //     return <HomeScreen/>

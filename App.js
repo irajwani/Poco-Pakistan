@@ -25,9 +25,7 @@ import { SignUpToCreateProfileStack } from './src/stackNavigators/signUpToCreate
 // import EditItem from './src/views/EditItem.js';
 
 
-type Props = {};
-
-export default class App extends Component<Props> {
+export default class App extends Component {
 
   render() {
     console.disableYellowBox = true;

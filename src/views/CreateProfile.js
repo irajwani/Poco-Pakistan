@@ -26,18 +26,17 @@ window.Blob = Blob;
 class CreateProfile extends Component {
   constructor(props) {
       super(props);
-      const {params} = this.params.navigation.state;
-
-      //set values to google account info if they tried to sign up with google 
-      //(technically they've already signed in to firebase auth but THAT IS IT, 
-      //now we have to fake the process of them continuing to sign up)
-      const {user} = params.user ? user : false;
+      var {params} = this.params.navigation.state;
+    //   //set values to google account info if they tried to sign up with google 
+    //   //(technically they've already signed in to firebase auth but THAT IS IT, 
+    //   //now we have to fake the process of them continuing to sign up)
+    //   const {user} = params.user ? user : false;
       this.state = {
           email: '',
           pass: '',
           pass2: '',
-          firstName: '',
-          lastName: '',
+          firstName: params.user ? user.displayName.split(" ")[0] : '',
+          lastName: params.user ? user.displayName.split(" ")[1] : '',
           country: '',
           size: 1,
           uri: undefined,
@@ -192,8 +191,12 @@ class CreateProfile extends Component {
 
   render() {
     const {params} = this.props.navigation.state
-    const pictureuris = params ? params.pictureuris : 'nothing here'
-    var googleUser = params.googleUserBoolean ? params.googleUserBoolean : false
+    var pictureuris = params.pictureuris ? params.pictureuris : 'nothing here'
+
+    var googleUser = params.googleUserBoolean ? true : false
+    var googlePhotoURL = params.user.photoURL ? params.user.photoURL : false 
+    googleUser && googlePhotoURL ? pictureuris = [googlePhotoURL] : 'nothing here';
+
     var conditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1) && (this.state.pass == this.state.pass2) && (this.state.pass.length >= 6);
     var passwordConditionMet = (this.state.pass == this.state.pass2) && (this.state.pass.length > 0);
     
