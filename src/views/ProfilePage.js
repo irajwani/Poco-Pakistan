@@ -53,7 +53,7 @@ class ProfilePage extends Component {
     setTimeout(() => {
       const uid = firebase.auth().currentUser.uid;
       this.getProfileAndCountOfProductsOnSaleAndSoldAndComments(uid);
-    }, 1000);
+    }, 200);
     
   }
 

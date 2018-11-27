@@ -133,6 +133,7 @@ class SignIn extends Component {
     //Invoked when user tries to sign in even though they don't exist in the system yet
     attemptSignUp = (user, googleUserBoolean) => {
         //check if user wishes to sign up through standard process (the former) or through google
+        console.log('attempting to sign up');
         !user ? 
         this.props.navigation.navigate('CreateProfile', {user: false, googleUserBoolean})
         :
@@ -270,7 +271,7 @@ class SignIn extends Component {
                 //1. notifications update on cloud & local push notification scheduled notifications 4 days from now for each product that deserves a price reduction.
                 firebase.auth().onAuthStateChanged( (user) => {
                     if(user) {
-                        console.log('here is 146',user.uid);
+                        console.log(`User's Particular Identification: ${user.uid}`);
                         //could potentially navigate with user properties like uid, name, etc.
                         //TODO: once you sign out and nav back to this page, last entered
                         //password and email are still there
@@ -517,7 +518,7 @@ class SignIn extends Component {
                                         borderRadius: 5,
                                         
                                         }}
-                                        containerStyle={{  }} 
+                                        
                                         onPress={() => {this.onSignInPress()} } 
                                     />
                                     </View>
@@ -533,8 +534,13 @@ class SignIn extends Component {
                                         borderWidth: 0,
                                         borderRadius: 5
                                         }}
-                                        containerStyle={{ }} 
-                                        onPress={() => this.attemptSignUp(user = false, googleUserBoolean = false)}
+                                        
+                                        onPress={
+                                            () => {
+                                                // this.props.navigation.navigate('CreateProfile')
+                                                this.attemptSignUp(user = false, googleUserBoolean = false)
+                                                } 
+                                            }
                                     />
                                     </View>
                                 
@@ -568,7 +574,7 @@ class SignIn extends Component {
 
 }
 
-export default withNavigation(SignIn);
+export default SignIn;
 
 // if(loggedIn) {
 //     return <HomeScreen/>
