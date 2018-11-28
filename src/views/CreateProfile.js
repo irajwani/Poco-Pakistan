@@ -67,7 +67,9 @@ class CreateProfile extends Component {
       this.setState({createProfileLoading: true});
       firebase.auth().createUserWithEmailAndPassword(email, pass)
         .then(() => {
-                        firebase.auth().onAuthStateChanged( ( user ) => {
+                        
+                        var unsubscribe = firebase.auth().onAuthStateChanged( ( user ) => {
+                            unsubscribe();
                             if(user) {
                             const {uid} = user;
                             this.updateFirebase(this.state, pictureuri, mime = 'image/jpg', uid, googleUserBoolean = false );
@@ -203,6 +205,7 @@ class CreateProfile extends Component {
     var pictureuris = params.pictureuris ? params.pictureuris : 'nothing here'
 
     var googleUser = params.googleUserBoolean ? true : false
+    console.log(googleUser)
     var user = params.googleUserBoolean ? user : null //data for google user
     var googlePhotoURL = params.user.photoURL ? params.user.photoURL : false 
     googleUser && googlePhotoURL ? pictureuris = [googlePhotoURL] : 'nothing here';
@@ -363,7 +366,7 @@ class CreateProfile extends Component {
                           borderRadius: 10,
                           }}
                           containerStyle={{ marginTop: 0, marginBottom: 0 }}
-                          onPress={() => {this.createProfileForGoogleUser(user, pictureuris[0]);}} 
+                          onPress={() => {console.log('Sign Up Initiated'); googleUser ? this.createProfileForGoogleUser(user, pictureuris[0]) : this.createProfile(this.state.email, this.state.pass, pictureuris[0]) ;}} 
                       />
                   </View>
       
@@ -660,7 +663,7 @@ class CreateProfile extends Component {
                           borderRadius: 10,
                           }}
                           containerStyle={{ marginTop: 0, marginBottom: 0 }}
-                          onPress={() => {this.createProfile(this.state.email, this.state.pass, pictureuris[0]);}} 
+                          onPress={() => {console.log('Sign Up Initiated') ; googleUser ? this.createProfileForGoogleUser(user, pictureuris[0]) : this.createProfile(this.state.email, this.state.pass, pictureuris[0]) ;}} 
                       />
                   </View>
       

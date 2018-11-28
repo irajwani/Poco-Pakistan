@@ -39,6 +39,12 @@ class Chats extends Component {
 
     setTimeout(() => {
       this.leaveYourRooms(userIdentificationKey);
+      this.chatLeaveRoomsRefreshId = setInterval(() => {
+  
+        this.leaveYourRooms(userIdentificationKey);
+        
+        // this.getChats(userIdentificationKey);
+      }, 20000); //20 seconds
     }, 1000);
 
 
@@ -60,6 +66,7 @@ class Chats extends Component {
 
   componentWillUnmount() {
     clearInterval(this.chatRefreshId);
+    clearInterval(this.chatLeaveRoomsRefreshId);
   }
 
   leaveYourRooms(your_uid) {
@@ -267,12 +274,12 @@ class Chats extends Component {
           />
         </View>
         <ScrollView
-          style={{}} 
+          style={{ flex: 5 }} 
           contentContainerStyle={{
+            
             flexDirection: 'column',
-            justifyContent: 'center',
-            flexGrow: 1,
-            alignItems: 'center'
+            
+            
           }}
         >
               
@@ -328,10 +335,12 @@ export default withNavigation(Chats)
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     flexDirection: 'column',
     marginTop: 22,
   },
   upperNavTab: {
+    flex: 0.15,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
