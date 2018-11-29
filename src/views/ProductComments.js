@@ -1,13 +1,13 @@
 import React, {Component} from 'react'
 import {Dimensions, Keyboard, Text, TextInput, TouchableHighlight, Image, View, ScrollView, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
 import { Kohana } from 'react-native-textinput-effects'
 import {withNavigation} from 'react-navigation';
-import {database} from '../cloud/database';
 import firebase from '../cloud/firebase';
-import { material, systemWeights, human, iOSUIKit, iOSColors } from 'react-native-typography'
-import { PacmanIndicator } from 'react-native-indicators';
-import { highlightGreen, treeGreen, rejectRed, profoundPink } from '../colors';
+import { material, human, iOSUIKit, iOSColors } from 'react-native-typography'
+import { highlightGreen, treeGreen, profoundPink, avenirNext, graphiteGray, darkGray } from '../colors';
+import FontAwesomeIcon  from 'react-native-vector-icons/FontAwesome';
 //for each comment, use their time of post as the key
 
 const {width, height} = Dimensions.get('window')
@@ -91,7 +91,7 @@ class ProductComments extends Component {
     render() {
 
         const {params} = this.props.navigation.state;
-        const {productInformation, key, yourProfile, profile, uid} = params;
+        const {productInformation, key, yourProfile, theirProfile, uid} = params;
         const {uris, text} = productInformation //For row containing product Information
         const {name, uri} = yourProfile; //To upload a comment, attach the current Users profile details, in this case their name and profile pic uri
         
@@ -102,25 +102,48 @@ class ProductComments extends Component {
 
         return (
             <View style={styles.mainContainer} >
+            {/* Row to go back and look at seller info */}
+            <View style={styles.backAndSellerRow}>
+                <View style={styles.backIconContainer}>
+                    <FontAwesomeIcon
+                    name='chevron-circle-left'
+                    size={40}
+                    color={'#76ce1e'}
+                    onPress = { () => { 
+                        this.props.navigation.goBack();
+                        } }
+
+                    />
+                </View>
+
+                <View style={styles.sellerNameContainer}>
+                    <Text style={styles.sellerName}>{theirProfile.name}</Text>
+                </View>
+
+                <View style={styles.sellerImageContainer}>
+                    <Image source={ {uri: theirProfile.uri }} style={styles.profilePic} />
+                </View>
+            </View>
+
+            <View style={{backgroundColor: 'black', height: 1.5}}/>
+
+            {/* Row to view product picture and name */}
             
-            <View style={styles.rowContainer}>
+            <View style={styles.productInfoContainer}>
                 {/* row containing picture, and details for product */}
-               <Image source={ {uri: uris[0] }} style={styles.profilepic} />
+               <View style={styles.productImageContainer}>
+                <Image source={ {uri: uris[0] }} style={styles.productPic} />
+               </View>
+                
                <View style={styles.productTextContainer}>
-                 
                  <Text style={styles.name}>
                    {text.name}
-                 </Text>
-                 <Text style={styles.price}>
-                   Price: £{text.price}
-                 </Text>
-                 <Text style={styles.brand}>
-                   {text.brand.toUpperCase()}
                  </Text>
                </View>
                
              </View>
-             <View style={styles.separator}/>
+
+            <View style={{backgroundColor: 'black', height: 1.5}}/>
              
              <ScrollView style={styles.contentContainerStyle} contentContainerStyle={styles.contentContainer}>
              {Object.keys(comments).map(
@@ -170,26 +193,29 @@ class ProductComments extends Component {
               )}
             </ScrollView>
              
-            <View style={{flex: 0.25, flexDirection : 'row', bottom : this.height - this.state.visibleHeight}} >
+            <View style={{ flexDirection : 'row', bottom : this.height - this.state.visibleHeight}} >
                 <Kohana
-                    style={{ backgroundColor: '#f9f5ed' }}
+                    style={{ backgroundColor: '#b5bcc9' }}
                     label={'Comment'}
                     value={this.state.commentString}
                     onChange={this.onCommentTextChanged.bind(this)}
                     iconClass={Icon}
                     iconName={'comment-multiple'}
-                    iconColor={'#f4d29a'}
-                    labelStyle={{ color: '#91627b' }}
-                    inputStyle={{ color: '#91627b' }}
+                    iconColor={treeGreen}
+                    labelStyle={{ color: 'black' }}
+                    inputStyle={{ color: 'black' }}
                     useNativeDriver
                 />
-                <Icon name="send" 
-                        size={50} 
-                        color={'#37a1e8'}
-                        onPress={ () => {this.uploadComment(name, this.state.commentString, uid, uri, key);
-                                     this.setState({commentString: ''}); 
-                                     }}
-                />
+
+                <View style={{backgroundColor: '#fff', borderRadius: 0}}>
+                    <Icon name="send" 
+                            size={55} 
+                            color={'#37a1e8'}
+                            onPress={ () => {this.uploadComment(name, this.state.commentString, uid, uri, key);
+                                        this.setState({commentString: ''}); 
+                                        }}
+                    />
+                </View>
                 
             </View>
            </View>
@@ -205,17 +231,87 @@ const styles = StyleSheet.create({
         flex: 1,
         marginTop: 22,
         flexDirection: 'column',
-        padding: 10,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
         backgroundColor: '#fff',
     },
+
+    backAndSellerRow: {
+        flexDirection: 'row',
+        // flex: 1,
+    },
+
+    backIconContainer: {
+        flex: 1,
+        justifyContent: 'center'
+    },
+
+    sellerNameContainer: {
+        flex: 3,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+
+    sellerName: {
+        fontFamily: avenirNext,
+        fontSize: 22,
+        fontWeight: '300',
+        color: graphiteGray
+    },
+
+    sellerImageContainer: {
+        flex: 0.8,
+        padding: 5,
+        // backgroundColor: 'red'
+    },
+
+    profilePic: {
+        width: 50,
+        height: 50,
+        borderRadius: 25
+    },
+
+    productInfoContainer: {
+        flexDirection: 'row',
+        // flex: 1,
+        padding: 5,
+
+    },
+
+    productImageContainer: {
+        flex: 1
+    },
+
+    productPic: {
+        height: 90,
+        width: 90,
+        borderRadius: 0
+    },
+
+    productTextContainer: {
+        flex: 3,
+        // flexDirection: 'column',
+        justifyContent: 'center',
+        // alignContent: 'center',
+        alignItems: 'center',
+        // textAlign: 'center',
+        // backgroundColor: 'red',
+    },
+
+    name: {
+        fontSize: 22,
+        fontFamily: avenirNext,
+        fontWeight: '500',
+    },
+
+
 
     //to hold scrolling list of comments
 
     contentContainerStyle: {
-        flex: 2,
+        
     },
     contentContainer: {
-        
         flexGrow: 1, 
         backgroundColor: '#fff',
         flexDirection: 'column',
@@ -270,20 +366,6 @@ const styles = StyleSheet.create({
         borderRadius: 5
     },
 
-    productTextContainer: {
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignContent: 'flex-start',
-        textAlign: 'justify'
-    },
-
-    name: {
-        ...material.headline,
-        fontSize: 18,
-        color: '#207011',
-        fontFamily: 'Times New Roman'
-    },
-
     price: {
         color: 'black',
         fontWeight: 'bold',
@@ -317,9 +399,8 @@ const styles = StyleSheet.create({
       },
 
     comment: {
-        ...iOSUIKit.bodyEmphasized,
         fontSize: 25,
-        color: 'black',
+        color: darkGray,
     },  
 
     commentTime: {
@@ -435,3 +516,10 @@ const styles = StyleSheet.create({
     },  
 
   });
+
+//   <Text style={styles.price}>
+//                    Price: £{text.price}
+//                  </Text>
+//                  <Text style={styles.brand}>
+//                    {text.brand.toUpperCase()}
+//                  </Text>

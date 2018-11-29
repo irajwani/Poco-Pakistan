@@ -17,7 +17,7 @@ import SelectMultiple from 'react-native-select-multiple';
 
 // import PushNotification from 'react-native-push-notification';
 import { PacmanIndicator } from 'react-native-indicators';
-import { graphiteGray, lightGreen, rejectRed, treeGreen } from '../colors.js';
+import { graphiteGray, lightGreen, rejectRed, treeGreen, avenirNext } from '../colors.js';
 import NothingHereYet from './NothingHereYet.js';
 
 const noProductsOfYourOwnText = "So far, you have not uploaded any items on the marketplace.\nTo make some cash 🤑 and free up closet space, upload an article of clothing on the Market\nfrom the 'Sell' screen.";
@@ -973,7 +973,7 @@ const styles = StyleSheet.create({
   },
 
   original_price: {
-    ...material.display2,
+    fontFamily: avenirNext,
     fontSize: 17,
     fontWeight: 'bold',
     color: 'black',
@@ -981,23 +981,23 @@ const styles = StyleSheet.create({
   },
 
   price: {
-    ...material.display3,
+    // ...material.display3,
+    fontFamily: avenirNext,
     fontSize: 17,
     fontWeight: 'bold',
     color: limeGreen
   },
 
   brand: {
-      ...material.display1,
-      fontFamily: 'Iowan Old Style',
+      // ...material.display1,
+      fontFamily: avenirNext,
       fontSize: 18,
       fontStyle: 'normal',
       color: iOSColors.black
   },
 
   size: {
-      ...material.display2,
-      fontFamily: 'Iowan Old Style',
+      fontFamily: avenirNext,
       fontStyle: 'normal',
       fontSize: 13,
       color: iOSColors.black

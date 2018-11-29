@@ -235,8 +235,8 @@ class ProductDetails extends Component {
   }
 
   navToProductComments = (productInformation) => {
-    const {yourProfile, productComments, otherUserUid} = this.state;
-    this.props.navigation.navigate('ProductComments', {productInformation: productInformation, key: productInformation.key, comments: productComments, yourProfile: yourProfile, uid: otherUserUid });
+    const {yourProfile, profile, productComments, otherUserUid} = this.state;
+    this.props.navigation.navigate('ProductComments', {productInformation: productInformation, key: productInformation.key, comments: productComments, yourProfile: yourProfile, theirProfile: profile, uid: otherUserUid });
   }
 
 
@@ -600,6 +600,7 @@ const styles = StyleSheet.create( {
   },
 
   sellerProfileAndActionsRow: {
+    height: 90,
     flexDirection: 'row',
     paddingVertical: 10,
     paddingHorizontal: 5
@@ -608,6 +609,9 @@ const styles = StyleSheet.create( {
   profilePictureContainer: {
     flex: 1.5,
     padding: 0,
+    // height:100,
+    // width: 150,
+    justifyContent: 'center',
     // backgroundColor: 'yellow'
   },
 
@@ -893,9 +897,9 @@ const profileRowStyles = StyleSheet.create( {
     // alignItems:'center',
     // justifyContent:'center',
     // width:70,
-    height:70,
+    height:80,
     backgroundColor:'#fff',
-    borderRadius:35,
+    borderRadius:80/2,
 
 },
 

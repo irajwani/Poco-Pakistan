@@ -9,7 +9,7 @@ import { iOSColors, iOSUIKit, human } from 'react-native-typography';
 import LinearGradient from 'react-native-linear-gradient'
 import ReviewsList from '../components/ReviewsList.js';
 import { PacmanIndicator } from 'react-native-indicators';
-import { highlightGreen, graphiteGray } from '../colors.js';
+import { highlightGreen, graphiteGray, avenirNext } from '../colors.js';
 const {width, height} = Dimensions.get('window');
 
 const resizeMode = 'center';
@@ -447,30 +447,34 @@ const styles = StyleSheet.create({
     borderWidth: 0
   },
   name: {
+    fontFamily: avenirNext,
     marginTop: 5,
     fontSize: 24,
     color: '#fff',
     fontWeight: 'normal'
   },
   numberProducts: {
-    fontFamily: 'Arial',
+    fontFamily: avenirNext,
     fontSize: 28,
     color: graphiteGray,
     fontWeight: 'normal'
   },
   soldProducts: {
+    fontFamily: avenirNext,
     fontSize: 16,
     color: '#fff',
     fontWeight: 'bold'
   }
   ,
   pos: {
+    fontFamily: avenirNext,
     fontSize: 18,
     color: '#fff',
     fontWeight: '600',
     fontStyle: 'italic'
   },
   insta: {
+    fontFamily: avenirNext,
     fontSize: 18,
     color: '#fff',
     fontWeight: '600',
