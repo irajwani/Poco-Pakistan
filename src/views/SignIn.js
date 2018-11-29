@@ -158,7 +158,7 @@ class SignIn extends Component {
         })
         .then((currentUser) => {
             this.successfulLoginCallback(currentUser, googleUserBoolean = true);
-            console.log('successfully signed in:', currentUser);
+            console.log('successfully signed in:', currentUser.photoURL);
             // console.log(JSON.stringify(currentUser.toJSON()))
         })
         .catch( (err) => console.log(err))

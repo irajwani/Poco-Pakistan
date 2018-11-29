@@ -29,7 +29,7 @@ const limeGreen = '#2e770f';
 
 const chatIcon = {
   title: 'Chat',
-  color: treeGreen,
+  color: 'gray',
   type:{name: 'message-text', type: 'material-community'}
 }
 
@@ -298,6 +298,109 @@ class ProductDetails extends Component {
         <View style={{flex: 2, alignItems: 'center'}}>
           <CustomCarousel data={params.data.uris} />
         </View>
+          {/* Product Name and Price Row */}
+        <View style={styles.nameAndPriceRow}>
+          <View style={styles.nameContainer}>
+            <Text style={styles.brandText}>{text.brand.toUpperCase()}, {text.name.toUpperCase()}</Text>
+          </View>
+          
+            {text.original_price > 0 ?
+              <View style={[styles.priceContainer]}>
+                <Text style={styles.original_price} >
+                  £{text.original_price}
+                </Text>
+                <Text style={styles.price} >
+                  £{text.price}
+                </Text>
+              </View>
+            :
+              <View style={[styles.priceContainer]}>
+                <Text style={styles.price} >
+                  £{text.price}
+                </Text>
+              </View>
+            }
+          
+        </View>
+
+        <View style={{backgroundColor: 'black', height: 1}} />
+            {/* Profile And Actions Row */}
+        <View style={styles.sellerProfileAndActionsRow}>
+            
+          <TouchableOpacity style={styles.profilePictureContainer} onPress={() => {firebase.auth().currentUser.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage()}}>
+            <Image source={ {uri: profile.uri }} style={profileRowStyles.profilepic} />
+          </TouchableOpacity>
+
+          <View style={styles.profileTextContainer}>
+            <Text onPress={() => 
+            {firebase.auth().currentUser.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage()}}
+            style={profileRowStyles.name}>
+              {profile.name}
+            </Text>
+            <Text style={profileRowStyles.email}>
+              {profile.country}
+            </Text>
+            {profile.insta ? 
+              <Text style={profileRowStyles.insta}>@{profile.insta}</Text>
+             : 
+              null
+            }
+          </View>
+
+          <View style={styles.likeIconContainer}>
+            {collectionKeys.includes(params.data.key) ? 
+              <Icon name="heart" 
+                    size={22} 
+                    color='#800000'
+                    onPress={() => { alert("you've already liked this product, but may unlike it from the Market"); }}
+              /> 
+              : 
+              <Icon name="heart-outline" 
+                    size={22} 
+                    color='#800000'
+                    onPress={() => {alert('You may like this product directly from the Market')}}
+              />
+            }
+            <Text style={styles.likes}>{text.likes}</Text>
+          </View>
+          <View style={styles.actionIconContainer}>
+            {productKeys.includes(data.key) ?
+              <Button
+                buttonStyle={{
+                    backgroundColor: "#186f87",
+                    width: 80,
+                    
+                    
+                }}
+                icon={{name: 'lead-pencil', type: 'material-community'}}
+                title='EDIT'
+                onPress = { () => { 
+                    console.log('going to edit item details');
+                    //subscribe to room key
+                    this.navToEditItem(data);
+                    } }
+              />
+              :
+              <Icon
+                name='message-text'
+                size={22}
+                color={chatIcon.color}
+                onPress = { () => { 
+                    console.log('going to chat');
+                    //subscribe to room key
+                    this.navToChat(data.uid, data.key);
+                    } }
+
+              />
+            }
+          </View>
+        </View>
+
+        <View style={{backgroundColor: 'black', height: 1}} />
+
+        {/* Details and Report Item Row */}
+
+
         
         <View style={styles.infoAndButtonsColumn}>
         {/* product details */}
@@ -728,15 +831,57 @@ const styles = StyleSheet.create( {
     // marginBottom: 5
   },
 
+  nameAndPriceRow: {
+    flexDirection: 'row',
+    backgroundColor: 'red'
+  },
+
+  nameContainer: {
+    flex: 3,
+  },
+
+  priceContainer: {
+    flexDirection: 'row',
+    flex: 1,
+    padding: 5,
+    justifyContent: 'flex-end',
+    backgroundColor: 'blue'
+  },
+
+  sellerProfileAndActionsRow: {
+    flexDirection: 'row',
+    paddingVertical: 10,
+    paddingHorizontal: 5
+  },
+
+  profilePictureContainer: {
+    flex: 1,
+    padding: 0
+  },
+
+  profileTextContainer: {
+    flex: 3,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignContent: 'flex-start'
+  },
+
+  likeIconContainer: {
+    padding: 5
+  },
+
+  actionIconContainer: {
+    padding: 5
+  },
+
   infoAndButtonsColumn: {
     flex: 1,
     flexDirection: 'column',
   },
 
   brandText: {
-    fontFamily: 'Courier-Bold',
-    fontSize: 35,
-    fontWeight: '400'
+    fontFamily: 'Avenir Next',
+    fontSize: 18,
   },
 
   headerPriceMagnifyingGlassRow: {
@@ -749,17 +894,15 @@ const styles = StyleSheet.create( {
   },
 
   original_price: {
-    ...material.display2,
-    fontSize: 17,
+    fontSize: 22,
     fontWeight: 'bold',
     color: 'black',
     textDecorationLine: 'line-through',
   },
 
   price: {
-    ...material.display3,
-    fontSize: 17,
-    fontWeight: 'bold',
+    fontSize: 22,
+    
     color: limeGreen
   },
 

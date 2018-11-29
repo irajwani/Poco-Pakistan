@@ -35,8 +35,8 @@ class CreateProfile extends Component {
           email: '',
           pass: '',
           pass2: '',
-          firstName: params.googleUserBoolean ? user.displayName.split(" ")[0] : '',
-          lastName: params.googleUserBoolean ? user.displayName.split(" ")[1] : '',    
+          firstName: params.googleUserBoolean ? params.user.displayName.split(" ")[0] : '',
+          lastName: params.googleUserBoolean ? params.user.displayName.split(" ")[1] : '',    
           country: '',
           size: 1,
           uri: undefined,
@@ -57,8 +57,8 @@ class CreateProfile extends Component {
   createProfileForGoogleUser = (user, pictureuri) => {
     this.setState({createProfileLoading: true});
     this.updateFirebase(this.state, pictureuri, mime='image/jpg',user.uid, true);
-    // alert('Your account has been created.\nPlease press the Google Icon to Sign In.\n');
-    // this.props.navigation.navigate('SignIn');
+    alert('Your account has been created.\nPlease press the Google Icon to Sign In from now on.\n');
+    this.props.navigation.navigate('SignIn');
   }
 
 
@@ -166,35 +166,50 @@ class CreateProfile extends Component {
     return {databaseProducts: firebase.database().ref().update(updateEmptyProducts),
             databaseProfile: firebase.database().ref().update(updates), 
             storage: new Promise((resolve, reject) => {
-                const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
-                let uploadBlob = null
-                const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
-                fs.readFile(uploadUri, 'base64')
-                .then((data) => {
-                return Blob.build(data, { type: `${mime};BASE64` })
-                })
-                .then((blob) => {
-                console.log('got to blob')
-                uploadBlob = blob
-                return imageRef.put(blob, { contentType: mime })
-                })
-                .then(() => {
-                uploadBlob.close()
-                return imageRef.getDownloadURL()
-                })
-                .then((url) => {
-                    
-                    //update db with profile picture url
+
+                if(googleUserBoolean) {
+                    const uploadUri = uri;
+                    // const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
                     var profileupdates = {};
-                    profileupdates['/Users/' + uid + '/profile/' + 'uri/'] = url ;
+                    profileupdates['/Users/' + uid + '/profile/' + 'uri/'] = uploadUri ;
                     firebase.database().ref().update(profileupdates);
                     this.setState({createProfileLoading: false});
-                    
-                    resolve(url)
-                })
-                .catch((error) => {
-                reject(error)
-                })
+                        
+                    resolve(uploadUri);
+
+                }
+                else {
+                    const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
+                    let uploadBlob = null
+                    const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
+                    fs.readFile(uploadUri, 'base64')
+                    .then((data) => {
+                    return Blob.build(data, { type: `${mime};BASE64` })
+                    })
+                    .then((blob) => {
+                    console.log('got to blob')
+                    uploadBlob = blob
+                    return imageRef.put(blob, { contentType: mime })
+                    })
+                    .then(() => {
+                    uploadBlob.close()
+                    return imageRef.getDownloadURL()
+                    })
+                    .then((url) => {
+                        
+                        //update db with profile picture url
+                        var profileupdates = {};
+                        profileupdates['/Users/' + uid + '/profile/' + 'uri/'] = url ;
+                        firebase.database().ref().update(profileupdates);
+                        this.setState({createProfileLoading: false});
+                        
+                        resolve(url)
+                    })
+                    .catch((error) => {
+                    reject(error)
+                    })
+                }
+                
             })
 }
   }
@@ -202,18 +217,25 @@ class CreateProfile extends Component {
 
   render() {
     const {params} = this.props.navigation.state
-    var pictureuris = params.pictureuris ? params.pictureuris : 'nothing here'
-
+    console.log(params);
+    //TODO: 
+    var googleUserBoolean = params.googleUserBoolean ? params.googleUserBoolean : false;
     var googleUser = params.googleUserBoolean ? true : false
-    console.log(googleUser)
-    var user = params.googleUserBoolean ? user : null //data for google user
-    var googlePhotoURL = params.user.photoURL ? params.user.photoURL : false 
+    
+    var user = params.googleUserBoolean ? params.user : null //data for google user
+    var googlePhotoURL = params.user.photoURL ? params.user.photoURL : false ;
     googleUser && googlePhotoURL ? pictureuris = [googlePhotoURL] : 'nothing here';
 
+    var pictureuris = params.pictureuris ? params.pictureuris : 'nothing here'
+    console.log(googleUser, googleUserBoolean, pictureuris);
     var conditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1) && (this.state.pass == this.state.pass2) && (this.state.pass.length >= 6);
     var passwordConditionMet = (this.state.pass == this.state.pass2) && (this.state.pass.length > 0);
     var googleUserConditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1);
     
+    if(pictureuris[0].includes('googleusercontent')) {
+        googleUserBoolean = true
+    }
+
     if(this.state.createProfileLoading) {
         return (
             <View style={{flex: 1}}>
@@ -222,7 +244,7 @@ class CreateProfile extends Component {
         )
     }
 
-    if(googleUser) {
+    if(googleUserBoolean) {
         return (
             <ScrollView style={styles.mainContainer} contentContainerStyle={styles.container}>
               <View style={ {flexDirection: 'row', backgroundColor: '#fff', justifyContent: 'space-between', padding: 5 } }>

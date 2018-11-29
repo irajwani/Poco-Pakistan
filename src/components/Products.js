@@ -611,9 +611,20 @@ class Products extends Component {
       }}
       >
     
-        <ScrollView contentContainerStyle={styles.filterModalContainer}>
+        <ScrollView style={{flex: 1, marginTop: 22,}} contentContainerStyle={styles.filterModalContainer}>
 
-          
+            <View style={{padding: 5}}>
+            <Button  
+              buttonStyle={styles.hideModalButtonStyle}
+              icon={{name: 'chevron-left', type: 'material-community'}}
+              title='Back'
+              onPress={() => {
+                  this.setState( {showFilterModal: false} );
+                }}
+            />
+            </View>
+
+            <View style={{padding: 5}}>
             <SearchBar
               lightTheme
               clearIcon={{ color: 'gray' }}
@@ -622,6 +633,7 @@ class Products extends Component {
               onClearText={()=>this.setState({brandSearchTerm: ''})}
               placeholder='Which Brand, Type, or Size?'
             />
+            </View>
           
           <Text style={styles.headerText}>Brands</Text>
           <ScrollView contentContainerStyle={styles.filterScrollContainer}>
@@ -670,7 +682,7 @@ class Products extends Component {
 
                       
 
-            
+            <View style={{padding: 5}}>
             <Button  
               buttonStyle={styles.confirmFiltersButtonStyle}
               icon={{name: 'filter', type: 'material-community'}}
@@ -680,7 +692,9 @@ class Products extends Component {
                   this.setState( {showFilterModal: false} );
                 }}
             />
+            </View>
 
+            <View style={{padding: 5}}>
             <Button  
               buttonStyle={styles.removeFiltersButtonStyle}
               icon={{name: 'filter-remove', type: 'material-community'}}
@@ -690,15 +704,9 @@ class Products extends Component {
                   this.setState( {selectedBrands: [], selectedTypes: [], selectedSizes: [], showFilterModal: false} );
                 }}
             />
+            </View>
             
-            <Button  
-              buttonStyle={styles.hideModalButtonStyle}
-              icon={{name: 'chevron-left', type: 'material-community'}}
-              title='Back'
-              onPress={() => {
-                  this.setState( {showFilterModal: false} );
-                }}
-            />
+            
         </ScrollView>
       
     </Modal>
@@ -1002,13 +1010,12 @@ const styles = StyleSheet.create({
   filterModal: {flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: 10, marginTop: 22},
 
   filterModalContainer: {
-    marginTop: 22,
-    flexGrow: 0.8, 
+    // flexGrow: 1, 
+    // padding: 10,
     backgroundColor: '#fff',
     flexDirection: 'column',
-    justifyContent: 'space-evenly',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 10,
   },
 
   filterButtonStyle : {
