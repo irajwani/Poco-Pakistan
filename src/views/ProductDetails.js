@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {TouchableWithoutFeedback, Keyboard, ScrollView, View, Text, TextInput, Image, TouchableHighlight, TouchableOpacity, Modal, Dimensions, StyleSheet} from 'react-native';
+import { TouchableWithoutFeedback, Keyboard, ScrollView, View, Text, TextInput, Image, TouchableHighlight, TouchableOpacity, Modal, Dimensions, StyleSheet, Linking } from 'react-native';
 import {Button} from 'react-native-elements';
 
 import { withNavigation } from 'react-navigation';
@@ -18,7 +18,7 @@ import { PacmanIndicator } from 'react-native-indicators';
 import Chatkit from "@pusher/chatkit";
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
 import email from 'react-native-email';
-import { bobbyBlue, woodBrown, highlightGreen, treeGreen } from '../colors';
+import { bobbyBlue, woodBrown, highlightGreen, graphiteGray, rejectRed } from '../colors';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import BackButton from '../components/BackButton';
 
@@ -29,7 +29,7 @@ const limeGreen = '#2e770f';
 
 const chatIcon = {
   title: 'Chat',
-  color: 'gray',
+  color: 'black',
   type:{name: 'message-text', type: 'material-community'}
 }
 
@@ -263,6 +263,7 @@ class ProductDetails extends Component {
     const { isGetting, profile, navToChatLoading, productComments, uid } = this.state;
     const text = data.text;
     const details = {
+      brand: text.brand,
       gender: text.gender,
       size: text.size,
       type: text.type,
@@ -301,8 +302,26 @@ class ProductDetails extends Component {
           {/* Product Name and Price Row */}
         <View style={styles.nameAndPriceRow}>
           <View style={styles.nameContainer}>
-            <Text style={styles.brandText}>{text.brand.toUpperCase()}, {text.name.toUpperCase()}</Text>
+            <Text style={styles.brandText}>{text.name.toUpperCase()}</Text>
           </View>
+
+          <View style={styles.likesContainer}>
+            
+            <Icon name={collectionKeys.includes(params.data.key) ? "heart" : "heart-outline" }
+            size={37} 
+            color='#800000'
+            onPress={() => {collectionKeys.includes(params.data.key) ? 
+            alert("you've already liked this product, but may unlike it from the Market")
+            : 
+            alert('You may like this product directly from the Market')}
+            }
+            />
+
+            <View style={{justifyContent: 'center', position: 'absolute', paddingBottom: 5}}>
+              <Text style={[styles.likes, {color: collectionKeys.includes(params.data.key) ? 'black' : rejectRed} ]}>{params.data.text.likes}</Text>
+            </View>
+          
+          </View> 
           
             {text.original_price > 0 ?
               <View style={[styles.priceContainer]}>
@@ -323,7 +342,7 @@ class ProductDetails extends Component {
           
         </View>
 
-        <View style={{backgroundColor: 'black', height: 1}} />
+        <View style={{backgroundColor: 'black', height: 1.5}} />
             {/* Profile And Actions Row */}
         <View style={styles.sellerProfileAndActionsRow}>
             
@@ -341,34 +360,19 @@ class ProductDetails extends Component {
               {profile.country}
             </Text>
             {profile.insta ? 
-              <Text style={profileRowStyles.insta}>@{profile.insta}</Text>
+              <Text onPress={()=>Linking.openURL(`https://instagram.com/${profile.insta}`)} style={profileRowStyles.insta}>@{profile.insta}</Text>
              : 
               null
             }
           </View>
 
-          <View style={styles.likeIconContainer}>
-            {collectionKeys.includes(params.data.key) ? 
-              <Icon name="heart" 
-                    size={22} 
-                    color='#800000'
-                    onPress={() => { alert("you've already liked this product, but may unlike it from the Market"); }}
-              /> 
-              : 
-              <Icon name="heart-outline" 
-                    size={22} 
-                    color='#800000'
-                    onPress={() => {alert('You may like this product directly from the Market')}}
-              />
-            }
-            <Text style={styles.likes}>{text.likes}</Text>
-          </View>
+          
           <View style={styles.actionIconContainer}>
             {productKeys.includes(data.key) ?
               <Button
                 buttonStyle={{
-                    backgroundColor: "#186f87",
-                    width: 80,
+                    backgroundColor: woodBrown,
+                    // width: 80,
                     
                     
                 }}
@@ -382,8 +386,8 @@ class ProductDetails extends Component {
               />
               :
               <Icon
-                name='message-text'
-                size={22}
+                name='message-text-outline'
+                size={50}
                 color={chatIcon.color}
                 onPress = { () => { 
                     console.log('going to chat');
@@ -396,105 +400,35 @@ class ProductDetails extends Component {
           </View>
         </View>
 
-        <View style={{backgroundColor: 'black', height: 1}} />
+        <View style={{backgroundColor: 'black', height: 1.5}} />
 
         {/* Details and Report Item Row */}
 
+        <View style={styles.detailsAndReportItemRow}>
 
-        
-        <View style={styles.infoAndButtonsColumn}>
-        {/* product details */}
-        <View style={{flex: 1}}>
-          <Text style={styles.brandText}>{text.brand.toUpperCase()}</Text>
-        </View>
-
-        <View style={styles.nameAndLikeRow} >
-          <Text style={styles.nameText}>{text.name.toUpperCase()}</Text>
-          <View style={styles.likesRow}>
-  {/* Boolean Row for ability to either like or unlike this product */}
-              {collectionKeys.includes(params.data.key) ? 
-                  <Icon name="heart" 
-                        size={22} 
-                        color='#800000'
-                        onPress={() => { alert("you've already liked this product, but may unlike it from the Market"); }}
-
-              /> : <Icon name="heart-outline" 
-                        size={22} 
-                        color='#800000'
-                        onPress={() => {alert('You may like this product directly from the Market')}}
-
-              />}
-
-              <Text style={styles.likes}>{params.data.text.likes}</Text>
-            </View> 
-        </View>
-        
-        {text.original_price > 0 ?
-          <View style= { styles.headerPriceMagnifyingGlassRow }>
-            
-            <View style={styles.priceRow}>
-              <Text style={styles.original_price} >
-                £{text.original_price}
-              </Text>
-              <Text style={styles.price} >
-                £{text.price}
-              </Text>
+            <View style={styles.detailsColumn}>
+              <Text style={[styles.detailsText, {fontSize: 20, color: 'black', fontWeight: '500'}]}>DETAILS</Text>
+              { Object.keys(details).map( (key, index) => ( 
+                <Text style={styles.detailsText} key={index}>
+                {key === 'original_price' ? 'Retail Price' : key.replace(key.charAt(0), key.charAt(0).toUpperCase())}: {key === 'original_price' ? `£${details[key]}` : details[key]}
+                </Text>
+              ) ) }
             </View>
-            {/* ownership product --> 2 things, edit item, confirm sale or unconfirm sale
-                when youre an interested buyer --> 3 things, buy item, review item, report item */}
+
+            <View style={styles.secondaryActionsColumn}>
             {productKeys.includes(data.key) ?
-              
-              data.text.sold ? 
-              
-              <View style={styles.buttonsRow}>
-                <Button
-                    buttonStyle={{
-                        backgroundColor: "#186f87",
-                        width: 80,
-                        
-                        
-                    }}
-                    icon={{name: 'lead-pencil', type: 'material-community'}}
-                    title='EDIT'
-                    onPress = { () => { 
-                        console.log('going to edit item details');
-                        //subscribe to room key
-                        this.navToEditItem(data);
-                        } }
-
-                    />
+              data.text.sold ?
                 <View style={{flexDirection: 'column',}}>
-                  <Text style={{color: '#0e4406', fontSize: 8 }}>Reset</Text>
-                  <Text style={{color: '#0e4406', fontSize: 8 }}>Sale</Text>
-                  <Icon
-                      name="check-circle" 
-                      size={30}  
-                      color={'#0e4406'}
-                      onPress = {() => {console.log('setting product status to available for purchase'); this.setSaleTo(false, data.uid, data.key)}}
-                  />
-                </View>      
-              </View>      
-                
-              
-               :
-
-               <View style={styles.buttonsRow}>
-                <Button
-                    buttonStyle={{
-                        backgroundColor: "#186f87",
-                        width: 80,
-                        
-                        
-                    }}
-                    icon={{name: 'lead-pencil', type: 'material-community'}}
-                    title='EDIT'
-                    onPress = { () => { 
-                        console.log('going to edit item details');
-                        //subscribe to room key
-                        this.navToEditItem(data);
-                        } }
-
+                    <Text style={{color: '#0e4406', fontSize: 8 }}>Reset</Text>
+                    <Text style={{color: '#0e4406', fontSize: 8 }}>Sale</Text>
+                    <Icon
+                        name="check-circle" 
+                        size={30}  
+                        color={'#0e4406'}
+                        onPress = {() => {console.log('setting product status to available for purchase'); this.setSaleTo(false, data.uid, data.key)}}
                     />
+                </View>
+              :
                 <View style={{flexDirection: 'column',}}>
                   <Text style={{color: '#0e4406', fontSize: 8 }}>Confirm</Text>
                   <Text style={{color: '#0e4406', fontSize: 8 }}>Sale</Text>
@@ -504,212 +438,24 @@ class ProductDetails extends Component {
                     color={'gray'}
                     onPress = {() => {console.log('setting product status to sold'); this.setSaleTo(true, data.uid, data.key)}}
                   />
-                </View>      
-              </View>   
-
-                    
-              :
-              <View style={styles.buttonsRow}>
-                <Button
-                    buttonStyle={{
-                        backgroundColor: chatIcon.color,
-                        width: 80,
-                      
-                        
-                    }}
-                    icon={chatIcon.type}
-                    title={chatIcon.title}
-                    onPress = { () => { 
-                        console.log('going to chat');
-                        //subscribe to room key
-                        this.navToChat(data.uid, data.key);
-                        } }
-
-                    />
-
-                <Icon
-                  name="alert" 
-                  size={40}  
-                  color={'#800'}
-                  onPress = { () => { 
-                              this.setState({showReportUserModal: true})
-                              } }
-                />
-              </View> 
-          }
-
-            
+                </View> 
+            :
+              <Icon
+                name="flag-variant-outline" 
+                size={40}  
+                color={'#800'}
+                onPress = { () => { 
+                            this.setState({showReportUserModal: true})
+                            } }
+              />
             
 
-          </View>        
-        :
-        <View style= { styles.headerPriceMagnifyingGlassRow }>
-            
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-              <Text style={styles.price} >
-                £{text.price}
-              </Text>
-            </View>
-
-            {productKeys.includes(data.key) ?
-              
-              data.text.sold ? 
-              
-              <View style={styles.buttonsRow}>
-                <Button
-                    buttonStyle={{
-                        backgroundColor: "#186f87",
-                        width: 80,
-                        
-                        
-                    }}
-                    icon={{name: 'lead-pencil', type: 'material-community'}}
-                    title='EDIT'
-                    onPress = { () => { 
-                        console.log('going to edit item details');
-                        //subscribe to room key
-                        this.navToEditItem(data);
-                        } }
-
-                    />
-                <View style={{flexDirection: 'column',}}>
-                  <Text style={{color: '#0e4406', fontSize: 8 }}>Reset</Text>
-                  <Text style={{color: '#0e4406', fontSize: 8 }}>Sale</Text>
-                  <Icon
-                      name="check-circle" 
-                      size={30}  
-                      color={'#0e4406'}
-                      onPress = {() => {console.log('setting product status to available for purchase'); this.setSaleTo(false, data.uid, data.key)}}
-                  />
-                </View>      
-              </View>      
-                
-              
-               :
-
-               <View style={styles.buttonsRow}>
-                <Button
-                    buttonStyle={{
-                        backgroundColor: "#186f87",
-                        width: 80,
-                        
-                        
-                    }}
-                    icon={{name: 'lead-pencil', type: 'material-community'}}
-                    title='EDIT'
-                    onPress = { () => { 
-                        console.log('going to edit item details');
-                        //subscribe to room key
-                        this.navToEditItem(data);
-                        } }
-
-                    />
-                <View style={{flexDirection: 'column',}}>
-                  <Text style={{color: '#0e4406', fontSize: 8 }}>Confirm</Text>
-                  <Text style={{color: '#0e4406', fontSize: 8 }}>Sale</Text>
-                  <Icon
-                    name="check-circle" 
-                    size={30}  
-                    color={'black'}
-                    onPress = {() => {console.log('setting product status to sold'); this.setSaleTo(true, data.uid, data.key)}}
-                  />
-                </View>      
-              </View>   
-
-                    
-              :
-              <View style={styles.buttonsRow}>
-                <Button
-                    buttonStyle={{
-                        backgroundColor: chatIcon.color,
-                        width: 80,
-                        
-                        
-                    }}
-                    icon={chatIcon.type}
-                    title={chatIcon.title}
-                    onPress = { () => { 
-                        console.log('going to chat');
-                        //subscribe to room key
-                        this.navToChat(data.uid, data.key);
-                        } }
-
-                    />
-
-                <Icon
-                  name="alert" 
-                  size={40}  
-                  color={'#800'}
-                  onPress = { () => { 
-                              this.setState({showReportUserModal: true})
-                              } }
-                />  
-              </View> 
-          }
-
-            
-            
-
-          </View>
-        }
-        </View>
-
-
-        {/* row showing user details */}
-        <View style={profileRowStyles.separator}/>
-
-        <View style={profileRowStyles.rowContainer}>
-          {/* row containing profile picture, and user details */}
-          <TouchableOpacity onPress={() => {firebase.auth().currentUser.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage()}}>
-            <Image source={ {uri: profile.uri }} style={profileRowStyles.profilepic} />
-          </TouchableOpacity>
-          <View style={profileRowStyles.textContainer}>
-            
-            <Text onPress={() => 
-            {firebase.auth().currentUser.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage()}}
-            style={profileRowStyles.name}>
-              {profile.name}
-            </Text>
-            <Text style={profileRowStyles.email}>
-              {profile.country}
-            </Text>
-            {profile.insta ? 
-              <Text style={profileRowStyles.insta}>@{profile.insta}</Text>
-             : 
-              null
             }
-            
-          </View>
-          
-          
-        </View>
-
-        <View style={styles.numberOfProductsSoldRow}>
-            <Text style={styles.numberProducts}>Products on Sale: {this.state.numberProducts} </Text>
-            <Text style={styles.soldProducts}> Products Sold: {this.state.soldProducts}</Text>
-        </View>
-
-        <View style={profileRowStyles.separator}/>
-
-        
-        
-        
-
-        {/* more details */}
-        
-        { Object.keys(details).map( (key, index) => (
-          
-            <View style={styles.dalmationContainer}>
-              <View style={ [styles.keyContainer, {backgroundColor: index % 2 == 0 ? bobbyBlue : iOSColors.lightGray2}] }>
-                  <Text style={styles.keyText}>{key === 'original_price' ? 'RETAIL PRICE' : key.toUpperCase()}</Text>
-              </View>
-              <View style={ [styles.valueContainer, {backgroundColor: index % 2 == 0 ? highlightGreen : iOSColors.black} ] }>
-                  <Text style={styles.valueText}>{key === 'original_price' ? `£${details[key]}` : details[key]}</Text>
-              </View>
+              
             </View>
+        </View>
 
-        )
-        ) }
+        <View style={{backgroundColor: 'black', height: 1.5}} />
 
         {/* comments */}
         
@@ -826,26 +572,31 @@ const styles = StyleSheet.create( {
     backgroundColor: '#fff',
     flexDirection: 'column',
     justifyContent: 'space-evenly',
-    padding: 10,
+    paddingHorizontal: 5,
     // marginTop: 5,
     // marginBottom: 5
   },
 
   nameAndPriceRow: {
     flexDirection: 'row',
-    backgroundColor: 'red'
+    // backgroundColor: 'red',
+    padding: 5,
+    // margin: 5
   },
 
   nameContainer: {
+    justifyContent: 'flex-start',
     flex: 3,
   },
 
+  likesContainer: {flex: 1, justifyContent: 'center', alignItems: 'center', },
+
   priceContainer: {
     flexDirection: 'row',
-    flex: 1,
-    padding: 5,
+    flex: 1.5,
+    
     justifyContent: 'flex-end',
-    backgroundColor: 'blue'
+    // backgroundColor: 'blue'
   },
 
   sellerProfileAndActionsRow: {
@@ -855,15 +606,18 @@ const styles = StyleSheet.create( {
   },
 
   profilePictureContainer: {
-    flex: 1,
-    padding: 0
+    flex: 1.5,
+    padding: 0,
+    // backgroundColor: 'yellow'
   },
 
   profileTextContainer: {
     flex: 3,
     flexDirection: 'column',
     justifyContent: 'center',
-    alignContent: 'flex-start'
+    alignContent: 'flex-end',
+    alignItems: 'center',
+    // backgroundColor: 'red'
   },
 
   likeIconContainer: {
@@ -871,7 +625,40 @@ const styles = StyleSheet.create( {
   },
 
   actionIconContainer: {
-    padding: 5
+    flex: 1,
+    // backgroundColor: 'brown',
+    justifyContent: 'center',
+    padding: 0
+  },
+
+
+  detailsAndReportItemRow: {
+    flexDirection: 'row',
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+  },
+
+  detailsColumn: {
+    flex: 5,
+    flexDirection: 'column',
+    paddingBottom: 3,
+    paddingTop: 1,
+    paddingHorizontal: 0
+  },
+
+  detailsText: {
+    textAlign: 'left',
+    fontSize: 17,
+    fontFamily: 'Avenir Next',
+    fontWeight: '300',
+    color: graphiteGray
+  },
+
+  secondaryActionsColumn: {
+    justifyContent: 'flex-start',
+    flexDirection: 'column',
+    flex: 1,
+    // backgroundColor: 'green'
   },
 
   infoAndButtonsColumn: {
@@ -881,7 +668,7 @@ const styles = StyleSheet.create( {
 
   brandText: {
     fontFamily: 'Avenir Next',
-    fontSize: 18,
+    fontSize: 22,
   },
 
   headerPriceMagnifyingGlassRow: {
@@ -894,13 +681,15 @@ const styles = StyleSheet.create( {
   },
 
   original_price: {
+    fontFamily: 'Avenir Next',
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: '500',
     color: 'black',
     textDecorationLine: 'line-through',
   },
 
   price: {
+    fontFamily: 'Avenir Next',
     fontSize: 22,
     
     color: limeGreen
@@ -931,11 +720,7 @@ const styles = StyleSheet.create( {
   },
 
   likes: {
-    ...iOSUIKit.largeTitleEmphasized,
-    fontSize: 20,
-    color: '#c61919',
-    padding: 2,
-    marginLeft: 4,
+    fontSize: 14,
   },
 
   priceRow: { flex: 1, flexDirection: 'row', justifyContent: 'flex-start', },
@@ -1103,15 +888,14 @@ const profileRowStyles = StyleSheet.create( {
 
 
   profilepic: {
-    borderWidth:1,
-    borderColor:'#207011',
-    alignItems:'center',
-    justifyContent:'center',
-    width:70,
+    borderWidth:0,
+    // borderColor:'#207011',
+    // alignItems:'center',
+    // justifyContent:'center',
+    // width:70,
     height:70,
     backgroundColor:'#fff',
-    borderRadius:20,
-    borderWidth: 2
+    borderRadius:35,
 
 },
 
@@ -1124,18 +908,22 @@ textContainer: {
 
 name: {
   fontSize: 18,
-  color: '#207011',
+  fontFamily: 'Avenir Next',
+  fontWeight: '400'
 },
 
 email: {
+  //actually this is for your country location value
     fontSize: 18,
-    color: '#0394c0',
+    fontFamily: 'Avenir Next',
+    fontWeight: '200',
     fontStyle: 'italic'
   },
   
 insta: {
-    fontSize: 16,
-    color: '#13a34c',
+    fontSize: 14,
+    fontFamily: 'Avenir Next',
+    color: '#800000',
     fontWeight: '600',
     fontStyle: 'normal'
   },  
@@ -1147,3 +935,332 @@ separator: {
 },
 
 } )
+
+{/* <View style={styles.likeIconContainer}>
+            {collectionKeys.includes(params.data.key) ? 
+              <Icon name="heart" 
+                    size={22} 
+                    color='#800000'
+                    onPress={() => { alert("you've already liked this product, but may unlike it from the Market"); }}
+              /> 
+              : 
+              <Icon name="heart-outline" 
+                    size={22} 
+                    color='#800000'
+                    onPress={() => {alert('You may like this product directly from the Market')}}
+              />
+            }
+            <Text style={styles.likes}>{text.likes}</Text>
+          </View> */}
+
+
+
+// ProductDetails in the past:
+
+// <View style={styles.infoAndButtonsColumn}>
+//         {/* product details */}
+//         <View style={{flex: 1}}>
+//           <Text style={styles.brandText}>{text.brand.toUpperCase()}</Text>
+//         </View>
+
+//         <View style={styles.nameAndLikeRow} >
+//           <Text style={styles.nameText}>{text.name.toUpperCase()}</Text>
+//           <View style={styles.likesRow}>
+//   {/* Boolean Row for ability to either like or unlike this product */}
+//               {collectionKeys.includes(params.data.key) ? 
+//                   <Icon name="heart" 
+//                         size={22} 
+//                         color='#800000'
+//                         onPress={() => { alert("you've already liked this product, but may unlike it from the Market"); }}
+
+//               /> : <Icon name="heart-outline" 
+//                         size={22} 
+//                         color='#800000'
+//                         onPress={() => {alert('You may like this product directly from the Market')}}
+
+//               />}
+
+//               <Text style={styles.likes}>{params.data.text.likes}</Text>
+//             </View> 
+//         </View>
+        
+//         {text.original_price > 0 ?
+//           <View style= { styles.headerPriceMagnifyingGlassRow }>
+            
+//             <View style={styles.priceRow}>
+//               <Text style={styles.original_price} >
+//                 £{text.original_price}
+//               </Text>
+//               <Text style={styles.price} >
+//                 £{text.price}
+//               </Text>
+//             </View>
+//             {/* ownership product --> 2 things, edit item, confirm sale or unconfirm sale
+//                 when youre an interested buyer --> 3 things, buy item, review item, report item */}
+//             {productKeys.includes(data.key) ?
+              
+//               data.text.sold ? 
+              
+//               <View style={styles.buttonsRow}>
+//                 <Button
+//                     buttonStyle={{
+//                         backgroundColor: "#186f87",
+//                         width: 80,
+                        
+                        
+//                     }}
+//                     icon={{name: 'lead-pencil', type: 'material-community'}}
+//                     title='EDIT'
+//                     onPress = { () => { 
+//                         console.log('going to edit item details');
+//                         //subscribe to room key
+//                         this.navToEditItem(data);
+//                         } }
+
+//                     />
+//                 <View style={{flexDirection: 'column',}}>
+//                   <Text style={{color: '#0e4406', fontSize: 8 }}>Reset</Text>
+//                   <Text style={{color: '#0e4406', fontSize: 8 }}>Sale</Text>
+//                   <Icon
+//                       name="check-circle" 
+//                       size={30}  
+//                       color={'#0e4406'}
+//                       onPress = {() => {console.log('setting product status to available for purchase'); this.setSaleTo(false, data.uid, data.key)}}
+//                   />
+//                 </View>      
+//               </View>      
+                
+              
+//                :
+
+//                <View style={styles.buttonsRow}>
+//                 <Button
+//                     buttonStyle={{
+//                         backgroundColor: "#186f87",
+//                         width: 80,
+                        
+                        
+//                     }}
+//                     icon={{name: 'lead-pencil', type: 'material-community'}}
+//                     title='EDIT'
+//                     onPress = { () => { 
+//                         console.log('going to edit item details');
+//                         //subscribe to room key
+//                         this.navToEditItem(data);
+//                         } }
+
+//                     />
+//                 <View style={{flexDirection: 'column',}}>
+//                   <Text style={{color: '#0e4406', fontSize: 8 }}>Confirm</Text>
+//                   <Text style={{color: '#0e4406', fontSize: 8 }}>Sale</Text>
+//                   <Icon
+//                     name="check-circle" 
+//                     size={30}  
+//                     color={'gray'}
+//                     onPress = {() => {console.log('setting product status to sold'); this.setSaleTo(true, data.uid, data.key)}}
+//                   />
+//                 </View>      
+//               </View>   
+
+                    
+//               :
+//               <View style={styles.buttonsRow}>
+//                 <Button
+//                     buttonStyle={{
+//                         backgroundColor: chatIcon.color,
+//                         width: 80,
+                      
+                        
+//                     }}
+//                     icon={chatIcon.type}
+//                     title={chatIcon.title}
+//                     onPress = { () => { 
+//                         console.log('going to chat');
+//                         //subscribe to room key
+//                         this.navToChat(data.uid, data.key);
+//                         } }
+//                 />
+
+//                 <Icon
+//                   name="alert" 
+//                   size={40}  
+//                   color={'#800'}
+//                   onPress = { () => { 
+//                               this.setState({showReportUserModal: true})
+//                               } }
+//                 />
+//               </View> 
+//           }
+
+            
+            
+
+//           </View>        
+//         :
+//         <View style= { styles.headerPriceMagnifyingGlassRow }>
+            
+//             <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+//               <Text style={styles.price} >
+//                 £{text.price}
+//               </Text>
+//             </View>
+
+//             {productKeys.includes(data.key) ?
+              
+//               data.text.sold ? 
+              
+//               <View style={styles.buttonsRow}>
+//                 <Button
+//                     buttonStyle={{
+//                         backgroundColor: "#186f87",
+//                         width: 80,
+                        
+                        
+//                     }}
+//                     icon={{name: 'lead-pencil', type: 'material-community'}}
+//                     title='EDIT'
+//                     onPress = { () => { 
+//                         console.log('going to edit item details');
+//                         //subscribe to room key
+//                         this.navToEditItem(data);
+//                         } }
+
+//                     />
+//                 <View style={{flexDirection: 'column',}}>
+//                   <Text style={{color: '#0e4406', fontSize: 8 }}>Reset</Text>
+//                   <Text style={{color: '#0e4406', fontSize: 8 }}>Sale</Text>
+//                   <Icon
+//                       name="check-circle" 
+//                       size={30}  
+//                       color={'#0e4406'}
+//                       onPress = {() => {console.log('setting product status to available for purchase'); this.setSaleTo(false, data.uid, data.key)}}
+//                   />
+//                 </View>      
+//               </View>      
+                
+              
+//                :
+
+//                <View style={styles.buttonsRow}>
+//                 <Button
+//                     buttonStyle={{
+//                         backgroundColor: "#186f87",
+//                         width: 80,
+                        
+                        
+//                     }}
+//                     icon={{name: 'lead-pencil', type: 'material-community'}}
+//                     title='EDIT'
+//                     onPress = { () => { 
+//                         console.log('going to edit item details');
+//                         //subscribe to room key
+//                         this.navToEditItem(data);
+//                         } }
+
+//                     />
+//                 <View style={{flexDirection: 'column',}}>
+//                   <Text style={{color: '#0e4406', fontSize: 8 }}>Confirm</Text>
+//                   <Text style={{color: '#0e4406', fontSize: 8 }}>Sale</Text>
+//                   <Icon
+//                     name="check-circle" 
+//                     size={30}  
+//                     color={'black'}
+//                     onPress = {() => {console.log('setting product status to sold'); this.setSaleTo(true, data.uid, data.key)}}
+//                   />
+//                 </View>      
+//               </View>   
+
+                    
+//               :
+//               <View style={styles.buttonsRow}>
+//                 <Button
+//                     buttonStyle={{
+//                         backgroundColor: chatIcon.color,
+//                         width: 80,
+                        
+                        
+//                     }}
+//                     icon={chatIcon.type}
+//                     title={chatIcon.title}
+//                     onPress = { () => { 
+//                         console.log('going to chat');
+//                         //subscribe to room key
+//                         this.navToChat(data.uid, data.key);
+//                         } }
+
+//                     />
+
+//                 <Icon
+//                   name="alert" 
+//                   size={40}  
+//                   color={'#800'}
+//                   onPress = { () => { 
+//                               this.setState({showReportUserModal: true})
+//                               } }
+//                 />  
+//               </View> 
+//           }
+
+            
+            
+
+//           </View>
+//         }
+//         </View>
+
+
+//         {/* row showing user details */}
+//         <View style={profileRowStyles.separator}/>
+
+//         <View style={profileRowStyles.rowContainer}>
+//           {/* row containing profile picture, and user details */}
+//           <TouchableOpacity onPress={() => {firebase.auth().currentUser.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage()}}>
+//             <Image source={ {uri: profile.uri }} style={profileRowStyles.profilepic} />
+//           </TouchableOpacity>
+//           <View style={profileRowStyles.textContainer}>
+            
+//             <Text onPress={() => 
+//             {firebase.auth().currentUser.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage()}}
+//             style={profileRowStyles.name}>
+//               {profile.name}
+//             </Text>
+//             <Text style={profileRowStyles.email}>
+//               {profile.country}
+//             </Text>
+//             {profile.insta ? 
+//               <Text style={profileRowStyles.insta}>@{profile.insta}</Text>
+//              : 
+//               null
+//             }
+            
+//           </View>
+          
+          
+//         </View>
+
+//         <View style={styles.numberOfProductsSoldRow}>
+//             <Text style={styles.numberProducts}>Products on Sale: {this.state.numberProducts} </Text>
+//             <Text style={styles.soldProducts}> Products Sold: {this.state.soldProducts}</Text>
+//         </View>
+
+//         <View style={profileRowStyles.separator}/>
+
+        
+        
+        
+
+//         {/* more details */}
+        
+//         { Object.keys(details).map( (key, index) => (
+          
+//             <View style={styles.dalmationContainer}>
+//               <View style={ [styles.keyContainer, {backgroundColor: index % 2 == 0 ? bobbyBlue : iOSColors.lightGray2}] }>
+//                   <Text style={styles.keyText}>{key === 'original_price' ? 'RETAIL PRICE' : key.toUpperCase()}</Text>
+//               </View>
+//               <View style={ [styles.valueContainer, {backgroundColor: index % 2 == 0 ? highlightGreen : iOSColors.black} ] }>
+//                   <Text style={styles.valueText}>{key === 'original_price' ? `£${details[key]}` : details[key]}</Text>
+//               </View>
+//             </View>
+
+//         )
+//         ) }

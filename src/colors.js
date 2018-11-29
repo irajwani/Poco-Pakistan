@@ -7,4 +7,7 @@ const woodBrown = '#5b3e15', poopBrown = '#996c2d', profoundPink = '#c64f5f';
 const flashOrange = '#ed8a09'
 const graphiteGray = '#535b53', almostWhite = '#dee0e5';
 
+// FONTS
+const avenirNext = 'Avenir Next';
+
 export {almostWhite, flashOrange, confirmBlue, rejectRed, treeGreen, highlightGreen, lightGreen, bobbyBlue, tealBlue, darkBlue, woodBrown, graphiteGray, profoundPink, poopBrown, optionLabelBlue}

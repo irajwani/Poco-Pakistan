@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import styled from "styled-components/native"; // 3.1.6
 import Carousel, {Pagination} from 'react-native-snap-carousel'; // 3.6.0
-import { graphiteGray, treeGreen } from '../colors';
+import { graphiteGray, treeGreen, optionLabelBlue } from '../colors';
 // import { iOSColors } from 'react-native-typography';
 
 class CustomCarousel extends Component {
@@ -60,7 +60,7 @@ class CustomCarousel extends Component {
               // height: 10,
               // borderRadius: 5,
               // marginHorizontal: 8,
-              backgroundColor: treeGreen
+              backgroundColor: optionLabelBlue
           }}
           inactiveDotStyle={{
               backgroundColor: graphiteGray
