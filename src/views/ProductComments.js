@@ -1,12 +1,12 @@
 import React, {Component} from 'react'
-import {Dimensions, Keyboard, Text, TextInput, TouchableHighlight, Image, View, ScrollView, StyleSheet} from 'react-native';
+import { Dimensions, Keyboard, Text, TextInput, TouchableHighlight, Image, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import { Kohana } from 'react-native-textinput-effects'
+import { Hoshi } from 'react-native-textinput-effects'
 import {withNavigation} from 'react-navigation';
 import firebase from '../cloud/firebase';
-import { material, human, iOSUIKit, iOSColors } from 'react-native-typography'
-import { highlightGreen, treeGreen, profoundPink, avenirNext, graphiteGray, darkGray } from '../colors';
+import { material, human, iOSUIKit, iOSColors, systemWeights } from 'react-native-typography'
+import { almostWhite, highlightGreen, treeGreen, profoundPink, avenirNext, graphiteGray, darkGray, optionLabelBlue, rejectRed } from '../colors';
 import FontAwesomeIcon  from 'react-native-vector-icons/FontAwesome';
 //for each comment, use their time of post as the key
 
@@ -21,6 +21,7 @@ class ProductComments extends Component {
           commentString: '',
           visibleHeight: Dimensions.get('window').height,
           isGetting: true,
+          showDeleteRow: false
         }
         this.height = this.state.visibleHeight
         
@@ -47,8 +48,8 @@ class ProductComments extends Component {
        this.setState({visibleHeight: Dimensions.get('window').height})
     }
 
-    onCommentTextChanged(event) {
-        this.setState({ commentString: event.nativeEvent.text });
+    onCommentTextChanged(commentString) {
+        this.setState({ commentString });
     }
 
     uploadComment(name, comment, uid, uri, productKey ) {
@@ -95,7 +96,7 @@ class ProductComments extends Component {
         const {uris, text} = productInformation //For row containing product Information
         const {name, uri} = yourProfile; //To upload a comment, attach the current Users profile details, in this case their name and profile pic uri
         
-        var {comments} = this.state;
+        var {comments, showDeleteRow} = this.state;
         var emptyReviews = Object.keys(comments).length == 1 && Object.keys(comments).includes('a') ? true : false
         var {a, ...restOfTheComments} = comments;
         comments = emptyReviews ? {a} : restOfTheComments;
@@ -148,11 +149,16 @@ class ProductComments extends Component {
              <ScrollView style={styles.contentContainerStyle} contentContainerStyle={styles.contentContainer}>
              {Object.keys(comments).map(
                   (comment) => (
-                  <View key={comment} style={styles.commentContainer}>
+                  <TouchableOpacity key={comment} style={[styles.commentContainer, {color: showDeleteRow ? almostWhite : '#fff'}]} onLongPress={()=>this.setState({showDeleteRow: true})}>
                     
                     {
-                    comments[comment].uri == uri ?
+                    showDeleteRow && comments[comment].uri == uri ?
                         <View style={styles.deleteCommentRow}>
+                            <Icon name="close" 
+                            size={22} 
+                            color={'black'}
+                            onPress={ () => {this.setState({showDeleteRow: false}) }}
+                            />
                             <Text
                             onPress={() => this.deleteComment(comment, productInformation.uid, productInformation.key)} 
                             style={styles.deleteComment}>
@@ -183,10 +189,8 @@ class ProductComments extends Component {
                         <Text style={ styles.commentTime }> {comments[comment].time} </Text>
 
                       </View>
-
-                      {comments[comment].uri ? <View style={styles.separator}/> : null}
                       
-                  </View>
+                  </TouchableOpacity>
                   
               )
                       
@@ -194,23 +198,25 @@ class ProductComments extends Component {
             </ScrollView>
              
             <View style={{ flexDirection : 'row', bottom : this.height - this.state.visibleHeight}} >
-                <Kohana
-                    style={{ backgroundColor: '#b5bcc9' }}
+
+            
+                <Hoshi
+                    style={{ width: 250, backgroundColor: '#fff' }}
                     label={'Comment'}
+                    labelStyle={ {color: 'black', ...systemWeights.regular} }
                     value={this.state.commentString}
-                    onChange={this.onCommentTextChanged.bind(this)}
-                    iconClass={Icon}
-                    iconName={'comment-multiple'}
-                    iconColor={treeGreen}
-                    labelStyle={{ color: 'black' }}
-                    inputStyle={{ color: 'black' }}
-                    useNativeDriver
+                    onChangeText={ commentString => this.onCommentTextChanged(commentString)}
+                    borderColor={optionLabelBlue}
+                    inputStyle={{ color: 'black', fontWeight: '400', fontFamily: avenirNext }}
+                    autoCorrect={false}
+                    
                 />
+            
 
                 <View style={{backgroundColor: '#fff', borderRadius: 0}}>
                     <Icon name="send" 
                             size={55} 
-                            color={'#37a1e8'}
+                            color={optionLabelBlue}
                             onPress={ () => {this.uploadComment(name, this.state.commentString, uid, uri, key);
                                         this.setState({commentString: ''}); 
                                         }}
@@ -454,17 +460,18 @@ const styles = StyleSheet.create({
 
     deleteCommentRow: {
         flexDirection: 'row',
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
         paddingTop:5,
-        paddingRight:5
+        paddingHorizontal:5,
         // alignContent: 'flex-end',
         // backgroundColor: 'blue'
     },
 
     deleteComment: {
-        fontFamily: 'Cochin',
-        fontSize: 15,
-        color: profoundPink,
+        fontFamily: 'Iowan Old Style',
+        fontWeight: '500',
+        fontSize: 18,
+        color: rejectRed,
         // textAlign: 'right'
     },
     
@@ -523,3 +530,11 @@ const styles = StyleSheet.create({
 //                  <Text style={styles.brand}>
 //                    {text.brand.toUpperCase()}
 //                  </Text>
+
+// iconClass={Icon}
+//                     iconName={'comment-multiple'}
+//                     iconColor={treeGreen}
+//                     labelStyle={{ color: 'black' }}
+//                     inputStyle={{ color: 'black' }}
+
+// {comments[comment].uri ? <View style={styles.separator}/> : null}

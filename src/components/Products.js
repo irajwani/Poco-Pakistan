@@ -4,6 +4,7 @@ import { Dimensions, View, Image, StyleSheet, ScrollView, TouchableOpacity, Touc
 import { Button, SearchBar, CheckBox } from 'react-native-elements';
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import { Text,  } from 'native-base';
+import { Hoshi } from 'react-native-textinput-effects'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { material, iOSUIKit, iOSColors } from 'react-native-typography'
 import firebase from '../cloud/firebase.js';
@@ -17,8 +18,9 @@ import SelectMultiple from 'react-native-select-multiple';
 
 // import PushNotification from 'react-native-push-notification';
 import { PacmanIndicator } from 'react-native-indicators';
-import { graphiteGray, lightGreen, rejectRed, treeGreen, avenirNext } from '../colors.js';
+import { graphiteGray, lightGreen, rejectRed, treeGreen, avenirNext, optionLabelBlue } from '../colors.js';
 import NothingHereYet from './NothingHereYet.js';
+import { reject } from 'rsvp';
 
 const noProductsOfYourOwnText = "So far, you have not uploaded any items on the marketplace.\nTo make some cash 🤑 and free up closet space, upload an article of clothing on the Market\nfrom the 'Sell' screen.";
 const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace 💔.";
@@ -87,7 +89,7 @@ class Products extends Component {
     }, 1000);
     setTimeout(() => {
       this.getPageSpecificProducts([], [], []);
-    }, 1000);
+    }, 100);
   }
 
   // componentDidMount() {
@@ -611,7 +613,7 @@ class Products extends Component {
       }}
       >
     
-        <ScrollView style={{flex: 1, marginTop: 22,}} contentContainerStyle={styles.filterModalContainer}>
+        <ScrollView style={{flex: 1, marginTop: 22, }} contentContainerStyle={[styles.filterModalContainer, {backgroundColor: '#fff'}]}>
 
             <View style={{padding: 5}}>
             <Button  
@@ -624,19 +626,36 @@ class Products extends Component {
             />
             </View>
 
-            <View style={{padding: 5}}>
-            <SearchBar
-              lightTheme
-              clearIcon={{ color: 'gray' }}
-              searchIcon={{ size: 20 }}
-              onChangeText={(brandSearchTerm)=>{this.setState({ brandSearchTerm })}}
-              onClearText={()=>this.setState({brandSearchTerm: ''})}
-              placeholder='Which Brand, Type, or Size?'
-            />
+            <View style={styles.searchBarAndIconContainer}>
+
+            <View style={styles.searchBarContainer}>
+              <Hoshi
+                      style={{ width: 250, backgroundColor: '#fff' }}
+                      label={'What Brand, Type, or Size?'}
+                      labelStyle={ {color: rejectRed} }
+                      value={this.state.brandSearchTerm}
+                      onChangeText={(brandSearchTerm)=>{this.setState({ brandSearchTerm })}}
+                      borderColor={treeGreen}
+                      inputStyle={{ color: 'black', fontWeight: '400', fontFamily: avenirNext }}
+                      autoCorrect={false}
+                      
+              />
+            </View> 
+
+            <View style={styles.clearSearchIconContainer}>
+            <Icon name="close" 
+                            size={40} 
+                            color={'#800000'}
+                            onPress={ () => this.setState({brandSearchTerm: ''})}
+              />
+            </View>   
+
+
+            
             </View>
           
-          <Text style={styles.headerText}>Brands</Text>
-          <ScrollView contentContainerStyle={styles.filterScrollContainer}>
+          <Text style={[styles.headerText, {color: treeGreen}]}>Brands</Text>
+          <ScrollView style={{flex: 1, backgroundColor: '#122021'}} contentContainerStyle={[styles.filterScrollContainer, {backgroundColor: '#122021'}]}>
 
             {brands.length > 0? 
               <SelectMultiple
@@ -649,7 +668,7 @@ class Products extends Component {
             }
 
           </ScrollView>
-          <Text style={styles.headerText}>Types</Text>
+          <Text style={[styles.headerText, {color: 'black'}]}>Types</Text>
           <ScrollView contentContainerStyle={styles.filterScrollContainer}>
 
             {types.length > 0? 
@@ -663,7 +682,7 @@ class Products extends Component {
             }
 
           </ScrollView>  
-          <Text style={styles.headerText}>Sizes</Text>
+          <Text style={[styles.headerText, {color: optionLabelBlue}]}>Sizes</Text>
           <ScrollView contentContainerStyle={styles.filterScrollContainer}>
 
             {sizes.length > 0? 
@@ -847,11 +866,12 @@ const styles = StyleSheet.create({
 
   filterScrollContainer: {
     flexDirection: 'column',
-    height: height/3,
+    height: 150,
     justifyContent: 'center',
     alignItems: 'center',
-    borderColor: treeGreen,
-    borderWidth: 2
+    borderColor: graphiteGray,
+    borderWidth: 2,
+    // backgroundColor: '#122021'
   },    
 
   headerPriceMagnifyingGlassRow: {
@@ -908,9 +928,10 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   headerText: {
-    fontFamily: 'Cochin',
+    fontFamily: avenirNext,
+    color: rejectRed,
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: '500',
   },
   contentCard: {
@@ -1112,6 +1133,24 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
 
+  searchBarAndIconContainer: {
+    flexDirection: 'row',
+    padding: 5,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  searchBarContainer: {
+    flex: 1, 
+    paddingHorizontal: 10
+    // backgroundColor: 'blue'
+  },
+
+  clearSearchIconContainer: {
+    flex: 0.2, 
+    // backgroundColor: 'red'
+  },
+
   removeFiltersButtonStyle : {
     backgroundColor: rejectRed,
     width: width/3 + 40,
@@ -1135,9 +1174,9 @@ const styles = StyleSheet.create({
   },
 
   hideModalButtonStyle : {
-    backgroundColor: 'black',
-    width: width/3 + 20,
-    height: height/15,
+    backgroundColor: optionLabelBlue,
+    width: 100,
+    // height: height/15,
     borderRadius: 20,
     // justifyContent: 'center',
     // alignItems:'center',
@@ -1235,4 +1274,14 @@ const styles = StyleSheet.create({
             //   renderContent={this.renderFilterContent}
             //   duration={100}
             //   onChange={this.setFilterSection}
+            // />
+
+
+            // <SearchBar
+              
+            //   clearIcon={{ color: 'gray' }}
+            //   searchIcon={{ size: 20 }}
+            //   onChangeText={(brandSearchTerm)=>{this.setState({ brandSearchTerm })}}
+            //   onClearText={()=>this.setState({brandSearchTerm: ''})}
+            //   placeholder='What Brand, Type, or Size?'
             // />

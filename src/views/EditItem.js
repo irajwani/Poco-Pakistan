@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Platform, Text, StyleSheet, View, Image, KeyboardAvoidingView, ScrollView, Picker } from 'react-native'
 import {withNavigation} from 'react-navigation';
 
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import { Hoshi, Jiro } from 'react-native-textinput-effects';
 import { TextField } from 'react-native-material-textfield';
 import NumericInput from 'react-native-numeric-input'
@@ -16,9 +17,10 @@ import { PacmanIndicator } from 'react-native-indicators';
 
 import firebase from '../cloud/firebase.js';
 
-import {optionLabelBlue, treeGreen, darkBlue, confirmBlue, woodBrown, rejectRed} from '../colors'
+import {avenirNext, optionLabelBlue, treeGreen, darkBlue, confirmBlue, woodBrown, rejectRed} from '../colors'
 // import Chatkit from "@pusher/chatkit";
 // import { CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_INSTANCE_LOCATOR, CHATKIT_SECRET_KEY } from '../credentials/keys';
+
 
 const babyBlue='#94c2ed';
 const basicBlue = '#2c7dc9'
@@ -400,8 +402,29 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
 
             <Divider style={{  backgroundColor: '#fff', height: 12 }} />
         {/* 1. Product Pictures */}
-        <Text style={{textAlign: 'center', color: optionLabelBlue}}>Picture(s) of Product:</Text>
-            <Divider style={{  backgroundColor: '#fff', height: 8 }} />
+
+            {/* Back Button and Text Row */}
+            <View style={{flexDirection: 'row', paddingVertical: 5, paddingHorizontal: 15, justifyContent: 'center', alignItems: 'center'}}>
+        
+                <View style={{flex: 1}}>
+                    <FontAwesomeIcon
+                    name='chevron-circle-left'
+                    size={40}
+                    color={'#76ce1e'}
+                    onPress = { () => { 
+                        this.props.navigation.goBack();
+                        } }
+
+                    />
+                </View>
+
+                <View style={{flex: 3}}>
+                    <Text style={{ color: optionLabelBlue, fontFamily: avenirNext, fontSize: 18, fontWeight: '400'}}>Picture(s) of Product:</Text>
+                </View>
+
+            </View>
+
+            
 
             <MultipleAddButton navToComponent = {'EditItem'} pictureuris={pictureuris}/>
 

@@ -369,17 +369,12 @@ class ProductDetails extends Component {
           
           <View style={styles.actionIconContainer}>
             {productKeys.includes(data.key) ?
-              <Button
-                buttonStyle={{
-                    backgroundColor: woodBrown,
-                    // width: 80,
-                    
-                    
-                }}
-                icon={{name: 'lead-pencil', type: 'material-community'}}
-                title='EDIT'
+              <Icon
+                name='wrench'
+                size={50}
+                color={'black'}
                 onPress = { () => { 
-                    console.log('going to edit item details');
+                    // console.log('going to edit item details');
                     //subscribe to room key
                     this.navToEditItem(data);
                     } }
@@ -390,7 +385,7 @@ class ProductDetails extends Component {
                 size={50}
                 color={chatIcon.color}
                 onPress = { () => { 
-                    console.log('going to chat');
+                    // console.log('going to chat');
                     //subscribe to room key
                     this.navToChat(data.uid, data.key);
                     } }
