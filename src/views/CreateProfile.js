@@ -57,8 +57,7 @@ class CreateProfile extends Component {
   createProfileForGoogleUser = (user, pictureuri) => {
     this.setState({createProfileLoading: true});
     this.updateFirebase(this.state, pictureuri, mime='image/jpg',user.uid, true);
-    alert('Your account has been created.\nPlease press the Google Icon to Sign In from now on.\n');
-    this.props.navigation.navigate('SignIn');
+    
   }
 
 
@@ -163,55 +162,82 @@ class CreateProfile extends Component {
 
     updateEmptyProducts['/Users/' + uid + '/'] = emptyProductPostData;
 
-    return {databaseProducts: firebase.database().ref().update(updateEmptyProducts),
-            databaseProfile: firebase.database().ref().update(updates), 
-            storage: new Promise((resolve, reject) => {
-
-                if(googleUserBoolean) {
-                    const uploadUri = uri;
-                    // const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
-                    var profileupdates = {};
-                    profileupdates['/Users/' + uid + '/profile/' + 'uri/'] = uploadUri ;
-                    firebase.database().ref().update(profileupdates);
-                    this.setState({createProfileLoading: false});
-                        
-                    resolve(uploadUri);
-
-                }
-                else {
-                    const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
-                    let uploadBlob = null
-                    const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
-                    fs.readFile(uploadUri, 'base64')
-                    .then((data) => {
-                    return Blob.build(data, { type: `${mime};BASE64` })
-                    })
-                    .then((blob) => {
-                    console.log('got to blob')
-                    uploadBlob = blob
-                    return imageRef.put(blob, { contentType: mime })
-                    })
-                    .then(() => {
-                    uploadBlob.close()
-                    return imageRef.getDownloadURL()
-                    })
-                    .then((url) => {
-                        
-                        //update db with profile picture url
-                        var profileupdates = {};
-                        profileupdates['/Users/' + uid + '/profile/' + 'uri/'] = url ;
-                        firebase.database().ref().update(profileupdates);
-                        this.setState({createProfileLoading: false});
-                        
-                        resolve(url)
-                    })
-                    .catch((error) => {
-                    reject(error)
-                    })
-                }
+    let promiseToUploadGooglePhoto = new Promise((resolve, reject) => {
                 
+        console.log('We already have a googlePhoto url, so need for interaction with cloud storage')
+        const uploadUri = uri;
+        
+        // const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
+        var profileUpdates = {};
+        profileUpdates['/Users/' + uid + '/profile/' + 'uri/'] = uploadUri ;
+        firebase.database().ref().update(profileUpdates);
+        resolve(uploadUri);
+        
+        
+    }
+    
+)
+    
+    let promiseToUploadPhoto = new Promise((resolve, reject) => {
+
+        console.log('user has chosen picture manually through photo lib or camera.')
+        const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
+        let uploadBlob = null
+        const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
+        fs.readFile(uploadUri, 'base64')
+        .then((data) => {
+        return Blob.build(data, { type: `${mime};BASE64` })
+        })
+        .then((blob) => {
+        console.log('got to blob')
+        uploadBlob = blob
+        return imageRef.put(blob, { contentType: mime })
+        })
+        .then(() => {
+        uploadBlob.close()
+        return imageRef.getDownloadURL()
+        })
+        .then((url) => {
+            
+            //update db with profile picture url
+            var profileUpdates = {};
+            profileUpdates['/Users/' + uid + '/profile/' + 'uri/'] = url ;
+            firebase.database().ref().update(profileUpdates);
+
+            resolve(url)
+            
+        })
+        .catch((error) => {
+        reject(error)
+        })
+
+    })
+
+    return {
+        databaseProducts: firebase.database().ref().update(updateEmptyProducts),
+        databaseProfile: firebase.database().ref().update(updates), 
+        storage: uri.includes('googleusercontent') ? 
+            
+            promiseToUploadGooglePhoto.then( (url) => {
+                console.log(url);
+                googleUserBoolean ? alert('Your account has been created.\nPlease press the Google Icon to Sign In from now on.\n') : alert('Your account has been created.\nPlease use your credentials to Sign In.\n'); 
+                this.setState({createProfileLoading: false});
+                this.props.navigation.navigate('SignIn');
             })
-}
+            :
+            promiseToUploadPhoto.then((url) => {
+                this.successfulProfileCreationCallback(url);
+            })
+            
+        } 
+
+  }
+
+  successfulProfileCreationCallback = (url) => {
+    console.log(url);
+    googleUserBoolean ? alert('Your account has been created.\nPlease press the Google Icon to Sign In from now on.\n') : alert('Your account has been created.\nPlease use your credentials to Sign In.\n'); 
+    this.setState({createProfileLoading: false});
+    this.props.navigation.navigate('SignIn');
   }
 
 
@@ -221,10 +247,11 @@ class CreateProfile extends Component {
     //TODO: 
     var googleUserBoolean = params.googleUserBoolean ? params.googleUserBoolean : false;
     var googleUser = params.googleUserBoolean ? true : false
+    //may be reusing booleans here, but this check on isUserGoogleUser? alright logically so far
     
     var user = params.googleUserBoolean ? params.user : null //data for google user
-    var googlePhotoURL = params.user.photoURL ? params.user.photoURL : false ;
-    googleUser && googlePhotoURL ? pictureuris = [googlePhotoURL] : 'nothing here';
+    // var googlePhotoURL = params.user.photoURL ? params.user.photoURL : false ;
+    // googleUser && googlePhotoURL ? pictureuris = [googlePhotoURL] : 'nothing here';
 
     var pictureuris = params.pictureuris ? params.pictureuris : 'nothing here'
     console.log(googleUser, googleUserBoolean, pictureuris);

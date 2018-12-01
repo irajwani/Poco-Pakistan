@@ -413,9 +413,9 @@ class ProductDetails extends Component {
             <View style={styles.secondaryActionsColumn}>
             {productKeys.includes(data.key) ?
               data.text.sold ?
-                <View style={{flexDirection: 'column',}}>
-                    <Text style={{color: '#0e4406', fontSize: 8 }}>Reset</Text>
-                    <Text style={{color: '#0e4406', fontSize: 8 }}>Sale</Text>
+                <View style={styles.confirmSaleActionContainer}>
+                    <Text style={styles.confirmSaleText}>Reset</Text>
+                    <Text style={styles.confirmSaleText}>Sale</Text>
                     <Icon
                         name="check-circle" 
                         size={30}  
@@ -424,9 +424,9 @@ class ProductDetails extends Component {
                     />
                 </View>
               :
-                <View style={{flexDirection: 'column',}}>
-                  <Text style={{color: '#0e4406', fontSize: 8 }}>Confirm</Text>
-                  <Text style={{color: '#0e4406', fontSize: 8 }}>Sale</Text>
+                <View style={styles.confirmSaleActionContainer}>
+                  <Text style={styles.confirmSaleText}>Confirm</Text>
+                  <Text style={styles.confirmSaleText}>Sale</Text>
                   <Icon
                     name="check-circle" 
                     size={30}  
@@ -659,6 +659,14 @@ const styles = StyleSheet.create( {
     flex: 1,
     // backgroundColor: 'green'
   },
+
+  confirmSaleActionContainer: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  confirmSaleText: {color: '#0e4406', fontSize: 10, textAlign: 'center' },
 
   infoAndButtonsColumn: {
     flex: 1,

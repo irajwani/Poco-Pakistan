@@ -15,7 +15,7 @@ import firebase from '../cloud/firebase.js';
 // import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
 import { material, iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
-import { confirmBlue, woodBrown, rejectRed, darkBlue, optionLabelBlue, treeGreen } from '../colors';
+import { confirmBlue, woodBrown, rejectRed, darkBlue, optionLabelBlue, treeGreen, avenirNext } from '../colors';
 
 const babyBlue='#94c2ed';
 const basicBlue = '#2c7dc9'
@@ -298,7 +298,7 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
     const pictureuris = params ? params.pictureuris : 'nothing here'
     //const picturebase64 = params ? params.base64 : 'nothing here'
     //Lenient condition, Array.isArray(pictureuris) && pictureuris.length >= 1
-    var conditionMet = (this.state.name) && (this.state.price > 0) && (Array.isArray(pictureuris) && pictureuris.length >= 1)
+    var conditionMet = (this.state.name) && (this.state.price > 0) && (this.state.price < 1001) && (Array.isArray(pictureuris) && pictureuris.length >= 1)
     //var priceIsWrong = (original_price != '') && ((price == 0) || (price.charAt(0) == 0 ) || (original_price == 0) || (original_price.charAt(0) == 0) )
 
     //console.log(priceIsWrong);
@@ -326,7 +326,7 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
 
             <Divider style={{  backgroundColor: '#fff', height: 12 }} />
         {/* 1. Product Pictures */}
-            <Text style={{textAlign: 'center', color: optionLabelBlue}}>Picture(s) of Product:</Text>
+            <Text style={{fontFamily: avenirNext, textAlign: 'center', color: optionLabelBlue}}>Picture(s) of Product:</Text>
             <Divider style={{  backgroundColor: '#fff', height: 8 }} />
 
             <MultipleAddButton navToComponent = {'CreateItem'} pictureuris={pictureuris}/>
@@ -367,7 +367,11 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
                     label={'Name (e.g. Green zip up hoodie)'}
                     value={this.state.name}
                     onChangeText={name => this.setState({ name })}
+                    maxLength={12}
                     autoCorrect={false}
+                    autoCapitalize={'words'}
+                    keyboardAppearance={'dark'}
+                    
                     // this is used as active border color
                     borderColor={treeGreen}
                     // this is used to set backgroundColor of label mask.
@@ -379,8 +383,11 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
             <Jiro
                     label={'Brand'}
                     value={this.state.brand}
+                    maxLength={12}
                     onChangeText={brand => this.setState({ brand })}
                     autoCorrect={false}
+                    autoCapitalize={'words'}
+                    keyboardAppearance={'dark'}
                     // this is used as active border color
                     borderColor={babyBlue}
                     // this is used to set backgroundColor of label mask.
@@ -406,7 +413,9 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
             <Jiro
                     label={'Selling Price (GBP)'}
                     value={this.state.price}
+                    maxLength={3}
                     onChangeText={price => {
+                        console.log(typeof price)
                         this.setState({ price })
                         } }
                     autoCorrect={false}
@@ -415,14 +424,15 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
                     // this is used to set backgroundColor of label mask.
                     // please pass the backgroundColor of your TextInput container.
                     backgroundColor={'#F9F7F6'}
-                    inputStyle={{ color: '#800000' }}
+                    inputStyle={{ fontFamily: 'Avenir Next', color: '#800000' }}
                     keyboardType='numeric'
             />
-            <Text>£{this.state.price}</Text>
+            <Text style={styles.displayedPrice}>£{this.state.price}</Text>
             {/* Original Price */}
             <Jiro
                     label={'Retail Price (Optional)'}
                     value={this.state.original_price}
+                    maxLength={3}
                     onChangeText={original_price => this.setState({ original_price })}
                     autoCorrect={false}
                     // this is used as active border color
@@ -430,10 +440,10 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
                     // this is used to set backgroundColor of label mask.
                     // please pass the backgroundColor of your TextInput container.
                     backgroundColor={'#F9F7F6'}
-                    inputStyle={{ color: '#800000' }}
+                    inputStyle={{ fontFamily: 'Avenir Next', color: '#800000' }}
                     keyboardType='numeric'
             />
-            <Text>£{this.state.original_price}</Text>
+            <Text style={styles.displayedPrice}>£{this.state.original_price}</Text>
 
             {/* Size */}
             <ProductLabel color={optionLabelBlue} title='Select a Size'/> 
@@ -523,7 +533,7 @@ const styles = StyleSheet.create({
     },
 
     subHeading: {
-        ...material.subheading,
+        fontFamily: avenirNext,
         color: '#0c5759',
         fontSize: 15,
         textDecorationLine: 'underline',
@@ -538,7 +548,7 @@ const styles = StyleSheet.create({
     },
 
     pickerText: {
-        fontFamily: 'Cochin',
+        fontFamily: avenirNext,
         fontSize: 22,
         fontWeight: 'bold'
     },
@@ -556,14 +566,20 @@ const styles = StyleSheet.create({
     },
 
     optionSelected: {
-        ...material.display1,
+        fontFamily: avenirNext,
         fontWeight: 'bold',
         fontSize: 18,
         color: '#0c5925'
     },
 
+    displayedPrice: {
+        fontFamily: avenirNext,
+        fontSize: 15,
+        fontWeight: '400'
+
+    },
+
     buttonGroupText: {
-        ...material.display1,
         fontFamily: 'Iowan Old Style',
         fontSize: 17,
         fontWeight: '300',

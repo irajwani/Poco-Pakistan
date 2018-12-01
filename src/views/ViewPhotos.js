@@ -10,11 +10,13 @@ import {
 
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import { Button } from 'react-native-elements';
 import { treeGreen, highlightGreen, graphiteGray, optionLabelBlue } from '../colors';
 
 // import SelectedPhoto from './SelectedPhoto';
 import CustomCarousel from '../components/CustomCarousel';
+
 
 const profilePictureText = "Pick a Profile Pictcha:";
 const productPictureText = "Pick up to 4 pictures:";
@@ -187,20 +189,48 @@ class ViewPhotos extends Component {
     }
 
     return (
-      <ScrollView style={{ backgroundColor: '#fff', flex: 1, marginTop: 22, padding: 10 }} contentContainerStyle={styles.contentContainerStyle}>
-        <View style={{ flexDirection: 'row', alignItems: 'center',  }}>
-            <Button  
-                buttonStyle={[styles.ModalButtonStyle, {backgroundColor: 'black'}]}
-                icon={{name: 'chevron-left', type: 'material-community'}}
-                title='Back'
-                onPress={() => {
-                    this.props.navigation.navigate(`${navToComponent}`);
-                    }}
-                />
-          <Text style={{ fontSize: 20, fontWeight: '600' }}>
-            {navToComponent == 'CreateProfile' || navToComponent == 'EditProfile' ? profilePictureText : productPictureText}
-          </Text>
+      <View style={styles.mainContainer}>
+
+      <View style={{ flex: 0.2, flexDirection: 'row', paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center' }}>
+
+      <View style={styles.backIconContainer}>
+        <FontAwesomeIcon
+          name='chevron-circle-left'
+          size={45}
+          color={'#76ce1e'}
+          onPress = { () => { 
+            this.props.navigation.navigate(`${navToComponent}`);
+              } }
+
+        />
+      </View>
+
+      <View style={styles.instructionsTextContainer}>      
+        <Text style={{ fontFamily: 'Avenir Next', fontSize: 14, fontWeight: '600' }}>
+          {navToComponent == 'CreateProfile' || navToComponent == 'EditProfile' ? profilePictureText : productPictureText}
+        </Text>
+      </View>
+
+      {navToComponent == 'CreateItem' || navToComponent == 'EditItem' ?
+        <View style={styles.confirmSelectionIconContainer}>
+          <Icon
+            name={this.state.pictureuris.length > 0 ? "check-circle" : "check-circle-outline"}
+            size={45}  
+            color={this.state.pictureuris.length > 0 ? '#76ce1e' : 'gray'}
+            onPress={this.state.pictureuris.length > 0 ? () => this.setState({showSelectedPhotos: true}) : null}
+          />
         </View>
+        :
+        null
+      }
+
+      </View>
+
+      <View style={{height: 1.3, backgroundColor: 'black'}}/>
+
+      <ScrollView style={{flex: 1}} contentContainerStyle={styles.contentContainerStyle}>
+        
+        
         
         <ListView
           contentContainerStyle={styles.list}
@@ -209,19 +239,16 @@ class ViewPhotos extends Component {
           enableEmptySections={true}
         />
 
-        {navToComponent == 'CreateItem' || navToComponent == 'EditItem' ?
-        <TouchableHighlight disabled={ this.state.pictureuris.length > 0 ? false : true} onPress={() => this.setState({showSelectedPhotos: true})}>
-          <Text style={{textAlign: 'center', fontFamily: 'Iowan Old Style', fontSize: 20, fontWeight: "900", color: this.state.pictureuris.length > 0 ? treeGreen : graphiteGray }}>Confirm Selection Thus Far?</Text>
-        </TouchableHighlight>
-        :
-        null
-        }
+        
       </ScrollView>
+      </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
+
+  mainContainer: { backgroundColor: '#fff', flex: 1, marginTop: 22, padding: 3 },
 
   contentContainerStyle: {
     flexGrow: 4,
@@ -231,14 +258,29 @@ const styles = StyleSheet.create({
     // paddingTop: 20,
         },
 
+  backIconContainer: {
+    flex: 1,
+    justifyContent: 'flex-start'
+  },
+
+  instructionsTextContainer: {
+    flex: 3,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  confirmSelectionIconContainer: {
+    flex: 1
+  },
+
   list: {
     flexDirection: 'row',
     flexWrap: 'wrap'
   },
 
   image: { 
-    height: 140, 
-    width: 140, 
+    height: 120, 
+    width: 120, 
     // zIndex: -1, 
     // position: 'absolute', 
     // top: 0, 

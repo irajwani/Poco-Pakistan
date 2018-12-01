@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import { Dimensions, View, Image, StyleSheet, ScrollView, TouchableOpacity, TouchableHighlight, Modal } from 'react-native';
-import { Button, SearchBar, CheckBox } from 'react-native-elements';
-import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
+import { Button } from 'react-native-elements';
+import {withNavigation} from 'react-navigation'; // Version can be specified in package.json
 import { Text,  } from 'native-base';
 import { Hoshi } from 'react-native-textinput-effects'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -20,7 +19,6 @@ import SelectMultiple from 'react-native-select-multiple';
 import { PacmanIndicator } from 'react-native-indicators';
 import { graphiteGray, lightGreen, rejectRed, treeGreen, avenirNext, optionLabelBlue } from '../colors.js';
 import NothingHereYet from './NothingHereYet.js';
-import { reject } from 'rsvp';
 
 const noProductsOfYourOwnText = "So far, you have not uploaded any items on the marketplace.\nTo make some cash 🤑 and free up closet space, upload an article of clothing on the Market\nfrom the 'Sell' screen.";
 const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace 💔.";

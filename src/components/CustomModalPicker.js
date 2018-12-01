@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Dimensions, Text, View, Modal, TouchableHighlight, StyleSheet } from 'react-native'
 import { material } from 'react-native-typography';
-import { bobbyBlue, optionLabelBlue } from '../colors';
+import { bobbyBlue, optionLabelBlue, avenirNext } from '../colors';
 
 const {width} = Dimensions.get('window');
 
@@ -53,12 +53,14 @@ export default class CustomModalPicker extends Component {
 const styles = StyleSheet.create({
     modal: {flexDirection: 'column', justifyContent: 'center', alignContent: 'center', alignItems: 'center', padding: 30, marginTop: 22},
     hideModal: {
+      fontFamily: avenirNext,
       fontSize: 20,
       color: 'green',
       fontWeight:'bold',
       textAlign: 'center'
     },
     selectedOption: {
+      fontFamily: 'Avenir Next',
       fontSize: 19,
       color: optionLabelBlue
     }

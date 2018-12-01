@@ -216,8 +216,9 @@ class Chats extends Component {
     
   }
 
-  navToChat(id) {
-    this.props.navigation.navigate('CustomChat', {id: id})
+  navToChat(chat) {
+    const {id, buyer, seller} = chat;
+    this.props.navigation.navigate('CustomChat', {id, buyer, seller})
   }
 
   navToNotifications() {
@@ -313,7 +314,7 @@ class Chats extends Component {
                         buttonStyle={styles.messagebutton}
                         icon={{name: 'forum', type: 'material-community'}}
                         title="TALK"
-                        onPress={() => { this.navToChat(chat.id) } } 
+                        onPress={() => { this.navToChat(chat) } } 
                   />  
                     
 

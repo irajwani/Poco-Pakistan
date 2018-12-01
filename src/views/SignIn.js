@@ -107,6 +107,7 @@ class SignIn extends Component {
             // or
             // just doesn't exist in the database yet):
             var {Users} = d
+            console.log(`${!Object.keys(Users).includes(user.uid)} that user is NOT in database, and needs to Sign Up`)
             if(!Object.keys(Users).includes(user.uid)) {
 
                 this.attemptSignUp(user, googleUserBoolean)
@@ -115,7 +116,7 @@ class SignIn extends Component {
             else {
             //if the user isn't new, then re update their notifications (if any)
                 if(d.Users[user.uid].products) {
-                    console.log('here 155', d.Users[user.uid].products )
+                    console.log('updating notifications a person should receive based on their products', d.Users[user.uid].products )
                     var productKeys = d.Users[user.uid].products ? Object.keys(d.Users[user.uid].products) : [];
                     var yourProducts = all.filter((product) => productKeys.includes(product.key) );
                     // console.log(yourProducts)
@@ -134,16 +135,17 @@ class SignIn extends Component {
     attemptSignUp = (user, googleUserBoolean) => {
         //check if user wishes to sign up through standard process (the former) or through google
         console.log('attempting to sign up');
+        this.setState({loading: false});
         !user ? 
         this.props.navigation.navigate('CreateProfile', {user: false, googleUserBoolean})
         :
-        this.props.navigation.navigate('CreateProfile', {user, googleUserBoolean})
+        this.props.navigation.navigate('CreateProfile', {user, googleUserBoolean, pictureuris: [user.photoURL],})
         
     }
 
     //onPress Google Icon
     signInWithGoogle = () => {
-        !this.state.loading ? this.setState({loading: true}) : null;
+        !this.state.loading ? this.setState({loading: true, showGoogleLoading: true}) : null;
         console.log('trying to sign with google')
         GoogleSignin.signIn()
         .then((data) => {
