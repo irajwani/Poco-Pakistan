@@ -25,7 +25,7 @@ import {bobbyBlue} from '../colors'
 import { withNavigation } from 'react-navigation';
 const {width,} = Dimensions.get('window');
 
-const googleIconColors = ['#3cba54', '#db3236', '#f4c20d', '#fff']
+
 //THIS PAGE: 
 //Allows user to sign in or sign up and handles the flow specific to standard sign in, or standard sign up, or google sign in, or google sign up.
 //Updates products on firebase db by scouring products from each user's list of products.
@@ -34,13 +34,7 @@ const googleIconColors = ['#3cba54', '#db3236', '#f4c20d', '#fff']
 
 //var database = firebase.database();
 
-// let i = 0;
 
-        // setInterval( () => {
-        //     i++ > 3 ? i = 0 : i++
-        //     console.log(googleIconColors[i])
-        //     this.setState({googleIconColor: googleIconColors[i]})
-        // }, 2000)
 
 function timeSince(date) {
 
@@ -85,8 +79,20 @@ class SignIn extends Component {
         GoogleSignin.configure({
             iosClientId: '791527199565-tcd1e6eak6n5fcis247mg06t37bfig63.apps.googleusercontent.com',
         })
+        let i = 0;
+        const googleIconColors = ['#3cba54', '#db3236', '#f4c20d', 'powderblue'];
+        this.colorRefreshId = setInterval( () => {
+            // i = Math.random() > 0.5 ? Math.random() > 0.5 ? Math.random() > 0.5 ? 1 : 2 : 4 : 3
+            i++
+            console.log(googleIconColors[i % 4])
+            this.setState({googleIconColor: googleIconColors[i % 4]})
+        }, 3500)
         // .then( () => {console.log('google sign in is now possible')})
 
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.colorRefreshId);
     }
 
     // Invoked when onSignInPress() AND signInWithGoogle()  are pressed: 
@@ -498,7 +504,6 @@ class SignIn extends Component {
                                 <Icon
                                     name="google" 
                                     size={30} 
-                                    color={ Math.random() > 0.5 ? '#db3236' : '#3cba54'}
                                     color={this.state.googleIconColor}
                                     onPress={() => this.signInWithGoogle()}
                                 />
@@ -553,7 +558,7 @@ class SignIn extends Component {
                                     name="facebook-box" 
                                     size={30} 
                                     color={'#3b5998'}
-                                    onPress={() => this.signInWithGoogle()}
+                                    onPress={() => alert('Authentication via Facebook coming soon!')}
                                 />
                             </ViewWithChildAtPosition>
 

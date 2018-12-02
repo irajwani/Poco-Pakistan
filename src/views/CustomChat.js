@@ -139,7 +139,8 @@ class CustomChat extends Component {
 
     const {params} = this.props.navigation.state;
     const id = params ? params.id : null 
-    const {buyer, seller} = params   
+    const buyer = params.buyer ? params.buyer : false
+    const seller = params.seller ? params.seller : false
 
     const CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
     
@@ -148,7 +149,7 @@ class CustomChat extends Component {
     return (
       <View style={styles.mainContainer}>
 
-        <View style={styles.topRow}>
+        <View style={[styles.topRow, {backgroundColor: '#122021'}]}>
 
           <View style={styles.backIconContainer}>
             <FontAwesomeIcon
@@ -162,9 +163,12 @@ class CustomChat extends Component {
             />
           </View>
 
-          <View style={styles.chatInfoContainer}>
+          {buyer && seller ? <View style={styles.chatInfoContainer}>
             <Text style={styles.chatInfoText}>{(seller.split(' '))[0]} & {(buyer.split(' '))[0]}</Text>
           </View>
+          :
+          null
+          }
 
 
 
@@ -209,14 +213,15 @@ const styles = StyleSheet.create({
 
   chatInfoContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center'
   },
 
   chatInfoText: {
     fontFamily: 'Avenir Next',
-    fontSize: 17,
-    fontWeight: '400',
+    fontSize: 19,
+    textAlign: 'left',
+    fontWeight: 'bold',
     color: treeGreen
   }
 

@@ -72,8 +72,8 @@ class CreateProfile extends Component {
                             if(user) {
                             const {uid} = user;
                             this.updateFirebase(this.state, pictureuri, mime = 'image/jpg', uid, googleUserBoolean = false );
-                            alert('Your account has been created.\nPlease use your credentials to Sign In.');
-                            this.props.navigation.navigate('SignIn'); 
+                            // alert('Your account has been created.\nPlease use your credentials to Sign In.');
+                            // this.props.navigation.navigate('SignIn'); 
                             }
                             else {
                             alert('Oops, there was an error with account registration!');
@@ -151,7 +151,7 @@ class CreateProfile extends Component {
         name: data.firstName + " " + data.lastName, //data.firstName.concat(" ", data.lastName)
         country: data.country,
         size: data.size,
-        insta: data.insta
+        insta: data.insta ? data.insta : '',
     }
 
     var emptyProductPostData = {
@@ -174,9 +174,8 @@ class CreateProfile extends Component {
         resolve(uploadUri);
         
         
-    }
-    
-)
+        }
+    )
     
     let promiseToUploadPhoto = new Promise((resolve, reject) => {
 
@@ -219,10 +218,12 @@ class CreateProfile extends Component {
         storage: uri.includes('googleusercontent') ? 
             
             promiseToUploadGooglePhoto.then( (url) => {
-                console.log(url);
-                googleUserBoolean ? alert('Your account has been created.\nPlease press the Google Icon to Sign In from now on.\n') : alert('Your account has been created.\nPlease use your credentials to Sign In.\n'); 
-                this.setState({createProfileLoading: false});
-                this.props.navigation.navigate('SignIn');
+                this.setState({createProfileLoading: false, modalVisible: false}, 
+                    () => {
+                        // console.log('DONE DONE DONE');
+                        this.props.navigation.navigate('SignIn'); 
+                    })
+                // this.successfulProfileCreationCallback(url);  
             })
             :
             promiseToUploadPhoto.then((url) => {
@@ -374,9 +375,9 @@ class CreateProfile extends Component {
                   
                   <Text style={styles.modalHeader}>End-User License Agreement for NottMyStyle</Text>
                   <ScrollView contentContainerStyle={styles.licenseContainer}>
-                      <Text>{EulaTop}</Text>
+                      <Text style={{fontFamily: 'Avenir Next'}}>{EulaTop}</Text>
                       <Text style={{color: bobbyBlue}} onPress={() => Linking.openURL(EulaLink)}>{EulaLink}</Text>
-                      <Text>{EulaBottom}</Text>
+                      <Text style={{fontFamily: 'Avenir Next'}}>{EulaBottom}</Text>
                   </ScrollView>
                   <View style={styles.documentOpenerContainer}>
                       <Text style={styles.documentOpener} onPress={() => {this.setState({modalVisible: false, termsModalVisible: true})}}>
@@ -534,7 +535,7 @@ class CreateProfile extends Component {
                       onPress={() => this.setState({infoModalVisible: true}) } 
                   />
               </View>
-              <Text style={{fontFamily: 'Cochin', fontWeight: '800', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text>
+              <Text style={{fontFamily: 'Avenir Next', fontWeight: '800', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text>
               
               <MultipleAddButton navToComponent = {'CreateProfile'} pictureuris={pictureuris} />
       
