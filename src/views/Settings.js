@@ -88,11 +88,13 @@ class Settings extends Component {
         transition="backgroundColor"
       >
         {section.settings.map( (setting) => (
-          <Animatable.Text onPress={ section.settings.length == 1 ? 
+          <Animatable.Text 
+            onPress={ section.settings.length == 1 ? 
             () => {this.props.navigation.navigate('EditProfile')}
             :
             () => { this.setState({ activeDocument: setting, modalVisible: true }) } 
-          } style={styles.contentText} animation={isActive ? 'bounceInLeft' : undefined}>
+            } 
+            style={styles.contentText} animation={isActive ? 'bounceInLeft' : undefined}>
             {setting}
           </Animatable.Text>
         ))}
@@ -149,7 +151,7 @@ class Settings extends Component {
           }}
         >
           <ScrollView contentContainerStyle={styles.licenseContainer}>
-            <Text>{selectedDocument}</Text>
+            <Text style={{fontFamily: 'Avenir Next', fontSize: 15,}}>{selectedDocument}</Text>
             <TouchableHighlight
               onPress={() => {
                 this.setModalVisible(!this.state.modalVisible);
@@ -188,7 +190,7 @@ const styles = StyleSheet.create({
 
     modal: {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', padding: 10, marginTop: 22},
     hideModal: {
-      ...material.display1,
+      fontFamily: 'Avenir Next',
       fontSize: 20,
       color: 'green',
       fontWeight:'bold'
@@ -205,8 +207,8 @@ const styles = StyleSheet.create({
     },
 
     shortContentCard: {
-      height: 30,
-      paddingBottom: 10
+      height: 50,
+      paddingVertical: 5
     },
     contentCard: {
       flexDirection: 'column',
@@ -215,11 +217,11 @@ const styles = StyleSheet.create({
       padding: 10,
     },
     headerText: {
-      ...material.headline,
+      fontFamily: 'Avenir Next',
       fontSize: 20
     },
     contentText: {
-      ...material.body1,
+      fontFamily: 'Avenir Next',
       color: limeGreen,
       fontSize: 20
     },

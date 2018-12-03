@@ -15,6 +15,7 @@ import firebase from '../cloud/firebase.js';
 // import {database} from '../cloud/database';
 
 import {GoogleSignin} from 'react-native-google-signin'
+import FBSDK, {LoginManager} from 'react-native-fbsdk';
 
 import { systemWeights, iOSColors } from 'react-native-typography';
 // import HomeScreen from './HomeScreen';
@@ -170,6 +171,22 @@ class SignIn extends Component {
             // console.log(JSON.stringify(currentUser.toJSON()))
         })
         .catch( (err) => console.log(err))
+    }
+
+    signInWithFacebook = () => {
+        LoginManager.logInWithReadPermissions(['public_profile']).then(
+            function(result) {
+              if (result.isCancelled) {
+                alert('Login was cancelled');
+              } else {
+                alert('Login was successful with permissions: '
+                  + result.grantedPermissions.toString());
+              }
+            },
+            function(error) {
+              alert('Login failed with error: ' + error);
+            }
+          );
     }
 
     arrayToObject(arr, keyField) {
@@ -558,7 +575,7 @@ class SignIn extends Component {
                                     name="facebook-box" 
                                     size={30} 
                                     color={'#3b5998'}
-                                    onPress={() => alert('Authentication via Facebook coming soon!')}
+                                    onPress={() => this.signInWithFacebook()}
                                 />
                             </ViewWithChildAtPosition>
 

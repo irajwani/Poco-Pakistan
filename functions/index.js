@@ -32,14 +32,14 @@ function timeSince(date) {
 exports.createNewUser = functions.database.ref('/Users/{uid}/profile/').onCreate( 
     (snapshot, context) => {
         //maybe do on oncreate for profile and then access uri and name 
-    console.log('User edited profile and added name');
+    // console.log('User edited profile and added name');
     var profile = snapshot.val();
     var name = profile.name;
     var uri = profile.uri;
     var uid = context.params.uid;
     // console.log(context.params.profile);
     // console.log(name);
-    console.log(uri, name, uid);
+    // console.log(uri, name, uid);
     
     
     chatkit.createUser({
@@ -77,10 +77,10 @@ exports.createNewUser = functions.database.ref('/Users/{uid}/profile/').onCreate
 //Going to assume people will only change their pictures, and not their names
 exports.updateOldUser = functions.database.ref('/Users/{uid}/{profile}/uri').onWrite( 
     (snapshot, context) => { 
-    console.log('User updated profile picture');
+    // console.log('User updated profile picture');
     var uri = snapshot.after.val();
     var uid = context.params.uid;
-    console.log(uri, uid);
+    // console.log(uri, uid);
     
     chatkit.updateUser({
         id: uid,
@@ -98,7 +98,7 @@ exports.updateOldUser = functions.database.ref('/Users/{uid}/{profile}/uri').onW
 
 //FUNCTION NUMBAH 3
 //Problem: When user deletes all products, it wipes away the whole products branch. 
-//This func creates an empty products branch for the user.
+//Fix: This func creates an empty products branch for the user.
 // exports.updateEmptyProducts = functions.database.ref('/Users/{uid}/products').onDelete(
 //     (snapshot, context) => {
 //         console.log(`User: ${context.params.uid} deleted all products`);
@@ -116,9 +116,9 @@ exports.updateOldUser = functions.database.ref('/Users/{uid}/{profile}/uri').onW
 //FUNCTION NUMBAH 4 ?
 exports.updateProducts = functions.database.ref('Users/{uid}/{products}').onWrite(
     (snapshot, context) => {
-        console.log('Initializing Reconstruction of Products Branch');
-        console.log(`Before: ${snapshot.before.val()}`)
-        console.log(`After: ${snapshot.after.val()}`)
+        // console.log('Initializing Reconstruction of Products Branch');
+        // console.log(`Before: ${snapshot.before.val()}`)
+        // console.log(`After: ${snapshot.after.val()}`)
         admin.database().ref().once("value", (dataFromReference) => {
             var d = dataFromReference.val();
             var uids = Object.keys(d.Users);
@@ -130,41 +130,50 @@ exports.updateProducts = functions.database.ref('Users/{uid}/{products}').onWrit
                 Object.keys(d.Users[uid].products).forEach( (key) => keys.push(key));
                 }
             }
-            console.log(keys);
+            // console.log(keys.length);
             var products = [];
             var updates;
             var chatUpdates = {};
             var postData;
-            var i = 1;
+            var i = 0;
             //go through all products in each user's branch and update the Products section of the database
             for(const uid of uids) {
                 for(const key of keys) {
 
-                if(Object.keys(d.Users[uid]).includes('products') ) {
+                  
 
-                    if( Object.keys(d.Users[uid].products).includes(key)  ) {
+                if( !(i > keys.length - 1) && (i <= keys.length - 1)  && (Object.keys(d.Users[uid]).includes('products')) && (Object.keys(d.Users[uid].products).includes(key)) ) {
+                    
+                    // console.log(key, uid, i, keys.length);
+                            
+                    var daysElapsed;
+                    var currentProduct = d.Users[uid].products[key];
+
+                    daysElapsed = timeSince(d.Users[uid].products[key].time);
                         
-                        var daysElapsed;
-                        daysElapsed = timeSince(d.Users[uid].products[key].time);
-                            
-                        postData = {
-                            key: key, uid: uid, uris: d.Users[uid].products[key].uris, 
-                            text: d.Users[uid].products[key], daysElapsed: daysElapsed, 
-                            shouldReducePrice: (daysElapsed >= 10) && (d.Users[uid].products[key].sold === false) ? true : false,
-                        }
-                            
-                            
-                        updates = {};    
-                        updates['/Products/' + i + '/'] = postData;
-                        admin.database().ref().update(updates);
-                        i++;
-                        console.log(i);
-
-                        
-
+                    postData = {
+                        key: key, uid: uid, uris: d.Users[uid].products[key].uris, 
+                        text: d.Users[uid].products[key], daysElapsed: daysElapsed, 
+                        shouldReducePrice: (daysElapsed >= 10) && (d.Users[uid].products[key].sold === false) ? true : false,
                     }
-                
+                        
+                        
+                    updates = {};    
+                    updates['/Products/' + i + '/'] = postData;
+                    admin.database().ref().update(updates);
+                    i++;
+                    // console.log(i);
+    
+                            
+    
+                        
+                    
+                    
                 }
+
+                
+
+                
 
                 
                 
