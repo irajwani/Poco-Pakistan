@@ -22,6 +22,8 @@ const profilePictureText = "Pick a Profile Pictcha:";
 const productPictureText = "Pick up to 4 pictures:";
 
 class ViewPhotos extends Component {
+
+  
   constructor(props) {
     super(props);
     this.state = {
@@ -331,4 +333,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default ViewPhotos;
+export default withNavigation(ViewPhotos);

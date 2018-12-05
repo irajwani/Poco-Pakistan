@@ -64,8 +64,8 @@ class ProfilePage extends Component {
     firebase.database().ref().once("value", (snapshot) => {
       var d = snapshot.val();
       // console.log(d.val(), d.Users, your_uid);
-      var soldProducts;
-      var numberProducts;
+      var soldProducts = 0;
+      var numberProducts=0;
       //relies on fact that when user profile was initially created,
       //we appended a products: '' entry under a particular uid's branch
       //TODO: Make these values a part of the person's profile in case they delete products they've earlier sold.
@@ -79,10 +79,10 @@ class ProfilePage extends Component {
         numberProducts = Object.keys(d.Users[your_uid].products).length
       }
 
-      else {
-        soldProducts = 0;
-        numberProducts = 0;
-      }
+      // else {
+      //   soldProducts = 0;
+      //   numberProducts = 0;
+      // }
       
       
       var {country, insta, name, size, uri} = d.Users[your_uid].profile

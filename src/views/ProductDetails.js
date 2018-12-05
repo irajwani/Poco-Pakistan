@@ -299,7 +299,7 @@ class ProductDetails extends Component {
         <View style={{flex: 2, alignItems: 'center'}}>
           <CustomCarousel data={params.data.uris} />
         </View>
-          {/* Product Name and Price Row */}
+          {/* Product Name (Not Brand) and Price Row */}
         <View style={styles.nameAndPriceRow}>
           <View style={styles.nameContainer}>
             <Text style={styles.brandText}>{text.name.toUpperCase()}</Text>
@@ -325,16 +325,16 @@ class ProductDetails extends Component {
           
             {text.original_price > 0 ?
               <View style={[styles.priceContainer]}>
-                <Text style={styles.original_price} >
+                <Text style={[styles.original_price, {color: 'black', textDecorationLine: 'line-through',}]} >
                   £{text.original_price}
                 </Text>
-                <Text style={styles.price} >
+                <Text style={[styles.original_price, {color: limeGreen}]} >
                   £{text.price}
                 </Text>
               </View>
             :
               <View style={[styles.priceContainer]}>
-                <Text style={styles.price} >
+                <Text style={[styles.original_price, {fontSize: 22, color: limeGreen}]} >
                   £{text.price}
                 </Text>
               </View>
@@ -581,16 +581,18 @@ const styles = StyleSheet.create( {
 
   nameContainer: {
     justifyContent: 'flex-start',
-    flex: 3,
+    flex: 0.7,
   },
 
-  likesContainer: {flex: 1, justifyContent: 'center', alignItems: 'center', },
+  likesContainer: {flex: 0.15, justifyContent: 'center', alignItems: 'center', 
+    // backgroundColor: 'red'
+},
 
   priceContainer: {
-    flexDirection: 'row',
-    flex: 1.5,
-    
-    justifyContent: 'flex-end',
+    flexDirection: 'column',
+    flex: 0.15,
+    alignItems: 'center',
+    justifyContent: 'center',
     // backgroundColor: 'blue'
   },
 
@@ -623,13 +625,24 @@ const styles = StyleSheet.create( {
     padding: 5
   },
 
+  original_price: {
+    fontFamily: 'Avenir Next',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+
+  price: {
+    fontFamily: 'Avenir Next',
+    fontSize: 16,
+    
+  },
+
   actionIconContainer: {
     flex: 1,
     // backgroundColor: 'brown',
     justifyContent: 'center',
     padding: 0
   },
-
 
   detailsAndReportItemRow: {
     flexDirection: 'row',
@@ -687,20 +700,7 @@ const styles = StyleSheet.create( {
     paddingBottom: 0,
   },
 
-  original_price: {
-    fontFamily: 'Avenir Next',
-    fontSize: 22,
-    fontWeight: '500',
-    color: 'black',
-    textDecorationLine: 'line-through',
-  },
-
-  price: {
-    fontFamily: 'Avenir Next',
-    fontSize: 22,
-    
-    color: limeGreen
-  },
+  
 
   nameAndLikeRow: {
     flex: 1,
