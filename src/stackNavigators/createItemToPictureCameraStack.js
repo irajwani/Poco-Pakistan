@@ -3,11 +3,12 @@ import {Animated, Easing,} from 'react-native';
 import CreateItem from '../views/CreateItem';
 import MultipleAddButton from '../components/MultipleAddButton'
 import MultiplePictureCamera from '../components/MultiplePictureCamera'
-
+import ViewPhotos from '../views/ViewPhotos'
 
 export const multipleAddButtonToMultiplePictureCameraToCreateItemStack = createStackNavigator({
 
     CreateItem: CreateItem,
+    ViewPhotos: ViewPhotos,
     MultiplePictureCamera: MultiplePictureCamera,
     MultipleAddButton: MultipleAddButton,
 

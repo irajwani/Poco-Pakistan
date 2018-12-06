@@ -134,7 +134,10 @@ class ProductDetails extends Component {
 
   setSaleTo(soldStatus, uid, productKey) {
     var updates={};
+    // var postData = {soldStatus: soldStatus, dateSold: Date.now()}
     updates['Users/' + uid + '/products/' + productKey + '/sold/'] = soldStatus;
+    updates['Users/' + uid + '/products/' + productKey + '/dateSold/'] = new Date;
+    // updates['Users/' + uid + '/products/' + productKey + '/sold/'] = soldStatus;
     firebase.database().ref().update(updates);
     //just alert user this product has been marked as sold, and will show as such on their next visit to the app.
     var status = soldStatus ? 'sold' : 'available for purchase'

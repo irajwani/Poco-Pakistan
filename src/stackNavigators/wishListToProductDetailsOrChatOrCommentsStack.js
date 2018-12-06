@@ -7,12 +7,14 @@ import YourProducts from '../views/YourProducts';
 import OtherUserProfilePage from '../views/OtherUserProfilePage';
 import UserComments from '../views/UserComments';
 import ProductComments from '../views/ProductComments';
+import EditItem from '../views/EditItem';
 
 
 export const wishListToProductDetailsOrChatOrCommentsStack = createStackNavigator({
     Collection: Collection,
     YourProducts: YourProducts,
     ProductDetails: ProductDetails,
+    EditItem: EditItem,
     CustomChat: CustomChat,
     ProductComments: ProductComments,
     OtherUserProfilePage: OtherUserProfilePage,

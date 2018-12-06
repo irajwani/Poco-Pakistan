@@ -242,7 +242,11 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
             data.size = 'Medium'
             console.log('no gender was specified')
     }
-
+    const {params} = this.props.navigation.state; //Use initial timeUploaded property 
+    //TODO: Maybe change timeUploaded property to edit date if the person used edit item to lower price, or perhaps track that separately?
+    const {text} = params.data;
+    const {time, comments} = text
+    //Needs to stay identical to postData object in CreateItem
     var postData = {
         name: data.name,
         brand: data.brand,
@@ -255,8 +259,9 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
         condition: data.condition,
         sold: false,
         likes: 0,
-        comments: '',
-        time: Date.now(),
+        comments: comments,
+        dateSold: '',
+        time: time,
         
       };
   
@@ -322,7 +327,8 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
     .remove( ()=>{
         this.setState({isUploading: false,})
         alert('Your product has been successfully deleted.');
-        this.props.navigation.navigate('ProfilePage');
+        this.props.navigation.popToTop();
+        // this.props.navigation.navigate(`${parentScreenInStack}`);
     })
     .then( () => {
         console.log('product has been successfully removed')
@@ -461,29 +467,36 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
             source={ require('../images/blank.jpg') } /> */}
         {/* 2. Product Name */}
             <Jiro
-                    label={'Name (e.g. Green zip up hoodie)'}
-                    value={this.state.name}
-                    onChangeText={name => this.setState({ name })}
-                    autoCorrect={false}
-                    // this is used as active border color
-                    borderColor={treeGreen}
-                    // this is used to set backgroundColor of label mask.
-                    // please pass the backgroundColor of your TextInput container.
-                    backgroundColor={'#F9F7F6'}
-                    inputStyle={{ color: basicBlue }}
+                label={'Name (e.g. Green zip up hoodie)'}
+                value={this.state.name}
+                onChangeText={name => this.setState({ name })}
+                maxLength={16}
+                autoCorrect={false}
+                autoCapitalize={'words'}
+                keyboardAppearance={'dark'}
+                
+                // this is used as active border color
+                borderColor={treeGreen}
+                // this is used to set backgroundColor of label mask.
+                // please pass the backgroundColor of your TextInput container.
+                backgroundColor={'#F9F7F6'}
+                inputStyle={{ color: basicBlue }}
             />
 
             <Jiro
-                    label={'Brand'}
-                    value={this.state.brand}
-                    onChangeText={brand => this.setState({ brand })}
-                    autoCorrect={false}
-                    // this is used as active border color
-                    borderColor={babyBlue}
-                    // this is used to set backgroundColor of label mask.
-                    // please pass the backgroundColor of your TextInput container.
-                    backgroundColor={'#F9F7F6'}
-                    inputStyle={{ color: basicBlue }}
+                label={'Brand'}
+                value={this.state.brand}
+                maxLength={12}
+                onChangeText={brand => this.setState({ brand })}
+                autoCorrect={false}
+                autoCapitalize={'words'}
+                keyboardAppearance={'dark'}
+                // this is used as active border color
+                borderColor={babyBlue}
+                // this is used to set backgroundColor of label mask.
+                // please pass the backgroundColor of your TextInput container.
+                backgroundColor={'#F9F7F6'}
+                inputStyle={{ color: basicBlue }}
             />
 
             {/* Product Description/Material */}
@@ -515,7 +528,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
                     inputStyle={{ color: '#800000' }}
                     keyboardType='numeric'
             />
-            <Text>£{this.state.price}</Text>
+            <Text style={styles.displayedPrice}>£{this.state.price}</Text>
             {/* Original Price */}
             <Jiro
                     label={'Retail Price (Optional)'}
@@ -530,7 +543,7 @@ updateFirebase = (data, pictureuris, mime = 'image/jpg', uid, imageName, postKey
                     inputStyle={{ color: '#800000' }}
                     keyboardType='numeric'
             />
-            <Text>£{this.state.original_price}</Text>
+            <Text style={styles.displayedPrice}>£{this.state.original_price}</Text>
 
             {/* Size */}
             <ProductLabel color={optionLabelBlue} title='Select a Size'/> 
@@ -648,6 +661,13 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 18,
         color: '#0c5925'
+    },
+
+    displayedPrice: {
+        fontFamily: avenirNext,
+        fontSize: 15,
+        fontWeight: '400'
+
     },
 
     picker: {

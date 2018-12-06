@@ -9,6 +9,7 @@ import {
   TouchableHighlight
 
 } from 'react-native';
+import { withNavigation } from 'react-navigation';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import { Button } from 'react-native-elements';
@@ -46,7 +47,7 @@ class ViewPhotos extends Component {
   
 
 
-  renderRow(rowData, navToComponent) {
+  renderRow = (rowData, navToComponent) => {
     const { uri } = rowData.node.image;
     // rowData.node.image['selected'] = false;
 
@@ -67,7 +68,7 @@ class ViewPhotos extends Component {
               //if the user deselects this image, set selected property to false and reduce count of Selected Images by 1
               // rowData.node.image['selected'] = false;
             
-              //identify index of uri that needs to be removed from array, and remove that element based on the value of the index
+              //identify index of uri that needs to be removed from array, and remove that element based on the value of the index (position of element in array)
               var index = this.state.pictureuris.indexOf(uri);
               if(index == 0) {
                 this.state.count == 0 ? null : this.setState({ pictureuris: this.state.pictureuris.slice(index + 1, this.state.pictureuris.length), count: this.state.count - 1})
@@ -151,7 +152,8 @@ class ViewPhotos extends Component {
               icon={{name: 'emoticon', type: 'material-community'}}
               title='Satisfied'
               onPress={() => {
-                  this.props.navigation.navigate(`${navToComponent}`, {pictureuris: this.state.pictureuris} )
+                  console.log(`navigating to ${navToComponent} with ${this.state.pictureuris}`);
+                  this.props.navigation.navigate(`${navToComponent}`, {pictureuris: this.state.pictureuris} );
                   }}
               />
           </View>

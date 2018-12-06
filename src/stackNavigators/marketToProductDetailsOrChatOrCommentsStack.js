@@ -7,11 +7,13 @@ import YourProducts from '../views/YourProducts';
 import OtherUserProfilePage from '../views/OtherUserProfilePage';
 import UserComments from '../views/UserComments';
 import ProductComments from '../views/ProductComments';
+import EditItem from '../views/EditItem';
 
 export const marketToProductDetailsOrChatOrCommentsStack = createStackNavigator({
     MarketPlace: MarketPlace,
     YourProducts: YourProducts,
     ProductDetails: ProductDetails,
+    EditItem: EditItem,
     ProductComments: ProductComments,
     OtherUserProfilePage: OtherUserProfilePage,
     UserComments: UserComments,

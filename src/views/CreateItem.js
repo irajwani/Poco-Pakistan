@@ -37,6 +37,10 @@ function incrementPrice(previousState, currentProps) {
 class CreateItem extends Component {
   constructor(props) {
       super(props);
+
+    //   const {params} = this.props.navigation.state
+    //   const pictureuris = params.pictureuris ? params.pictureuris : 'nothing here'
+
       this.state = {
           uri: undefined,
           name: '',
@@ -51,8 +55,15 @@ class CreateItem extends Component {
           description: '',
           typing: true,
           isUploading: false,
+          pictureuris: 'nothing here'
       }
   }
+
+//   componentDidMount() {
+//     const {params} = this.props.navigation.state
+//     const pictureuris = params ? params.pictureuris : 'nothing here'
+//     this.setState({pictureuris});
+//   }
 
   showPicker(gender, subheading) {
     if (gender == 0) {
@@ -160,7 +171,7 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
         likes: 0,
         comments: '',
         time: Date.now(),
-        
+        dateSold: ''
       };
   
     var newPostKey = firebase.database().ref().child(`Users/${uid}/products`).push().key;
@@ -170,8 +181,10 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
     //this.createRoom(newPostKey);
     
 
-    return {database: firebase.database().ref().update(updates),
-            storage: this.uploadToStore(pictureuris, uid, newPostKey)}
+    return {
+        database: firebase.database().ref().update(updates),
+        storage: this.uploadToStore(pictureuris, uid, newPostKey)
+    }
 
 }
 
@@ -240,20 +253,24 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
   }
 
   callBackForProductUploadCompletion = () => {
-    alert(`Your product ${this.state.name} is being\nuploaded to the market.\nPlease do not resubmit the same product.`);
-    this.setState({ uri: undefined,
-                    name: '',
-                    brand: '',
-                    price: 0,
-                    original_price: 0,
-                    size: 2,
-                    type: 'Trousers',
-                    gender: 2,
-                    condition: 'Slightly Used',
-                    insta: '',
-                    description: '',
-                    typing: true,
-                    isUploading: false, });
+    alert(`Product named ${this.state.name} successfully uploaded to Market!`)
+    // alert(`Your product ${this.state.name} is being\nuploaded to the market.\nPlease do not resubmit the same product.`);
+    this.props.navigation.setParams({pictureuris: 'nothing here'});
+    this.setState({ 
+        uri: undefined,
+        name: '',
+        brand: '',
+        price: 0,
+        original_price: 0,
+        size: 2,
+        type: 'Trousers',
+        gender: 2,
+        condition: 'Slightly Used',
+        insta: '',
+        description: '',
+        typing: true,
+        isUploading: false,
+                 });
     this.props.navigation.navigate('Profile'); 
   }
 
@@ -294,8 +311,8 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
   render() {
     const {isUploading, price, original_price} = this.state;
     const uid = firebase.auth().currentUser.uid; 
-    const {params} = this.props.navigation.state
-    const pictureuris = params ? params.pictureuris : 'nothing here'
+    var {params} = this.props.navigation.state
+    var pictureuris = params ? params.pictureuris : 'nothing here'
     //const picturebase64 = params ? params.base64 : 'nothing here'
     //Lenient condition, Array.isArray(pictureuris) && pictureuris.length >= 1
     var conditionMet = (this.state.name) && (this.state.price > 0) && (this.state.price < 1001) && (Array.isArray(pictureuris) && pictureuris.length >= 1)
@@ -310,8 +327,15 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
 
     if(isUploading) {
         return (
-            <View style={{flex: 1}}>
-                <PacmanIndicator color='#800000' />
+            <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                <View style={{flex: 1}}>
+                    <PacmanIndicator color='#800000' />
+                </View>
+                <View style={{paddingHorizontal: 10, paddingVertical: 5}}>
+                    <Text style={{fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: '#800000'}}>
+                        Your product {this.state.name} is being uploaded to the market. Please do not resubmit the same product.
+                    </Text>
+                </View>
             </View>
         )
     }
@@ -367,7 +391,7 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
                     label={'Name (e.g. Green zip up hoodie)'}
                     value={this.state.name}
                     onChangeText={name => this.setState({ name })}
-                    maxLength={12}
+                    maxLength={16}
                     autoCorrect={false}
                     autoCapitalize={'words'}
                     keyboardAppearance={'dark'}

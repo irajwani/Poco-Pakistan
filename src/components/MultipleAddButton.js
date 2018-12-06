@@ -48,7 +48,7 @@ class MultipleAddButton extends Component {
     // console.log('opening Photo Library');
     let photoArray;
     
-    CameraRoll.getPhotos({ first: 40 })
+    CameraRoll.getPhotos({ first: 100 })
     .then(res => {
       photoArray = res.edges;
       console.log(photoArray);
@@ -131,7 +131,7 @@ class MultipleAddButton extends Component {
         
           {this.renderMainPictureRow(this.props.pictureuris)}
           {moreThanOnePicture ?
-            this.renderOtherPicturesRow(this.props.pictureuris, lessThanTwoPictures = false)
+            this.renderOtherPicturesRow(this.props.pictureuris)
             :
             null
           }
