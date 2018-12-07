@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Dimensions, View, Image, } from 'react-native';
+import { AsyncStorage, Dimensions, View, Image, } from 'react-native';
 
 import PushNotification from 'react-native-push-notification';
 
@@ -73,13 +73,16 @@ class SignIn extends Component {
 
     componentWillMount() {
         this.initializePushNotifications();
-        //this.updateProducts();
+        AsyncStorage.getItem('previousEmail').then((data)=> this.setState({email: data ? data : '' }))
+        
     }
 
     componentDidMount() {
         GoogleSignin.configure({
             iosClientId: '791527199565-tcd1e6eak6n5fcis247mg06t37bfig63.apps.googleusercontent.com',
         })
+        
+
         let i = 0;
         const googleIconColors = ['#3cba54', '#db3236', '#f4c20d', 'powderblue'];
         this.colorRefreshId = setInterval( () => {
@@ -95,6 +98,36 @@ class SignIn extends Component {
     componentWillUnmount() {
         clearInterval(this.colorRefreshId);
     }
+
+    // saveEmailForFuture = async email => {
+    //     try {
+    //       await AsyncStorage.setItem('previousEmail', email);
+    //     } catch (error) {
+    //       // Error retrieving data
+    //       console.log(error.message);
+    //     }
+    //   };
+
+    // getPreviousEmail = async () => {
+    //     let email = 'none';
+    //     try {
+    //       email = await AsyncStorage.getItem('previousEmail');
+    //       if (email !== null) {
+    //         // We have data!!
+    //         console.log(email);
+    //         return email;
+    //       }
+
+    //       else {
+    //           email = 'none';
+    //           return email;
+    //       }
+    //     } catch (error) {
+    //       // Error retrieving data
+    //       console.log(error.message);
+    //     }
+        
+    //   }
 
     // Invoked when onSignInPress() AND signInWithGoogle()  are pressed: 
     // that is when user presses Sign In Button, or when they choose to sign up or sign in through Google 
@@ -300,6 +333,10 @@ class SignIn extends Component {
                         //could potentially navigate with user properties like uid, name, etc.
                         //TODO: once you sign out and nav back to this page, last entered
                         //password and email are still there
+
+                        // this.saveEmailForFuture(email);
+                        AsyncStorage.setItem('previousEmail', email);
+
                         this.successfulLoginCallback(user, googleUserBoolean = false);
                         
                         // this.setState({loading: false, loggedIn: true})
@@ -468,7 +505,7 @@ class SignIn extends Component {
     render() {
 
         const {loading} = this.state;
-    
+        AsyncStorage.getItem('previousEmail').then((d)=>console.log(d + 'getItem'))
         
         
         return (
