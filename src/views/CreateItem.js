@@ -327,15 +327,14 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
 
     if(isUploading) {
         return (
-            <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                <View style={{flex: 1}}>
+            <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
+                <View style={{height: 200, justifyContent: 'center', alignContent: 'center'}}>
                     <PacmanIndicator color='#800000' />
-                </View>
-                <View style={{paddingHorizontal: 10, paddingVertical: 5}}>
-                    <Text style={{fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: '#800000'}}>
+                    <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: '#800000', textAlign: 'center'}}>
                         Your product {this.state.name} is being uploaded to the market. Please do not resubmit the same product.
                     </Text>
                 </View>
+                
             </View>
         )
     }

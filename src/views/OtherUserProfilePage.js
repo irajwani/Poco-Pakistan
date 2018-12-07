@@ -9,12 +9,13 @@ import firebase from '../cloud/firebase.js';
 import { iOSColors, iOSUIKit, human,  } from 'react-native-typography';
 import LinearGradient from 'react-native-linear-gradient'
 // import ReviewsList from '../components/ReviewsList.js';
-// import { PacmanIndicator } from 'react-native-indicators';
-import { bobbyBlue, lightGreen, highlightGreen, graphiteGray } from '../colors.js';
+import { PacmanIndicator } from 'react-native-indicators';
+import { bobbyBlue, lightGreen, highlightGreen, graphiteGray, flashOrange } from '../colors.js';
+
+import {removeFalsyValuesFrom} from '../localFunctions/arrayFunctions.js'
 // import { Hoshi, Sae } from 'react-native-textinput-effects';
 // import { TextField } from 'react-native-material-textfield';
 const {width, height} = Dimensions.get('window');
-
 
 const resizeMode = 'center';
 
@@ -41,6 +42,7 @@ class OtherUserProfilePage extends Component {
 
   constructor(props) {
     super(props);
+    
     this.state = {
       name: '',
       email: '',
@@ -52,10 +54,74 @@ class OtherUserProfilePage extends Component {
       products: [],
       showBlockOrReportModal: false,
       report: '',
-      showReportUserModal: false
+      showReportUserModal: false,
+      isGetting: true,
+      uid: firebase.auth().currentUser.uid
 
     }
 
+  }
+
+  componentWillMount() {
+    //Whenever someone navigates to this page, load the relevant data to render this page.
+    //We need the current user's uid to extract information about blocked users.
+    setTimeout(() => {
+      this.loadRelevantData(this.state.uid, this.props.navigation.state.params.uid)  
+    }, 500);
+    
+  }
+
+  componentDidMount() {
+
+    setInterval(() => {
+      this.loadRelevantData(this.state.uid, this.props.navigation.state.params.uid)  
+    }, 30000);
+  }
+
+  loadRelevantData = (yourUid, otherUserUid) => {
+    this.setState({isGetting: true})
+    firebase.database().ref().once('value', (snap) => {
+      var d = snap.val();
+
+      const yourProfile = d.Users[yourUid].profile;
+
+      var rawUsersBlocked = d.Users[yourUid].usersBlocked ? d.Users[yourUid].usersBlocked : {};
+      var yourUsersBlocked = removeFalsyValuesFrom(rawUsersBlocked);
+      console.log(yourUsersBlocked);
+
+      const profile = d.Users[otherUserUid].profile;
+      const {name, country, insta, uri} = profile;
+
+      //get collection keys of current user
+      // var collection = d.Users[uid].collection ? d.Users[uid].collection : null;
+      // var rawCollection = collection ? collection : {}
+      // var collectionKeys = removeFalsyValuesFrom(rawCollection);  
+
+      var soldProducts = 0;
+
+      //get profile data of seller of product
+      for(var p of Object.values(d.Users[otherUserUid].products)) {
+        if(p.sold) {
+          soldProducts++
+        }
+      }
+      
+      var numberProducts = Object.keys(d.Users[otherUserUid].products).length
+
+      var date = (new Date()).getDate();
+      var month = (new Date()).getMonth();
+      var year = (new Date()).getFullYear();
+
+      var comments;
+      if(d.Users[otherUserUid].comments) {
+        comments = d.Users[otherUserUid].comments;
+      }
+      else {
+        comments = {a: {text: 'Write a review for this seller using the comment field below.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
+      }
+
+      this.setState({yourProfile, usersBlocked: yourUsersBlocked, yourUid: yourUid, otherUserUid: otherUserUid, profile, name, country, insta, uri, soldProducts, numberProducts, comments, isGetting: false})
+    })
   }
 
   showBlockOrReport = () => {
@@ -94,22 +160,40 @@ class OtherUserProfilePage extends Component {
     .catch(console.error)
   }
 
+  navToOtherUserProfilePage = (uid) => {
+    this.props.navigation.navigate('OtherUserProfilePage', {uid: uid})
+  }
+
   navToUserComments = () => {
-    const {params} = this.props.navigation.state;
-    const {uid, comments, profile, yourProfile} = params;
-    this.props.navigation.navigate('UserComments', {yourProfile: yourProfile, profile: profile, comments: comments, uid: uid})
+    // const {params} = this.props.navigation.state;
+    const {otherUserUid, comments, profile, yourProfile} = this.state;
+    this.props.navigation.navigate('UserComments', {yourProfile: yourProfile, profile: profile, comments: comments, uid: otherUserUid})
   }
 
   render() {
 
-    const {report} = this.state;
-    const {params} = this.props.navigation.state;
-    const {usersBlocked, uid, profile, numberProducts, soldProducts, comments} = params;
+    const {report, name, country, insta, uri, usersBlocked, soldProducts, numberProducts, comments, yourUid, otherUserUid} = this.state;
+    // const {params} = this.props.navigation.state;
+    // const {uid} = params; //otherUserUid
     // console.log(usersBlocked, uid, usersBlocked.includes(uid));
 
     
     const gradientColors = ['#7de853','#0baa26', '#064711'];
     // const gradientColors2 = ['#0a968f','#6ee5df', ];
+
+    if(this.state.isGetting) {
+      return (
+        <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
+            <View style={{height: 200, justifyContent: 'center', alignContent: 'center'}}>
+                <PacmanIndicator color={flashOrange} />
+                <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: flashOrange, textAlign: 'center'}}>
+                    Loading Profile...
+                </Text>
+            </View>
+            
+        </View>
+      )
+    }
 
     return (
       <View style={styles.mainContainer}>
@@ -135,8 +219,8 @@ class OtherUserProfilePage extends Component {
             </View>  
 
             <View style={styles.picRow}>
-              {profile.uri ? 
-                <Image style= {styles.profilepic} source={ {uri: profile.uri} }/>
+              {uri ? 
+                <Image style= {styles.profilepic} source={ {uri: uri} }/>
                 : 
                 <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>
               } 
@@ -146,10 +230,10 @@ class OtherUserProfilePage extends Component {
           </View>  
 
           <View style={styles.profileTextColumn}>
-            <Text style={styles.name}>{profile.name}</Text>
-            <Text style={styles.pos}>{profile.country}</Text>
-            {profile.insta ? 
-              <Text style={styles.insta}>@{profile.insta}</Text>
+            <Text style={styles.name}>{name}</Text>
+            <Text style={styles.pos}>{country}</Text>
+            {insta ? 
+              <Text style={styles.insta}>@{insta}</Text>
              : 
               null
             }
@@ -206,7 +290,11 @@ class OtherUserProfilePage extends Component {
                       <View style={styles.commentPicAndTextRow}>
 
                         {comments[comment].uri ?
+                        <TouchableHighlight style={styles.commentPic} onPress={
+                          ()=>{yourUid == comments[comment].uid ? this.props.navigation.navigate('Profile') : this.loadRelevantData(yourUid, comments[comment].uid)} }
+                        >
                           <Image style= {styles.commentPic} source={ {uri: comments[comment].uri} }/>
+                        </TouchableHighlight>  
                         :
                           <Image style= {styles.commentPic} source={ require('../images/companyLogo2.jpg') }/>
                         }
@@ -251,12 +339,12 @@ class OtherUserProfilePage extends Component {
             <Text style={styles.modalText}>This will delete all chats you have with this individual, so if you decide to unblock this user later, they will have to initiate new chats with you.</Text>
             <Text style={styles.modalText}>If you believe this user has breached the Terms and Conditions for usage of NottMyStyle (for example, through proliferation of malicious content, or improper language), then please explain this to the NottMyStyle Team through email by selecting Report User.</Text>
             <View style={styles.documentOpenerContainer}>
-                {usersBlocked.includes(uid) ?
-                    <Text style={styles.blockUser} onPress={() => {this.unblockUser(uid)}}>
+                {usersBlocked.includes(otherUserUid) ?
+                    <Text style={styles.blockUser} onPress={() => {this.unblockUser(otherUserUid)}}>
                         Unblock User
                     </Text>
                 :
-                    <Text style={styles.blockUser} onPress={() => {this.blockUser(uid)}}>
+                    <Text style={styles.blockUser} onPress={() => {this.blockUser(otherUserUid)}}>
                         Block User
                     </Text>
                 }
@@ -307,7 +395,7 @@ class OtherUserProfilePage extends Component {
                     
                     }}
                     containerStyle={{ marginTop: 0, marginBottom: 0 }}
-                    onPress={() => {this.sendReport(uid, report);}} 
+                    onPress={() => {this.sendReport(otherUserUid, report);}} 
                 />
                 
                 <TouchableHighlight

@@ -10,6 +10,7 @@ import EditItem from '../views/EditItem';
 import UserComments from '../views/UserComments';
 import Settings from '../views/Settings';
 import ViewPhotos from '../views/ViewPhotos';
+import OtherUserProfilePage from '../views/OtherUserProfilePage';
 
 export const profileToEditProfileStack = createStackNavigator({
     ProfilePage: ProfilePage,
@@ -20,7 +21,8 @@ export const profileToEditProfileStack = createStackNavigator({
     ViewPhotos: ViewPhotos,
     YourProducts: YourProducts,
     EditItem: EditItem,
-    UserComments: UserComments
+    UserComments: UserComments,
+    OtherUserProfilePage: OtherUserProfilePage
 },
 {   
     initialRouteName: 'ProfilePage',

@@ -18,7 +18,7 @@ import { PacmanIndicator } from 'react-native-indicators';
 import Chatkit from "@pusher/chatkit";
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
 import email from 'react-native-email';
-import { bobbyBlue, woodBrown, highlightGreen, graphiteGray, rejectRed } from '../colors';
+import { bobbyBlue, woodBrown, highlightGreen, graphiteGray, rejectRed, darkBlue } from '../colors';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import BackButton from '../components/BackButton';
 
@@ -64,13 +64,19 @@ class ProductDetails extends Component {
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const {params} = this.props.navigation.state;
 
     setTimeout(() => {
       this.getUserAndProductAndOtherUserData(params.data);
     }, 4);
+
+    setInterval(() => {
+      this.getUserAndProductAndOtherUserData(params.data);
+    }, 10000);
+
   }
+
 
   getUserAndProductAndOtherUserData(data) {
     firebase.database().ref().once("value", (snapshot) => {
@@ -87,26 +93,27 @@ class ProductDetails extends Component {
       //get keys of current user's products
       // var productKeys = d.Users[uid].products ? Object.keys(d.Users[uid].products) : [];
 
+      /////BELIEVE THESE TO BE UNNECESSARY AS OTHER_USER_PROFILE_PAGE LOADS THEM INDEPENDENTLY A PARTICULAR UID.
       //get usersBlocked for current user
-      var rawUsersBlocked = d.Users[uid].usersBlocked ? d.Users[uid].usersBlocked : {};
-      var yourUsersBlocked = removeFalsyValuesFrom(rawUsersBlocked);
-      console.log(yourUsersBlocked);
+      // var rawUsersBlocked = d.Users[uid].usersBlocked ? d.Users[uid].usersBlocked : {};
+      // var yourUsersBlocked = removeFalsyValuesFrom(rawUsersBlocked);
+      // console.log(yourUsersBlocked);
 
       //get collection keys of current user
       // var collection = d.Users[uid].collection ? d.Users[uid].collection : null;
       // var rawCollection = collection ? collection : {}
       // var collectionKeys = removeFalsyValuesFrom(rawCollection);  
 
-      var soldProducts = 0;
+      // var soldProducts = 0;
 
-      //get profile data of seller of product
-      for(var p of Object.values(d.Users[data.uid].products)) {
-        if(p.sold) {
-          soldProducts++
-        }
-      }
+      // //get profile data of seller of product
+      // for(var p of Object.values(d.Users[data.uid].products)) {
+      //   if(p.sold) {
+      //     soldProducts++
+      //   }
+      // }
       
-      var numberProducts = Object.keys(d.Users[data.uid].products).length
+      // var numberProducts = Object.keys(d.Users[data.uid].products).length
 
       var date = (new Date()).getDate();
       var month = (new Date()).getMonth();
@@ -125,7 +132,7 @@ class ProductDetails extends Component {
       
       var productComments = d.Users[data.uid].products[data.key].comments ? d.Users[data.uid].products[data.key].comments : {a: {text: 'No Reviews have been left for this product yet.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
       
-      this.setState( {yourProfile, yourUsersBlocked, uid, otherUserUid, profile, numberProducts, soldProducts, comments, productComments,} )
+      this.setState( {yourProfile, uid, otherUserUid, profile, productComments,} )
     })
     .then( () => {
       this.setState({isGetting: false})
@@ -230,16 +237,13 @@ class ProductDetails extends Component {
     });
   }
 
-  navToOtherUserProfilePage = () => {
-    //Since we already perform some data retrieval on this page,
-    //extract information for: the UI on next page AND the uid of the user to be able to block them from sending messages.
-    const {yourProfile, yourUsersBlocked, otherUserUid, profile, numberProducts, soldProducts, noComments, comments} = this.state;
-    this.props.navigation.navigate('OtherUserProfilePage', {yourProfile: yourProfile, usersBlocked: yourUsersBlocked, uid: otherUserUid, profile: profile, numberProducts: numberProducts, soldProducts: soldProducts, comments: comments});
+  navToOtherUserProfilePage = (uid) => {
+    this.props.navigation.navigate('OtherUserProfilePage', {uid: uid})
   }
 
   navToProductComments = (productInformation) => {
     const {yourProfile, profile, productComments, otherUserUid} = this.state;
-    this.props.navigation.navigate('ProductComments', {productInformation: productInformation, key: productInformation.key, comments: productComments, yourProfile: yourProfile, theirProfile: profile, uid: otherUserUid });
+    this.props.navigation.navigate('ProductComments', {productInformation: productInformation, key: productInformation.key, comments: productComments, yourProfile: yourProfile, theirProfile: profile, uid: productInformation.uid });
   }
 
 
@@ -274,7 +278,7 @@ class ProductDetails extends Component {
       original_price: text.original_price
     };
     const description = text.description;
-    const {comments} = text;
+    // const {comments} = text;
 
     // console.log(firebase.auth().currentUser.uid == data.uid, firebase.auth().currentUser.uid, data.uid);
 
@@ -297,10 +301,23 @@ class ProductDetails extends Component {
     return (
 
       <ScrollView style={styles.mainContainer} contentContainerStyle={styles.contentContainer}>
-        <BackButton action={()=>this.props.navigation.goBack()}/>
-        {/* image carousel */}
-        <View style={{flex: 2, alignItems: 'center'}}>
-          <CustomCarousel data={params.data.uris} />
+        
+        {/* image carousel in center with back button on its left */}
+        <View style={{marginTop: 5, flex: 2, flexDirection: 'row', paddingVertical: 5, paddingRight: 2, paddingLeft: 1 }}>
+          <View style={{flex: 0.035, justifyContent: 'flex-start',}}>
+              <FontAwesomeIcon
+              name='chevron-left'
+              size={18}
+              color={'#800000'}
+              onPress = { () => { 
+                  this.props.navigation.goBack();
+                  } }
+
+              />
+          </View>
+          <View style={{flex: 0.965, justifyContent: 'flex-start', alignItems: 'center',  }}>        
+            <CustomCarousel data={params.data.uris} />
+          </View>
         </View>
           {/* Product Name (Not Brand) and Price Row */}
         <View style={styles.nameAndPriceRow}>
@@ -349,13 +366,13 @@ class ProductDetails extends Component {
             {/* Profile And Actions Row */}
         <View style={styles.sellerProfileAndActionsRow}>
             
-          <TouchableOpacity style={styles.profilePictureContainer} onPress={() => {firebase.auth().currentUser.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage()}}>
+          <TouchableOpacity style={styles.profilePictureContainer} onPress={() => {firebase.auth().currentUser.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(data.uid)}}>
             <Image source={ {uri: profile.uri }} style={profileRowStyles.profilepic} />
           </TouchableOpacity>
 
           <View style={styles.profileTextContainer}>
             <Text onPress={() => 
-            {firebase.auth().currentUser.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage()}}
+            {this.state.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(data.uid)}}
             style={profileRowStyles.name}>
               {profile.name}
             </Text>
@@ -477,7 +494,12 @@ class ProductDetails extends Component {
                       <View style={styles.commentPicAndTextRow}>
 
                         {productComments[comment].uri ?
-                          <Image style= {styles.commentPic} source={ {uri: productComments[comment].uri} }/>
+                          <TouchableHighlight 
+                            onPress={() => this.state.uid == productComments[comment].uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(productComments[comment].uid)} 
+                            style={styles.commentPic}
+                          >
+                            <Image style= {styles.commentPic} source={ {uri: productComments[comment].uri} }/>
+                          </TouchableHighlight>  
                         :
                           <Image style= {styles.commentPic} source={ require('../images/companyLogo2.jpg') }/>
                         }
@@ -530,12 +552,12 @@ class ProductDetails extends Component {
                     title='Send' 
                     titleStyle={{ fontWeight: "300" }}
                     buttonStyle={{
-                    backgroundColor: bobbyBlue,
+                    backgroundColor: darkBlue,
                     //#2ac40f
-                    width: (width)*0.40,
+                    width: 90,
                     height: 40,
-                    borderColor: "#226b13",
-                    borderWidth: 0,
+                    borderColor: "#fff",
+                    borderWidth: 1,
                     borderRadius: 20,
                     }}
                     containerStyle={{ marginTop: 0, marginBottom: 0 }}
@@ -543,6 +565,7 @@ class ProductDetails extends Component {
                 />
                 
                 <TouchableHighlight
+                    underlayColor={'#fff'}
                     onPress={() => {
                         this.setState( {showReportUserModal: false} )
                     }}>
@@ -558,6 +581,11 @@ class ProductDetails extends Component {
 }
 
 export default withNavigation(ProductDetails);
+
+
+{/* <View style={{flex: 2, alignItems: 'center'}}>
+          <CustomCarousel data={params.data.uris} />
+        </View> */}
 
 const styles = StyleSheet.create( {
   mainContainer: {
@@ -790,7 +818,7 @@ reportModal: {flexDirection: 'column', justifyContent: 'space-between', alignIte
 reportModalHeader: {
     textAlign: 'center',
     fontSize: 20,
-    fontFamily: 'Iowan Old Style',
+    fontFamily: 'Avenir Next',
     fontWeight: "bold",
     paddingBottom: 20,
 },
@@ -802,7 +830,7 @@ hideModal: {
   fontWeight:'bold'
 },
 
-reportInput: {width: width - 40, height: 120, marginBottom: 50, borderColor: bobbyBlue, borderWidth: 1},
+reportInput: {width: 200, height: 160, marginBottom: 50, borderColor: darkBlue, borderWidth: 2},
 
 
 halfPageScroll: {

@@ -159,6 +159,10 @@ class ProfilePage extends Component {
     
 // }
 
+  navToOtherUserProfilePage = (uid) => {
+    this.props.navigation.navigate('OtherUserProfilePage', {uid: uid})
+  }
+
   render() {
     var {isGetting, comments} = this.state;
     console.log(comments, 'the user has no comments, perfectly harmless')
@@ -258,7 +262,11 @@ class ProfilePage extends Component {
                       <View style={styles.commentPicAndTextRow}>
 
                         {comments[comment].uri ?
+                        <TouchableHighlight
+                        onPress={()=>this.navToOtherUserProfilePage(comments[comment].uid)}
+                        style={styles.commentPic}>
                           <Image style= {styles.commentPic} source={ {uri: comments[comment].uri} }/>
+                        </TouchableHighlight>                          
                         :
                           <Image style= {styles.commentPic} source={ require('../images/companyLogo2.jpg') }/>
                         }

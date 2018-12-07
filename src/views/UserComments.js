@@ -1,13 +1,15 @@
 import React, {Component} from 'react'
-import {Dimensions, Keyboard, Text, TextInput, TouchableHighlight, Image, View, ScrollView, StyleSheet} from 'react-native';
+import {Dimensions, Keyboard, Text, TextInput, TouchableHighlight, TouchableOpacity, Image, View, ScrollView, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Kohana } from 'react-native-textinput-effects'
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import { Hoshi } from 'react-native-textinput-effects'
 import {withNavigation} from 'react-navigation';
 import {database} from '../cloud/database';
 import firebase from '../cloud/firebase';
 import { material, systemWeights, human, iOSUIKit, iOSColors } from 'react-native-typography'
 import { PacmanIndicator } from 'react-native-indicators';
-import { highlightGreen, treeGreen, profoundPink } from '../colors';
+import { highlightGreen, treeGreen, almostWhite, graphiteGray, darkGray, rejectRed, optionLabelBlue, avenirNext } from '../colors';
+
 //for each comment, use their time of post as the key
 
 const {width, height} = Dimensions.get('window');
@@ -21,6 +23,7 @@ class UserComments extends Component {
           commentString: '',
           visibleHeight: Dimensions.get('window').height,
           isGetting: true,
+          showDeleteRow: false
         }
         this.height = this.state.visibleHeight
         
@@ -50,11 +53,14 @@ class UserComments extends Component {
        this.setState({visibleHeight: Dimensions.get('window').height})
     }
 
-    onCommentTextChanged(event) {
-        this.setState({ commentString: event.nativeEvent.text });
+    // onCommentTextChanged(event) {
+    //     // this.setState({ commentString: event.nativeEvent.text });
+    // }
+    onCommentTextChanged(commentString) {
+        this.setState({ commentString });
     }
 
-    uploadComment(name, comment, uid, uri ) {
+    uploadComment(name, comment, uid, uri, yourUid ) {
         
         var timeCommentedKey = Date.now();
         var date = (new Date()).getDate();
@@ -63,7 +69,7 @@ class UserComments extends Component {
         var timeCommented = `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`;
         
         var updates = {}
-        var postData = {text: comment, name: name, time: timeCommented, uri: uri }
+        var postData = {text: comment, name: name, time: timeCommented, uri: uri, uid: yourUid }
         this.state.comments[timeCommentedKey] = postData; //update the local state with this new comment
         this.setState({ comments : this.state.comments });
         updates['/Users/' + uid + '/comments/' + timeCommentedKey + '/'] = postData
@@ -90,14 +96,18 @@ class UserComments extends Component {
         })
         .catch( (e) => {console.log(e)})
     }
+
+    navToOtherUserProfilePage = (uid) => {
+        this.props.navigation.navigate('OtherUserProfilePage', {uid: uid})
+    }
     
     render() {
-
+        const yourUid = firebase.auth().currentUser.uid;
         const {params} = this.props.navigation.state;
         const {yourProfile, profile, uid} = params;
         const {name, uri} = yourProfile; //To upload a comment, attach the current Users profile details, in this case their name and profile pic uri
         
-        var {comments} = this.state;
+        var {comments, showDeleteRow} = this.state;
         var emptyReviews = Object.keys(comments).length == 1 && Object.keys(comments).includes('a') ? true : false
         var {a, ...restOfTheComments} = comments;
         comments = emptyReviews ? {a} : restOfTheComments;
@@ -105,45 +115,75 @@ class UserComments extends Component {
         return (
             <View style={styles.mainContainer} >
             
-            <View style={styles.rowContainer}>
-                {/* row containing profile picture, and user details */}
-               <Image source={ {uri: profile.uri }} style={styles.profilepic} />
-               <View style={styles.profileTextContainer}>
-                 
-                 <Text style={styles.name}>
-                   {profile.name}
-                 </Text>
-                 <Text style={styles.country}>
-                   {profile.country}
-                 </Text>
-               </View>
-               
-             </View>
-             <View style={styles.separator}/>
+            {/* Header row to view other user info and go back */}
+            <View style={styles.backAndSellerRow}>
+                <View style={styles.backIconContainer}>
+                    <FontAwesomeIcon
+                    name='chevron-circle-left'
+                    size={40}
+                    color={'#76ce1e'}
+                    onPress = { () => { 
+                        this.props.navigation.goBack();
+                        } }
+
+                    />
+                </View>
+
+                <View style={styles.sellerNameContainer}>
+                    <Text 
+                    onPress={() => yourUid == uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(uid)}  
+                    style={styles.sellerName}
+                    >
+                    {profile.name}
+                    </Text>
+                </View>
+
+                <TouchableHighlight 
+                onPress={() => yourUid == uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(uid)} 
+                style={styles.sellerImageContainer}
+                >
+                    <Image source={ {uri: profile.uri }} style={styles.profilePic} />
+                </TouchableHighlight>
+            </View>
+
+            <View style={{backgroundColor: 'black', height: 1.5}}/>
              
+             {/* Reviews for this user */}
+
              <ScrollView style={styles.contentContainerStyle} contentContainerStyle={styles.contentContainer}>
-             {/* List of Comments, if the reviews are purely empty, only show comments.a, and otherwise exclude comments.a */}
              {Object.keys(comments).map(
                   (comment) => (
-                  <View key={comment} style={styles.commentContainer}>
-
-                        {
-                        comments[comment].uri == uri ?
-                            <View style={styles.deleteCommentRow}>
-                                <Text
-                                onPress={() => this.deleteComment(comment, uid)} 
-                                style={styles.deleteComment}>
-                                    Delete
-                                </Text>
-                            </View>
-                        :
-                            null
-                        }
-
+                  <TouchableOpacity 
+                  key={comment} style={[styles.commentContainer, {color: showDeleteRow ? almostWhite : '#fff'}]} 
+                  onLongPress={()=>this.setState({showDeleteRow: true})}
+                  >  
+                    {
+                    showDeleteRow && comments[comment].uri == uri ?
+                        <View style={styles.deleteCommentRow}>
+                            <Icon name="close" 
+                            size={22} 
+                            color={'black'}
+                            onPress={ () => {this.setState({showDeleteRow: false}) }}
+                            />
+                            <Text
+                            onPress={() => this.deleteComment(comment, uid)} 
+                            style={styles.deleteComment}>
+                                Delete
+                            </Text>
+                        </View>
+                    :
+                        null
+                    }
+                        {/* Ensure individual commenter's comment sends current user to their profile page. TODO: Blocked Users Later */}
                       <View style={styles.commentPicAndTextRow}>
 
                         {comments[comment].uri ?
+                        <TouchableHighlight 
+                        onPress={() => yourUid == comments[comment].uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(comments[comment].uid)} 
+                        style={styles.commentPic}
+                        >
                           <Image style= {styles.commentPic} source={ {uri: comments[comment].uri} }/>
+                        </TouchableHighlight>  
                         :
                           <Image style= {styles.commentPic} source={ require('../images/companyLogo2.jpg') }/>
                         }
@@ -160,35 +200,36 @@ class UserComments extends Component {
                         <Text style={ styles.commentTime }> {comments[comment].time} </Text>
 
                       </View>
-
-                      {comments[comment].uri ? <View style={styles.separator}/> : null}
                       
-                  </View>
+                  </TouchableOpacity>
                   
               )
                       
               )}
-            </ScrollView> 
-            <View style={{flex: 0.25, flexDirection : 'row', bottom : this.height - this.state.visibleHeight}} >
-                <Kohana
-                    style={{ backgroundColor: '#f9f5ed' }}
-                    label={'Comment'}
-                    value={this.state.commentString}
-                    onChange={this.onCommentTextChanged.bind(this)}
-                    iconClass={Icon}
-                    iconName={'comment-multiple'}
-                    iconColor={'#f4d29a'}
-                    labelStyle={{ color: '#91627b' }}
-                    inputStyle={{ color: '#91627b' }}
-                    useNativeDriver
-                />
+            </ScrollView>
+              
+            <View style={{ flexDirection : 'row', bottom : this.height - this.state.visibleHeight}} >
+            <Hoshi
+                style={{ width: 250, backgroundColor: '#fff' }}
+                label={'Comment'}
+                labelStyle={ {color: 'black', ...systemWeights.regular} }
+                value={this.state.commentString}
+                onChangeText={ commentString => this.onCommentTextChanged(commentString)}
+                borderColor={optionLabelBlue}
+                inputStyle={{ color: 'black', fontWeight: '400', fontFamily: avenirNext }}
+                autoCorrect={false}
+                
+            />
+
+            <View style={{backgroundColor: '#fff', borderRadius: 0}}>
                 <Icon name="send" 
-                        size={50} 
-                        color={'#37a1e8'}
-                        onPress={ () => {this.uploadComment(name, this.state.commentString, uid, uri);
-                                     this.setState({commentString: ''}); 
-                                     }}
+                        size={55} 
+                        color={optionLabelBlue}
+                        onPress={ () => {this.uploadComment(name, this.state.commentString, uid, uri, yourUid);
+                                    this.setState({commentString: ''}); 
+                                    }}
                 />
+            </View>
                 
             </View>
            </View>
@@ -200,30 +241,91 @@ export default withNavigation(UserComments)
 
 const styles = StyleSheet.create({
 
-    rowContainer: {
-        flex: 0.5,
-        // marginTop: 15, 
-        flexDirection: 'row',
-        padding: 20,
-        justifyContent: 'space-evenly',
-        // alignItems: 'stretch',
-        // alignContent: 'space-around',
-        backgroundColor: '#fff'
-      },
-
     mainContainer: {
         flex: 1,
         marginTop: 22,
         flexDirection: 'column',
-        padding: 10,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
         backgroundColor: '#fff',
     },
 
+    backAndSellerRow: {
+        flexDirection: 'row',
+        // flex: 1,
+    },
+
+    backIconContainer: {
+        flex: 1,
+        justifyContent: 'center'
+    },
+
+    sellerNameContainer: {
+        flex: 3,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+
+    sellerName: {
+        fontFamily: avenirNext,
+        fontSize: 22,
+        fontWeight: '300',
+        color: graphiteGray
+    },
+
+    sellerImageContainer: {
+        flex: 0.8,
+        padding: 5,
+        // backgroundColor: 'red'
+    },
+
+    profilePic: {
+        width: 50,
+        height: 50,
+        borderRadius: 25
+    },
+
+    productInfoContainer: {
+        flexDirection: 'row',
+        // flex: 1,
+        padding: 5,
+
+    },
+
+    productImageContainer: {
+        flex: 1
+    },
+
+    productPic: {
+        height: 90,
+        width: 90,
+        borderRadius: 0
+    },
+
+    productTextContainer: {
+        flex: 3,
+        // flexDirection: 'column',
+        justifyContent: 'center',
+        // alignContent: 'center',
+        alignItems: 'center',
+        // textAlign: 'center',
+        // backgroundColor: 'red',
+    },
+
+    name: {
+        fontSize: 22,
+        fontFamily: avenirNext,
+        fontWeight: '500',
+    },
+
+
+
+    //to hold scrolling list of comments
+
     contentContainerStyle: {
-        flex: 2,
+        
     },
     contentContainer: {
-        
         flexGrow: 1, 
         backgroundColor: '#fff',
         flexDirection: 'column',
@@ -278,25 +380,16 @@ const styles = StyleSheet.create({
         borderRadius: 5
     },
 
-    profileTextContainer: {
-        // flex: 0.5,
-        flexDirection: 'column',
-        justifyContent: 'center',
-        // alignContent: 'flex-start',
-        textAlign: 'justify'
-    },
-
-    name: {
-        ...material.headline,
-        fontSize: 22,
-        color: treeGreen,
-    },
-
-    country: {
-        fontSize: 18,
-        fontFamily: 'Iowan Old Style',
+    price: {
         color: 'black',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        fontSize: 18
+    },
+
+    brand: {
+        fontFamily: 'Iowan Old Style',
+        fontSize: 22,
+        color: 'gray'
     },
 
     email: {
@@ -320,9 +413,8 @@ const styles = StyleSheet.create({
       },
 
     comment: {
-        ...iOSUIKit.bodyEmphasized,
         fontSize: 25,
-        color: 'black',
+        color: darkGray,
     },  
 
     commentTime: {
@@ -330,8 +422,17 @@ const styles = StyleSheet.create({
         color: '#1f6010'
     },
 
-      profilepic: {
-        // flex: 0.5,
+    rowContainer: {
+        flex: 0.5,
+        marginTop: 15,
+        flexDirection: 'row',
+        padding: 20,
+        justifyContent: 'space-evenly',
+        alignContent: 'center',
+        // backgroundColor: iOSColors.lightGray2
+      },
+
+    profilepic: {
         width: 100,
         height: 100,
         alignSelf: 'center',
@@ -350,7 +451,8 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         alignContent: 'center',
-        padding: 5,
+        paddingTop: 5,
+        paddingBottom: 5
       },
 
     separator: {
@@ -358,71 +460,139 @@ const styles = StyleSheet.create({
         backgroundColor: 'black'
       },
 
-      commentContainer: {
-        flexDirection: 'column',
-        },
+    commentContainer: {
+        
+    flexDirection: 'column',
+    // backgroundColor: 'blue'
+    },
 
-        deleteCommentRow: {
-            flexDirection: 'row',
-            justifyContent: 'flex-end',
-            paddingTop:5,
-            paddingRight:5
-            // alignContent: 'flex-end',
-            // backgroundColor: 'blue'
-        },
-    
-        deleteComment: {
-            fontFamily: 'Cochin',
-            fontSize: 15,
-            color: profoundPink,
-            // textAlign: 'right'
-        },
-        
-        commentPicAndTextRow: {
+    deleteCommentRow: {
         flexDirection: 'row',
-        width: width - 20,
-        padding: 10
-        },
-        
-        commentPic: {
-        //flex: 1,
-        width: 70,
-        height: 70,
-        alignSelf: 'center',
-        borderRadius: 35,
-        borderColor: '#fff',
-        borderWidth: 0
-        },
-        
-        textContainer: {
-        flex: 1,
-        flexDirection: 'column',
-        padding: 5,
-        },
-        
-        commentName: {
-        color: highlightGreen,
-        fontSize: 16,
-        fontWeight: "500",
-        textAlign: "left"
-        },
-        
-        comment: {
-        fontSize: 16,
-        color: 'black',
-        textAlign: "center",
-        },  
-        
-        commentTimeRow: {
-        justifyContent: 'flex-end',
-        alignContent: 'flex-end',
-        alignItems: 'flex-end',
-        },
-        
-        commentTime: {
-        textAlign: "right",
-        fontSize: 16,
-        color: iOSColors.black
-        },  
+        justifyContent: 'space-between',
+        paddingTop:5,
+        paddingHorizontal:5,
+        // alignContent: 'flex-end',
+        // backgroundColor: 'blue'
+    },
+
+    deleteComment: {
+        fontFamily: 'Iowan Old Style',
+        fontWeight: '500',
+        fontSize: 18,
+        color: rejectRed,
+        // textAlign: 'right'
+    },
+    
+    commentPicAndTextRow: {
+    flexDirection: 'row',
+    width: width - 20,
+    padding: 10
+    },
+    
+    commentPic: {
+    //flex: 1,
+    width: 70,
+    height: 70,
+    alignSelf: 'center',
+    borderRadius: 35,
+    borderColor: '#fff',
+    borderWidth: 0
+    },
+    
+    textContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    padding: 5,
+    },
+    
+    commentName: {
+    color: highlightGreen,
+    fontSize: 16,
+    fontWeight: "500",
+    textAlign: "left"
+    },
+    
+    comment: {
+    fontSize: 16,
+    color: 'black',
+    textAlign: "center",
+    },  
+    
+    commentTimeRow: {
+    justifyContent: 'flex-end',
+    alignContent: 'flex-end',
+    alignItems: 'flex-end',
+    },
+    
+    commentTime: {
+    textAlign: "right",
+    fontSize: 16,
+    color: iOSColors.black
+    },  
 
   });
+
+
+//   <View style={styles.rowContainer}>
+//                 {/* row containing profile picture, and user details */}
+//                <Image source={ {uri: profile.uri }} style={styles.profilepic} />
+//                <View style={styles.profileTextContainer}>
+                 
+//                  <Text style={styles.name}>
+//                    {profile.name}
+//                  </Text>
+//                  <Text style={styles.country}>
+//                    {profile.country}
+//                  </Text>
+//                </View>
+               
+//              </View>
+
+// <ScrollView style={styles.contentContainerStyle} contentContainerStyle={styles.contentContainer}>
+//              {/* List of Comments, if the reviews are purely empty, only show comments.a, and otherwise exclude comments.a */}
+//              {Object.keys(comments).map(
+//                   (comment) => (
+//                   <View key={comment} style={styles.commentContainer}>
+
+//                         {
+//                         comments[comment].uri == uri ?
+//                             <View style={styles.deleteCommentRow}>
+//                                 <Text
+//                                 onPress={() => this.deleteComment(comment, uid)} 
+//                                 style={styles.deleteComment}>
+//                                     Delete
+//                                 </Text>
+//                             </View>
+//                         :
+//                             null
+//                         }
+
+//                       <View style={styles.commentPicAndTextRow}>
+
+//                         {comments[comment].uri ?
+//                           <Image style= {styles.commentPic} source={ {uri: comments[comment].uri} }/>
+//                         :
+//                           <Image style= {styles.commentPic} source={ require('../images/companyLogo2.jpg') }/>
+//                         }
+                          
+//                         <View style={styles.textContainer}>
+//                             <Text style={ styles.commentName }> {comments[comment].name} </Text>
+//                             <Text style={styles.comment}> {comments[comment].text}  </Text>
+//                         </View>
+
+//                       </View>
+
+//                       <View style={styles.commentTimeRow}>
+
+//                         <Text style={ styles.commentTime }> {comments[comment].time} </Text>
+
+//                       </View>
+
+//                       {comments[comment].uri ? <View style={styles.separator}/> : null}
+                      
+//                   </View>
+                  
+//               )
+                      
+//               )}
+//             </ScrollView>

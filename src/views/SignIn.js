@@ -141,7 +141,7 @@ class SignIn extends Component {
     //Invoked when user tries to sign in even though they don't exist in the system yet
     attemptSignUp = (user, googleUserBoolean) => {
         //check if user wishes to sign up through standard process (the former) or through google
-        console.log('attempting to sign up');
+        console.log('attempting to sign up', user);
         this.setState({loading: false});
         !user ? 
         this.props.navigation.navigate('CreateProfile', {user: false, googleUserBoolean})

@@ -52,7 +52,7 @@ class ProductComments extends Component {
         this.setState({ commentString });
     }
 
-    uploadComment(name, comment, uid, uri, productKey ) {
+    uploadComment(name, comment, uid, uri, productKey, yourUid ) {
         
         var timeCommentedKey = Date.now();
         var date = (new Date()).getDate();
@@ -61,7 +61,7 @@ class ProductComments extends Component {
         var timeCommented = `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`;
         
         var updates = {}
-        var postData = {text: comment, name: name, time: timeCommented, uri: uri }
+        var postData = {text: comment, name: name, time: timeCommented, uri: uri, uid: yourUid }
         this.state.comments[timeCommentedKey] = postData; // --> how to create a new key in the object with certain values, which in this case is another object containing the specific comment being uploaded
         this.setState({ comments : this.state.comments });
         updates['/Users/' + uid + '/products/' + productKey + '/comments/' + timeCommentedKey + '/'] = postData
@@ -88,9 +88,13 @@ class ProductComments extends Component {
         })
         .catch( (e) => {console.log(e)})
     }
+
+    navToOtherUserProfilePage = (uid) => {
+        this.props.navigation.navigate('OtherUserProfilePage', {uid: uid})
+    }
     
     render() {
-
+        const yourUid = firebase.auth().currentUser.uid;
         const {params} = this.props.navigation.state;
         const {productInformation, key, yourProfile, theirProfile, uid} = params;
         const {uris, text} = productInformation //For row containing product Information
@@ -118,12 +122,20 @@ class ProductComments extends Component {
                 </View>
 
                 <View style={styles.sellerNameContainer}>
-                    <Text style={styles.sellerName}>{theirProfile.name}</Text>
+                    <Text 
+                    onPress={() => yourUid == uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(uid)}  
+                    style={styles.sellerName}
+                    >
+                    {theirProfile.name}
+                    </Text>
                 </View>
 
-                <View style={styles.sellerImageContainer}>
+                <TouchableHighlight 
+                onPress={() => yourUid == uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(uid)} 
+                style={styles.sellerImageContainer}
+                >
                     <Image source={ {uri: theirProfile.uri }} style={styles.profilePic} />
-                </View>
+                </TouchableHighlight>
             </View>
 
             <View style={{backgroundColor: 'black', height: 1.5}}/>
@@ -145,7 +157,7 @@ class ProductComments extends Component {
              </View>
 
             <View style={{backgroundColor: 'black', height: 1.5}}/>
-             
+             {/* Product Reviews by other users */}
              <ScrollView style={styles.contentContainerStyle} contentContainerStyle={styles.contentContainer}>
              {Object.keys(comments).map(
                   (comment) => (
@@ -168,11 +180,16 @@ class ProductComments extends Component {
                     :
                         null
                     }
-
+                        {/* Ensure individual commenter's comment sends current user to their profile page. TODO: Blocked Users Later */}
                       <View style={styles.commentPicAndTextRow}>
 
                         {comments[comment].uri ?
+                        <TouchableHighlight 
+                        onPress={() => yourUid == comments[comment].uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(comments[comment].uid)} 
+                        style={styles.commentPic}
+                        >
                           <Image style= {styles.commentPic} source={ {uri: comments[comment].uri} }/>
+                        </TouchableHighlight>  
                         :
                           <Image style= {styles.commentPic} source={ require('../images/companyLogo2.jpg') }/>
                         }
@@ -217,7 +234,7 @@ class ProductComments extends Component {
                     <Icon name="send" 
                             size={55} 
                             color={optionLabelBlue}
-                            onPress={ () => {this.uploadComment(name, this.state.commentString, uid, uri, key);
+                            onPress={ () => {this.uploadComment(name, this.state.commentString, uid, uri, key, yourUid);
                                         this.setState({commentString: ''}); 
                                         }}
                     />

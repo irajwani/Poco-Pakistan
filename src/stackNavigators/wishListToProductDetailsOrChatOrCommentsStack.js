@@ -15,10 +15,10 @@ export const wishListToProductDetailsOrChatOrCommentsStack = createStackNavigato
     YourProducts: YourProducts,
     ProductDetails: ProductDetails,
     EditItem: EditItem,
-    CustomChat: CustomChat,
     ProductComments: ProductComments,
     OtherUserProfilePage: OtherUserProfilePage,
     UserComments: UserComments,
+    CustomChat: CustomChat,
 },
 {
     initialRouteName: 'Collection',
