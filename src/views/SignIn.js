@@ -15,7 +15,7 @@ import firebase from '../cloud/firebase.js';
 // import {database} from '../cloud/database';
 
 import {GoogleSignin} from 'react-native-google-signin'
-import FBSDK, {LoginManager} from 'react-native-fbsdk';
+import {LoginManager, AccessToken} from 'react-native-fbsdk';
 
 import { systemWeights, iOSColors } from 'react-native-typography';
 // import HomeScreen from './HomeScreen';
@@ -129,9 +129,11 @@ class SignIn extends Component {
         
     //   }
 
+
     // Invoked when onSignInPress() AND signInWithGoogle()  are pressed: 
     // that is when user presses Sign In Button, or when they choose to sign up or sign in through Google 
-    successfulLoginCallback = (user, googleUserBoolean) => {
+    //The G and F UserBooleans are used only in the attemptSignUp function to determine what data to navigate with to the CreateProfile Screen.
+    successfulLoginCallback = (user, googleUserBoolean, facebookUserBoolean) => {
         firebase.database().ref().once('value', (snapshot) => {
             var d = snapshot.val();
             var all = d.Products;
@@ -150,7 +152,7 @@ class SignIn extends Component {
             console.log(`${!Object.keys(Users).includes(user.uid)} that user is NOT in database, and needs to Sign Up`)
             if(!Object.keys(Users).includes(user.uid)) {
 
-                this.attemptSignUp(user, googleUserBoolean)
+                this.attemptSignUp(user, googleUserBoolean, facebookUserBoolean)
 
             } 
             else {
@@ -172,15 +174,19 @@ class SignIn extends Component {
     }
 
     //Invoked when user tries to sign in even though they don't exist in the system yet
-    attemptSignUp = (user, googleUserBoolean) => {
-        //check if user wishes to sign up through standard process (the former) or through google
+    attemptSignUp = (user, googleUserBoolean, facebookUserBoolean) => {
+        //check if user wishes to sign up through standard process (the former) or through google or through facebook so 3 cases
+        //
         console.log('attempting to sign up', user);
         this.setState({loading: false});
         !user ? 
-        this.props.navigation.navigate('CreateProfile', {user: false, googleUserBoolean})
+            this.props.navigation.navigate('CreateProfile', {user: false, googleUserBoolean: false, facebookUserBoolean: false})
         :
-        this.props.navigation.navigate('CreateProfile', {user, googleUserBoolean, pictureuris: [user.photoURL],})
-        
+            googleUserBoolean && !facebookUserBoolean ? 
+                this.props.navigation.navigate('CreateProfile', {user, googleUserBoolean: true, facebookUserBoolean: false, pictureuris: [user.photoURL],})
+            :
+                this.props.navigation.navigate('CreateProfile', {user, googleUserBoolean: false, facebookUserBoolean: true, pictureuris: [user.photoURL],})
+                //this.props.navigation.navigate('CreateProfile', {user, googleUserBoolean, pictureuris: [user.photoURL],})
     }
 
     //onPress Google Icon
@@ -199,27 +205,97 @@ class SignIn extends Component {
             
         })
         .then((currentUser) => {
-            this.successfulLoginCallback(currentUser, googleUserBoolean = true);
-            console.log('successfully signed in:', currentUser.photoURL);
+            this.successfulLoginCallback(currentUser, googleUserBoolean = true, facebookUserBoolean = false);
+            console.log('successfully signed in:', currentUser);
             // console.log(JSON.stringify(currentUser.toJSON()))
         })
         .catch( (err) => console.log(err))
     }
 
     signInWithFacebook = () => {
-        LoginManager.logInWithReadPermissions(['public_profile']).then(
-            function(result) {
+        //Neat Trick: Define two functions (one for success, one for error), with a thenable based on the object returned from the Promise.
+        LoginManager.logInWithReadPermissions(['email']).then(
+            (result) => {
+              console.log(result);  
               if (result.isCancelled) {
                 alert('Login was cancelled');
-              } else {
-                alert('Login was successful with permissions: '
-                  + result.grantedPermissions.toString());
+              } 
+              else {
+                AccessToken.getCurrentAccessToken().then( (data) => {
+                    //Credential below throws an error if the associated email address already has an account within firebase auth
+                    var credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
+                    return firebase.auth().signInWithCredential(credential);
+
+                } )
+                .then( (currentUser) => {
+                    console.log(currentUser)
+                    this.successfulLoginCallback(currentUser, googleUserBoolean = false, facebookUserBoolean = true);
+                })
+                // .catch( (err) => alert('Login failed with error: ' + err))
+                // alert('Login was successful with permissions: '
+                //   + result.grantedPermissions.toString());
               }
             },
-            function(error) {
-              alert('Login failed with error: ' + error);
+            (error) => {
+              alert('Login failed because: ' + error);
             }
           );
+    }
+
+    onSignInPress() {
+        this.setState({ error: '', loading: true });
+        const { email, pass } = this.state;
+
+        if (!email || !pass) {
+            alert("You cannot Sign In if your email and/or password fields are blank.")
+        }
+        else if (!pass.length >= 6) {
+            alert("Your password's length must be greater or equal to 6 characters.")
+        }
+        else {
+//now that person has input text, their email and password are here
+        firebase.auth().signInWithEmailAndPassword(email, pass)
+            .then(() => {
+                //This function behaves as an authentication listener for user. 
+                //If user signs in, we only use properties about the user to:
+                //1. notifications update on cloud & local push notification scheduled notifications 4 days from now for each product that deserves a price reduction.
+                firebase.auth().onAuthStateChanged( (user) => {
+                    if(user) {
+                        console.log(`User's Particular Identification: ${user.uid}`);
+                        //could potentially navigate with user properties like uid, name, etc.
+                        //TODO: once you sign out and nav back to this page, last entered
+                        //password and email are still there
+
+                        // this.saveEmailForFuture(email);
+                        AsyncStorage.setItem('previousEmail', email);
+
+                        this.successfulLoginCallback(user, googleUserBoolean = false, facebookUserBoolean = false);
+                        
+                        // this.setState({loading: false, loggedIn: true})
+                        
+                    }
+                })
+                          //this.authChangeListener();
+                          //cant do these things:
+                          //firebase.database().ref('Users/7j2AnQgioWTXP7vhiJzjwXPOdLC3/').set({name: 'Imad Rajwani', attended: 1});
+            })
+            .catch( () => {
+                let err = 'Authentication failed, please sign up or enter correct credentials.';
+                this.setState( { loading: false } );
+                alert(err);
+            })
+
+            //TODO:unmute
+            // .catch( () => {
+            //     //if user fails to sign in with email, try to sign them in with google?
+            //     this.signInWithGoogle();
+            // })
+
+        }
+
+        
+            
+
     }
 
     arrayToObject(arr, keyField) {
@@ -310,202 +386,13 @@ class SignIn extends Component {
     }
     /////////
     ///////// Hello world for Login/Signup Email Authentication
-    onSignInPress() {
-        this.setState({ error: '', loading: true });
-        const { email, pass } = this.state;
-
-        if (!email || !pass) {
-            alert("You cannot Sign In if your email and/or password fields are blank.")
-        }
-        else if (!pass.length >= 6) {
-            alert("Your password's length must be greater or equal to 6 characters.")
-        }
-        else {
-//now that person has input text, their email and password are here
-        firebase.auth().signInWithEmailAndPassword(email, pass)
-            .then(() => {
-                //This function behaves as an authentication listener for user. 
-                //If user signs in, we only use properties about the user to:
-                //1. notifications update on cloud & local push notification scheduled notifications 4 days from now for each product that deserves a price reduction.
-                firebase.auth().onAuthStateChanged( (user) => {
-                    if(user) {
-                        console.log(`User's Particular Identification: ${user.uid}`);
-                        //could potentially navigate with user properties like uid, name, etc.
-                        //TODO: once you sign out and nav back to this page, last entered
-                        //password and email are still there
-
-                        // this.saveEmailForFuture(email);
-                        AsyncStorage.setItem('previousEmail', email);
-
-                        this.successfulLoginCallback(user, googleUserBoolean = false);
-                        
-                        // this.setState({loading: false, loggedIn: true})
-                        
-                    }
-                })
-                          //this.authChangeListener();
-                          //cant do these things:
-                          //firebase.database().ref('Users/7j2AnQgioWTXP7vhiJzjwXPOdLC3/').set({name: 'Imad Rajwani', attended: 1});
-            })
-            .catch( () => {
-                let err = 'Authentication failed, please sign up or enter correct credentials.';
-                this.setState( { loading: false } );
-                alert(err);
-            })
-
-            //TODO:unmute
-            // .catch( () => {
-            //     //if user fails to sign in with email, try to sign them in with google?
-            //     this.signInWithGoogle();
-            // })
-
-        }
-
-        
-            
-
-    }
-
-    // onSignUpPress() {
-    //     this.setState({ error: '', loading: true });
-    //     const { email, pass } = this.state;
-    //     firebase.auth().createUserWithEmailAndPassword(email, pass)
-    //                 .then(() => {
-    //                               firebase.auth().onAuthStateChanged( (user) => {
-    //                                 if (user) {
-    //                                     //give the user a new branch on the firebase realtime DB
-    //                                     var updates = {};
-    //                                     var postData = {products: ''}
-    //                                     updates['/Users/' + user.uid + '/'] = postData;
-    //                                     firebase.database().ref().update(updates);
-                        
-    //                                     this.setState({loading: false, });
-    //                                     this.props.navigation.navigate('CreateProfile');
-                                    
-                                        
-    //                                 } else {
-    //                                     alert('Oops, there was an error with account registration!');
-    //                                 }
-                        
-                        
-    //                             } )
-    //                                 }
-    //                                   )
-    //                 .catch(() => {
-    //                   this.setState({ error: 'You already have a NottMyStyle account. Please use your credentials to Sign In', loading: false });
-    //                   alert(this.state.error)
-    //                 });
-    // }
-
-    // getData(snapshot) {
-    //     details = {
-    //         name: 'the many faced God',
-    //         shirt: 'never'
-    //     };
-        
-    //     details.name = snapshot.val().name
-    //     details.shirt = snapshot.val().shirt
-    //     //console.log(details);
-    //     this.setState({details, isGetting: false});
-    // }
-
-    // getDB(snapshot) {
-    //     this.setState({data: snapshot.val()});
-    //     console.log(this.state.data);
-    // }
-
-    // updateProducts() {
-
-    //     database.then( (d) => {
-    //         var uids = Object.keys(d.Users);
-    //         console.log(uids)
-    //         var keys = [];
-    //         //get all keys for each product iteratively across each user
-    //         for(uid of uids) {
-    //             if(Object.keys(d.Users[uid]).includes('products') ) {
-    //             Object.keys(d.Users[uid].products).forEach( (key) => keys.push(key));
-    //             }
-    //         }
-    //         console.log(keys);
-    //         var products = [];
-    //         var updates;
-    //         var chatUpdates = {};
-    //         var postData;
-    //         var i = 1;
-    //         //go through all products in each user's branch and update the Products section of the database
-    //         for(const uid of uids) {
-    //             for(const key of keys) {
-
-    //             if(Object.keys(d.Users[uid]).includes('products') ) {
-
-    //                 if( Object.keys(d.Users[uid].products).includes(key)  ) {
-                        
-    //                     var daysElapsed;
-    //                     daysElapsed = timeSince(d.Users[uid].products[key].time);
-                            
-    //                     postData = {
-    //                         key: key, uid: uid, uris: d.Users[uid].products[key].uris, 
-    //                         text: d.Users[uid].products[key], daysElapsed: daysElapsed, 
-    //                         shouldReducePrice: (daysElapsed >= 10) && (d.Users[uid].products[key].sold == false) ? true : false
-    //                     }
-                            
-                            
-    //                     updates = {};    
-    //                     updates['/Products/' + i + '/'] = postData;
-    //                     firebase.database().ref().update(updates);
-    //                     i++;
-    //                     console.log(i);
-
-                        
-
-    //                 }
-                
-    //             }
-
-                
-                
-    //             }
-    //         }
-            
-            
-            
-    //     })
-    //     .then( () => {
-    //         console.log(this.state.products)
-            
-    //     })
-    //     .catch( (err) => console.log(err))
-                
-
-    // }
-
-
-    // authChangeListener() {
-        
-    //     firebase.auth().onAuthStateChanged( (user) => {
-    //         if (user) {
-
-    //             this.setState({uid: user.uid, loggedIn: true, isGetting: false});
-            
-                
-    //         } else {
-    //           alert('no user found');
-    //         }
-
-
-    //     } )
-
-
-    //               }
-
-
-    ///////////////////
+        ///////////////////
     //////////////////
 
     render() {
 
         const {loading} = this.state;
-        AsyncStorage.getItem('previousEmail').then((d)=>console.log(d + 'getItem'))
+        // AsyncStorage.getItem('previousEmail').then((d)=>console.log(d + 'getItem'))
         
         
         return (
@@ -610,7 +497,7 @@ class SignIn extends Component {
                             <ViewWithChildAtPosition flex={1} >
                                 <Icon
                                     name="facebook-box" 
-                                    size={30} 
+                                    size={33} 
                                     color={'#3b5998'}
                                     onPress={() => this.signInWithFacebook()}
                                 />

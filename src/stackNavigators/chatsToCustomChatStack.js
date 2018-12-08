@@ -3,11 +3,16 @@ import { Animated, Easing } from 'react-native';
 import Chats from '../views/Chats';
 import CustomChat from '../views/CustomChat';
 import Notifications from '../views/Notifications';
+import OtherUserProfilePage from '../views/OtherUserProfilePage';
+// import ProductComments from '../views/ProductComments';
+import UserComments from '../views/UserComments';
 
 export const ChatsToCustomChatStack = createStackNavigator({
     Notifications: Notifications,
     Chats: Chats,
     CustomChat: CustomChat,
+    OtherUserProfilePage: OtherUserProfilePage,
+    UserComments: UserComments
 
 },{
     initialRouteName: 'Chats',

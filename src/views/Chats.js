@@ -99,7 +99,7 @@ class Chats extends Component {
         ///// use the removeFalsyValues function because some uid keys could have falsy values if one decides to unblock user.
         var rawUsersBlocked = d.Users[CHATKIT_USER_NAME].usersBlocked ? d.Users[CHATKIT_USER_NAME].usersBlocked : {};
         var usersBlocked = removeFalsyValuesFrom(rawUsersBlocked);
-        console.log(usersBlocked);
+        // console.log(usersBlocked);
         ///////
 
         if(this.currentUser.rooms.length>1) {
@@ -109,7 +109,7 @@ class Chats extends Component {
             var {users, id} = this.currentUser.rooms[i];
             var buyer = users[0,1].id;
             var seller = users[0,0].id;
-            console.log(buyer);
+            // console.log(buyer);
             if(usersBlocked.includes(buyer) || usersBlocked.includes(seller)) {
               this.currentUser.leaveRoom({
                 roomId: id
@@ -165,14 +165,14 @@ class Chats extends Component {
           for(let i = 1; i < this.currentUser.rooms.length; i++) {
               
             var {createdByUserId, name, id} = this.currentUser.rooms[i]
-            var productText, productImageURL;
+            var productSellerId, productText, productImageURL;
             
             d.Products.forEach( (prod) => {
                 //given the current Room Name, we need the product key to match some part of the room name
                 //to obtain the correct product's properties
                 //note that we only want the product's properties here so it doesn't matter if this loop
                 //comes across ProductKeyX.someBuyer1 or ProductKeyX.someBuyer2
-                if(name.includes(prod.key)) { productText = prod.text; productImageURL = prod.uris[0]; }
+                if(name.includes(prod.key)) { productSellerId = prod.uid, productText = prod.text; productImageURL = prod.uris[0]; }
             })
             var users = this.currentUser.rooms[i].users
             console.log(users);
@@ -180,13 +180,16 @@ class Chats extends Component {
             
             var obj;
             var chatUpdates = {};
+            var buyerIdentification = users[0,1].id;
             var buyer = users[0,1].name;
             var buyerAvatar = users[0,1].avatarURL ? users[0,1].avatarURL : '';
+            var sellerIdentification = users[0,0].id;
             var seller = users[0,0].name;
             var sellerAvatar = users[0,0].avatarURL ? users[0,0].avatarURL : '';
             obj = { 
-              productText: productText, productImageURL: productImageURL, 
+              productSellerId: productSellerId, productText: productText, productImageURL: productImageURL, 
               createdByUserId: createdByUserId, name: name, id: id, 
+              buyerIdentification, sellerIdentification,
               seller: seller, sellerAvatar: sellerAvatar, 
               buyer: buyer, buyerAvatar: buyerAvatar
             };
@@ -217,14 +220,13 @@ class Chats extends Component {
   }
 
   navToChat(chat) {
-    const {id, buyer, seller} = chat;
-    this.props.navigation.navigate('CustomChat', {id, buyer, seller})
+    const {productSellerId, id, buyer, seller, buyerAvatar, sellerAvatar, buyerIdentification, sellerIdentification} = chat;
+    this.props.navigation.navigate('CustomChat', {productSellerId, id, buyer, buyerAvatar, seller, sellerAvatar, buyerIdentification, sellerIdentification })
   }
 
   navToNotifications() {
     this.props.navigation.navigate('Notifications')
   }
-
   
   render() {
     const {chats} = this.state
@@ -296,16 +298,10 @@ class Chats extends Component {
                     <Text style={[styles.info, styles.productinfo]}>Chat Between:</Text>
                     <Text style={[styles.info, styles.sellerinfo]}>{(chat.seller.split(' '))[0]} & {(chat.buyer.split(' '))[0]}</Text>
                     <View style={styles.membersRow}>
-                      {chat.sellerAvatar ?
-                        <Image source={ {uri: chat.sellerAvatar } } style={[styles.profilepic, styles.profilecolor]} />
-                        :
-                        <Image source={ require('../images/blank.jpg') } style={[styles.profilepic, styles.profilecolor]} />
-                      }
-                      {chat.buyerAvatar ?
-                        <Image source={ {uri: chat.buyerAvatar } } style={[styles.profilepic, styles.profilecolor]} />
-                        :
-                        <Image source={ require('../images/blank.jpg') } style={[styles.profilepic, styles.profilecolor]} />
-                      }
+                      
+                        <Image source={ chat.sellerAvatar ? {uri: chat.sellerAvatar } : require('../images/blank.jpg') } style={[styles.profilepic, styles.profilecolor]} />
+                        <Image source={ chat.buyerAvatar ? {uri: chat.buyerAvatar } : require('../images/blank.jpg') } style={[styles.profilepic, styles.profilecolor]} />
+                      
                     </View>   
                   </View>
 

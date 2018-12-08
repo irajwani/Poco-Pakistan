@@ -30,11 +30,11 @@ class CreateProfile extends Component {
     //   //now we have to fake the process of them continuing to sign up)
     //   const {user} = params.user ? user : false;
       this.state = {
-          email: params.googleUserBoolean ? params.user.email : '',
+          email: params.googleUserBoolean || params.facebookUserBoolean ? params.user.email : '',
           pass: '',
           pass2: '',
-          firstName: params.googleUserBoolean ? params.user.displayName.split(" ")[0] : '',
-          lastName: params.googleUserBoolean ? params.user.displayName.split(" ")[1] : '',    
+          firstName: params.googleUserBoolean || params.facebookUserBoolean ? params.user.displayName.split(" ")[0] : '',
+          lastName: params.googleUserBoolean || params.facebookUserBoolean ? params.user.displayName.split(" ")[1] : '',    
           country: '',
           size: 1,
           uri: undefined,
@@ -52,7 +52,7 @@ class CreateProfile extends Component {
     this.setState({modalVisible: visible});
   }
   //Invoked when you 'Accept' EULA as a Google User trying to sign up
-  createProfileForGoogleUser = (user, pictureuri) => {
+  createProfileForGoogleOrFacebookUser = (user, pictureuri) => {
     this.setState({createProfileLoading: true});
     const {email, pass} = this.state
     var credential = firebase.auth.EmailAuthProvider.credential(email, pass);
@@ -67,7 +67,6 @@ class CreateProfile extends Component {
     
     
   }
-
 
   //Invoked when you 'Accept' EULA as a User trying to sign up through standard process
   createProfile = (email, pass, pictureuri) => {
@@ -186,7 +185,7 @@ class CreateProfile extends Component {
     
     let promiseToUploadPhoto = new Promise((resolve, reject) => {
 
-        if(uri.includes('googleusercontent')) {
+        if(uri.includes('googleusercontent') || uri.includes('facebook')) {
             console.log(`We already have a googlePhoto url: ${uri}, so need for interaction with cloud storage`)
             
             // const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
@@ -235,7 +234,7 @@ class CreateProfile extends Component {
             return url
                 
             }).then( (url) => {
-                if(url.includes('googleusercontent')) {
+                if(url.includes('googleusercontent') || url.includes('facebook')) {
                     this.setState({createProfileLoading: false, modalVisible: false}, 
                         () => {
                             // console.log('DONE DONE DONE');
@@ -254,7 +253,8 @@ class CreateProfile extends Component {
 
   successfulProfileCreationCallback = (url) => {
     console.log(url);
-    googleUserBoolean ? alert('Your account has been created.\nPlease press the Google Icon to Sign In from now on.\n') : alert('Your account has been created.\nPlease use your credentials to Sign In.\n'); 
+    // this.props.navigation.state.params.googleUserBoolean || this.props.navigation.state.params.googleUserBoolean ? alert('Your account has been created.\nPlease enter your credentials to Sign In from now on.\n') : alert('Your account has been created.\nPlease use your credentials to Sign In.\n'); 
+    alert('Your account has been created.\nPlease use your credentials to Sign In.\n'); 
     this.setState({createProfileLoading: false});
     this.props.navigation.navigate('SignIn');
   }
@@ -266,9 +266,10 @@ class CreateProfile extends Component {
     //TODO: 
     var googleUserBoolean = params.googleUserBoolean ? params.googleUserBoolean : false;
     var googleUser = params.googleUserBoolean ? true : false
+    var facebookUser = params.facebookUserBoolean ? true : false
     //may be reusing booleans here, but this check on isUserGoogleUser? alright logically so far
     
-    var user = params.googleUserBoolean ? params.user : null //data for google user
+    var user = params.googleUserBoolean || params.facebookUserBoolean ? params.user : null //data for google user
     // var googlePhotoURL = params.user.photoURL ? params.user.photoURL : false ;
     // googleUser && googlePhotoURL ? pictureuris = [googlePhotoURL] : 'nothing here';
 
@@ -498,7 +499,7 @@ class CreateProfile extends Component {
                         borderRadius: 10,
                         }}
                         containerStyle={{ marginTop: 0, marginBottom: 0 }}
-                        onPress={() => {console.log('Sign Up Initiated') ; googleUser ? this.createProfileForGoogleUser(user, pictureuris[0]) : this.createProfile(this.state.email, this.state.pass, pictureuris[0]) ;}} 
+                        onPress={() => {console.log('Sign Up Initiated') ; googleUser || facebookUser ? this.createProfileForGoogleOrFacebookUser(user, pictureuris[0]) : this.createProfile(this.state.email, this.state.pass, pictureuris[0]) ;}} 
                     />
                 </View>
     

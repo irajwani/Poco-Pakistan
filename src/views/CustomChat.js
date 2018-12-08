@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Platform, View, Text, StyleSheet} from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableHighlight } from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat';
 import {withNavigation} from 'react-navigation';
 import firebase from '../cloud/firebase';
@@ -135,21 +135,34 @@ class CustomChat extends Component {
     
   }
 
+  navToOtherUserProfilePage = (uid) => {
+    this.props.navigation.navigate('OtherUserProfilePage', {uid: uid})
+  }
+
   render() {
 
     const {params} = this.props.navigation.state;
     const id = params ? params.id : null 
     const buyer = params.buyer ? params.buyer : false
     const seller = params.seller ? params.seller : false
+    const buyerAvatar = params.buyerAvatar ? params.buyerAvatar : false
+    const sellerAvatar = params.sellerAvatar ? params.sellerAvatar : false
+    const sellerIdentification = params.sellerIdentification ? params.sellerIdentification : false;
+    const buyerIdentification = params.buyerIdentification ? params.buyerIdentification : false;
 
     const CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
-    
+
+    //determine who it is you're chatting with to display their info in topRow
+    var chattingWithPersonIdentification = params.buyerIdentification && params.sellerIdentification ? sellerIdentification == CHATKIT_USER_NAME ? buyerIdentification : sellerIdentification : false
+    var chattingWithPersonNamed = buyer && seller ? sellerIdentification == CHATKIT_USER_NAME ? buyer : seller : false
+    var chattingWithPersonThatLooksLike = buyer && seller ? sellerIdentification == CHATKIT_USER_NAME ? buyerAvatar : sellerAvatar : false
+
     console.log(this.state.messages);
     
     return (
       <View style={styles.mainContainer}>
 
-        <View style={[styles.topRow, {backgroundColor: '#122021'}]}>
+        <View style={[styles.topRow, {backgroundColor: '#fff'}]}>
 
           <View style={styles.backIconContainer}>
             <FontAwesomeIcon
@@ -163,17 +176,30 @@ class CustomChat extends Component {
             />
           </View>
 
-          {buyer && seller ? <View style={styles.chatInfoContainer}>
-            <Text style={styles.chatInfoText}>{(seller.split(' '))[0]} & {(buyer.split(' '))[0]}</Text>
+          {chattingWithPersonNamed ? 
+          <View style={styles.chatInfoContainer}>
+            <Text style={styles.chatInfoText}>{(chattingWithPersonNamed.split(' '))[0]}</Text>
           </View>
           :
           null
+          }
+
+          {
+            chattingWithPersonThatLooksLike ?
+            <TouchableHighlight 
+            onPress={()=>this.navToOtherUserProfilePage(chattingWithPersonIdentification)}
+            style={styles.profilePic} underlayColor={'#fff'} >
+              <Image source={ {uri: chattingWithPersonThatLooksLike }} style={styles.profilePic} />
+            </TouchableHighlight>
+            :
+            null
           }
 
 
 
         </View>
 
+        <View style={{backgroundColor: 'black', height: 1.5}}/>
         
         <View style={{flex: 1}}>
         <GiftedChat
@@ -203,7 +229,7 @@ export default withNavigation(CustomChat);
 const styles = StyleSheet.create({
   mainContainer: {flex: 1, marginTop: 22},
 
-  topRow: { flex: 0.2, flexDirection: 'row', paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center' },
+  topRow: { flex: 0.2, flexDirection: 'row', paddingHorizontal: 10, alignItems: 'center', justifyContent: 'space-evenly' },
   
   backIconContainer: {
     flex: 0.3,
@@ -212,7 +238,7 @@ const styles = StyleSheet.create({
   },
 
   chatInfoContainer: {
-    flex: 1,
+    flex: 0.5,
     justifyContent: 'flex-start',
     alignItems: 'center'
   },
@@ -222,10 +248,17 @@ const styles = StyleSheet.create({
     fontSize: 19,
     textAlign: 'left',
     fontWeight: 'bold',
-    color: treeGreen
-  }
+  },
+
+  profilePic: {
+    width: 50,
+    height: 50,
+    borderRadius: 25
+},
 
 })
+
+{/* <Text style={styles.chatInfoText}>{(seller.split(' '))[0]} & {(buyer.split(' '))[0]}</Text> */}
 
 // this.currentUser keys => ["setReadCursor", "readCursor", "isTypingIn", "createRoom", "getJoinableRooms", 
 // "joinRoom", "leaveRoom", "addUserToRoom", "removeUserFromRoom", "sendMessage", "fetchMessages", 
