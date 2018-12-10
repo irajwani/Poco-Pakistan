@@ -159,13 +159,15 @@ class CreateProfile extends Component {
         country: data.country,
         size: data.size,
         insta: data.insta ? data.insta : '',
+        //TODO: Add user uid here to make navigation to their profile page easier. 
+        //Occam's razor affirms the notion: To have it available to append to any branch later, it must exist for the first time at the source.
     }
 
     var emptyProductPostData = {
         products: '',
     }
 
-    updates['/Users/' + uid + '/profile/'] = postData;
+    updates['/Users/' + uid + '/profile/'] = postData; //TODO: The above should be a constructor function that returns a value here
 
     updateEmptyProducts['/Users/' + uid + '/'] = emptyProductPostData;
 
