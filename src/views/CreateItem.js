@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import { Dimensions, Platform, Text, StyleSheet, View, Image, KeyboardAvoidingView, ScrollView, Picker } from 'react-native'
+import { Dimensions, Platform, Text, StyleSheet, View, TouchableHighlight, Image, KeyboardAvoidingView, ScrollView, Picker } from 'react-native'
 import {withNavigation} from 'react-navigation';
-import { Hoshi, Jiro } from 'react-native-textinput-effects';
+import { Jiro } from 'react-native-textinput-effects';
 import { TextField } from 'react-native-material-textfield';
 // import NumericInput from 'react-native-numeric-input' 
 import {Button, ButtonGroup, Divider} from 'react-native-elements';
@@ -15,7 +15,8 @@ import firebase from '../cloud/firebase.js';
 // import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
 import { material, iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
-import { confirmBlue, woodBrown, rejectRed, darkBlue, optionLabelBlue, treeGreen, avenirNext } from '../colors';
+import { confirmBlue, woodBrown, rejectRed, darkBlue, optionLabelBlue, treeGreen, avenirNext, darkGray } from '../colors';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const babyBlue='#94c2ed';
 const basicBlue = '#2c7dc9'
@@ -40,11 +41,12 @@ class CreateItem extends Component {
 
     //   const {params} = this.props.navigation.state
     //   const pictureuris = params.pictureuris ? params.pictureuris : 'nothing here'
+    //Data that navigates to this component from other components:
 
       this.state = {
           uri: undefined,
           name: '',
-          brand: '',
+          brand: '', //empty or value selected from list of brands
           price: 0,
           original_price: 0,
           size: 2,
@@ -107,18 +109,24 @@ class CreateItem extends Component {
     } 
 }
 
-updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, imageName) => {
+navToFillPrice = () => {
+    this.props.navigation.navigate('PriceSelection')
+}
+
+updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
         
     // if(priceIsWrong) {
     //     alert("You must a choose a non-zero positive real number for the selling price/retail price of this product");
     //     return;
     // }
-    
+
+    //Locally stored in this component:
+    var {name, brand, type, price, original_price, description, condition, gender, size, } = this.state;
 
     this.setState({isUploading: true});
     // : if request.auth != null;
     var gender;
-    switch(data.gender) {
+    switch(gender) {
         case 0:
             gender = 'Men'
             break; 
@@ -133,40 +141,40 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
             console.log('no gender was specified')
     }
 
-    switch(data.size) {
+    switch(size) {
         case 0:
-            data.size = 'Extra Small'
+            size = 'Extra Small'
             break; 
         case 1:
-            data.size = 'Small'
+            size = 'Small'
             break;
         case 2:
-            data.size = 'Medium'
+            size = 'Medium'
             break;
         case 3:
-            data.size = 'Large'
+            size = 'Large'
             break;
         case 4:
-            data.size = 'Extra Large'
+            size = 'Extra Large'
             break;
         case 5:
-            data.size = 'Extra Extra Large'
+            size = 'Extra Extra Large'
             break;
         default:
-            data.size = 'Medium'
+            size = 'Medium'
             console.log('no gender was specified')
     }
 
     var postData = {
-        name: data.name,
-        brand: data.brand,
-        price: data.price,
-        original_price: data.original_price ? data.original_price : 'Seller did not list original price',
-        type: data.type,
-        size: data.size,
-        description: data.description ? data.description : 'Seller did not specify a description',
+        name: name,
+        brand: brand,
+        price: price,
+        original_price: original_price ? original_price : 'Seller did not list original price',
+        type: type,
+        size: size,
+        description: description ? description : 'Seller did not specify a description',
         gender: gender,
-        condition: data.condition,
+        condition: condition,
         sold: false,
         likes: 0,
         comments: '',
@@ -255,7 +263,9 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
   callBackForProductUploadCompletion = () => {
     alert(`Product named ${this.state.name} successfully uploaded to Market!`)
     // alert(`Your product ${this.state.name} is being\nuploaded to the market.\nPlease do not resubmit the same product.`);
+    //TODO: example of how in this instance we needed to remove pictureuris if its sitting in the navigation params
     this.props.navigation.setParams({pictureuris: 'nothing here'});
+    
     this.setState({ 
         uri: undefined,
         name: '',
@@ -309,10 +319,13 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
 
 
   render() {
-    const {isUploading, price, original_price} = this.state;
+    const {navigation} = this.props;
+    const {isUploading, original_price} = this.state;
     const uid = firebase.auth().currentUser.uid; 
-    var {params} = this.props.navigation.state
-    var pictureuris = params ? params.pictureuris : 'nothing here'
+    // var {params} = navigation.state
+    // var pictureuris = params ? params.pictureuris : 'nothing here'
+    var pictureuris = navigation.getParam('pictureuris', 'nothing here')
+    var price = navigation.getParam('price', 0)
     //const picturebase64 = params ? params.base64 : 'nothing here'
     //Lenient condition, Array.isArray(pictureuris) && pictureuris.length >= 1
     var conditionMet = (this.state.name) && (this.state.price > 0) && (this.state.price < 1001) && (Array.isArray(pictureuris) && pictureuris.length >= 1)
@@ -387,36 +400,36 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
             source={ require('../images/blank.jpg') } /> */}
         {/* 2. Product Name */}
             <Jiro
-                    label={'Name (e.g. Green zip up hoodie)'}
-                    value={this.state.name}
-                    onChangeText={name => this.setState({ name })}
-                    maxLength={16}
-                    autoCorrect={false}
-                    autoCapitalize={'words'}
-                    keyboardAppearance={'dark'}
-                    
-                    // this is used as active border color
-                    borderColor={treeGreen}
-                    // this is used to set backgroundColor of label mask.
-                    // please pass the backgroundColor of your TextInput container.
-                    backgroundColor={'#F9F7F6'}
-                    inputStyle={{ color: basicBlue }}
+                label={'Name (e.g. Black zip-up hoodie)'}
+                value={this.state.name}
+                onChangeText={name => this.setState({ name })}
+                maxLength={16}
+                autoCorrect={false}
+                autoCapitalize={'words'}
+                keyboardAppearance={'dark'}
+                
+                // this is used as active border color
+                borderColor={treeGreen}
+                // this is used to set backgroundColor of label mask.
+                // please pass the backgroundColor of your TextInput container.
+                backgroundColor={'#F9F7F6'}
+                inputStyle={{ color: basicBlue }}
             />
 
             <Jiro
-                    label={'Brand'}
-                    value={this.state.brand}
-                    maxLength={12}
-                    onChangeText={brand => this.setState({ brand })}
-                    autoCorrect={false}
-                    autoCapitalize={'words'}
-                    keyboardAppearance={'dark'}
-                    // this is used as active border color
-                    borderColor={babyBlue}
-                    // this is used to set backgroundColor of label mask.
-                    // please pass the backgroundColor of your TextInput container.
-                    backgroundColor={'#F9F7F6'}
-                    inputStyle={{ color: basicBlue }}
+                label={'Brand'}
+                value={this.state.brand}
+                maxLength={12}
+                onChangeText={brand => this.setState({ brand })}
+                autoCorrect={false}
+                autoCapitalize={'words'}
+                keyboardAppearance={'dark'}
+                // this is used as active border color
+                borderColor={babyBlue}
+                // this is used to set backgroundColor of label mask.
+                // please pass the backgroundColor of your TextInput container.
+                backgroundColor={'#F9F7F6'}
+                inputStyle={{ color: basicBlue }}
             />
 
             {/* Product Description/Material */}
@@ -431,40 +444,50 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
                 baseColor={darkBlue}
             />
 
-        {/* 3. Product Price */}
+        {/* 3. Product Price. We want this row to show up only  */}
 
-            <Jiro
-                    label={'Selling Price (GBP)'}
-                    value={this.state.price}
-                    maxLength={3}
-                    onChangeText={price => {
-                        console.log(typeof price)
-                        this.setState({ price })
-                        } }
-                    autoCorrect={false}
-                    // this is used as active border color
-                    borderColor={'#800000'}
-                    // this is used to set backgroundColor of label mask.
-                    // please pass the backgroundColor of your TextInput container.
-                    backgroundColor={'#F9F7F6'}
-                    inputStyle={{ fontFamily: 'Avenir Next', color: '#800000' }}
-                    keyboardType='numeric'
-            />
-            <Text style={styles.displayedPrice}>£{this.state.price}</Text>
+
+            <TouchableHighlight style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice()}>
+            <View style={styles.navToFillDetailRow}>
+                
+                <View style={[styles.detailHeaderContainer, {flex: price > 0 ? 0.5 : 0.8}]}>
+                    <Text style={styles.detailHeader}>Selling price</Text>
+                </View>
+
+                {price > 0 ?
+                <View style={[styles.displayedPriceContainer, {flex: 0.3}]}>
+                    <Text style={styles.displayedPrice}>£{price}</Text>
+                </View>
+                :
+                null
+                }
+
+                <View style={[styles.navToFillDetailIcon, {flex: price > 0 ? 0.2 : 0.2 }]}>
+                    <Icon 
+                    name="chevron-right"
+                    size={25}
+                    color='black'
+                    />
+                </View>
+
+            </View>
+            </TouchableHighlight>
+
+            
             {/* Original Price */}
             <Jiro
-                    label={'Retail Price (Optional)'}
-                    value={this.state.original_price}
-                    maxLength={3}
-                    onChangeText={original_price => this.setState({ original_price })}
-                    autoCorrect={false}
-                    // this is used as active border color
-                    borderColor={'#800000'}
-                    // this is used to set backgroundColor of label mask.
-                    // please pass the backgroundColor of your TextInput container.
-                    backgroundColor={'#F9F7F6'}
-                    inputStyle={{ fontFamily: 'Avenir Next', color: '#800000' }}
-                    keyboardType='numeric'
+                label={'Retail Price (Optional)'}
+                value={this.state.original_price}
+                maxLength={3}
+                onChangeText={original_price => this.setState({ original_price })}
+                autoCorrect={false}
+                // this is used as active border color
+                borderColor={'#800000'}
+                // this is used to set backgroundColor of label mask.
+                // please pass the backgroundColor of your TextInput container.
+                backgroundColor={'#F9F7F6'}
+                inputStyle={{ fontFamily: 'Avenir Next', color: '#800000' }}
+                keyboardType='numeric'
             />
             <Text style={styles.displayedPrice}>£{this.state.original_price}</Text>
 
@@ -511,7 +534,7 @@ updateFirebaseAndNavToProfile = (data, pictureuris, mime = 'image/jpg', uid, ima
                 icon={{name: 'check-all', type: 'material-community'}}
                 title='SUBMIT TO MARKET'
                 onPress={() => { 
-                    this.updateFirebaseAndNavToProfile(this.state, pictureuris, mime = 'image/jpg', uid , this.state.name);
+                    this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid);
                     
                                 } } 
                 />
@@ -541,6 +564,17 @@ const styles = StyleSheet.create({
         paddingTop: 15
           
     },
+
+    detailHeaderContainer: {
+        justifyContent: 'center'
+    },
+
+    detailHeader: {
+        fontFamily: 'Avenir Next',
+        fontWeight: '300',
+        fontSize: 18
+    },
+
     imageadder: {
         flexDirection: 'row'
     },
@@ -595,11 +629,30 @@ const styles = StyleSheet.create({
         color: '#0c5925'
     },
 
+    displayedPriceContainer: {
+        justifyContent: 'flex-end',
+        alignItems: 'flex-end'
+    },
+
     displayedPrice: {
         fontFamily: avenirNext,
-        fontSize: 15,
-        fontWeight: '400'
+        fontSize: 18,
+        fontWeight: '400',
+        color: darkGray
 
+    },
+
+    navToFillDetailRow: {
+        backgroundColor: 'red',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 4
+    },
+
+    navToFillDetailIcon: {
+        justifyContent: 'flex-end',
+        alignItems: 'flex-end'
     },
 
     buttonGroupText: {
@@ -647,3 +700,4 @@ export default withNavigation(CreateItem)
 //    />
 // <Text> Months since you bought the product </Text>
 // </View>
+
