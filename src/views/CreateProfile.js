@@ -263,9 +263,10 @@ class CreateProfile extends Component {
 
 
   render() {
-    const {params} = this.props.navigation.state
+    const {navigation} = this.props;
+    const {params} = navigation.state
     // console.log(params);
-    //TODO: 
+    //TODO: navigation.getParam would do wonders here;
     var googleUserBoolean = params.googleUserBoolean ? params.googleUserBoolean : false;
     var googleUser = params.googleUserBoolean ? true : false
     var facebookUser = params.facebookUserBoolean ? true : false
@@ -275,7 +276,11 @@ class CreateProfile extends Component {
     // var googlePhotoURL = params.user.photoURL ? params.user.photoURL : false ;
     // googleUser && googlePhotoURL ? pictureuris = [googlePhotoURL] : 'nothing here';
 
-    var pictureuris = params.pictureuris ? params.pictureuris : 'nothing here'
+    var pictureuris = navigation.getParam('pictureuris', "nothing here");
+    
+    // If person navigates here to edit their current profile, they should be able to update their profile
+    var editProfileBoolean = navigation.getParam('editProfileBoolean', false)
+
     console.log(pictureuris[0].includes('googleusercontent'))
     // console.log(googleUser, googleUserBoolean, pictureuris);
     var conditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1) && (this.state.pass == this.state.pass2) && (this.state.pass.length >= 6);

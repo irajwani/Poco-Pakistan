@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dimensions, Platform, Text, StyleSheet, View, TouchableHighlight, Image, KeyboardAvoidingView, ScrollView, Picker } from 'react-native'
+import { Dimensions, Platform, Text, TextInput, StyleSheet, View, TouchableHighlight, KeyboardAvoidingView, ScrollView, Picker, TouchableWithoutFeedback, Keyboard } from 'react-native'
 import {withNavigation} from 'react-navigation';
 import { Jiro } from 'react-native-textinput-effects';
 import { TextField } from 'react-native-material-textfield';
@@ -15,11 +15,12 @@ import firebase from '../cloud/firebase.js';
 // import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
 import { material, iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
-import { confirmBlue, woodBrown, rejectRed, darkBlue, optionLabelBlue, treeGreen, avenirNext, darkGray } from '../colors';
+import { confirmBlue, woodBrown, rejectRed, darkBlue, optionLabelBlue, treeGreen, avenirNext, darkGray, lightGray } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { DismissKeyboardView, WhiteSpace, GrayLine } from '../localFunctions/visualFunctions';
+import { avenirNextText } from '../constructors/avenirNextText';
 
-const babyBlue='#94c2ed';
-const basicBlue = '#2c7dc9'
+
 const darkGreen = '#0d4f10';
 const limeGreen = '#2e770f';
 // const slimeGreen = '#53b73c';
@@ -109,8 +110,12 @@ class CreateItem extends Component {
     } 
 }
 
-navToFillPrice = () => {
-    this.props.navigation.navigate('PriceSelection')
+navToFillPrice = (sellingPriceBoolean) => {
+    this.props.navigation.navigate('PriceSelection', {sellingPrice: sellingPriceBoolean})
+}
+
+navToFillCondition = (showProductTypes = false) => {
+    this.props.navigation.navigate('ConditionSelection', {showProductTypes: showProductTypes});
 }
 
 updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
@@ -284,6 +289,27 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
     this.props.navigation.navigate('Profile'); 
   }
 
+  getColorFor = (c) => {
+      var color;
+      switch(c) {
+          case "New With Tags":
+            color = 'black';
+            break;
+          case "New Without Tags":
+            color = 'black';
+            break;
+          case "Slightly Used":
+            color = 'black';
+            break;
+          case "Used":
+            color = 'black'
+            break;
+          default:
+            color = 'black'
+      }
+      return color;
+  }
+
 //   createRoom(key) {
 //     //create a new room with product id, and add buyer as member of room.  
 //     const CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
@@ -320,15 +346,18 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
 
   render() {
     const {navigation} = this.props;
-    const {isUploading, original_price} = this.state;
+    const {isUploading} = this.state;
     const uid = firebase.auth().currentUser.uid; 
-    // var {params} = navigation.state
-    // var pictureuris = params ? params.pictureuris : 'nothing here'
-    var pictureuris = navigation.getParam('pictureuris', 'nothing here')
-    var price = navigation.getParam('price', 0)
-    //const picturebase64 = params ? params.base64 : 'nothing here'
-    //Lenient condition, Array.isArray(pictureuris) && pictureuris.length >= 1
-    var conditionMet = (this.state.name) && (this.state.price > 0) && (this.state.price < 1001) && (Array.isArray(pictureuris) && pictureuris.length >= 1)
+    
+
+    // List of values we navigate to CreateItem from other components:
+    var pictureuris = navigation.getParam('pictureuris', 'nothing here');
+    var price = navigation.getParam('price', 0);
+    var original_price = navigation.getParam('original_price', 0);
+    var condition = navigation.getParam('condition', false); 
+    console.log(condition);
+    ////
+    var conditionMet = (this.state.name) && (Number.isFinite(price)) && (price > 0) && (price < 1001) && (Array.isArray(pictureuris) && pictureuris.length >= 1)
     //var priceIsWrong = (original_price != '') && ((price == 0) || (price.charAt(0) == 0 ) || (original_price == 0) || (original_price.charAt(0) == 0) )
 
     //console.log(priceIsWrong);
@@ -370,7 +399,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
             <Divider style={{  backgroundColor: '#fff', height: 18 }} />
 
         {/* 0. Gender */}
-            <ProductLabel color={optionLabelBlue} title='Product Category'/>
+            <ProductLabel size={15} color={treeGreen} title='Category'/>
             <ButtonGroup
                 onPress={ (index) => {this.setState({gender: index})}}
                 selectedIndex={this.state.gender}
@@ -382,7 +411,36 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
                 selectedButtonStyle={styles.buttonGroupSelectedContainer}
             />
             {/* Type of clothing */}
-            
+            <GrayLine/>
+            <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillCondition(showProductTypes = true)}>
+            <View style={styles.navToFillDetailRow}>
+                
+                <View style={[styles.detailHeaderContainer, {flex: type ? 0.35 : 0.8}]}>
+                    <Text style={styles.detailHeader}>Type</Text>
+                </View>
+
+                {type?
+                <View style={[styles.displayedPriceContainer, {flex: 0.45}]}>
+                    <Text style={styles.displayedCondition}>{type}</Text>
+                </View>
+                :
+                null
+                }
+
+                <View style={[styles.navToFillDetailIcon, {flex: 0.2 }]}>
+                    <Icon 
+                    name="chevron-right"
+                    size={40}
+                    color='black'
+                    />
+                </View>
+
+            </View>
+            </TouchableHighlight>
+
+            <GrayLine/>
+
+            <WhiteSpace height={10} />
 
             <View style={styles.modalPicker}>
                 <CustomModalPicker subheading={'Product Type:'}>
@@ -399,6 +457,8 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
             style={{width: '25%', height: '25%', opacity: 0.7}} 
             source={ require('../images/blank.jpg') } /> */}
         {/* 2. Product Name */}
+
+        {/* TODO: Somehow prevent the user from having to scroll lower to see their input */}
             <Jiro
                 label={'Name (e.g. Black zip-up hoodie)'}
                 value={this.state.name}
@@ -406,15 +466,15 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
                 maxLength={16}
                 autoCorrect={false}
                 autoCapitalize={'words'}
-                keyboardAppearance={'dark'}
                 
                 // this is used as active border color
                 borderColor={treeGreen}
                 // this is used to set backgroundColor of label mask.
                 // please pass the backgroundColor of your TextInput container.
                 backgroundColor={'#F9F7F6'}
-                inputStyle={{ color: basicBlue }}
+                inputStyle={{ color: 'black' }}
             />
+        
 
             <Jiro
                 label={'Brand'}
@@ -423,31 +483,61 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
                 onChangeText={brand => this.setState({ brand })}
                 autoCorrect={false}
                 autoCapitalize={'words'}
-                keyboardAppearance={'dark'}
                 // this is used as active border color
-                borderColor={babyBlue}
+                borderColor={'black'}
                 // this is used to set backgroundColor of label mask.
                 // please pass the backgroundColor of your TextInput container.
                 backgroundColor={'#F9F7F6'}
-                inputStyle={{ color: basicBlue }}
+                inputStyle={{ color: 'black' }}
             />
 
+            <WhiteSpace height={10}/>
+
             {/* Product Description/Material */}
-            <TextField 
-                label="Optional Description (e.g. Great for chilly weather)"
-                value={this.state.description}
-                onChangeText = { (desc)=>{this.setState({description: desc})}}
-                multiline = {true}
-                characterRestriction = {180}
-                textColor={basicBlue}
-                tintColor={darkGreen}
-                baseColor={darkBlue}
-            />
+            
+            <GrayLine/>
+
+            <WhiteSpace height={1.5}/>
+
+            <DismissKeyboardView>
+
+            <View style={styles.descriptionContainer}>
+
+                <View style={styles.descriptionHeaderContainer}>
+                    <Text style={styles.descriptionHeader}>Description</Text>
+                </View>
+
+                <WhiteSpace height={1}/>
+
+                <View style={styles.descriptionInputContainer}>
+
+                    <TextInput
+                        style={styles.descriptionInput}
+                        placeholder={"For Example, This product has a few flaws which should be evident in the item's pictures"}
+                        placeholderTextColor={lightGray}
+                        onChangeText={(description) => this.setState({description})}
+                        value={this.state.description}
+                        multiline={true}
+                        numberOfLines={4}
+                        scrollEnabled={true}
+                    />
+
+                </View>
+
+                
+
+            </View>
+
+            </DismissKeyboardView>
+
+            <WhiteSpace height={1.5}/>
+
+            <GrayLine/>
 
         {/* 3. Product Price. We want this row to show up only  */}
 
 
-            <TouchableHighlight style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice()}>
+            <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice(true)}>
             <View style={styles.navToFillDetailRow}>
                 
                 <View style={[styles.detailHeaderContainer, {flex: price > 0 ? 0.5 : 0.8}]}>
@@ -456,7 +546,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
 
                 {price > 0 ?
                 <View style={[styles.displayedPriceContainer, {flex: 0.3}]}>
-                    <Text style={styles.displayedPrice}>£{price}</Text>
+                    <Text style={[styles.displayedPrice, {color: treeGreen}]}>£{price}</Text>
                 </View>
                 :
                 null
@@ -465,7 +555,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
                 <View style={[styles.navToFillDetailIcon, {flex: price > 0 ? 0.2 : 0.2 }]}>
                     <Icon 
                     name="chevron-right"
-                    size={25}
+                    size={40}
                     color='black'
                     />
                 </View>
@@ -473,23 +563,68 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
             </View>
             </TouchableHighlight>
 
-            
+            <GrayLine/>
+
             {/* Original Price */}
-            <Jiro
-                label={'Retail Price (Optional)'}
-                value={this.state.original_price}
-                maxLength={3}
-                onChangeText={original_price => this.setState({ original_price })}
-                autoCorrect={false}
-                // this is used as active border color
-                borderColor={'#800000'}
-                // this is used to set backgroundColor of label mask.
-                // please pass the backgroundColor of your TextInput container.
-                backgroundColor={'#F9F7F6'}
-                inputStyle={{ fontFamily: 'Avenir Next', color: '#800000' }}
-                keyboardType='numeric'
-            />
-            <Text style={styles.displayedPrice}>£{this.state.original_price}</Text>
+            <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice(false)}>
+            <View style={styles.navToFillDetailRow}>
+                
+                <View style={[styles.detailHeaderContainer, {flex: original_price > 0 ? 0.5 : 0.8}]}>
+                    <Text style={styles.detailHeader}>Retail price (Optional)</Text>
+                </View>
+
+                {original_price > 0 ?
+                <View style={[styles.displayedPriceContainer, {flex: 0.3}]}>
+                    <Text style={styles.displayedPrice}>£{original_price}</Text>
+                </View>
+                :
+                null
+                }
+
+                <View style={[styles.navToFillDetailIcon, {flex: original_price > 0 ? 0.2 : 0.2 }]}>
+                    <Icon 
+                    name="chevron-right"
+                    size={40}
+                    color='black'
+                    />
+                </View>
+
+            </View>
+            </TouchableHighlight>
+
+            <GrayLine/>
+
+            <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillCondition()}>
+            <View style={styles.navToFillDetailRow}>
+                
+                <View style={[styles.detailHeaderContainer, {flex: condition ? 0.35 : 0.8}]}>
+                    <Text style={styles.detailHeader}>Condition</Text>
+                </View>
+
+                {condition?
+                <View style={[styles.displayedPriceContainer, {flex: 0.45}]}>
+                    <Text style={[styles.displayedCondition, {color: this.getColorFor(condition)}]}>{condition}</Text>
+                </View>
+                :
+                null
+                }
+
+                <View style={[styles.navToFillDetailIcon, {flex: 0.2 }]}>
+                    <Icon 
+                    name="chevron-right"
+                    size={40}
+                    color='black'
+                    />
+                </View>
+
+            </View>
+            </TouchableHighlight>
+
+            <GrayLine/>
+
+            <WhiteSpace height={10} />
+
+            
 
             {/* Size */}
             <ProductLabel color={optionLabelBlue} title='Select a Size'/> 
@@ -504,18 +639,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
                 selectedButtonStyle={styles.buttonGroupSelectedContainer}
             />
             {/* product condition */}
-            <Divider style={{  backgroundColor: '#fff', height: 12 }} />
-            <View style={styles.modalPicker}>
-                <CustomModalPicker subheading={'Product Condition:'}>
-                    <Picker style={styles.picker} itemStyle={[styles.pickerText, {color: 'black'}]} selectedValue = {this.state.condition} onValueChange={ (condition) => {this.setState({condition})} } >
-                        <Picker.Item label = "New With Tags" value = "New With Tags" />
-                        <Picker.Item label = "New Without Tags" value = "New Without Tags" />
-                        <Picker.Item label = "Slightly Used" value = "Slightly Used" />
-                        <Picker.Item label = "Used" value = "Used" />
-                    </Picker>
-                </CustomModalPicker> 
-                <Text style={styles.optionSelected}>{this.state.condition}</Text>
-            </View>    
+                
             <Divider style={{  backgroundColor: '#fff', height: 15 }} />
             
             
@@ -565,15 +689,56 @@ const styles = StyleSheet.create({
           
     },
 
+    descriptionContainer: {paddingVertical: 4, paddingHorizontal: 3},
+
+    descriptionHeaderContainer: {flex: 0.2,justifyContent: 'center', alignItems: 'flex-start', paddingHorizontal: 6},
+
+    descriptionHeader: {fontFamily: 'Avenir Next', fontSize: 18, color: darkGray},
+
+    descriptionInputContainer: {flex: 0.8, justifyContent: 'center', alignItems: 'flex-start', paddingVertical: 2, paddingHorizontal: 6,},
+
+    descriptionInput: {width: 260, height: 60, marginBottom: 10, borderColor: treeGreen, borderWidth: 0},
+
+    navToFillDetailRow: {
+        // backgroundColor: 'red',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 4,
+        // height: 
+    },
+
+    navToFillDetailIcon: {
+        justifyContent: 'flex-end',
+        alignItems: 'flex-end'
+    },
+
     detailHeaderContainer: {
-        justifyContent: 'center'
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        paddingVertical: 3
     },
 
     detailHeader: {
         fontFamily: 'Avenir Next',
-        fontWeight: '300',
-        fontSize: 18
+        fontWeight: '400',
+        fontSize: 22,
     },
+
+    displayedPriceContainer: {
+        justifyContent: 'center',
+        alignItems: 'flex-end'
+    },
+
+    displayedPrice: {
+        fontFamily: avenirNext,
+        fontSize: 21,
+        fontWeight: '600',
+        color: darkGray
+
+    },
+
+    displayedCondition: new avenirNextText(lightGray, 16, "200"),
 
     imageadder: {
         flexDirection: 'row'
@@ -629,32 +794,6 @@ const styles = StyleSheet.create({
         color: '#0c5925'
     },
 
-    displayedPriceContainer: {
-        justifyContent: 'flex-end',
-        alignItems: 'flex-end'
-    },
-
-    displayedPrice: {
-        fontFamily: avenirNext,
-        fontSize: 18,
-        fontWeight: '400',
-        color: darkGray
-
-    },
-
-    navToFillDetailRow: {
-        backgroundColor: 'red',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 4
-    },
-
-    navToFillDetailIcon: {
-        justifyContent: 'flex-end',
-        alignItems: 'flex-end'
-    },
-
     buttonGroupText: {
         fontFamily: 'Iowan Old Style',
         fontSize: 17,
@@ -676,6 +815,29 @@ const styles = StyleSheet.create({
 })
 
 export default withNavigation(CreateItem)
+
+{/* <View style={styles.modalPicker}>
+                <CustomModalPicker subheading={'Product Condition:'}>
+                    <Picker style={styles.picker} itemStyle={[styles.pickerText, {color: 'black'}]} selectedValue = {this.state.condition} onValueChange={ (condition) => {this.setState({condition})} } >
+                        <Picker.Item label = "New With Tags" value = "New With Tags" />
+                        <Picker.Item label = "New Without Tags" value = "New Without Tags" />
+                        <Picker.Item label = "Slightly Used" value = "Slightly Used" />
+                        <Picker.Item label = "Used" value = "Used" />
+                    </Picker>
+                </CustomModalPicker> 
+                <Text style={styles.optionSelected}>{this.state.condition}</Text>
+            </View> */}
+
+{/* <TextField 
+                label="Optional Description (e.g. Great for chilly weather)"
+                value={this.state.description}
+                onChangeText = { (desc)=>{this.setState({description: desc})}}
+                multiline = {true}
+                characterRestriction = {180}
+                textColor={basicBlue}
+                tintColor={darkGreen}
+                baseColor={darkBlue}
+            /> */}
 
 // {/* product age (months) */}
 // <View style = { {alignItems: 'center', flexDirection: 'column'} } >

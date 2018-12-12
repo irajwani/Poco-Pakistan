@@ -5,6 +5,7 @@ import MultipleAddButton from '../components/MultipleAddButton'
 import MultiplePictureCamera from '../components/MultiplePictureCamera'
 import ViewPhotos from '../views/ViewPhotos'
 import PriceSelection from '../views/PriceSelection'
+import ConditionSelection from '../views/ConditionSelection'
 
 export const multipleAddButtonToMultiplePictureCameraToCreateItemStack = createStackNavigator({
 
@@ -13,6 +14,7 @@ export const multipleAddButtonToMultiplePictureCameraToCreateItemStack = createS
     MultiplePictureCamera: MultiplePictureCamera,
     MultipleAddButton: MultipleAddButton,
     PriceSelection: PriceSelection,
+    ConditionSelection: ConditionSelection,
 
 }, {
     initialRouteName: 'CreateItem',

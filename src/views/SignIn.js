@@ -209,16 +209,18 @@ class SignIn extends Component {
             console.log('successfully signed in:', currentUser);
             // console.log(JSON.stringify(currentUser.toJSON()))
         })
-        .catch( (err) => console.log(err))
+        .catch( (err) => {console.log(err); this.setState({loading: false})})
     }
 
     signInWithFacebook = () => {
+        this.setState({loading: true});
+
         //Neat Trick: Define two functions (one for success, one for error), with a thenable based on the object returned from the Promise.
         LoginManager.logInWithReadPermissions(['email']).then(
             (result) => {
               console.log(result);  
               if (result.isCancelled) {
-                alert('Login was cancelled');
+                this.setState({loading: false});
               } 
               else {
                 AccessToken.getCurrentAccessToken().then( (data) => {
