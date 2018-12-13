@@ -9,13 +9,26 @@ import { GrayLine } from '../localFunctions/visualFunctions';
 const generateTypesBasedOnCategory = (category) => {
     var types;
     switch(category) {
-        case 
+        case 0:
+            types = ["Formal Shirts", "Casual Shirts", "Coats & Jackets", "Suits", "Trousers", "Jeans", "Shoes"];
+            break;
+        case 1:
+            types = ["Coats & Jackets", "Pullovers & Sweaters", "Dresses", "Skirts", "Tops & T-Shirts", "Pants", "Swimwear & Beachwear", "Lingerie"];
+            break;
+        case 2:
+            types = ["Watches", "Bracelets", "Jewellery", "Sunglasses", "Handbags"];
+            break;
+        default:
+            types = ["Formal Shirts", "Casual Shirts", "Coats & Jackets", "Suits", "Trousers", "Jeans", "Shoes"];
+            break;
     }
+    return types;
 }
+
 const conditions = ["New With Tags", "New Without Tags", "Slightly Used", "Used"];
 
 
-export default class PriceSelection extends Component {
+export default class ConditionSelection extends Component {
   constructor(props) {
       super(props);
       this.state = {
@@ -23,13 +36,20 @@ export default class PriceSelection extends Component {
   }
 
   
-  navToCreateItem = (condition) => {
-      this.props.navigation.navigate('CreateItem', {condition: condition});
+  navToCreateItem = (detailType, value) => {
+      detailType == 'condition' ?
+      this.props.navigation.navigate('CreateItem', {condition: value})
+      :
+      this.props.navigation.navigate('CreateItem', {type: value})
+
   }
 
   render() {
     const {navigation} = this.props;
-    const showProductTypes = navigation.getParam("showProductTypes", false)
+    var showProductTypes = navigation.getParam("showProductTypes", false);
+    var gender = navigation.getParam("gender", 0); //For "Men" by default
+    
+    var types = generateTypesBasedOnCategory(gender);
 
     return (
       <View style={styles.mainContainer}>
@@ -51,12 +71,18 @@ export default class PriceSelection extends Component {
 
             {showProductTypes ?
             types.map( (t, index) => (
-                <View></View>
+                <View key={index} style={styles.conditionRow}>
+                    <TouchableHighlight underlayColor={'#fff'} onPress={()=>this.navToCreateItem('type', t)}>
+                        <Text style={styles.condition}>{t}</Text>
+                    </TouchableHighlight>
+                    <GrayLine/>
+
+                </View>
             ))
             :
             conditions.map( (c, index) => 
             <View key={index} style={styles.conditionRow}>
-                <TouchableHighlight underlayColor={'#fff'} onPress={()=>this.navToCreateItem(c)}>
+                <TouchableHighlight underlayColor={'#fff'} onPress={()=>this.navToCreateItem('condition', c)}>
                     <Text style={styles.condition}>{c}</Text>
                 </TouchableHighlight>
                 <GrayLine/>

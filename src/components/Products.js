@@ -790,7 +790,7 @@ class Products extends Component {
             <ScrollView
                   contentContainerStyle={styles.contentContainerStyle}
             >
-              
+
               <Accordion
                 activeSection={activeSectionL}
                 sections={productsl}
@@ -799,17 +799,9 @@ class Products extends Component {
                 renderContent={this.renderContent}
                 duration={200}
                 onChange={this.setSectionL}
+                containerStyle={styles.listOfProducts}
               />
-
-              <Accordion
-                activeSection={activeSectionR}
-                sections={productsr}
-                touchableComponent={TouchableOpacity}
-                renderHeader={this.renderHeader}
-                renderContent={this.renderContent}
-                duration={200}
-                onChange={this.setSectionR}
-              />
+              
 
               {this.renderFilterModal()}
 
@@ -831,6 +823,26 @@ class Products extends Component {
   
   }
 }
+
+{/* <Accordion
+                activeSection={activeSectionL}
+                sections={productsl}
+                touchableComponent={TouchableOpacity}
+                renderHeader={this.renderHeader}
+                renderContent={this.renderContent}
+                duration={200}
+                onChange={this.setSectionL}
+              />
+
+              <Accordion
+                activeSection={activeSectionR}
+                sections={productsr}
+                touchableComponent={TouchableOpacity}
+                renderHeader={this.renderHeader}
+                renderContent={this.renderContent}
+                duration={200}
+                onChange={this.setSectionR}
+              /> */}
 
 // Products.PropTypes = {
 //     showCollection: PropTypes.bool,
@@ -861,6 +873,11 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     paddingTop: 20,
       },
+
+  listOfProducts: {
+    flexDirection: 'row',
+    flexWrap: 'wrap'
+  },    
 
   filterScrollContainer: {
     flexDirection: 'column',

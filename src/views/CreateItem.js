@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { Dimensions, Platform, Text, TextInput, StyleSheet, View, TouchableHighlight, KeyboardAvoidingView, ScrollView, Picker, TouchableWithoutFeedback, Keyboard } from 'react-native'
 import {withNavigation} from 'react-navigation';
 import { Jiro } from 'react-native-textinput-effects';
-import { TextField } from 'react-native-material-textfield';
 // import NumericInput from 'react-native-numeric-input' 
 import {Button, ButtonGroup, Divider} from 'react-native-elements';
 import RNFetchBlob from 'react-native-fetch-blob';
@@ -13,9 +12,9 @@ import ProductLabel from '../components/ProductLabel.js';
 import firebase from '../cloud/firebase.js';
 // import Chatkit from "@pusher/chatkit";
 // import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
-import { material, iOSColors } from 'react-native-typography';
+import { iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
-import { confirmBlue, woodBrown, rejectRed, darkBlue, optionLabelBlue, treeGreen, avenirNext, darkGray, lightGray } from '../colors';
+import { confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, highlightGreen, lightGreen } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { DismissKeyboardView, WhiteSpace, GrayLine } from '../localFunctions/visualFunctions';
 import { avenirNextText } from '../constructors/avenirNextText';
@@ -110,12 +109,16 @@ class CreateItem extends Component {
     } 
 }
 
+//Nav to Fill In:
+
+//1. Price and Original Price
 navToFillPrice = (sellingPriceBoolean) => {
     this.props.navigation.navigate('PriceSelection', {sellingPrice: sellingPriceBoolean})
 }
 
-navToFillCondition = (showProductTypes = false) => {
-    this.props.navigation.navigate('ConditionSelection', {showProductTypes: showProductTypes});
+//2. Type and Condition
+navToFillConditionOrType = (gender, showProductTypes) => {
+    this.props.navigation.navigate('ConditionSelection', {gender: gender, showProductTypes: showProductTypes});
 }
 
 updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
@@ -355,8 +358,11 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
     var price = navigation.getParam('price', 0);
     var original_price = navigation.getParam('original_price', 0);
     var condition = navigation.getParam('condition', false); 
+    var type = navigation.getParam('type', false); 
     console.log(condition);
     ////
+
+    //The full condition for when a user is allowed to upload a product to the market
     var conditionMet = (this.state.name) && (Number.isFinite(price)) && (price > 0) && (price < 1001) && (Array.isArray(pictureuris) && pictureuris.length >= 1)
     //var priceIsWrong = (original_price != '') && ((price == 0) || (price.charAt(0) == 0 ) || (original_price == 0) || (original_price.charAt(0) == 0) )
 
@@ -396,14 +402,14 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
 
             <MultipleAddButton navToComponent = {'CreateItem'} pictureuris={pictureuris}/>
 
-            <Divider style={{  backgroundColor: '#fff', height: 18 }} />
+            <WhiteSpace height={10}/>
 
         {/* 0. Gender */}
-            <ProductLabel size={15} color={treeGreen} title='Category'/>
+            <ProductLabel size={15} color={'black'} title='Category'/>
             <ButtonGroup
                 onPress={ (index) => {this.setState({gender: index})}}
                 selectedIndex={this.state.gender}
-                buttons={ ['Men', 'Accessories', 'Women'] }
+                buttons={ ['Men', 'Women', 'Accessories'] }
                 containerStyle={styles.buttonGroupContainer}
                 buttonStyle={styles.buttonGroup}
                 textStyle={styles.buttonGroupText}
@@ -412,7 +418,8 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
             />
             {/* Type of clothing */}
             <GrayLine/>
-            <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillCondition(showProductTypes = true)}>
+
+            <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillConditionOrType(this.state.gender, showProductTypes = true)}>
             <View style={styles.navToFillDetailRow}>
                 
                 <View style={[styles.detailHeaderContainer, {flex: type ? 0.35 : 0.8}]}>
@@ -440,14 +447,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
 
             <GrayLine/>
 
-            <WhiteSpace height={10} />
-
-            <View style={styles.modalPicker}>
-                <CustomModalPicker subheading={'Product Type:'}>
-                    {this.showPicker(this.state.gender)}        
-                </CustomModalPicker>
-                <Text style={styles.optionSelected}>{this.state.type}</Text>
-            </View>    
+            
         
         
             {/* <Image
@@ -459,45 +459,38 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
         {/* 2. Product Name */}
 
         {/* TODO: Somehow prevent the user from having to scroll lower to see their input */}
-            <Jiro
-                label={'Name (e.g. Black zip-up hoodie)'}
-                value={this.state.name}
-                onChangeText={name => this.setState({ name })}
-                maxLength={16}
-                autoCorrect={false}
-                autoCapitalize={'words'}
+            <View style={{justifyContent: 'center', alignItems: ''}}>
+
+                {this.state.typingName ?
+                    <TextInput
+                    style={{height: 100, width: 240, }}
+                    placeholder={"Black zip-up hoodie"}
+                    placeholderTextColor={lightGray}
+                    onChangeText={(name) => this.setState({name})}
+                    value={this.state.name}
+                    multiline={false}
+                    maxLength={16}
+                    autoCorrect={false}
+                    autoCapitalize={'words'}
+                    />
+                :
+                    <Animatable.View duration={300} transition='backgroundColor'>
+                        <Animatable.Text  animation={!this.state.typingName ? 'bounceInRight' : undefined}>
+                            Name
+                        </Animatable.Text>
+                    </Animatable.View>
+                }
+
                 
-                // this is used as active border color
-                borderColor={treeGreen}
-                // this is used to set backgroundColor of label mask.
-                // please pass the backgroundColor of your TextInput container.
-                backgroundColor={'#F9F7F6'}
-                inputStyle={{ color: 'black' }}
-            />
-        
+                
+            </View>
 
-            <Jiro
-                label={'Brand'}
-                value={this.state.brand}
-                maxLength={12}
-                onChangeText={brand => this.setState({ brand })}
-                autoCorrect={false}
-                autoCapitalize={'words'}
-                // this is used as active border color
-                borderColor={'black'}
-                // this is used to set backgroundColor of label mask.
-                // please pass the backgroundColor of your TextInput container.
-                backgroundColor={'#F9F7F6'}
-                inputStyle={{ color: 'black' }}
-            />
-
-            <WhiteSpace height={10}/>
+            <WhiteSpace height={4}/>
 
             {/* Product Description/Material */}
             
             <GrayLine/>
 
-            <WhiteSpace height={1.5}/>
 
             <DismissKeyboardView>
 
@@ -513,7 +506,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
 
                     <TextInput
                         style={styles.descriptionInput}
-                        placeholder={"For Example, This product has a few flaws which should be evident in the item's pictures"}
+                        placeholder={"(Optional) For Example, This product has a few flaws which should be evident in the item's pictures"}
                         placeholderTextColor={lightGray}
                         onChangeText={(description) => this.setState({description})}
                         value={this.state.description}
@@ -531,37 +524,6 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
             </DismissKeyboardView>
 
             <WhiteSpace height={1.5}/>
-
-            <GrayLine/>
-
-        {/* 3. Product Price. We want this row to show up only  */}
-
-
-            <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice(true)}>
-            <View style={styles.navToFillDetailRow}>
-                
-                <View style={[styles.detailHeaderContainer, {flex: price > 0 ? 0.5 : 0.8}]}>
-                    <Text style={styles.detailHeader}>Selling price</Text>
-                </View>
-
-                {price > 0 ?
-                <View style={[styles.displayedPriceContainer, {flex: 0.3}]}>
-                    <Text style={[styles.displayedPrice, {color: treeGreen}]}>£{price}</Text>
-                </View>
-                :
-                null
-                }
-
-                <View style={[styles.navToFillDetailIcon, {flex: price > 0 ? 0.2 : 0.2 }]}>
-                    <Icon 
-                    name="chevron-right"
-                    size={40}
-                    color='black'
-                    />
-                </View>
-
-            </View>
-            </TouchableHighlight>
 
             <GrayLine/>
 
@@ -594,7 +556,76 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
 
             <GrayLine/>
 
-            <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillCondition()}>
+        {/* Product Price.  */}
+
+
+            <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice(true)}>
+            <View style={styles.navToFillDetailRow}>
+                
+                <View style={[styles.detailHeaderContainer, {flex: price > 0 ? 0.5 : 0.8}]}>
+                    <Text style={styles.detailHeader}>Selling price</Text>
+                </View>
+
+                {price > 0 ?
+                <View style={[styles.displayedPriceContainer, {flex: 0.3}]}>
+                    <Text style={[styles.displayedPrice, {color: treeGreen}]}>£{price}</Text>
+                </View>
+                :
+                null
+                }
+
+                <View style={[styles.navToFillDetailIcon, {flex: price > 0 ? 0.2 : 0.2 }]}>
+                    <Icon 
+                    name="chevron-right"
+                    size={40}
+                    color='black'
+                    />
+                </View>
+
+            </View>
+            </TouchableHighlight>
+
+            <GrayLine/>
+                
+            {/* Brand */}
+            <Jiro
+                label={'Brand'}
+                value={this.state.brand}
+                maxLength={12}
+                onChangeText={brand => this.setState({ brand })}
+                autoCorrect={false}
+                autoCapitalize={'words'}
+                // this is used as active border color
+                borderColor={'black'}
+                // this is used to set backgroundColor of label mask.
+                // please pass the backgroundColor of your TextInput container.
+                backgroundColor={'#F9F7F6'}
+                inputStyle={{ color: 'black' }}
+            />
+
+            <WhiteSpace height={5}/>
+
+            <GrayLine/>
+
+            {/* Size */}
+            <ProductLabel color={optionLabelBlue} title='Select a Size'/> 
+            <ButtonGroup
+                onPress={ (index) => {this.setState({size: index})}}
+                selectedIndex={this.state.size}
+                buttons={ ['XS', 'S', 'M', 'L', 'XL', 'XXL'] }
+                containerStyle={styles.buttonGroupContainer}
+                buttonStyle={styles.buttonGroup}
+                textStyle={styles.buttonGroupText}
+                selectedTextStyle={styles.buttonGroupSelectedText}
+                selectedButtonStyle={styles.buttonGroupSelectedContainer}
+            />
+
+            <WhiteSpace height={5}/>
+
+            <GrayLine/>
+
+
+            <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillConditionOrType(this.state.gender, false)}>
             <View style={styles.navToFillDetailRow}>
                 
                 <View style={[styles.detailHeaderContainer, {flex: condition ? 0.35 : 0.8}]}>
@@ -622,26 +653,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
 
             <GrayLine/>
 
-            <WhiteSpace height={10} />
-
-            
-
-            {/* Size */}
-            <ProductLabel color={optionLabelBlue} title='Select a Size'/> 
-            <ButtonGroup
-                onPress={ (index) => {this.setState({size: index})}}
-                selectedIndex={this.state.size}
-                buttons={ ['XS', 'S', 'M', 'L', 'XL', 'XXL'] }
-                containerStyle={styles.buttonGroupContainer}
-                buttonStyle={styles.buttonGroup}
-                textStyle={styles.buttonGroupText}
-                selectedTextStyle={styles.buttonGroupSelectedText}
-                selectedButtonStyle={styles.buttonGroupSelectedContainer}
-            />
-            {/* product condition */}
-                
-            <Divider style={{  backgroundColor: '#fff', height: 15 }} />
-            
+            <WhiteSpace height={15} />       
             
             <View style={ {alignItems: 'center'} }>
                 <Button
@@ -704,7 +716,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 4,
+        paddingTop: 4,
+        paddingHorizontal: 4
         // height: 
     },
 
@@ -795,13 +808,13 @@ const styles = StyleSheet.create({
     },
 
     buttonGroupText: {
-        fontFamily: 'Iowan Old Style',
-        fontSize: 17,
+        fontFamily: 'Avenir Next',
+        fontSize: 14,
         fontWeight: '300',
     },
 
     buttonGroupSelectedText: {
-        color: darkGreen
+        color: 'black'
     },
 
     buttonGroupContainer: {
@@ -810,7 +823,7 @@ const styles = StyleSheet.create({
     },
     
     buttonGroupSelectedContainer: {
-        backgroundColor: limeGreen
+        backgroundColor: aquaGreen
     },
 })
 
@@ -839,6 +852,13 @@ export default withNavigation(CreateItem)
                 baseColor={darkBlue}
             /> */}
 
+
+// <View style={styles.modalPicker}>
+//     <CustomModalPicker subheading={'Product Type:'}>
+//         {this.showPicker(this.state.gender)}        
+//     </CustomModalPicker>
+//     <Text style={styles.optionSelected}>{this.state.type}</Text>
+// </View> 
 // {/* product age (months) */}
 // <View style = { {alignItems: 'center', flexDirection: 'column'} } >
 // <NumericInput 
@@ -863,3 +883,19 @@ export default withNavigation(CreateItem)
 // <Text> Months since you bought the product </Text>
 // </View>
 
+
+{/* <Jiro
+                    label={'Name (e.g. )'}
+                    value={this.state.name}
+                    onChangeText={name => this.setState({ name })}
+                    maxLength={16}
+                    autoCorrect={false}
+                    autoCapitalize={'words'}
+                    
+                    // this is used as active border color
+                    borderColor={treeGreen}
+                    // this is used to set backgroundColor of label mask.
+                    // please pass the backgroundColor of your TextInput container.
+                    backgroundColor={'#F9F7F6'}
+                    inputStyle={{ color: 'black' }}
+                /> */}
