@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, Keyboard, TouchableHighlight } from 'react-native'
+import { Text, StyleSheet, View, ScrollView, Keyboard, TouchableHighlight } from 'react-native'
 import { Jiro } from 'react-native-textinput-effects';
 import { treeGreen, darkGray } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { avenirNextText } from '../constructors/avenirNextText';
-import { GrayLine } from '../localFunctions/visualFunctions';
+import { GrayLine, WhiteSpace } from '../localFunctions/visualFunctions';
 
 const generateTypesBasedOnCategory = (category) => {
     var types;
@@ -24,8 +24,6 @@ const generateTypesBasedOnCategory = (category) => {
     }
     return types;
 }
-
-const conditions = ["New With Tags", "New Without Tags", "Slightly Used", "Used"];
 
 
 export default class ConditionSelection extends Component {
@@ -48,8 +46,10 @@ export default class ConditionSelection extends Component {
     const {navigation} = this.props;
     var showProductTypes = navigation.getParam("showProductTypes", false);
     var gender = navigation.getParam("gender", 0); //For "Men" by default
-    
+    const conditions = ["New With Tags", "New Without Tags", "Slightly Used", "Used"];
     var types = generateTypesBasedOnCategory(gender);
+    types.map( (t, index) => console.log(t,index) )
+    conditions.map( (t, index) => console.log(t,index) )
 
     return (
       <View style={styles.mainContainer}>
@@ -67,30 +67,41 @@ export default class ConditionSelection extends Component {
 
         <View style={{height: 1, backgroundColor: darkGray}}/>
 
-        <View style={styles.selectionContainer}>
+        
 
             {showProductTypes ?
-            types.map( (t, index) => (
-                <View key={index} style={styles.conditionRow}>
-                    <TouchableHighlight underlayColor={'#fff'} onPress={()=>this.navToCreateItem('type', t)}>
-                        <Text style={styles.condition}>{t}</Text>
-                    </TouchableHighlight>
-                    <GrayLine/>
+            <ScrollView style={styles.selectionContainer} contentContainerStyle={styles.typesContainer}>
+                    {types.map( (t, index) => 
+                        <View key={index} style={styles.conditionRow}>
+                            <TouchableHighlight underlayColor={'#fff'} onPress={()=>this.navToCreateItem('type', t)}>
+                                <Text style={styles.condition}>{t}</Text>
+                            </TouchableHighlight>
+                            <GrayLine/>
 
-                </View>
-            ))
+                        </View>
+                
+                    )
+                    }
+            </ScrollView>
             :
-            conditions.map( (c, index) => 
-            <View key={index} style={styles.conditionRow}>
-                <TouchableHighlight underlayColor={'#fff'} onPress={()=>this.navToCreateItem('condition', c)}>
-                    <Text style={styles.condition}>{c}</Text>
-                </TouchableHighlight>
-                <GrayLine/>
+            <View style={styles.selectionContainer}>
+                {conditions.map( (c, index) => 
+                    
+                    <View key={index} style={styles.conditionRow}>
+                        index == 0 ? <GrayLine/> : null
+                        <TouchableHighlight underlayColor={'#fff'} onPress={()=>this.navToCreateItem('condition', c)}>
+                            <Text style={styles.condition}>{c}</Text>
+                        </TouchableHighlight>
+                        <GrayLine/>
+                        <WhiteSpace height={5}/>
+                    </View>
+                
+                )
+                }
             </View>    
-            )
             }
 
-        </View>
+        
         
       </View>
     )
@@ -126,7 +137,14 @@ const styles = StyleSheet.create({
         // backgroundColor: 'red',
         flex: 0.91,
         paddingHorizontal: 3,
-        paddingVertical: 2,
+        paddingVertical: 4,
+        // justifyContent: 'space-evenly'
+    },
+
+    typesContainer: {
+        flexGrow: 4,
+        justifyContent: 'center',
+        alignItems: 'flex-start',
     },
 
     conditionRow: {

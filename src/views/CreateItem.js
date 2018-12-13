@@ -15,7 +15,7 @@ import firebase from '../cloud/firebase.js';
 import * as Animatable from 'react-native-animatable';
 import { iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
-import { confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, highlightGreen, lightGreen, highlightYellow } from '../colors';
+import { confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, lightGreen, highlightYellow, profoundPink } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { DismissKeyboardView, WhiteSpace, GrayLine } from '../localFunctions/visualFunctions';
 import { avenirNextText } from '../constructors/avenirNextText';
@@ -24,6 +24,7 @@ import { avenirNextText } from '../constructors/avenirNextText';
 const darkGreen = '#0d4f10';
 const limeGreen = '#2e770f';
 // const slimeGreen = '#53b73c';
+const categoryColors = [darkBlue, profoundPink, treeGreen]
 
 const {height, width} = Dimensions.get('window');
 
@@ -365,8 +366,13 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
     var original_price = navigation.getParam('original_price', 0);
     var condition = navigation.getParam('condition', false); 
     var type = navigation.getParam('type', false); 
-    console.log(condition);
+    // console.log(condition);
     ////
+
+    ///
+    ///If there is a change in this.state.gender, remove the product type value
+
+    ///
 
     //When the condition to submit a product has partially been satisfied:
     var partialConditionMet = (this.state.name) || (this.state.brand) || ( (Number.isFinite(price)) && (price > 0) && (price < 1001) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) );
@@ -415,7 +421,14 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
         {/* 0. Gender */}
             <ProductLabel size={15} color={'black'} title='Category'/>
             <ButtonGroup
-                onPress={ (index) => {this.setState({gender: index})}}
+                onPress={ (index) => {
+                    if(index != this.state.gender) {
+                        navigation.setParams({type: false});
+                        // type = '';
+                        this.setState({gender: index});
+                    }
+                    
+                    }}
                 selectedIndex={this.state.gender}
                 buttons={ ['Men', 'Women', 'Accessories'] }
                 containerStyle={styles.buttonGroupContainer}
@@ -436,7 +449,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
 
                 {type?
                 <View style={[styles.displayedPriceContainer, {flex: 0.45}]}>
-                    <Text style={[styles.displayedCondition, {color: 'black', fontWeight: "600"}]}>{type}</Text>
+                    <Text style={[styles.displayedCondition, {color: categoryColors[this.state.gender], fontWeight: "300"}]}>{type}</Text>
                 </View>
                 :
                 null
@@ -633,7 +646,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
 
                 {condition?
                 <View style={[styles.displayedPriceContainer, {flex: 0.45}]}>
-                    <Text style={[styles.displayedCondition, {color: this.getColorFor(condition)}]}>{condition}</Text>
+                    <Text style={[styles.displayedCondition, { fontWeight: "200"}]}>{condition}</Text>
                 </View>
                 :
                 null
