@@ -12,9 +12,10 @@ import ProductLabel from '../components/ProductLabel.js';
 import firebase from '../cloud/firebase.js';
 // import Chatkit from "@pusher/chatkit";
 // import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
+import * as Animatable from 'react-native-animatable';
 import { iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
-import { confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, highlightGreen, lightGreen } from '../colors';
+import { confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, highlightGreen, lightGreen, highlightYellow } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { DismissKeyboardView, WhiteSpace, GrayLine } from '../localFunctions/visualFunctions';
 import { avenirNextText } from '../constructors/avenirNextText';
@@ -119,6 +120,11 @@ navToFillPrice = (sellingPriceBoolean) => {
 //2. Type and Condition
 navToFillConditionOrType = (gender, showProductTypes) => {
     this.props.navigation.navigate('ConditionSelection', {gender: gender, showProductTypes: showProductTypes});
+}
+
+helpUserFillDetails = () => {
+
+    // alert(`Please enter details for the following fields:\n${this.state.name ? name}`)
 }
 
 updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
@@ -362,8 +368,10 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
     console.log(condition);
     ////
 
+    //When the condition to submit a product has partially been satisfied:
+    var partialConditionMet = (this.state.name) || (this.state.brand) || ( (Number.isFinite(price)) && (price > 0) && (price < 1001) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) );
     //The full condition for when a user is allowed to upload a product to the market
-    var conditionMet = (this.state.name) && (Number.isFinite(price)) && (price > 0) && (price < 1001) && (Array.isArray(pictureuris) && pictureuris.length >= 1)
+    var conditionMet = (this.state.name) && (this.state.brand) && (Number.isFinite(price)) && (price > 0) && (price < 1001) && (Array.isArray(pictureuris) && pictureuris.length >= 1)
     //var priceIsWrong = (original_price != '') && ((price == 0) || (price.charAt(0) == 0 ) || (original_price == 0) || (original_price.charAt(0) == 0) )
 
     //console.log(priceIsWrong);
@@ -403,7 +411,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
             <MultipleAddButton navToComponent = {'CreateItem'} pictureuris={pictureuris}/>
 
             <WhiteSpace height={10}/>
-
+            
         {/* 0. Gender */}
             <ProductLabel size={15} color={'black'} title='Category'/>
             <ButtonGroup
@@ -417,7 +425,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
                 selectedButtonStyle={styles.buttonGroupSelectedContainer}
             />
             {/* Type of clothing */}
-            <GrayLine/>
+            
 
             <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillConditionOrType(this.state.gender, showProductTypes = true)}>
             <View style={styles.navToFillDetailRow}>
@@ -428,7 +436,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
 
                 {type?
                 <View style={[styles.displayedPriceContainer, {flex: 0.45}]}>
-                    <Text style={styles.displayedCondition}>{type}</Text>
+                    <Text style={[styles.displayedCondition, {color: 'black', fontWeight: "600"}]}>{type}</Text>
                 </View>
                 :
                 null
@@ -459,30 +467,19 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
         {/* 2. Product Name */}
 
         {/* TODO: Somehow prevent the user from having to scroll lower to see their input */}
-            <View style={{justifyContent: 'center', alignItems: ''}}>
-
-                {this.state.typingName ?
-                    <TextInput
-                    style={{height: 100, width: 240, }}
-                    placeholder={"Black zip-up hoodie"}
-                    placeholderTextColor={lightGray}
-                    onChangeText={(name) => this.setState({name})}
-                    value={this.state.name}
-                    multiline={false}
-                    maxLength={16}
-                    autoCorrect={false}
-                    autoCapitalize={'words'}
-                    />
-                :
-                    <Animatable.View duration={300} transition='backgroundColor'>
-                        <Animatable.Text  animation={!this.state.typingName ? 'bounceInRight' : undefined}>
-                            Name
-                        </Animatable.Text>
-                    </Animatable.View>
-                }
-
-                
-                
+            <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
+                <TextInput
+                style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20}}
+                placeholder={"Name (e.g. zip-up hoodie)"}
+                placeholderTextColor={lightGray}
+                onChangeText={(name) => this.setState({name})}
+                value={this.state.name}
+                multiline={false}
+                maxLength={16}
+                autoCorrect={false}
+                autoCapitalize={'words'}
+                clearButtonMode={'while-editing'}
+                />         
             </View>
 
             <WhiteSpace height={4}/>
@@ -588,27 +585,29 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
             <GrayLine/>
                 
             {/* Brand */}
-            <Jiro
-                label={'Brand'}
+            <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
+                <TextInput
+                style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
+                placeholder={"Brand (e.g. Hollister Co.)"}
+                placeholderTextColor={lightGray}
+                onChangeText={(brand) => this.setState({brand})}
                 value={this.state.brand}
+                multiline={false}
                 maxLength={12}
-                onChangeText={brand => this.setState({ brand })}
                 autoCorrect={false}
                 autoCapitalize={'words'}
-                // this is used as active border color
-                borderColor={'black'}
-                // this is used to set backgroundColor of label mask.
-                // please pass the backgroundColor of your TextInput container.
-                backgroundColor={'#F9F7F6'}
-                inputStyle={{ color: 'black' }}
-            />
+                clearButtonMode={'while-editing'}
+                />         
+            </View>
 
-            <WhiteSpace height={5}/>
+            
 
             <GrayLine/>
 
+            <WhiteSpace height={8}/>
+
             {/* Size */}
-            <ProductLabel color={optionLabelBlue} title='Select a Size'/> 
+            <ProductLabel color={'black'} title='Select a Size'/> 
             <ButtonGroup
                 onPress={ (index) => {this.setState({size: index})}}
                 selectedIndex={this.state.size}
@@ -658,9 +657,9 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
             <View style={ {alignItems: 'center'} }>
                 <Button
                 large
-                disabled = { conditionMet ? false : true}
+                disabled = { partialConditionMet ? false : true}
                 buttonStyle={{
-                    backgroundColor: "#22681d",
+                    backgroundColor: conditionMet ? "#22681d" : highlightYellow,
                     width: 280,
                     height: 80,
                     borderColor: "transparent",
@@ -669,9 +668,11 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
                 }}
                 icon={{name: 'check-all', type: 'material-community'}}
                 title='SUBMIT TO MARKET'
-                onPress={() => { 
-                    this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid);
-                    
+                onPress={() => {
+                    conditionMet ?  
+                    this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid)
+                    :
+                    this.helpUserFillDetails()
                                 } } 
                 />
             </View>
@@ -751,7 +752,7 @@ const styles = StyleSheet.create({
 
     },
 
-    displayedCondition: new avenirNextText(lightGray, 16, "200"),
+    displayedCondition: new avenirNextText('#800000', 16, "200"),
 
     imageadder: {
         flexDirection: 'row'
