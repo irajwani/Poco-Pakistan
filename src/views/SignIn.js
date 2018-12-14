@@ -17,14 +17,15 @@ import firebase from '../cloud/firebase.js';
 import {GoogleSignin} from 'react-native-google-signin'
 import {LoginManager, AccessToken} from 'react-native-fbsdk';
 
-import { systemWeights, iOSColors } from 'react-native-typography';
+// import { systemWeights, iOSColors } from 'react-native-typography';
+import {avenirNextText} from '../constructors/avenirNextText'
 // import HomeScreen from './HomeScreen';
 // import { SignUpToCreateProfileStack } from '../stackNavigators/signUpToEditProfileStack';
 
 // var provider = new firebase.auth.GoogleAuthProvider();
-import {bobbyBlue} from '../colors'
-import { withNavigation } from 'react-navigation';
-const {width,} = Dimensions.get('window');
+import {lightGray} from '../colors'
+// import { withNavigation } from 'react-navigation';
+// const {width,} = Dimensions.get('window');
 
 
 //THIS PAGE: 
@@ -54,7 +55,7 @@ class ViewWithChildAtPosition extends Component {
         const {flex} = this.props;
 
         return (
-            <View style={{flex: flex, backgroundColor: this.props.color ? this.props.color : null, paddingHorizontal: 2, justifyContent: 'center', alignContent: 'center'}}>
+            <View style={{flex: flex, backgroundColor: this.props.color ? this.props.color : null, paddingHorizontal: 2, justifyContent: 'flex-start', alignItems: 'center'}}>
                 {this.props.children}
             </View>
         )
@@ -84,7 +85,7 @@ class SignIn extends Component {
         
 
         let i = 0;
-        const googleIconColors = ['#3cba54', '#db3236', '#f4c20d', 'powderblue'];
+        const googleIconColors = ['#3cba54', '#db3236', '#f4c20d', '#4885ed'];
         this.colorRefreshId = setInterval( () => {
             // i = Math.random() > 0.5 ? Math.random() > 0.5 ? Math.random() > 0.5 ? 1 : 2 : 4 : 3
             i++
@@ -401,111 +402,117 @@ class SignIn extends Component {
                 
             <View style={styles.signInContainer}>
 
-                <View style={ { justifyContent: 'center', flexDirection: 'column', flex: 0.65, paddingRight: 40, paddingLeft: 40, paddingTop: 5}}>
+                
                     <View style={styles.companyLogoContainer}>
                         <Image source={require('../images/companyLogo2.jpg')} style={styles.companyLogo}/>
                     </View>
                     
-                    <Hoshi
-                        label={'Email Address'}
-                        labelStyle={ {color: iOSColors.gray, ...systemWeights.regular} }
-                        value={this.state.email}
-                        onChangeText={email => this.setState({ email })}
-                        autoCorrect={false}
-                        // this is used as active border color
-                        borderColor={'#122021'}
-                        // this is used to set backgroundColor of label mask.
-                        // please pass the backgroundColor of your TextInput container.
-                        backgroundColor={'#122021'}
-                        inputStyle={{ color: '#0d7018' }}
-                    />
-                    <Hoshi
-                        label={'Password'}
-                        labelStyle={ {color: iOSColors.gray, ...systemWeights.regular} }
-                        value={this.state.pass}
-                        onChangeText={pass => this.setState({ pass })}
-                        autoCorrect={false}
-                        secureTextEntry
-                        // this is used as active border color
-                        borderColor={'#122021'}
-                        // this is used to set backgroundColor of label mask.
-                        backgroundColor={'#122021'}
-                        // please pass the backgroundColor of your TextInput container.
-                        inputStyle={{ color: '#0d7018' }}
-                    />
-                </View>
+                    <View style={styles.twoTextInputsContainer}>
+                        <View style={{paddingVertical: 2}}>
+                            <Hoshi
+                                label={'Email Address'}
+                                labelStyle={ new avenirNextText(lightGray, 15, "500") }
+                                value={this.state.email}
+                                onChangeText={email => this.setState({ email })}
+                                autoCorrect={false}
+                                // this is used as active border color
+                                borderColor={'#122021'}
+                                // this is used to set backgroundColor of label mask.
+                                // please pass the backgroundColor of your TextInput container.
+                                backgroundColor={'#122021'}
+                                inputStyle={new avenirNextText('#0d7018', 19, "300")}
+                            />
+                        </View>    
+                        <View style={{paddingVertical: 2}}>
+                            <Hoshi
+                                label={'Password'}
+                                labelStyle={ new avenirNextText(lightGray, 15, "500") }
+                                value={this.state.pass}
+                                onChangeText={pass => this.setState({ pass })}
+                                autoCorrect={false}
+                                secureTextEntry
+                                // this is used as active border color
+                                borderColor={'#122021'}
+                                // this is used to set backgroundColor of label mask.
+                                backgroundColor={'#122021'}
+                                // please pass the backgroundColor of your TextInput container.
+                                inputStyle={new avenirNextText('#fff', 19, "300")}
+                            />
+                        </View>
+                    </View>
+                
                 {loading ? 
-                    <View style={{flex: 0.5}}>
+                    <View style={styles.allAuthButtonsContainer}>
                         <PacmanIndicator color='#28a526' />
                     </View>
-                    :
+                :
                     
                         
-                        <View style={{ flexDirection: 'row', padding: 5, justifyContent: 'space-evenly'}}>
+                <View style={styles.allAuthButtonsContainer}>
 
-                            <ViewWithChildAtPosition flex={1}  >
-                                <Icon
-                                    name="google" 
-                                    size={30} 
-                                    color={this.state.googleIconColor}
-                                    onPress={() => this.signInWithGoogle()}
-                                />
-                            </ViewWithChildAtPosition>
+                    <ViewWithChildAtPosition flex={1}  >
+                        <Icon
+                            name="google" 
+                            size={30} 
+                            color={this.state.googleIconColor}
+                            onPress={() => this.signInWithGoogle()}
+                        />
+                    </ViewWithChildAtPosition>
 
-                            <View style={{flex: 5, flexDirection: 'column', padding: 5, margin: 5, justifyContent: 'space-between'}}>
+                    <View style={styles.twoAuthButtonsContainer}>
+                        
+                            <View style={{ paddingVertical: 10 }}>
+                            <Button
+                                title='Sign In' 
+                                titleStyle={{ fontWeight: "700" }}
+                                buttonStyle={{
+                                backgroundColor: "#16994f",
+                                //#2ac40f
+                                //#45bc53
+                                //#16994f
+                                borderColor: "#37a1e8",
+                                borderWidth: 0,
+                                borderRadius: 5,
                                 
-                                    <View style={{ padding: 5 }}>
-                                    <Button
-                                        title='Sign In' 
-                                        titleStyle={{ fontWeight: "700" }}
-                                        buttonStyle={{
-                                        backgroundColor: "#16994f",
-                                        //#2ac40f
-                                        //#45bc53
-                                        //#16994f
-                                        borderColor: "#37a1e8",
-                                        borderWidth: 0,
-                                        borderRadius: 5,
-                                        
-                                        }}
-                                        
-                                        onPress={() => {this.onSignInPress()} } 
-                                    />
-                                    </View>
-
-                                    <View style={{ padding:5 }}>
-                                    <Button
-                                        title='Create Account' 
-                                        titleStyle={styles.authButtonText}
-                                        buttonStyle={{
-                                        backgroundColor: '#368c93',
-                                        //#2ac40f
-                                        borderColor: "#226b13",
-                                        borderWidth: 0,
-                                        borderRadius: 5
-                                        }}
-                                        
-                                        onPress={
-                                            () => {
-                                                // this.props.navigation.navigate('CreateProfile')
-                                                this.attemptSignUp(user = false, googleUserBoolean = false)
-                                                } 
-                                            }
-                                    />
-                                    </View>
+                                }}
                                 
+                                onPress={() => {this.onSignInPress()} } 
+                            />
                             </View>
 
-                            <ViewWithChildAtPosition flex={1} >
-                                <Icon
-                                    name="facebook-box" 
-                                    size={33} 
-                                    color={'#3b5998'}
-                                    onPress={() => this.signInWithFacebook()}
-                                />
-                            </ViewWithChildAtPosition>
-
+                            <View style={{ paddingVertical:10 }}>
+                            <Button
+                                title='Create Account' 
+                                titleStyle={styles.authButtonText}
+                                buttonStyle={{
+                                backgroundColor: '#368c93',
+                                //#2ac40f
+                                borderColor: "#226b13",
+                                borderWidth: 0,
+                                borderRadius: 5
+                                }}
+                                
+                                onPress={
+                                    () => {
+                                        // this.props.navigation.navigate('CreateProfile')
+                                        this.attemptSignUp(user = false, googleUserBoolean = false)
+                                        } 
+                                    }
+                            />
+                            </View>
+                        
                     </View>
+
+                    <ViewWithChildAtPosition flex={1} >
+                        <Icon
+                            name="facebook-box" 
+                            size={33} 
+                            color={'#3b5998'}
+                            onPress={() => this.signInWithFacebook()}
+                        />
+                    </ViewWithChildAtPosition>
+
+                </View>
                 }
                     
                     

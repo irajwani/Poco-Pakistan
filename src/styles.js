@@ -22,16 +22,17 @@ const styles = StyleSheet.create({
   //SIGN IN PAGE
     signInContainer: {
       flex: 1,
-      // marginTop: 5,
+      marginTop: 20,
       //marginBottom: 5,
-      padding: 20,
+      padding: 15,
       flexDirection: 'column',
-      justifyContent: 'space-between',
-      alignContent: 'center',
+      // justifyContent: 'space-between',
+      // alignContent: 'center',
       backgroundColor: '#122021',
       //#fff
     },
     companyLogoContainer: {
+      flex: 0.3,
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: '#122021',
@@ -40,19 +41,41 @@ const styles = StyleSheet.create({
     companyLogo: {
       //resizeMode: 'container',
       borderColor:'#207011',
-      alignItems:'center',
-      justifyContent:'center',
+      // alignItems:'center',
+      // justifyContent:'center',
       width:90,
       height:100,
       backgroundColor:'#122021',
       borderRadius:45,
-      borderWidth: 3,
+      borderWidth: 1,
       //marginLeft: (width/4)-10,
-      paddingLeft: 25,
-      paddingRight: 25
+      // paddingLeft: 25,
+      // paddingRight: 25
   
-  }
-    ,
+  },
+
+  twoTextInputsContainer: {
+    flex: 0.35,
+    justifyContent: 'flex-start',
+    // alignItems: 'center',
+    // paddingHorizontal: 10
+  },
+
+  allAuthButtonsContainer: {
+    flex: 0.35,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    // backgroundColor: 'yellow'
+  },
+
+  twoAuthButtonsContainer: {
+    flex: 5,
+    // backgroundColor: 'white',
+    // justifyContent: 'flex-end',
+    // alignItems: 'center'
+  },
+
     authButtonText: { fontWeight: "bold" },
     container: {
       alignItems: 'stretch',
