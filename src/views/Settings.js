@@ -90,7 +90,7 @@ class Settings extends Component {
         {section.settings.map( (setting) => (
           <Animatable.Text 
             onPress={ section.settings.length == 1 ? 
-            () => {this.props.navigation.navigate('EditProfile')}
+            () => {this.props.navigation.navigate('CreateProfile', {editProfileBoolean: true})}
             :
             () => { this.setState({ activeDocument: setting, modalVisible: true }) } 
             } 

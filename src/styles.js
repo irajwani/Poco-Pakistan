@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
       //#fff
     },
     companyLogoContainer: {
-      flex: 0.3,
+      flex: 0.25,
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: '#122021',
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   },
 
   twoTextInputsContainer: {
-    flex: 0.35,
+    flex: 0.40,
     justifyContent: 'flex-start',
     // alignItems: 'center',
     // paddingHorizontal: 10

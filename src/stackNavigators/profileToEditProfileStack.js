@@ -1,7 +1,8 @@
 import { createStackNavigator } from 'react-navigation';
 import {Animated, Easing} from 'react-native';
+
 import ProfilePage from '../views/ProfilePage';
-import EditProfile from '../views/EditProfile';
+// import EditProfile from '../views/EditProfile';
 import MultiplePictureCamera from '../components/MultiplePictureCamera';
 import MultipleAddButton from '../components/MultipleAddButton';
 import YourProducts from '../views/YourProducts';
@@ -11,11 +12,13 @@ import UserComments from '../views/UserComments';
 import Settings from '../views/Settings';
 import ViewPhotos from '../views/ViewPhotos';
 import OtherUserProfilePage from '../views/OtherUserProfilePage';
+import CreateProfile from '../views/CreateProfile';
+
 
 export const profileToEditProfileStack = createStackNavigator({
     ProfilePage: ProfilePage,
     Settings: Settings,
-    EditProfile: EditProfile,
+    CreateProfile: CreateProfile,
     MultipleAddButton: MultipleAddButton,
     MultiplePictureCamera: MultiplePictureCamera,
     ViewPhotos: ViewPhotos,

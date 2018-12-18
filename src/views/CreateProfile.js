@@ -29,7 +29,10 @@ class CreateProfile extends Component {
     //   //(technically they've already signed in to firebase auth but THAT IS IT, 
     //   //now we have to fake the process of them continuing to sign up)
     //   const {user} = params.user ? user : false;
+    // If person navigates here to edit their current profile, they should be able to update their profile
+        
       this.state = {
+          uid: firebase.auth().currentUser.uid,
           email: params.googleUserBoolean || params.facebookUserBoolean ? params.user.email : '',
           pass: '',
           pass2: '',
@@ -45,7 +48,20 @@ class CreateProfile extends Component {
           privacyModalVisible: false,
           infoModalVisible: false,
           createProfileLoading: false,
+          ////EDIT PROFILE STUFF
+          editProfileBoolean: false,
+          previousUri: false
       }
+  }
+
+  componentDidMount() {
+      //If you navigate here for the purpose of editing your profile, 
+      //then you should see your current values, be able to edit them and then save your info.
+    var editProfileBoolean = this.props.navigation.getParam('editProfileBoolean', false)
+    if(editProfileBoolean) {
+        this.getProfile(this.state.uid);
+    }
+    
   }
 
   setModalVisible = (visible) => {
@@ -184,7 +200,7 @@ class CreateProfile extends Component {
         
     //     }
     // )
-    
+
     let promiseToUploadPhoto = new Promise((resolve, reject) => {
 
         if(uri.includes('googleusercontent') || uri.includes('facebook')) {
@@ -220,10 +236,12 @@ class CreateProfile extends Component {
             reject(error)
             })
         }
-
+    
         
-
+    
     })
+    
+    
 
     return {
         databaseProducts: firebase.database().ref().update(updateEmptyProducts),
@@ -261,13 +279,136 @@ class CreateProfile extends Component {
     this.props.navigation.navigate('SignIn');
   }
 
+  ///////////////////////
+  //EDIT PROFILE FUNCTIONS
+
+  getProfile = (uid) => {
+      var profile;
+
+      firebase.database().ref().once("value", (snap) => {
+        profile = snap.val().Users[uid].profile;
+
+        //pull uri as well and store it in pictureuris, and if there's no uri, MAB doesn't show anything
+        var {name, country, insta} = profile;
+        this.setState({editProfileBoolean: true, firstName: name.split(" ")[0], lastName: name.split(" ")[1], country, insta, previousUri: profile.uri ? profile.uri : false })
+
+
+      })
+  }
+
+  editProfile(data, uri, mime = 'image/jpg', uid) {
+    
+    this.setState({createProfileLoading: true});
+    var updates = {};
+    switch(data.size) {
+        case 0:
+            data.size = 'Extra Small'
+            break; 
+        case 1:
+            data.size = 'Small'
+            break;
+        case 2:
+            data.size = 'Medium'
+            break;
+        case 3:
+            data.size = 'Large'
+            break;
+        case 4:
+            data.size = 'Extra Large'
+            break;
+        case 5:
+            data.size = 'Extra Extra Large'
+            break;
+        default:
+            data.size = 'Medium'
+            console.log('no gender was specified')
+    }
+
+    var postData = {
+        name: data.firstName + " " + data.lastName, //data.firstName.concat(" ", data.lastName)
+        country: data.country,
+        size: data.size,
+        insta: data.insta
+    }
+
+    updates['/Users/' + uid + '/profile/' + '/'] = postData;
+
+    let promiseToUploadPhoto = new Promise((resolve, reject) => {
+
+        if(uri.includes('googleusercontent') || uri.includes('facebook')) {
+            console.log(`We already have a googlePhoto url: ${uri}, so need for interaction with cloud storage`)
+            
+            // const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
+            resolve(uri);
+        }
+        else {
+            console.log('user has chosen picture manually through photo lib or camera.')
+            const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
+            let uploadBlob = null
+            const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
+            fs.readFile(uploadUri, 'base64')
+            .then((data) => {
+            return Blob.build(data, { type: `${mime};BASE64` })
+            })
+            .then((blob) => {
+            console.log('got to blob')
+            uploadBlob = blob
+            return imageRef.put(blob, { contentType: mime })
+            })
+            .then(() => {
+            uploadBlob.close()
+            return imageRef.getDownloadURL()
+            })
+            .then((url) => {
+    
+                resolve(url)
+                
+            })
+            .catch((error) => {
+            reject(error)
+            })
+        }
+    
+        
+    
+    })
+
+    return {database: firebase.database().ref().update(updates), 
+            storage: promiseToUploadPhoto.then((url) => {
+                //update db with profile picture url
+                var profileUpdates = {};
+                profileUpdates['/Users/' + uid + '/profile/' + 'uri/'] = url ;
+                firebase.database().ref().update(profileUpdates);
+                return url
+                    
+                }).then( (url) => {
+                    if(url.includes('googleusercontent') || url.includes('facebook')) {
+                        this.setState({createProfileLoading: false}, 
+                            () => {
+                                // console.log('DONE DONE DONE');
+                                this.props.navigation.navigate('ProfilePage'); 
+                            })
+                    }
+                    else {
+                        alert('Your profile has successfully been updated!'); 
+                        this.setState({createProfileLoading: false});
+                        this.props.navigation.navigate('ProfilePage');
+                    }
+                    
+                })
+}
+  }
+
+
+  ///////////////
+
 
   render() {
     const {navigation} = this.props;
     const {params} = navigation.state
     // console.log(params);
     //TODO: navigation.getParam would do wonders here;
-    var googleUserBoolean = params.googleUserBoolean ? params.googleUserBoolean : false;
+    // var googleUserBoolean = params.googleUserBoolean ? params.googleUserBoolean : false;
     var googleUser = params.googleUserBoolean ? true : false
     var facebookUser = params.facebookUserBoolean ? true : false
     //may be reusing booleans here, but this check on isUserGoogleUser? alright logically so far
@@ -277,16 +418,13 @@ class CreateProfile extends Component {
     // googleUser && googlePhotoURL ? pictureuris = [googlePhotoURL] : 'nothing here';
 
     var pictureuris = navigation.getParam('pictureuris', "nothing here");
-    
-    // If person navigates here to edit their current profile, they should be able to update their profile
-    var editProfileBoolean = navigation.getParam('editProfileBoolean', false)
 
     console.log(pictureuris[0].includes('googleusercontent'))
     // console.log(googleUser, googleUserBoolean, pictureuris);
     var conditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1) && (this.state.pass == this.state.pass2) && (this.state.pass.length >= 6);
     var passwordConditionMet = (this.state.pass == this.state.pass2) && (this.state.pass.length > 0);
-    var googleUserConditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1);
-    
+    // var googleUserConditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1);
+    var editProfileConditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1);
     if(pictureuris[0].includes('googleusercontent')) {
         googleUserBoolean = true
     }
@@ -296,6 +434,121 @@ class CreateProfile extends Component {
             <View style={{flex: 1}}>
                 <PacmanIndicator color={profoundPink} />
             </View>
+        )
+    }
+
+    if(this.state.editProfileBoolean) {
+        pictureuris = this.state.previousUri ? [this.state.previousUri] : "nothing here";
+        return (
+            <ScrollView style={styles.mainContainer} contentContainerStyle={styles.container}>
+            <View style={ {flexDirection: 'row', backgroundColor: '#fff', justifyContent: 'space-between', padding: 5 } }>
+                <Button  
+                    buttonStyle={ {
+                        backgroundColor: 'black',
+                        // width: width/3 +20,
+                        // height: height/15,
+                        borderRadius: 5,
+                    }}
+                    icon={{name: 'chevron-left', type: 'material-community'}}
+                    title='Back'
+                    onPress={() => this.props.navigation.navigate('SignIn') } 
+                />
+                <Button  
+                    buttonStyle={ {
+                        backgroundColor: treeGreen,
+                        // width: width/3 +20,
+                        // height: height/15,
+                        borderRadius: 5,
+                    }}
+                    icon={{name: 'help', type: 'material-community'}}
+                    title='Help'
+                    onPress={() => this.setState({infoModalVisible: true}) } 
+                />
+            </View>
+            <Text style={{fontFamily: 'Avenir Next', fontWeight: '800', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text>
+            
+            <MultipleAddButton navToComponent = {'CreateProfile'} pictureuris={pictureuris} />
+            
+                <Sae
+                    style={styles.nameInput}
+                    label={'First Name'}
+                    iconClass={Icon}
+                    iconName={'account'}
+                    iconColor={'black'}
+                    value={this.state.firstName}
+                    onChangeText={firstName => this.setState({ firstName })}
+                    autoCorrect={false}
+                    inputStyle={{ color: 'black' }}
+                />
+                <Sae
+                    style={styles.nameInput}
+                    label={'Last Name'}
+                    iconClass={FontAwesomeIcon}
+                    iconName={'users'}
+                    iconColor={'black'}
+                    value={this.state.lastName}
+                    onChangeText={lastName => this.setState({ lastName })}
+                    autoCorrect={false}
+                    inputStyle={{ color: 'black' }}
+                />
+            
+    
+            <Sae
+                label={'City, Country Abbreviation'}
+                iconClass={FontAwesomeIcon}
+                iconName={'globe'}
+                iconColor={highlightGreen}
+                value={this.state.country}
+                onChangeText={country => this.setState({ country })}
+                autoCorrect={false}
+                inputStyle={{ color: highlightGreen }}
+            />
+    
+            <Sae
+                label={'@instagram_handle'}
+                iconClass={FontAwesomeIcon}
+                iconName={'instagram'}
+                iconColor={profoundPink}
+                value={this.state.insta}
+                onChangeText={insta => this.setState({ insta })}
+                autoCorrect={false}
+                inputStyle={{ color: profoundPink }}
+            />
+
+            <Text style={{fontFamily: 'Avenir Next', fontWeight: '400', fontSize: 20, textAlign: 'center', marginTop: 10}}>What size clothes do you wear?</Text>
+            <ButtonGroup
+                onPress={ (index) => {this.setState({size: index})}}
+                selectedIndex={this.state.size}
+                buttons={ ['XS', 'S', 'M', 'L', 'XL', 'XXL'] }
+                containerStyle={styles.buttonGroupContainer}
+                buttonStyle={styles.buttonGroup}
+                textStyle={styles.buttonGroupText}
+                selectedTextStyle={styles.buttonGroupSelectedText}
+                selectedButtonStyle={styles.buttonGroupSelectedContainer}
+            />
+            
+            
+            <Button
+                disabled={editProfileConditionMet ? false : true} 
+                large
+                buttonStyle={{
+                    backgroundColor: treeGreen,
+                    width: 250,
+                    height: 85,
+                    borderColor: "transparent",
+                    borderWidth: 0,
+                    borderRadius: 5
+                }}
+                icon={{name: 'save', type: 'font-awesome'}}
+                title='SAVE'
+                onPress={
+                    () => {
+                    this.editProfile(this.state, pictureuris[0], mime = 'image/jpg', this.state.uid);
+                    }} 
+            />
+            
+            
+        </ScrollView>
         )
     }
 
@@ -440,7 +693,7 @@ class CreateProfile extends Component {
             />
     
             
-            <Text style={{fontFamily: 'Cochin', fontWeight: '800', fontSize: 20, textAlign: 'center', marginTop: 10}}>What size clothes do you wear?</Text>
+            <Text style={{fontFamily: 'Avenir Next', fontWeight: '400', fontSize: 20, textAlign: 'center', marginTop: 10}}>What size clothes do you wear?</Text>
             <ButtonGroup
                 onPress={ (index) => {this.setState({size: index})}}
                 selectedIndex={this.state.size}
@@ -578,7 +831,7 @@ class CreateProfile extends Component {
                     large
                     buttonStyle={{
                         backgroundColor: treeGreen,
-                        width: width - 50,
+                        width: 250,
                         height: 85,
                         borderColor: "transparent",
                         borderWidth: 0,

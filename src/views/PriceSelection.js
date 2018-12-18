@@ -63,7 +63,7 @@ export default class PriceSelection extends Component {
                 // please pass the backgroundColor of your TextInput container.
                 backgroundColor={'#F9F7F6'}
                 inputStyle={{ fontFamily: 'Avenir Next', color: 'black' }}
-                keyboardType='numeric'
+                keyboardType='number-pad'
             />
         :
             <Jiro
@@ -78,7 +78,7 @@ export default class PriceSelection extends Component {
                 // please pass the backgroundColor of your TextInput container.
                 backgroundColor={'#F9F7F6'}
                 inputStyle={{ fontFamily: 'Avenir Next', color: 'black' }}
-                keyboardType='numeric'
+                keyboardType='number-pad'
         /> 
         }
             

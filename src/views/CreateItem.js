@@ -15,7 +15,7 @@ import firebase from '../cloud/firebase.js';
 import * as Animatable from 'react-native-animatable';
 import { iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
-import { confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, lightGreen, highlightYellow, profoundPink } from '../colors';
+import { confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, lightGreen, highlightYellow, profoundPink, tealBlue } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { DismissKeyboardView, WhiteSpace, GrayLine } from '../localFunctions/visualFunctions';
 import { avenirNextText } from '../constructors/avenirNextText';
@@ -121,6 +121,10 @@ navToFillPrice = (sellingPriceBoolean) => {
 //2. Type and Condition
 navToFillConditionOrType = (gender, showProductTypes) => {
     this.props.navigation.navigate('ConditionSelection', {gender: gender, showProductTypes: showProductTypes});
+}
+
+navToFillSizeBasedOn = (type,gender) => {
+    this.props.navigation.navigate('ConditionSelection', {type: type, gender: gender, showProductSizes: true,});
 }
 
 helpUserFillDetails = () => {
@@ -366,6 +370,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
     var original_price = navigation.getParam('original_price', 0);
     var condition = navigation.getParam('condition', false); 
     var type = navigation.getParam('type', false); 
+    var size = navigation.getParam('size', false)
     // console.log(condition);
     ////
 
@@ -617,22 +622,45 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
 
             <GrayLine/>
 
-            <WhiteSpace height={8}/>
+            
 
             {/* Size */}
-            <ProductLabel color={'black'} title='Select a Size'/> 
-            <ButtonGroup
-                onPress={ (index) => {this.setState({size: index})}}
-                selectedIndex={this.state.size}
-                buttons={ ['XS', 'S', 'M', 'L', 'XL', 'XXL'] }
-                containerStyle={styles.buttonGroupContainer}
-                buttonStyle={styles.buttonGroup}
-                textStyle={styles.buttonGroupText}
-                selectedTextStyle={styles.buttonGroupSelectedText}
-                selectedButtonStyle={styles.buttonGroupSelectedContainer}
-            />
 
-            <WhiteSpace height={5}/>
+            
+
+            {   type && this.state.gender != 2  ?
+                <View>
+                    <GrayLine/>
+
+                    <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillSizeBasedOn(type, this.state.gender)}>
+                    <View style={styles.navToFillDetailRow}>
+                        
+                        <View style={[styles.detailHeaderContainer, {flex: size ? 0.35 : 0.8}]}>
+                            <Text style={styles.detailHeader}>Size</Text>
+                        </View>
+
+                        {size?
+                        <View style={[styles.displayedPriceContainer, {flex: 0.45}]}>
+                            <Text style={[styles.displayedCondition, { color: tealBlue, fontWeight: "400"}]}>{size}</Text>
+                        </View>
+                        :
+                        null
+                        }
+
+                        <View style={[styles.navToFillDetailIcon, {flex: 0.2 }]}>
+                            <Icon 
+                            name="chevron-right"
+                            size={40}
+                            color='black'
+                            />
+                        </View>
+
+                    </View>
+                    </TouchableHighlight>
+                </View>
+                :
+                null
+            }
 
             <GrayLine/>
 
@@ -842,6 +870,19 @@ const styles = StyleSheet.create({
 })
 
 export default withNavigation(CreateItem)
+
+
+{/* <ProductLabel color={'black'} title='Select a Size'/> 
+            <ButtonGroup
+                onPress={ (index) => {this.setState({size: index})}}
+                selectedIndex={this.state.size}
+                buttons={ ['XS', 'S', 'M', 'L', 'XL', 'XXL'] }
+                containerStyle={styles.buttonGroupContainer}
+                buttonStyle={styles.buttonGroup}
+                textStyle={styles.buttonGroupText}
+                selectedTextStyle={styles.buttonGroupSelectedText}
+                selectedButtonStyle={styles.buttonGroupSelectedContainer}
+            /> */}
 
 {/* <View style={styles.modalPicker}>
                 <CustomModalPicker subheading={'Product Condition:'}>
