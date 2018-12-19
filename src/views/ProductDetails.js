@@ -18,9 +18,11 @@ import { PacmanIndicator } from 'react-native-indicators';
 import Chatkit from "@pusher/chatkit";
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
 import email from 'react-native-email';
-import { bobbyBlue, woodBrown, highlightGreen, graphiteGray, rejectRed, darkBlue } from '../colors';
+import { darkGray, highlightGreen, graphiteGray, rejectRed, darkBlue, lightGray } from '../colors';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import BackButton from '../components/BackButton';
+import { avenirNextText } from '../constructors/avenirNextText';
+import { WhiteSpace } from '../localFunctions/visualFunctions';
 
 var {height, width} = Dimensions.get('window');
 
@@ -58,6 +60,7 @@ class ProductDetails extends Component {
         email: '',
       },
       collectionKeys: [3],
+      showFullDescription: false,
       productComments: '',
       showReportUserModal: false,
       report: '',
@@ -268,7 +271,7 @@ class ProductDetails extends Component {
     const { data, collectionKeys, productKeys } = params;
     
     const { isGetting, profile, navToChatLoading, productComments, uid } = this.state;
-    const text = data.text;
+    const {text} = data;
     const details = {
       brand: text.brand,
       gender: text.gender,
@@ -471,6 +474,36 @@ class ProductDetails extends Component {
         </View>
 
         <View style={{backgroundColor: 'black', height: 1.5}} />
+
+        {/* Optional Product Description Row */}
+
+        { text.description !== "Seller did not specify a description" ?
+            <View>
+            <View style={styles.optionalDescriptionRow}>
+                <View style={styles.descriptionHeaderContainer}>
+                    <Text style={styles.descriptionHeader}>Description</Text>
+                </View>
+                <View style={styles.descriptionContainer}>
+                  {text.description.length >= 131 ?
+                    <Text 
+                    onPress={()=>{this.setState({showFullDescription: !this.state.showFullDescription})}} 
+                    style={styles.description}>
+                    {this.state.showFullDescription ? text.description : text.description.substring(0,124) + "...." + "  " +  "(Show More?)"}
+                    </Text>
+                  :
+                    <Text style={styles.description}>{text.description}</Text>
+                  }
+                </View>
+                <WhiteSpace height={3}/>
+              
+            </View>
+            <View style={{backgroundColor: 'black', height: 1.5}} />
+            </View>
+          :
+          null
+        }
+
+        
 
         {/* comments */}
         
@@ -913,6 +946,22 @@ numberOfProductsSoldRow: {
   flex: 1,
   flexDirection: 'row'
 },
+
+optionalDescriptionRow: {
+  // alignItems: 'center'
+  paddingVertical: 5,
+  paddingHorizontal: 5
+},
+
+descriptionHeaderContainer: {flex: 0.2,justifyContent: 'center', alignItems: 'flex-start', paddingHorizontal: 0},
+
+descriptionHeader: new avenirNextText('black', 24, "500") ,
+
+descriptionContainer: {
+  justifyContent: 'flex-start'
+},
+
+description: {textAlign: 'justify', ...new avenirNextText(graphiteGray, 18, "300") },
 
 
 } )
