@@ -16,7 +16,7 @@ import firebase from '../cloud/firebase.js';
 // import * as Animatable from 'react-native-animatable';
 import { iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
-import { confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, lightGreen, highlightYellow, profoundPink, tealBlue, almostWhite } from '../colors';
+import { confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, lightGreen, highlightYellow, profoundPink, tealBlue, almostWhite, graphiteGray } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { DismissKeyboardView, WhiteSpace, GrayLine } from '../localFunctions/visualFunctions';
 import { avenirNextText } from '../constructors/avenirNextText';
@@ -26,6 +26,7 @@ import { avenirNextText } from '../constructors/avenirNextText';
 // const limeGreen = '#2e770f';
 // const slimeGreen = '#53b73c';
 const Bullet = '\u2022';
+const categories = ["Men", "Women", "Accessories"]
 const categoryColors = [darkBlue, profoundPink, treeGreen] //Men, Women, Accessories
 
 // const {height, width} = Dimensions.get('window');
@@ -52,33 +53,40 @@ class CreateItem extends Component {
   constructor(props) {
       super(props);
 
-    //   const {params} = this.props.navigation.state
-    //   const pictureuris = params.pictureuris ? params.pictureuris : 'nothing here'
-    //Data that navigates to this component from other components:
+      //extract data if we came to this screen to edit an existing item:
+      var item = this.props.navigation.getParam('data', false) 
 
       this.state = {
           uri: undefined,
-          name: '',
-          brand: '', //empty or value selected from list of brands
-          price: 0,
-          original_price: 0,
-          size: 2,
-          type: 'Trousers',
-          gender: 1,
-          condition: 'Slightly Used',
-          insta: '',
-          description: '',
+          name: item ? item.text.name : '',
+          brand: item ? item.text.brand : '', //empty or value selected from list of brands
+        //   price: 0,
+        //   original_price: 0,
+        //   size: 2,
+        //   type: 'Trousers',
+          gender: item ? categories.indexOf(item.text.gender) : 2,
+        //   condition: 'Slightly Used',
+        //   insta: '',
+          description: item ? item.text.description ? item.text.description : '' : '',
           typing: true,
           isUploading: false,
           pictureuris: 'nothing here',
           helpDialogVisible: false,
+          /////////
+          //EDIT ITEM STUFF
+          editItemBoolean: this.props.navigation.getParam('editItemBoolean', false),
+          oldItemPostKey: item ? item.key : false,
+          oldUploadDate: item ? item.text.time : false,
+
+          /////////
       }
   }
 
 //   componentDidMount() {
-//     const {params} = this.props.navigation.state
-//     const pictureuris = params ? params.pictureuris : 'nothing here'
-//     this.setState({pictureuris});
+//     var editItemBoolean = this.props.navigation.getParam('editItemBoolean', false);
+//     if(editItemBoolean) {
+//         this.setState({editItemBoolean: true});
+//     }
 //   }
 
 //   showPicker(gender, subheading) {
@@ -144,7 +152,7 @@ helpUserFillDetails = () => {
     // alert(`Please enter details for the following fields:\n${this.state.name ? name}`)
 }
 
-updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, price, original_price, condition, size) => {
+updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, price, original_price, condition, size, oldItemPostKey, oldItemUploadDate) => {
     this.setState({isUploading: true});    
     // if(priceIsWrong) {
     //     alert("You must a choose a non-zero positive real number for the selling price/retail price of this product");
@@ -184,56 +192,81 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
         sold: false,
         likes: 0,
         comments: '',
-        time: Date.now(),
+        time: oldItemPostKey ? oldItemUploadDate : Date.now(), //for now, do ot override initial upload Date
         dateSold: ''
       };
-  
-    var newPostKey = firebase.database().ref().child(`Users/${uid}/products`).push().key;
     
-    var updates = {};
-    updates['/Users/' + uid + '/products/' + newPostKey + '/'] = postData;
+    var updates = {};  
+    var actualPostKey;
+
+    if(oldItemPostKey) {
+        actualPostKey = oldItemPostKey
+    }
+
+    else {
+        actualPostKey = firebase.database().ref().child(`Users/${uid}/products`).push().key;
+    }
+
+    updates['/Users/' + uid + '/products/' + actualPostKey + '/'] = postData;
+    
+    
     //this.createRoom(newPostKey);
+
+    
     
 
     return {
         database: firebase.database().ref().update(updates),
-        storage: this.uploadToStore(pictureuris, uid, newPostKey)
+        storage: this.uploadToStore(pictureuris, uid, actualPostKey)
     }
 
 }
 
-  uploadToStore = (pictureuris, uid, newPostKey) => {
+  uploadToStore = (pictureuris, uid, postKey) => {
     //sequentially add each image to cloud storage (pay attention to .child() method) 
     //and then retrieve url to upload on realtime db
     var picturesProcessed = 0;  
     pictureuris.forEach( (uri, index, array) => {
-        
         var storageUpdates = {};
-        const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
-        let uploadBlob = null
-        const imageRef = firebase.storage().ref().child(`Users/${uid}/${newPostKey}/${index}`);
-        fs.readFile(uploadUri, 'base64')
-        .then((data) => {
-        return Blob.build(data, { type: `${mime};BASE64` })
-        })
-        .then((blob) => {
-        console.log('got to blob')
-        uploadBlob = blob
-        return imageRef.put(blob, { contentType: mime })
-        })
-        .then(() => {
-        uploadBlob.close()
-        return imageRef.getDownloadURL()
-        })
-        .then((url) => {
-            console.log(url);
-            storageUpdates['/Users/' + uid + '/products/' + newPostKey + '/uris/' + index + '/'] = url;
+        if(uri.includes('firebasestorage')) {
+            storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/' + index + '/'] = uri;
             firebase.database().ref().update(storageUpdates);
             picturesProcessed++;
             if(picturesProcessed == array.length) {
                 this.callBackForProductUploadCompletion();
             }
-        })
+        }
+
+        else {
+            const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
+            let uploadBlob = null
+            const imageRef = firebase.storage().ref().child(`Users/${uid}/${postKey}/${index}`);
+            fs.readFile(uploadUri, 'base64')
+            .then((data) => {
+            return Blob.build(data, { type: `${mime};BASE64` })
+            })
+            .then((blob) => {
+            console.log('got to blob')
+            uploadBlob = blob
+            return imageRef.put(blob, { contentType: mime })
+            })
+            .then(() => {
+            uploadBlob.close()
+            return imageRef.getDownloadURL()
+            })
+            .then((url) => {
+                console.log(url);
+                storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/' + index + '/'] = url;
+                firebase.database().ref().update(storageUpdates);
+                picturesProcessed++;
+                if(picturesProcessed == array.length) {
+                    this.callBackForProductUploadCompletion();
+                }
+            })
+        }
+        
+        
+        
 
     } )
 
@@ -287,7 +320,8 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
         typing: true,
         isUploading: false,
                  });
-    this.props.navigation.navigate('Profile'); 
+
+    oldItemPostKey ? this.props.navigation.popToTop() : this.props.navigation.navigate('Profile'); 
   }
 
   startOver = () => {
@@ -377,7 +411,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
     var condition = navigation.getParam('condition', false); 
     var type = navigation.getParam('type', false); 
     var size = navigation.getParam('size', false)
-    // console.log(condition);
+    console.log(pictureuris);
     ////
 
     ///
@@ -720,13 +754,16 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                     borderWidth: 0,
                     borderRadius: 5,
                 }}
-                icon={{name: 'check-all', type: 'material-community'}}
-                title='SUBMIT TO MARKET'
+                icon={{name: this.state.editItemBoolean ? 'auto-fix' : 'check-all', type: 'material-community'}}
+                title={this.state.editItemBoolean ? 'Upload Edited Product' : 'Submit To Market'}
                 onPress={() => {
-                    conditionMet ?  
-                    this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, condition, size)
+                    conditionMet ?
+                        this.state.editItemBoolean ?
+                            this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, condition, size, this.state.oldItemPostKey, this.state.oldUploadDate)
+                        :
+                            this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, condition, size, false, false)
                     :
-                    this.helpUserFillDetails();
+                        this.helpUserFillDetails();
                                 } } 
                 />
             </View>
@@ -737,14 +774,14 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                     <Button
                     small
                     buttonStyle={{
-                        backgroundColor: lightGray,
-                        width: 280,
+                        backgroundColor: rejectRed,
+                        width: 140,
                         height: 50,
                         borderColor: "transparent",
                         borderWidth: 0,
                         borderRadius: 0,
                     }}
-                    icon={{name: 'delete', type: 'material-community', size: 20, color: rejectRed}}
+                    icon={{name: 'delete', type: 'material-community', size: 20, color: graphiteGray}}
                     title='START OVER'
                     onPress={() => {
                         this.startOver();

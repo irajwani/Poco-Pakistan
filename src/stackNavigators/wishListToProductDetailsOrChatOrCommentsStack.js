@@ -7,14 +7,18 @@ import YourProducts from '../views/YourProducts';
 import OtherUserProfilePage from '../views/OtherUserProfilePage';
 import UserComments from '../views/UserComments';
 import ProductComments from '../views/ProductComments';
-import EditItem from '../views/EditItem';
+import CreateItem from '../views/CreateItem';
+import ConditionSelection from '../views/ConditionSelection';
+import PriceSelection from '../views/PriceSelection';
 
 
 export const wishListToProductDetailsOrChatOrCommentsStack = createStackNavigator({
     Collection: Collection,
     YourProducts: YourProducts,
     ProductDetails: ProductDetails,
-    EditItem: EditItem,
+    CreateItem: CreateItem,
+    PriceSelection: PriceSelection,
+    ConditionSelection: ConditionSelection,
     ProductComments: ProductComments,
     OtherUserProfilePage: OtherUserProfilePage,
     UserComments: UserComments,

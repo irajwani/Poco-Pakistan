@@ -168,8 +168,8 @@ class ProductDetails extends Component {
   }
 
   navToEditItem(item) {
-    this.props.navigation.navigate('EditItem', {data: item,});
-    alert('Please take brand new pictures');
+    this.props.navigation.navigate('CreateItem', {data: item, pictureuris: item.uris, editItemBoolean: true});
+    // alert('Please take brand new pictures');
   }
 
   navToChat(uid, key) {

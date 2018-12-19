@@ -7,13 +7,17 @@ import YourProducts from '../views/YourProducts';
 import OtherUserProfilePage from '../views/OtherUserProfilePage';
 import UserComments from '../views/UserComments';
 import ProductComments from '../views/ProductComments';
-import EditItem from '../views/EditItem';
+import CreateItem from '../views/CreateItem';
+import PriceSelection from '../views/PriceSelection';
+import ConditionSelection from '../views/ConditionSelection';
 
 export const marketToProductDetailsOrChatOrCommentsStack = createStackNavigator({
     MarketPlace: MarketPlace,
     YourProducts: YourProducts,
     ProductDetails: ProductDetails,
-    EditItem: EditItem,
+    CreateItem: CreateItem,
+    PriceSelection: PriceSelection,
+    ConditionSelection: ConditionSelection,
     ProductComments: ProductComments,
     OtherUserProfilePage: OtherUserProfilePage,
     UserComments: UserComments,

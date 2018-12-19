@@ -6,13 +6,15 @@ import ProfilePage from '../views/ProfilePage';
 import MultiplePictureCamera from '../components/MultiplePictureCamera';
 import MultipleAddButton from '../components/MultipleAddButton';
 import YourProducts from '../views/YourProducts';
-import EditItem from '../views/EditItem';
+import CreateItem from '../views/CreateItem';
 // import Users from '../views/Users';
 import UserComments from '../views/UserComments';
 import Settings from '../views/Settings';
 import ViewPhotos from '../views/ViewPhotos';
 import OtherUserProfilePage from '../views/OtherUserProfilePage';
 import CreateProfile from '../views/CreateProfile';
+import ConditionSelection from '../views/ConditionSelection';
+import PriceSelection from '../views/PriceSelection';
 
 
 export const profileToEditProfileStack = createStackNavigator({
@@ -23,7 +25,9 @@ export const profileToEditProfileStack = createStackNavigator({
     MultiplePictureCamera: MultiplePictureCamera,
     ViewPhotos: ViewPhotos,
     YourProducts: YourProducts,
-    EditItem: EditItem,
+    CreateItem: CreateItem,
+    PriceSelection: PriceSelection,
+    ConditionSelection: ConditionSelection,
     UserComments: UserComments,
     OtherUserProfilePage: OtherUserProfilePage
 },
