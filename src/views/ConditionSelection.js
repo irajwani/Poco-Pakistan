@@ -10,7 +10,7 @@ const generateTypesBasedOn = (category) => {
     var types;
     switch(category) {
         case 0:
-            types = ["Formal Shirts", "Casual Shirts", "Coats & Jackets", "Suits", "Trousers", "Jeans", "Shoes"];
+            types = ["Formal Shirts", "Casual Shirts", "Coats & Jackets", "Suits", "Trousers", "Jeans", "Socks", "Shoes"];
             break;
         case 1:
             types = ["Coats & Jackets", "Pullovers & Sweaters", "Dresses", "Skirts", "Tops & T-Shirts", "Pants", "Swimwear & Beachwear", "Socks", "Shoes"];
@@ -55,11 +55,11 @@ const generateSizesBasedOn = (type, category) => {
         break;
         case 1:
             switch(type) {
-                case !("Shoes" || "Socks"):
-                    sizes = womenUpperWear;
+                case "Shoes" || "Socks":
+                    sizes = womenFootWear;
                     break;
                 default:
-                    sizes = womenFootWear;
+                    sizes = womenUpperWear;
                     break;
             }
         break;
@@ -95,11 +95,6 @@ export default class ConditionSelection extends Component {
         this.props.navigation.navigate('CreateItem', {type: value});
       }
           
-      
-      
-      
-      
-
   }
 
   render() {
@@ -139,7 +134,7 @@ export default class ConditionSelection extends Component {
                     {types.map( (t, index) => 
                         <View key={index} style={styles.conditionRow}>
                             <TouchableHighlight underlayColor={'#fff'} onPress={()=>this.navToCreateItem('type', t)}>
-                                <Text style={styles.condition}>{t}</Text>
+                                <Text style={[styles.condition, {fontSize: 26}]}>{t}</Text>
                             </TouchableHighlight>
                             <GrayLine/>
 
@@ -151,6 +146,11 @@ export default class ConditionSelection extends Component {
             :
                 showProductSizes ?
                     <ScrollView style={styles.selectionContainer} contentContainerStyle={styles.typesContainer}>
+                        <View style={styles.sizesInfo}>
+                            <Text style={[styles.sizesInfoText, {textAlign: 'center'}]}>
+                                NottMyStyle uses the following size formats: UK / US or International / UK / US.
+                            </Text>
+                        </View>
                         {
                             sizes.map( (s, index) => 
                                 <View key={index} style={styles.conditionRow}>
@@ -226,19 +226,24 @@ const styles = StyleSheet.create({
 
     typesContainer: {
         flexGrow: 4,
-        justifyContent: 'center',
+        // justifyContent: 'center',
         alignItems: 'flex-start',
     },
 
     conditionRow: {
-        justifyContent: 'center', paddingLeft: 8, paddingHorizontal: 5, paddingVertical: 3
+        justifyContent: 'center', paddingLeft: 8, paddingHorizontal: 5, paddingVertical: 3, width: 310
     },
 
     condition: {
         fontFamily: 'Avenir Next',
         fontSize: 32,
         fontWeight: '300'
-    }
+    },
 
+    sizesInfo: {
+        paddingHorizontal: 5,
+        paddingVertical: 2,
+    },
 
+    sizesInfoText: new avenirNextText(darkGray, 15, "300"),
 })

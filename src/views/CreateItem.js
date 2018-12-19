@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
 import { Dimensions, Platform, Text, TextInput, StyleSheet, View, TouchableHighlight, KeyboardAvoidingView, ScrollView, Picker, TouchableWithoutFeedback, Keyboard } from 'react-native'
 import {withNavigation} from 'react-navigation';
-import { Jiro } from 'react-native-textinput-effects';
+// import { Jiro } from 'react-native-textinput-effects';
 // import NumericInput from 'react-native-numeric-input' 
 import {Button, ButtonGroup, Divider} from 'react-native-elements';
+import Dialog, { DialogTitle, DialogContent, DialogButton, SlideAnimation } from 'react-native-popup-dialog';
 import RNFetchBlob from 'react-native-fetch-blob';
 import MultipleAddButton from '../components/MultipleAddButton';
 import CustomModalPicker from '../components/CustomModalPicker';
@@ -12,21 +13,22 @@ import ProductLabel from '../components/ProductLabel.js';
 import firebase from '../cloud/firebase.js';
 // import Chatkit from "@pusher/chatkit";
 // import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
-import * as Animatable from 'react-native-animatable';
+// import * as Animatable from 'react-native-animatable';
 import { iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
-import { confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, lightGreen, highlightYellow, profoundPink, tealBlue } from '../colors';
+import { confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, lightGreen, highlightYellow, profoundPink, tealBlue, almostWhite } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { DismissKeyboardView, WhiteSpace, GrayLine } from '../localFunctions/visualFunctions';
 import { avenirNextText } from '../constructors/avenirNextText';
 
 
-const darkGreen = '#0d4f10';
-const limeGreen = '#2e770f';
+// const darkGreen = '#0d4f10';
+// const limeGreen = '#2e770f';
 // const slimeGreen = '#53b73c';
-const categoryColors = [darkBlue, profoundPink, treeGreen]
+const Bullet = '\u2022';
+const categoryColors = [darkBlue, profoundPink, treeGreen] //Men, Women, Accessories
 
-const {height, width} = Dimensions.get('window');
+// const {height, width} = Dimensions.get('window');
 
 const Blob = RNFetchBlob.polyfill.Blob;
 const fs = RNFetchBlob.fs;
@@ -36,6 +38,15 @@ window.Blob = Blob;
 function incrementPrice(previousState, currentProps) {
     return { uri: previousState.price + 1 } 
 }
+
+const TextForMissingDetail = ({detail}) => {
+    return (
+        <Text style={new avenirNextText(woodBrown, 22, "400")}>{Bullet + " " + detail}</Text>
+    )
+}
+    
+
+    
 
 class CreateItem extends Component {
   constructor(props) {
@@ -53,13 +64,14 @@ class CreateItem extends Component {
           original_price: 0,
           size: 2,
           type: 'Trousers',
-          gender: 2,
+          gender: 1,
           condition: 'Slightly Used',
           insta: '',
           description: '',
           typing: true,
           isUploading: false,
-          pictureuris: 'nothing here'
+          pictureuris: 'nothing here',
+          helpDialogVisible: false,
       }
   }
 
@@ -69,47 +81,47 @@ class CreateItem extends Component {
 //     this.setState({pictureuris});
 //   }
 
-  showPicker(gender, subheading) {
-    if (gender == 0) {
-        return ( 
-            <Picker style={styles.picker} itemStyle={[styles.pickerText, styles.men]} selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
-               <Picker.Item label = "Formal Shirts" value = "Formal Shirts" />
-               <Picker.Item label = "Casual Shirts" value = "Casual Shirts" />
-               <Picker.Item label = "Jackets" value = "Jackets" />
-               <Picker.Item label = "Suits" value = "Suits" />
-               <Picker.Item label = "Trousers" value = "Trousers" />
-               <Picker.Item label = "Jeans" value = "Jeans" />
-               <Picker.Item label = "Shoes" value = "Shoes" />
-            </Picker>
-        )
-    }
+//   showPicker(gender, subheading) {
+//     if (gender == 0) {
+//         return ( 
+//             <Picker style={styles.picker} itemStyle={[styles.pickerText, styles.men]} selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
+//                <Picker.Item label = "Formal Shirts" value = "Formal Shirts" />
+//                <Picker.Item label = "Casual Shirts" value = "Casual Shirts" />
+//                <Picker.Item label = "Jackets" value = "Jackets" />
+//                <Picker.Item label = "Suits" value = "Suits" />
+//                <Picker.Item label = "Trousers" value = "Trousers" />
+//                <Picker.Item label = "Jeans" value = "Jeans" />
+//                <Picker.Item label = "Shoes" value = "Shoes" />
+//             </Picker>
+//         )
+//     }
 
-    else if (gender == 1) {
-        return (
-            <Picker style={styles.picker} itemStyle={[styles.pickerText, styles.accessories]} selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
-               <Picker.Item label = "Watches" value = "Watches" />
-               <Picker.Item label = "Bracelets" value = "Bracelets" />
-               <Picker.Item label = "Jewellery" value = "Jewellery" />
-               <Picker.Item label = "Sunglasses" value = "Sunglasses" />
-               <Picker.Item label = "Handbags" value = "Handbags" />
-            </Picker>
-        )
-    }
+//     else if (gender == 1) {
+//         return (
+//             <Picker style={styles.picker} itemStyle={[styles.pickerText, styles.accessories]} selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
+//                <Picker.Item label = "Watches" value = "Watches" />
+//                <Picker.Item label = "Bracelets" value = "Bracelets" />
+//                <Picker.Item label = "Jewellery" value = "Jewellery" />
+//                <Picker.Item label = "Sunglasses" value = "Sunglasses" />
+//                <Picker.Item label = "Handbags" value = "Handbags" />
+//             </Picker>
+//         )
+//     }
 
-    else if (gender == 2) {
-        return (
-            <Picker style={styles.picker} itemStyle={[styles.pickerText, styles.women]} selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
-               <Picker.Item label = "Tops" value = "Tops" />
-               <Picker.Item label = "Skirts" value = "Skirts" />
-               <Picker.Item label = "Dresses" value = "Dresses" />
-               <Picker.Item label = "Jeans" value = "Jeans" />
-               <Picker.Item label = "Jackets" value = "Jackets" />
-               <Picker.Item label = "Coats" value = "Coats" />
-               <Picker.Item label = "Trousers" value = "Trousers" />
-            </Picker>
-        )
-    } 
-}
+//     else if (gender == 2) {
+//         return (
+//             <Picker style={styles.picker} itemStyle={[styles.pickerText, styles.women]} selectedValue = {this.state.type} onValueChange={ (type) => {this.setState({type})} } >
+//                <Picker.Item label = "Tops" value = "Tops" />
+//                <Picker.Item label = "Skirts" value = "Skirts" />
+//                <Picker.Item label = "Dresses" value = "Dresses" />
+//                <Picker.Item label = "Jeans" value = "Jeans" />
+//                <Picker.Item label = "Jackets" value = "Jackets" />
+//                <Picker.Item label = "Coats" value = "Coats" />
+//                <Picker.Item label = "Trousers" value = "Trousers" />
+//             </Picker>
+//         )
+//     } 
+// }
 
 //Nav to Fill In:
 
@@ -128,23 +140,22 @@ navToFillSizeBasedOn = (type,gender) => {
 }
 
 helpUserFillDetails = () => {
-
+    this.setState({helpDialogVisible: true})
     // alert(`Please enter details for the following fields:\n${this.state.name ? name}`)
 }
 
-updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
-        
+updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, price, original_price, condition, size) => {
+    this.setState({isUploading: true});    
     // if(priceIsWrong) {
     //     alert("You must a choose a non-zero positive real number for the selling price/retail price of this product");
     //     return;
     // }
 
     //Locally stored in this component:
-    var {name, brand, type, price, original_price, description, condition, gender, size, } = this.state;
+    var {name, description, brand, gender} = this.state;
 
-    this.setState({isUploading: true});
+    
     // : if request.auth != null;
-    var gender;
     switch(gender) {
         case 0:
             gender = 'Men'
@@ -157,30 +168,6 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
             break;
         default:
             gender = 'Men'
-            console.log('no gender was specified')
-    }
-
-    switch(size) {
-        case 0:
-            size = 'Extra Small'
-            break; 
-        case 1:
-            size = 'Small'
-            break;
-        case 2:
-            size = 'Medium'
-            break;
-        case 3:
-            size = 'Large'
-            break;
-        case 4:
-            size = 'Extra Large'
-            break;
-        case 5:
-            size = 'Extra Extra Large'
-            break;
-        default:
-            size = 'Medium'
             console.log('no gender was specified')
     }
 
@@ -283,24 +270,43 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
     alert(`Product named ${this.state.name} successfully uploaded to Market!`)
     // alert(`Your product ${this.state.name} is being\nuploaded to the market.\nPlease do not resubmit the same product.`);
     //TODO: example of how in this instance we needed to remove pictureuris if its sitting in the navigation params
-    this.props.navigation.setParams({pictureuris: 'nothing here'});
+    this.props.navigation.setParams({pictureuris: 'nothing here', price: 0, original_price: 0, type: false, size: false, condition: false});
     
     this.setState({ 
         uri: undefined,
         name: '',
         brand: '',
-        price: 0,
-        original_price: 0,
-        size: 2,
-        type: 'Trousers',
-        gender: 2,
-        condition: 'Slightly Used',
+        // price: 0,
+        // original_price: 0,
+        // size: 2,
+        // type: 'Trousers',
+        gender: 1,
+        // condition: 'Slightly Used',
         insta: '',
         description: '',
         typing: true,
         isUploading: false,
                  });
     this.props.navigation.navigate('Profile'); 
+  }
+
+  startOver = () => {
+    this.props.navigation.setParams({pictureuris: 'nothing here', price: 0, original_price: 0, type: false, size: false, condition: false});
+    this.setState({ 
+        uri: undefined,
+        name: '',
+        brand: '',
+        // price: 0,
+        // original_price: 0,
+        // size: 2,
+        // type: 'Trousers',
+        gender: 1,
+        // condition: 'Slightly Used',
+        insta: '',
+        description: '',
+        typing: true,
+        isUploading: false,
+                 });
   }
 
   getColorFor = (c) => {
@@ -364,7 +370,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
     const uid = firebase.auth().currentUser.uid; 
     
 
-    // List of values we navigate to CreateItem from other components:
+    // List of values we navigate over to CreateItem from other components:
     var pictureuris = navigation.getParam('pictureuris', 'nothing here');
     var price = navigation.getParam('price', 0);
     var original_price = navigation.getParam('original_price', 0);
@@ -380,9 +386,10 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
     ///
 
     //When the condition to submit a product has partially been satisfied:
+    var userChangedAtLeastOneField = (this.state.name) || (this.state.description) || (this.state.brand) || ( (Number.isFinite(original_price)) && (original_price > 0) && (price < 1001) ) || ( (Number.isFinite(price)) && (price > 0) && (price < 1001) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) );
     var partialConditionMet = (this.state.name) || (this.state.brand) || ( (Number.isFinite(price)) && (price > 0) && (price < 1001) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) );
     //The full condition for when a user is allowed to upload a product to the market
-    var conditionMet = (this.state.name) && (this.state.brand) && (Number.isFinite(price)) && (price > 0) && (price < 1001) && (Array.isArray(pictureuris) && pictureuris.length >= 1)
+    var conditionMet = (this.state.name) && (this.state.brand) && (Number.isFinite(price)) && (price > 0) && (price < 1001) && (Array.isArray(pictureuris) && pictureuris.length >= 1) && (type) && (size)
     //var priceIsWrong = (original_price != '') && ((price == 0) || (price.charAt(0) == 0 ) || (original_price == 0) || (original_price.charAt(0) == 0) )
 
     //console.log(priceIsWrong);
@@ -445,16 +452,21 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
             {/* Type of clothing */}
             
 
-            <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillConditionOrType(this.state.gender, showProductTypes = true)}>
+            <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} 
+                onPress={() => {
+                    navigation.setParams({size: false});
+                    this.navToFillConditionOrType(this.state.gender, showProductTypes = true);
+                    
+                    } }>
             <View style={styles.navToFillDetailRow}>
                 
-                <View style={[styles.detailHeaderContainer, {flex: type ? 0.35 : 0.8}]}>
+                <View style={[styles.detailHeaderContainer, {flex: type ? 0.25 : 0.8}]}>
                     <Text style={styles.detailHeader}>Type</Text>
                 </View>
 
                 {type?
-                <View style={[styles.displayedPriceContainer, {flex: 0.45}]}>
-                    <Text style={[styles.displayedCondition, {color: categoryColors[this.state.gender], fontWeight: "300"}]}>{type}</Text>
+                <View style={[styles.displayedPriceContainer, {flex: 0.55}]}>
+                    <Text style={[styles.displayedCondition, {color: categoryColors[this.state.gender], fontSize: 15, fontWeight: "300"}]}>{type}</Text>
                 </View>
                 :
                 null
@@ -630,7 +642,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
 
             {   type && this.state.gender != 2  ?
                 <View>
-                    <GrayLine/>
+                    
 
                     <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillSizeBasedOn(type, this.state.gender)}>
                     <View style={styles.navToFillDetailRow}>
@@ -639,13 +651,13 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
                             <Text style={styles.detailHeader}>Size</Text>
                         </View>
 
-                        {size?
+                        
                         <View style={[styles.displayedPriceContainer, {flex: 0.45}]}>
-                            <Text style={[styles.displayedCondition, { color: tealBlue, fontWeight: "400"}]}>{size}</Text>
+                            <Text style={[styles.displayedCondition, { color: size ? tealBlue : 'gray', fontWeight: "400"}]}>{size ? size : "Select a size"}</Text>
                         </View>
-                        :
-                        null
-                        }
+                        
+                        
+                        
 
                         <View style={[styles.navToFillDetailIcon, {flex: 0.2 }]}>
                             <Icon 
@@ -657,12 +669,13 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
 
                     </View>
                     </TouchableHighlight>
+                    <GrayLine/>
                 </View>
                 :
                 null
             }
 
-            <GrayLine/>
+            
 
 
             <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillConditionOrType(this.state.gender, false)}>
@@ -711,16 +724,69 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid) => {
                 title='SUBMIT TO MARKET'
                 onPress={() => {
                     conditionMet ?  
-                    this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid)
+                    this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, condition, size)
                     :
-                    this.helpUserFillDetails()
+                    this.helpUserFillDetails();
                                 } } 
                 />
             </View>
 
+            {userChangedAtLeastOneField ?
+            
+                <View style={{padding: 5, alignItems: 'center'}}>
+                    <Button
+                    small
+                    buttonStyle={{
+                        backgroundColor: lightGray,
+                        width: 280,
+                        height: 50,
+                        borderColor: "transparent",
+                        borderWidth: 0,
+                        borderRadius: 0,
+                    }}
+                    icon={{name: 'delete', type: 'material-community', size: 20, color: rejectRed}}
+                    title='START OVER'
+                    onPress={() => {
+                        this.startOver();
+                                    } } 
+                    />
+                </View>
+            
+            :
+            null
+            }
+
+
+            <Dialog
+                visible={this.state.helpDialogVisible}
+                dialogAnimation={new SlideAnimation({
+                    slideFrom: 'top',
+                })}
+                dialogTitle={<DialogTitle title="You forgot to fill in:" titleTextStyle={new avenirNextText('black', 22, "500")} />}
+                actions={[                
+                <DialogButton
+                    text="OK"
+                    onPress={() => {this.setState({ helpDialogVisible: false });}}
+                />,
+                ]}
+                onTouchOutside={() => {
+                this.setState({ helpDialogVisible: false });
+                }}
+            >
+                <DialogContent>
+                    <View style={styles.dialogContentContainer}>
+                        { pictureuris == 'nothing here' ? <TextForMissingDetail detail={'Picture(s) of product'} /> : null }
+                        { !this.state.name ? <TextForMissingDetail detail={'Name'} /> : null }
+                        { !this.state.brand ? <TextForMissingDetail detail={'Brand'} /> : null }
+                        { !price ? <TextForMissingDetail detail={'Selling price'} /> : null }
+                        { !type ? <TextForMissingDetail detail={'Type of product'} /> : null }
+                        { !size ? <TextForMissingDetail detail={'Size'} /> : null }
+                        { !condition ? <TextForMissingDetail detail={'Condition'} /> : null }
+                    </View>
+                </DialogContent>
+            </Dialog>
+
             <Divider style={{  backgroundColor: '#fff', height: 10 }} />
-            
-            
 
          </ScrollView>
          
@@ -867,6 +933,10 @@ const styles = StyleSheet.create({
     buttonGroupSelectedContainer: {
         backgroundColor: aquaGreen
     },
+
+    dialogContentContainer: {
+        padding: 5,
+    }
 })
 
 export default withNavigation(CreateItem)
@@ -954,3 +1024,5 @@ export default withNavigation(CreateItem)
                     backgroundColor={'#F9F7F6'}
                     inputStyle={{ color: 'black' }}
                 /> */}
+
+
