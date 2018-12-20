@@ -195,40 +195,40 @@ class ViewPhotos extends Component {
     return (
       <View style={styles.mainContainer}>
 
-      <View style={{ flex: 0.2, flexDirection: 'row', paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ flex: 0.2, flexDirection: 'row', paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center' }}>
 
-      <View style={styles.backIconContainer}>
-        <FontAwesomeIcon
-          name='chevron-circle-left'
-          size={45}
-          color={'#76ce1e'}
-          onPress = { () => { 
-            this.props.navigation.navigate(`${navToComponent}`);
-              } }
+          <View style={styles.backIconContainer}>
+            <FontAwesomeIcon
+              name='chevron-circle-left'
+              size={45}
+              color={'#76ce1e'}
+              onPress = { () => { 
+                this.props.navigation.navigate(`${navToComponent}`);
+                  } }
 
-        />
-      </View>
+            />
+          </View>
 
-      <View style={styles.instructionsTextContainer}>      
-        <Text style={{ fontFamily: 'Avenir Next', fontSize: 14, fontWeight: '600' }}>
-          {navToComponent == 'CreateProfile' || navToComponent == 'EditProfile' ? profilePictureText : productPictureText}
-        </Text>
-      </View>
+          <View style={styles.instructionsTextContainer}>      
+            <Text style={{ fontFamily: 'Avenir Next', fontSize: 14, fontWeight: '600' }}>
+              {navToComponent == 'CreateProfile' || navToComponent == 'EditProfile' ? profilePictureText : productPictureText}
+            </Text>
+          </View>
 
-      {navToComponent == 'CreateItem' || navToComponent == 'EditItem' ?
-        <View style={styles.confirmSelectionIconContainer}>
-          <Icon
-            name={this.state.pictureuris.length > 0 ? "check-circle" : "check-circle-outline"}
-            size={45}  
-            color={this.state.pictureuris.length > 0 ? '#76ce1e' : 'gray'}
-            onPress={this.state.pictureuris.length > 0 ? () => this.setState({showSelectedPhotos: true}) : null}
-          />
+          {navToComponent == 'CreateItem' || navToComponent == 'EditItem' ?
+            <View style={styles.confirmSelectionIconContainer}>
+              <Icon
+                name={this.state.pictureuris.length > 0 ? "check-circle" : "check-circle-outline"}
+                size={45}  
+                color={this.state.pictureuris.length > 0 ? '#76ce1e' : 'gray'}
+                onPress={this.state.pictureuris.length > 0 ? () => this.setState({showSelectedPhotos: true}) : null}
+              />
+            </View>
+            :
+            null
+          }
+
         </View>
-        :
-        null
-      }
-
-      </View>
 
       <View style={{height: 1.3, backgroundColor: 'black'}}/>
 

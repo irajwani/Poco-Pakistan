@@ -17,7 +17,7 @@ import SelectMultiple from 'react-native-select-multiple';
 
 // import PushNotification from 'react-native-push-notification';
 import { PacmanIndicator } from 'react-native-indicators';
-import { graphiteGray, lightGreen, rejectRed, treeGreen, avenirNext, optionLabelBlue } from '../colors.js';
+import { graphiteGray, lightGreen, rejectRed, treeGreen, avenirNext, optionLabelBlue, almostWhite } from '../colors.js';
 import NothingHereYet from './NothingHereYet.js';
 
 const noProductsOfYourOwnText = "So far, you have not uploaded any items on the marketplace.\nTo make some cash 🤑 and free up closet space, upload an article of clothing on the Market\nfrom the 'Sell' screen.";
@@ -27,6 +27,8 @@ const noResultsFromSearchForSpecificCategoryText = "Your search does not match t
 
 const timeToRefresh = 2000;
 var {height, width} = Dimensions.get('window');
+const cardWidth = 145;
+const cardHeight = 190;
 
 function removeKeysWithFalsyValuesFrom(object) {
   const newObject = {};
@@ -392,7 +394,7 @@ class Products extends Component {
         transition="backgroundColor"
       >
 
-        <View style={{ flex: 1, position: 'relative' }}>
+        <View style={styles.productImageContainer}>
             <View style={styles.likesRow}>
               {/* if this product is already in your collection, you have the option to dislike the product,
                   reducing its total number of likes by 1,
@@ -417,18 +419,18 @@ class Products extends Component {
               <Text style={styles.likes}>{section.text.likes}</Text>
             </View>
             {section.text.sold ? 
-              <View style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center'}}>
+              <View style={styles.soldTextContainer}>
                 <Text style={styles.soldText}>SOLD</Text>
                 <Image 
                 source={{uri: section.uris[0]}}
-                style={{ height: 153, width: (width/2 - 7), zIndex: -1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, resizeMode: 'cover' }} 
+                style={styles.productImage} 
                 />
               </View>
               
              :
              <Image 
                 source={{uri: section.uris[0]}}
-                style={{ height: 153, width: (width/2 - 7), zIndex: -1, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, resizeMode: 'cover' }} 
+                style={styles.productImage}
              />
             }  
         </View>
@@ -788,6 +790,7 @@ class Products extends Component {
       
           <View style={styles.container}>
             <ScrollView
+                  
                   contentContainerStyle={styles.contentContainerStyle}
             >
 
@@ -859,9 +862,12 @@ export default withNavigation(Products);
 const styles = StyleSheet.create({
 
   container: {
-    width: width,
+    flex: 1,
+    backgroundColor: '#fff',
+    marginTop: 22
+    // width: 320,
     // height: height,
-    flexDirection: 'column',
+    // flexDirection: 'column',
     //alignItems: 'center',
     // justifyContent: 'center',
     
@@ -869,9 +875,9 @@ const styles = StyleSheet.create({
 
   contentContainerStyle: {
     flexGrow: 4,   
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingTop: 20,
+    flexDirection: 'column',
+    // flexWrap: 'wrap',
+    // paddingTop: 20,
       },
 
   listOfProducts: {
@@ -926,7 +932,7 @@ const styles = StyleSheet.create({
   },
   
   likes: {
-    ...iOSUIKit.largeTitleEmphasized,
+    fontFamily: 'Avenir Next',
     color: profoundPink,
     padding: 2,
     marginLeft: 4,
@@ -942,6 +948,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5FCFF',
     padding: 10,
   },
+
+  productImageContainer: { 
+    flex: 1, 
+    position: 'relative' 
+  },
+
+  soldTextContainer: {
+    position: 'absolute', 
+    top: 0, left: 0, right: 0, bottom: 0, 
+    justifyContent: 'center', alignItems: 'center'
+  },
+  productImage: { 
+    height: cardHeight - 37, width: cardWidth,  position: 'absolute',
+    zIndex: -1,
+    //  top: 0, left: 0, right: 0, bottom: 0, resizeMode: 'cover' 
+   },
   headerText: {
     fontFamily: avenirNext,
     color: rejectRed,
@@ -951,7 +973,7 @@ const styles = StyleSheet.create({
   },
   contentCard: {
     backgroundColor: '#fff',
-    width: (width / 2) - 0,
+    width: cardWidth,
     //width/2 - 10
     height: 70,
     //200
@@ -959,7 +981,7 @@ const styles = StyleSheet.create({
     //marginRight: 2,
     marginTop: 2,
     paddingTop: 3,
-    paddingRight: 7,
+    // paddingRight: 7,
     paddingLeft: 7,
   },
   content: {
@@ -968,19 +990,20 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#fff',
-    width: (width / 2) - 0,
-    //width/2 - 10
-    height: 190,
+    width: cardWidth,
+    //width/2 - 0
+    height: cardHeight,
     //200
     //marginLeft: 2,
     //marginRight: 2,
     marginTop: 2,
     padding: 0,
-    justifyContent: 'space-between'
+    // justifyContent: 'space-between'
   } ,
   //controls the color of the collapsible card when activated
   active: {
-    backgroundColor: '#fff',
+    backgroundColor: almostWhite,
+    // backgroundColor: '#fff',
     //#96764c
     //#f4d29a
     //#b78b3e

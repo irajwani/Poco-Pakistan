@@ -8,11 +8,14 @@ import HomeScreen from '../views/HomeScreen';
 import ViewPhotos from '../views/ViewPhotos';
 
 export const SignUpToCreateProfileStack = createStackNavigator({
+    //Initail Stack of 5 views that an unaunthenticated user sees
     SignIn: SignIn,
     CreateProfile: CreateProfile,
     MultipleAddButton: MultipleAddButton,
     MultiplePictureCamera: MultiplePictureCamera,
     ViewPhotos: ViewPhotos,
+
+    //bottomTabNavigator, which is a collection of the remaining 5 stackNavigators that complete the application
     HomeScreen: HomeScreen,
 },
 {   

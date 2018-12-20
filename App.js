@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { SignUpToCreateProfileStack } from './src/stackNavigators/signUpToCreateProfileStack';
+import Test from './src/views/Test';
 
 // import {Provider} from 'react-redux'
 // import {createStore} from 'redux'
@@ -35,7 +36,7 @@ export default class App extends Component {
     return (
       
       
-      <SignUpToCreateProfileStack/>
+      <Test/>
       
       
     );
