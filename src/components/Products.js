@@ -17,7 +17,7 @@ import * as Animatable from 'react-native-animatable';
 
 // import PushNotification from 'react-native-push-notification';
 import { PacmanIndicator } from 'react-native-indicators';
-import { graphiteGray, lightGreen, rejectRed, treeGreen, avenirNext, optionLabelBlue, almostWhite, flashOrange, lightGray, highlightGreen, aquaGreen } from '../colors.js';
+import { graphiteGray, lightGreen, rejectRed, treeGreen, avenirNext, optionLabelBlue, almostWhite, flashOrange, lightGray, highlightGreen, lightBlack } from '../colors.js';
 
 import { splitArrayIntoArraysOfSuccessiveElements } from '../localFunctions/arrayFunctions';
 
@@ -577,7 +577,7 @@ class Products extends Component {
             <View style= { styles.headerPriceMagnifyingGlassRow }>
               
               <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-                <Text style={styles.original_price} >
+                <Text style={[styles.original_price, {textDecorationLine: 'line-through',}]} >
                   £{section.text.original_price}
                 </Text>
                 <Text style={styles.price} >
@@ -705,7 +705,7 @@ class Products extends Component {
         Alert.alert('Modal has been closed.');
       }}
       >
-      <View style={[{flex: 1},{backgroundColor: highlightGreen}, styles.filterModal]}>
+      <View style={[{flex: 1},{backgroundColor: lightBlack }, styles.filterModal]}>
 
         <View style={styles.filterModalHeader}>
           
@@ -744,17 +744,18 @@ class Products extends Component {
           </View>
 
           <GrayLine/>
-
+          
           <View style={styles.filterBlock}>
             
             <View style={styles.filterBlockHeadingContainer}>
-              <Text style={new avenirNextText('#fff', 19, "300")}>
+              <Text style={new avenirNextText('#fff', 25, "200")}>
                 Brands
               </Text>
             </View>
 
             <ScrollView horizontal showsHorizontalScrollIndicator style={styles.optionsScroll} contentContainerStyle={styles.optionsScrollContentContainer}>
             {brands.map( (brand, index) => (
+              <View style={{flexDirection: 'row', padding: 4}}>
               <View style={styles.optionContainer}>
                 <Text 
                 onPress={()=>{
@@ -778,10 +779,12 @@ class Products extends Component {
                   this.state.brands[index].selected = !this.state.brands[index].selected; 
                   this.setState({brands: this.state.brands, selectedBrands});
                 }}
-                style={[styles.option, {color: !brand.selected ? graphiteGray : '#fff'}]}
+                style={[styles.option, {color: !brand.selected ? graphiteGray : highlightGreen}]}
                 >
                 {brand.name}
                 </Text>
+              </View>
+              <View style={{height: 60, width: 0.6, backgroundColor: graphiteGray}}/>
               </View>
             ))}
             </ScrollView>
@@ -791,10 +794,10 @@ class Products extends Component {
 
           <GrayLine/>
 
-          <View style={[styles.filterBlock, {height: 90}]}>
+          <View style={styles.filterBlock}>
 
             <View style={styles.filterBlockHeadingContainer}>
-              <Text style={new avenirNextText('#fff', 19, "300")}>
+              <Text style={new avenirNextText('#fff', 25, "200")}>
                 Category
               </Text>
             </View>
@@ -802,7 +805,7 @@ class Products extends Component {
             <View style={styles.categoriesContainer}>
               {categories.map( (category) => (
                 <Text 
-                style={[styles.option, {fontSize: 19, textAlign: 'justify'}, {color: this.state.selectedCategory == category ? '#fff' : graphiteGray}]} 
+                style={[styles.option, {fontSize: 22, textAlign: 'justify'}, {color: this.state.selectedCategory == category ? highlightGreen : graphiteGray}]} 
                 onPress={()=>{
                   this.setState({selectedCategory: category})
                 }}>
@@ -815,15 +818,15 @@ class Products extends Component {
 
           <GrayLine/>
 
-          <View style={[styles.filterBlock]}>
+          <View style={styles.filterBlock}>
 
-            <View style={styles.filterBlockHeadingContainer}>
-              <Text style={new avenirNextText('#fff', 19, "300")}>
+            <View style={[styles.filterBlockHeadingContainer, {flex: 0.4}]}>
+              <Text style={new avenirNextText('#fff', 25, "200")}>
                 Type
               </Text>
             </View>
 
-            <ScrollView horizontal showsHorizontalScrollIndicator style={styles.optionsScroll} contentContainerStyle={styles.optionsScrollContentContainer}>
+            <ScrollView horizontal showsHorizontalScrollIndicator style={[styles.optionsScroll, {flex: 0.6}]} contentContainerStyle={styles.optionsScrollContentContainer}>
               {typesForCategory[selectedCategory].map((type, index)=>(
                 <View style={styles.optionContainer}>
                   <Text
@@ -832,7 +835,7 @@ class Products extends Component {
                     // this.state.typesForCategory[selectedCategory][index].selected = !this.state.typesForCategory[selectedCategory][index].selected;
                     // this.setState({typesForCategory: this.state.typesForCategory});
                    }}
-                   style={[styles.option, {color: this.state.selectedType == type.name ? '#fff' : graphiteGray }]}>
+                   style={[styles.option, {color: this.state.selectedType == type.name ? highlightGreen : graphiteGray }]}>
                    {type.name}
                    </Text>
                 </View>
@@ -844,10 +847,10 @@ class Products extends Component {
 
           <GrayLine/>  
 
-          <View style={[styles.filterBlock]}>
+          <View style={styles.filterBlock}>
 
             <View style={styles.filterBlockHeadingContainer}>
-              <Text style={new avenirNextText('#fff', 19, "300")}>
+              <Text style={new avenirNextText('#fff', 25, "200")}>
                 Condition
               </Text>
             </View>
@@ -877,7 +880,7 @@ class Products extends Component {
                   this.state.conditions[index].selected = !this.state.conditions[index].selected; 
                   this.setState({brands: this.state.conditions, selectedConditions});
                 }}
-                style={[styles.option, {color: !condition.selected ? graphiteGray : '#fff'}]}
+                style={[styles.option, {color: !condition.selected ? graphiteGray : highlightGreen}]}
                 >
                 {condition.name}
                 </Text>
@@ -1032,7 +1035,11 @@ class Products extends Component {
                 onPress={() => this.setState({ showFilterModal: true }) } 
                 style={styles.filterButton}
               >
-              <Text style={[styles.filterModalHeaderText, {fontSize: 11}]}>FILTER</Text>
+              <Icon 
+                name="filter-outline" 
+                size={13} 
+                color='#fff'
+              />  
               </TouchableOpacity>
             </View>
 
@@ -1049,7 +1056,7 @@ class Products extends Component {
 
 
 
-
+{/* <Text style={[styles.filterModalHeaderText, {fontSize: 11}]}>FILTER</Text> */}
 
 {/* <View style={styles.filterButtonContainer}>
               <Button  
@@ -1274,21 +1281,9 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 
-  original_price: {
-    fontFamily: avenirNext,
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: 'black',
-    textDecorationLine: 'line-through',
-  },
+  original_price: new avenirNextText(false, 17, "300"),
 
-  price: {
-    // ...material.display3,
-    fontFamily: avenirNext,
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: limeGreen
-  },
+  price: new avenirNextText(limeGreen,17,"300"),
 
   brand: new avenirNextText(false,15,"200"),
 
@@ -1304,7 +1299,7 @@ const styles = StyleSheet.create({
     // position: 'absolute',
     // left: cardWidth,
     // bottom: 30,
-    width: 90,
+    width: 50,
     height: 26,
     borderRadius: 30
   },
@@ -1366,7 +1361,7 @@ const styles = StyleSheet.create({
 
   filterBlock: {
     paddingVertical: 5,
-    height: 100,
+    height: 125,
     justifyContent: 'center'
   },
 
@@ -1389,12 +1384,15 @@ const styles = StyleSheet.create({
   },
 
   optionContainer: {
-    justifyContent: 'center',
+    // flexDirection: 'row',
+    // justifyContent: 'space-between',
+    // alignContent: 'space-between',
     alignItems: 'center',
-    padding: 5
+    padding: 5,
+    // backgroundColor: 'red'
   },
 
-  option: new avenirNextText('#fff', 25, "500"),
+  option: new avenirNextText('#fff', 22, "500"),
 
   categoriesContainer: {
     flex: 0.7,
