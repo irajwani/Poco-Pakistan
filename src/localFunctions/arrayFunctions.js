@@ -6,4 +6,15 @@ const removeFalsyValuesFrom = (object) => {
     return Object.keys(newObject);
   }
 
-export {removeFalsyValuesFrom}  
+const splitArrayIntoArraysOfSuccessiveElements = (array) => {
+  //array.forEach( (element, index) =>                     
+    //index % 2 != 0 ? second.push(element) : first.push(element) 
+  //)
+  
+  var first = array.filter( (element, index) => index % 2 == 0 ),
+  second = array.filter( (element, index) => index % 2 != 0 );
+  return {first, second}
+
+} 
+
+export {removeFalsyValuesFrom, splitArrayIntoArraysOfSuccessiveElements}  

@@ -34,11 +34,9 @@ export default class App extends Component {
     console.log('Initializing Application')
     
     return (
-      
-      
-      <Test/>
-      
-      
+
+      <SignUpToCreateProfileStack/>
+
     );
   }
 }

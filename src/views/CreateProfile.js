@@ -335,8 +335,8 @@ class CreateProfile extends Component {
 
     let promiseToUploadPhoto = new Promise((resolve, reject) => {
 
-        if(uri.includes('googleusercontent') || uri.includes('facebook')) {
-            console.log(`We already have a googlePhoto url: ${uri}, so need for interaction with cloud storage`)
+        if(uri.includes('googleusercontent') || uri.includes('facebook') || uri.includes('firebasestorage')) {
+            // console.log(`We already have a url for this image: ${uri}, so need for interaction with cloud storage`)
             
             // const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
             resolve(uri);
@@ -419,12 +419,14 @@ class CreateProfile extends Component {
 
     var pictureuris = navigation.getParam('pictureuris', "nothing here");
 
-    console.log(pictureuris[0].includes('googleusercontent'))
+    // console.log(pictureuris[0].includes('googleusercontent'))
     // console.log(googleUser, googleUserBoolean, pictureuris);
     var conditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1) && (this.state.pass == this.state.pass2) && (this.state.pass.length >= 6);
     var passwordConditionMet = (this.state.pass == this.state.pass2) && (this.state.pass.length > 0);
     // var googleUserConditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1);
     var editProfileConditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1);
+    
+    this.state.previousUri ? pictureuris = [this.state.previousUri] : null;
     if(pictureuris[0].includes('googleusercontent')) {
         googleUserBoolean = true
     }
@@ -437,124 +439,6 @@ class CreateProfile extends Component {
         )
     }
 
-    if(this.state.editProfileBoolean) {
-        pictureuris = this.state.previousUri ? [this.state.previousUri] : "nothing here";
-        return (
-            <ScrollView style={styles.mainContainer} contentContainerStyle={styles.container}>
-            <View style={ {flexDirection: 'row', backgroundColor: '#fff', justifyContent: 'space-between', padding: 5 } }>
-                <Button  
-                    buttonStyle={ {
-                        backgroundColor: 'black',
-                        // width: width/3 +20,
-                        // height: height/15,
-                        borderRadius: 5,
-                    }}
-                    icon={{name: 'chevron-left', type: 'material-community'}}
-                    title='Back'
-                    onPress={() => this.props.navigation.navigate('SignIn') } 
-                />
-                <Button  
-                    buttonStyle={ {
-                        backgroundColor: treeGreen,
-                        // width: width/3 +20,
-                        // height: height/15,
-                        borderRadius: 5,
-                    }}
-                    icon={{name: 'help', type: 'material-community'}}
-                    title='Help'
-                    onPress={() => this.setState({infoModalVisible: true}) } 
-                />
-            </View>
-            <Text style={{fontFamily: 'Avenir Next', fontWeight: '800', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text>
-            
-            <MultipleAddButton navToComponent = {'CreateProfile'} pictureuris={pictureuris} />
-            
-                <Sae
-                    style={styles.nameInput}
-                    label={'First Name'}
-                    iconClass={Icon}
-                    iconName={'account'}
-                    iconColor={'black'}
-                    value={this.state.firstName}
-                    onChangeText={firstName => this.setState({ firstName })}
-                    autoCorrect={false}
-                    inputStyle={{ color: 'black' }}
-                />
-                <Sae
-                    style={styles.nameInput}
-                    label={'Last Name'}
-                    iconClass={FontAwesomeIcon}
-                    iconName={'users'}
-                    iconColor={'black'}
-                    value={this.state.lastName}
-                    onChangeText={lastName => this.setState({ lastName })}
-                    autoCorrect={false}
-                    inputStyle={{ color: 'black' }}
-                />
-            
-    
-            <Sae
-                label={'City, Country Abbreviation'}
-                iconClass={FontAwesomeIcon}
-                iconName={'globe'}
-                iconColor={highlightGreen}
-                value={this.state.country}
-                onChangeText={country => this.setState({ country })}
-                autoCorrect={false}
-                inputStyle={{ color: highlightGreen }}
-            />
-    
-            <Sae
-                label={'@instagram_handle'}
-                iconClass={FontAwesomeIcon}
-                iconName={'instagram'}
-                iconColor={profoundPink}
-                value={this.state.insta}
-                onChangeText={insta => this.setState({ insta })}
-                autoCorrect={false}
-                inputStyle={{ color: profoundPink }}
-            />
-
-            <Text style={{fontFamily: 'Avenir Next', fontWeight: '400', fontSize: 20, textAlign: 'center', marginTop: 10}}>What size clothes do you wear?</Text>
-            <ButtonGroup
-                onPress={ (index) => {this.setState({size: index})}}
-                selectedIndex={this.state.size}
-                buttons={ ['XS', 'S', 'M', 'L', 'XL', 'XXL'] }
-                containerStyle={styles.buttonGroupContainer}
-                buttonStyle={styles.buttonGroup}
-                textStyle={styles.buttonGroupText}
-                selectedTextStyle={styles.buttonGroupSelectedText}
-                selectedButtonStyle={styles.buttonGroupSelectedContainer}
-            />
-            
-            
-            <Button
-                disabled={editProfileConditionMet ? false : true} 
-                large
-                buttonStyle={{
-                    backgroundColor: treeGreen,
-                    width: 250,
-                    height: 85,
-                    borderColor: "transparent",
-                    borderWidth: 0,
-                    borderRadius: 5
-                }}
-                icon={{name: 'save', type: 'font-awesome'}}
-                title='SAVE'
-                onPress={
-                    () => {
-                    this.editProfile(this.state, pictureuris[0], mime = 'image/jpg', this.state.uid);
-                    }} 
-            />
-            
-            
-        </ScrollView>
-        )
-    }
-
-    
-
-    
     return (
         <ScrollView style={styles.mainContainer} contentContainerStyle={styles.container}>
             <View style={ {flexDirection: 'row', backgroundColor: '#fff', justifyContent: 'space-between', padding: 5 } }>
@@ -586,88 +470,93 @@ class CreateProfile extends Component {
             <MultipleAddButton navToComponent = {'CreateProfile'} pictureuris={pictureuris} />
     
             
+            {
+                !this.state.editProfileBoolean ?
+
+                <View>
+                    <Sae
+                        label={'Email Address'}
+                        iconClass={FontAwesomeIcon}
+                        iconName={'envelope'}
+                        iconColor={'gray'}
+                        value={this.state.email}
+                        onChangeText={email => this.setState({ email })}
+                        autoCorrect={false}
+                        inputStyle={{ color: 'black' }}
+                    />
+            
+                    <Sae
+                        label={'Password'}
+                        iconClass={FontAwesomeIcon}
+                        iconName={'user-secret'}
+                        iconColor={tealBlue}
+                        value={this.state.pass}
+                        onChangeText={pass => this.setState({ pass })}
+                        autoCorrect={false}
+                        secureTextEntry
+                        inputStyle={{ color: tealBlue }}
+                    />
+                    
+            
+                    <Sae
+                        label={'Retype Password'}
+                        iconClass={FontAwesomeIcon}
+                        iconName={'user-secret'}
+                        iconColor={darkBlue}
+                        value={this.state.pass2}
+                        onChangeText={pass2 => this.setState({ pass2 })}
+                        autoCorrect={false}
+                        secureTextEntry
+                        inputStyle={{ color: darkBlue }}
+                    />
+            
+                    {passwordConditionMet ?
+                    <View style={styles.passwordStatusRow}>
+                    <Text style={[styles.passwordStatusText, {color: treeGreen}]}>Passwords Match!</Text>
+                    <Icon 
+                        name="verified" 
+                        size={30} 
+                        color={treeGreen}
+                    />
+                    </View> 
+                    :
+                    <View style={styles.passwordStatusRow}>
+                    <Text style={[styles.passwordStatusText, {color: rejectRed}]}>Passwords Don't Match!</Text>
+                    <Icon 
+                        name="alert-circle" 
+                        size={30} 
+                        color={rejectRed}
+                    />
+                    </View>
+                    
+                    }
+                </View>
+                :
+                null
+            }    
+            
             <Sae
-                label={'Email Address'}
-                iconClass={FontAwesomeIcon}
-                iconName={'envelope'}
-                iconColor={'gray'}
-                value={this.state.email}
-                onChangeText={email => this.setState({ email })}
+                style={styles.nameInput}
+                label={'First Name'}
+                iconClass={Icon}
+                iconName={'account'}
+                iconColor={'black'}
+                value={this.state.firstName}
+                onChangeText={firstName => this.setState({ firstName })}
                 autoCorrect={false}
                 inputStyle={{ color: 'black' }}
             />
-    
             <Sae
-                label={'Password'}
+                style={styles.nameInput}
+                label={'Last Name'}
                 iconClass={FontAwesomeIcon}
-                iconName={'user-secret'}
-                iconColor={tealBlue}
-                value={this.state.pass}
-                onChangeText={pass => this.setState({ pass })}
+                iconName={'users'}
+                iconColor={'black'}
+                value={this.state.lastName}
+                onChangeText={lastName => this.setState({ lastName })}
                 autoCorrect={false}
-                secureTextEntry
-                inputStyle={{ color: tealBlue }}
+                inputStyle={{ color: 'black' }}
             />
-    
-            <Sae
-                label={'Retype Password'}
-                iconClass={FontAwesomeIcon}
-                iconName={'user-secret'}
-                iconColor={darkBlue}
-                value={this.state.pass2}
-                onChangeText={pass2 => this.setState({ pass2 })}
-                autoCorrect={false}
-                secureTextEntry
-                inputStyle={{ color: darkBlue }}
-            />
-    
-            {passwordConditionMet ?
-            <View style={styles.passwordStatusRow}>
-            <Text style={[styles.passwordStatusText, {color: treeGreen}]}>Passwords Match!</Text>
-            <Icon 
-                name="verified" 
-                size={30} 
-                color={treeGreen}
-            />
-            </View> 
-            :
-            <View style={styles.passwordStatusRow}>
-            <Text style={[styles.passwordStatusText, {color: rejectRed}]}>Passwords Don't Match!</Text>
-            <Icon 
-                name="alert-circle" 
-                size={30} 
-                color={rejectRed}
-            />
-            </View>
-            
-            }
-            
-    
-            
-    
-            
-                <Sae
-                    style={styles.nameInput}
-                    label={'First Name'}
-                    iconClass={Icon}
-                    iconName={'account'}
-                    iconColor={'black'}
-                    value={this.state.firstName}
-                    onChangeText={firstName => this.setState({ firstName })}
-                    autoCorrect={false}
-                    inputStyle={{ color: 'black' }}
-                />
-                <Sae
-                    style={styles.nameInput}
-                    label={'Last Name'}
-                    iconClass={FontAwesomeIcon}
-                    iconName={'users'}
-                    iconColor={'black'}
-                    value={this.state.lastName}
-                    onChangeText={lastName => this.setState({ lastName })}
-                    autoCorrect={false}
-                    inputStyle={{ color: 'black' }}
-                />
             
     
             <Sae
@@ -682,7 +571,7 @@ class CreateProfile extends Component {
             />
     
             <Sae
-                label={'@instagram_handle'}
+                label={'@instagram handle'}
                 iconClass={FontAwesomeIcon}
                 iconName={'instagram'}
                 iconColor={profoundPink}
@@ -824,10 +713,12 @@ class CreateProfile extends Component {
                     </Text>
                 </View>
             </Modal>
+
+            {/* Action Buttons */}
             
             <TouchableOpacity disabled = {conditionMet ? true: false} onPress={()=>this.setState({infoModalVisible: true})}>
                 <Button
-                    disabled = {conditionMet ? false: true}
+                    disabled = { this.state.editProfileBoolean ? editProfileConditionMet ? false : true : conditionMet ? false: true}
                     large
                     buttonStyle={{
                         backgroundColor: treeGreen,
@@ -841,7 +732,13 @@ class CreateProfile extends Component {
                     title='SAVE'
                     onPress={
                         () => {
-                        this.setModalVisible(true);
+                        if(this.state.editProfileBoolean) {
+                            this.editProfile(this.state, pictureuris[0], mime = 'image/jpg', this.state.uid);
+                        }
+                        else {
+                            this.setModalVisible(true);
+                        }
+                        
                         }} 
                 />
             </TouchableOpacity>

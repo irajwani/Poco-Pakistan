@@ -370,7 +370,7 @@ class ProductDetails extends Component {
         <View style={styles.sellerProfileAndActionsRow}>
             
           <TouchableOpacity style={styles.profilePictureContainer} onPress={() => {firebase.auth().currentUser.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(data.uid)}}>
-            <Image source={ {uri: profile.uri }} style={profileRowStyles.profilepic} />
+            <Image source={profile.uri ? {uri: profile.uri} : require('../images/blank.jpg')} style={styles.profilePicture} />
           </TouchableOpacity>
 
           <View style={styles.profileTextContainer}>
@@ -667,6 +667,14 @@ const styles = StyleSheet.create( {
     paddingHorizontal: 5
   },
 
+  profilePicture: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderColor: 'black',
+    borderWidth: 1,
+  },
+
   profilePictureContainer: {
     flex: 1.5,
     padding: 0,
@@ -677,7 +685,7 @@ const styles = StyleSheet.create( {
   },
 
   profileTextContainer: {
-    flex: 3,
+    flex: 2.5,
     flexDirection: 'column',
     justifyContent: 'center',
     alignContent: 'flex-end',
@@ -702,9 +710,10 @@ const styles = StyleSheet.create( {
   },
 
   actionIconContainer: {
-    flex: 1,
+    flex: 1.5,
     // backgroundColor: 'brown',
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 0
   },
 

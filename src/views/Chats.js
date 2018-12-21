@@ -175,7 +175,7 @@ class Chats extends Component {
                 if(name.includes(prod.key)) { productSellerId = prod.uid, productText = prod.text; productImageURL = prod.uris[0]; }
             })
             var users = this.currentUser.rooms[i].users
-            console.log(users);
+            console.log(name, id);
             
             
             var obj;

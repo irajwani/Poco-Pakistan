@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dimensions, Platform, Text, TextInput, StyleSheet, View, TouchableHighlight, KeyboardAvoidingView, ScrollView, Picker, TouchableWithoutFeedback, Keyboard } from 'react-native'
+import { Platform, Text, TextInput, StyleSheet, View, TouchableHighlight, ScrollView } from 'react-native'
 import {withNavigation} from 'react-navigation';
 // import { Jiro } from 'react-native-textinput-effects';
 // import NumericInput from 'react-native-numeric-input' 
@@ -7,7 +7,7 @@ import {Button, ButtonGroup, Divider} from 'react-native-elements';
 import Dialog, { DialogTitle, DialogContent, DialogButton, SlideAnimation } from 'react-native-popup-dialog';
 import RNFetchBlob from 'react-native-fetch-blob';
 import MultipleAddButton from '../components/MultipleAddButton';
-import CustomModalPicker from '../components/CustomModalPicker';
+// import CustomModalPicker from '../components/CustomModalPicker';
 import ProductLabel from '../components/ProductLabel.js';
 // import {signInContainer} from '../styles.js';
 import firebase from '../cloud/firebase.js';
@@ -16,7 +16,7 @@ import firebase from '../cloud/firebase.js';
 // import * as Animatable from 'react-native-animatable';
 import { iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
-import { confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, lightGreen, highlightYellow, profoundPink, tealBlue, almostWhite, graphiteGray } from '../colors';
+import { confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, highlightYellow, profoundPink, tealBlue, graphiteGray } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { DismissKeyboardView, WhiteSpace, GrayLine } from '../localFunctions/visualFunctions';
 import { avenirNextText } from '../constructors/avenirNextText';
@@ -322,6 +322,23 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                  });
 
     oldItemPostKey ? this.props.navigation.popToTop() : this.props.navigation.navigate('Profile'); 
+  }
+
+  deleteProduct(uid, key) {
+    firebase.database().ref('/Users/' + uid + '/products/' + key)
+    .remove( ()=>{
+        this.setState({isUploading: false,})
+        alert('Your product has been successfully deleted.');
+        this.props.navigation.popToTop();
+        // this.props.navigation.navigate(`${parentScreenInStack}`);
+    })
+    .then( () => {
+        console.log('product has been successfully removed')
+    })
+    .catch( (err)=> {
+        console.log(err);
+    });
+
   }
 
   startOver = () => {
@@ -657,7 +674,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                 onChangeText={(brand) => this.setState({brand})}
                 value={this.state.brand}
                 multiline={false}
-                maxLength={12}
+                maxLength={16}
                 autoCorrect={false}
                 autoCapitalize={'words'}
                 clearButtonMode={'while-editing'}
@@ -770,7 +787,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
 
             {userChangedAtLeastOneField ?
             
-                <View style={{padding: 5, alignItems: 'center'}}>
+                <View style={styles.actionButtonContainer}>
                     <Button
                     small
                     buttonStyle={{
@@ -789,6 +806,28 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                     />
                 </View>
             
+            :
+            null
+            }
+
+            {this.state.editItemBoolean ?
+            <View style={styles.actionButtonContainer}>
+                <Button
+                    buttonStyle={{
+                        backgroundColor: profoundPink,
+                        width: 180,
+                        height: 80,
+                        borderColor: "transparent",
+                        borderWidth: 3,
+                        borderRadius: 40,
+                    }}
+                    icon={{name: 'delete-empty', type: 'material-community'}}
+                    title='Delete Product'
+                    onPress={() => { 
+                        this.deleteProduct(uid, this.state.oldItemPostKey);
+                        } }
+                />
+            </View>
             :
             null
             }
@@ -970,6 +1009,8 @@ const styles = StyleSheet.create({
     buttonGroupSelectedContainer: {
         backgroundColor: aquaGreen
     },
+
+    actionButtonContainer: {padding: 5, alignItems: 'center'},
 
     dialogContentContainer: {
         padding: 5,

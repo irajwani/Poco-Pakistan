@@ -12,6 +12,9 @@ import Accordion from 'react-native-collapsible/Accordion';
 
 import {EulaTop, EulaLink, EulaBottom, TsAndCs, PrivacyPolicy, ContactUs} from '../legal/Documents.js';
 import BackButton from '../components/BackButton';
+import { avenirNext } from '../colors.js';
+import { avenirNextText } from '../constructors/avenirNextText.js';
+import { WhiteSpace } from '../localFunctions/visualFunctions.js';
 
 const {width} = Dimensions.get('window');
 
@@ -150,14 +153,15 @@ class Settings extends Component {
             Alert.alert('Modal has been closed.');
           }}
         >
-          <ScrollView contentContainerStyle={styles.licenseContainer}>
-            <Text style={{fontFamily: 'Avenir Next', fontSize: 15,}}>{selectedDocument}</Text>
+          <ScrollView style={{flex: 1, padding: 5}} contentContainerStyle={styles.licenseContainer}>
+            <Text style={new avenirNextText(false, 13, "400")}>{selectedDocument}</Text>
             <TouchableHighlight
               onPress={() => {
                 this.setModalVisible(!this.state.modalVisible);
               }}>
               <Text style={styles.hideModal}>Back</Text>
             </TouchableHighlight>
+            <WhiteSpace height={10}/>
           </ScrollView>
         </Modal>
 
@@ -180,8 +184,8 @@ const styles = StyleSheet.create({
     },
 
     licenseContainer: {
-      marginTop: 22,
-      flexGrow: 0.8, 
+      marginVertical: 12,
+      flexGrow: 4, 
       backgroundColor: '#fff',
       flexDirection: 'column',
       justifyContent: 'space-between',
@@ -208,7 +212,8 @@ const styles = StyleSheet.create({
 
     shortContentCard: {
       height: 50,
-      paddingVertical: 5
+      paddingVertical: 5,
+      paddingLeft: 10,
     },
     contentCard: {
       flexDirection: 'column',

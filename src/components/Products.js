@@ -1,34 +1,51 @@
 import React, { Component } from 'react'
-import { Dimensions, View, Image, StyleSheet, ScrollView, TouchableOpacity, TouchableHighlight, Modal } from 'react-native';
+import { Dimensions, View, Text, TextInput, Image, StyleSheet, ScrollView, ListView, TouchableHighlight, Modal, TouchableOpacity } from 'react-native';
 import { Button } from 'react-native-elements';
 import {withNavigation} from 'react-navigation'; // Version can be specified in package.json
-import { Text,  } from 'native-base';
-import { Hoshi } from 'react-native-textinput-effects'
+// import { Text,  } from 'native-base';
+// import { Hoshi } from 'react-native-textinput-effects'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { material, iOSUIKit, iOSColors } from 'react-native-typography'
 import firebase from '../cloud/firebase.js';
 // import {database} from '../cloud/database';
 import * as Animatable from 'react-native-animatable';
-import Accordion from 'react-native-collapsible/Accordion';
-import SelectMultiple from 'react-native-select-multiple';
+// import Accordion from 'react-native-collapsible/Accordion';
+// import SelectMultiple from 'react-native-select-multiple';
 
 // import ScrollableTabView, { ScrollableTabBar, } from 'react-native-scrollable-tab-view';
 // import FacebookTabBar from './FacebookTabBar'
 
 // import PushNotification from 'react-native-push-notification';
 import { PacmanIndicator } from 'react-native-indicators';
-import { graphiteGray, lightGreen, rejectRed, treeGreen, avenirNext, optionLabelBlue, almostWhite } from '../colors.js';
-import NothingHereYet from './NothingHereYet.js';
+import { graphiteGray, lightGreen, rejectRed, treeGreen, avenirNext, optionLabelBlue, almostWhite, flashOrange, lightGray, highlightGreen, aquaGreen } from '../colors.js';
 
+import { splitArrayIntoArraysOfSuccessiveElements } from '../localFunctions/arrayFunctions';
+
+import NothingHereYet from './NothingHereYet.js';
+import { avenirNextText } from '../constructors/avenirNextText.js';
+import { GrayLine } from '../localFunctions/visualFunctions.js';
+
+const emptyMarketText = "Wow, such empty..."
 const noProductsOfYourOwnText = "So far, you have not uploaded any items on the marketplace.\nTo make some cash 🤑 and free up closet space, upload an article of clothing on the Market\nfrom the 'Sell' screen.";
 const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace 💔.";
 const noResultsFromSearchText = "Your search does not match the description of any product on the marketplace 🙁.";
+const emptyMarketDueToSearchCriteriaText = noResultsFromSearchText;
 const noResultsFromSearchForSpecificCategoryText = "Your search does not match the description of any product for this specific category 🙁.";
 
 const timeToRefresh = 2000;
 var {height, width} = Dimensions.get('window');
-const cardWidth = 145;
-const cardHeight = 190;
+
+
+const cardWidth = width/2 - 10;
+const cardHeaderHeight = 200;
+const cardContentHeight = 70
+const cardFull = cardHeaderHeight + cardContentHeight;
+
+const loadingStrings = ['Acquiring Catalogue of Products...', 'Fetching Marketplace...', 'Loading...', 'Almost there...']
+
+function randomIntFromInterval(min,max) {
+    return Math.floor(Math.random()*(max-min+1)+min); //min and max included
+}
 
 function removeKeysWithFalsyValuesFrom(object) {
   const newObject = {};
@@ -50,6 +67,45 @@ function extractValuesFrom(arr) {
   } )
   return values;
 }
+const mensUpperWear = ["XS / 30-32", "S / 34-36", "M / 38-40", "L / 42-44", "XL / 46", "XXL / 48", "XXXL / 50", "4XL / 52", "5XL / 54", "6XL / 56", "7XL / 58", "8XL / 60"];
+const mensFootWear = ["5 / 6", "6 / 7", "6.5 / 7.5", "7 / 8", "7.5 / 8.5", "8 / 9", "8.5 / 9.5", "9 / 10", "9.5 / 10.5", "10 / 11", "10.5 / 11.5", "11 / 12", "12 / 13", "13 / 14", "14 / 15", "15 / 16"];
+const womenUpperWear = ["XXS / 2 / 00","2 / 00 petite", "XXS / 4 / 0", "4 / 0 petite", "XS / 6 / 2","6 / 2 petite", "S / 8 / 4", "8 / 4 petite", "S / 10 / 6", "10 / 6 petite", "M / 12 / 8", "12 / 8 petite", "M / 14 / 10", "14 / 10 petite", "L / 16 / 12", "16 / 12 petite", "L / 18 / 14", "18 / 14 petite", "1X / 20 / 16", "20 / 16 petite", "1X / 22 / 18", "22 / 18 petite", "2X / 24 / 20", "24 / 20 petite", "3X / 26 / 22", "26 / 22 petite", "3X / 28 / 24", "28 / 24 petite", "4X / 30 / 26", "30 / 26 petite", "One size"];
+const womenFootWear = ["2 / 4", "2.5 / 4.5", "3 / 5", "3.5 / 5.5", "4 / 6", "4.5 / 6.5", "5 / 7", "5.5 / 7.5", "6 / 8", "6.5 / 8.5", "7 / 9", "7.5 / 9.5", "8 / 10", "8.5 / 10.5", "9 / 11", "10 / 11.5-12"];
+
+const generateSizesBasedOn = (type, category) => {
+    var sizes;
+    switch(category) {
+        case 0:
+            switch(type) {
+                case "Formal Shirts" || "Coats & Jackets" || "Casual Shirts" || "Suits" || "Trousers" || "Jeans":
+                    sizes = mensUpperWear;
+                    break;
+                case "Shoes":
+                    sizes = mensFootWear;
+                    break;
+                default:
+                    sizes = mensUpperWear;
+                    break;  
+            }
+        break;
+        case 1:
+            switch(type) {
+                case "Shoes" || "Socks":
+                    sizes = womenFootWear;
+                    break;
+                default:
+                    sizes = womenUpperWear;
+                    break;
+            }
+        break;
+        //for now, no sizes for accessories, person does not see size option for accessory. Vinted offers user selection of colors instead.
+        default:
+            sizes = mensUpperWear
+            break;
+
+    }
+    return sizes;
+}
 
 const limeGreen = '#2e770f';
 const profoundPink = '#c64f5f';
@@ -58,25 +114,41 @@ class Products extends Component {
   constructor(props) {
       super(props);
       this.state = {
+
+        //Products Stuff
+        leftDS: new ListView.DataSource({
+          rowHasChanged: (r1, r2) => r1 !== r2
+        }),
+        rightDS: new ListView.DataSource({
+          rowHasChanged: (r1, r2) => r1 !== r2
+        }),
+
+        leftProducts: undefined,
+        rightProducts: undefined,
         noProducts: false,
+        emptyMarketDueToSearchCriteria: false,
         emptyMarket: false,
         emptyCollection: false,
         refreshing: false,
         isGetting: true,
-        activeSectionL: false,
-        activeSectionR: false,
-        collapsed: true,
-        navToChatLoading: false,
+
+        ////Filter Modal Stuff
+        searchTerm: '',
+
+        // activeSectionL: false,
+        // activeSectionR: false,
+        // collapsed: true,
+        // navToChatLoading: false,
         ///////
         ///////
-        filters: '',
+        // filters: '',
         showFilterModal: false,
         activeFilterSection: false,
-        selectedBrand: '',
-        brandSearchTerm: '',
+        // selectedBrand: '',
+        // brandSearchTerm: '',
         selectedBrands: [],
-        selectedTypes: [],
-        selectedSizes: [],
+        // selectedTypes: [],
+        // selectedSizes: [],
       };
       //this.navToChat = this.navToChat.bind(this);
   }
@@ -88,7 +160,7 @@ class Products extends Component {
       // this.initializePushNotifications();
     }, 1000);
     setTimeout(() => {
-      this.getPageSpecificProducts([], [], []);
+      this.getPageSpecificProducts([]);
     }, 100);
   }
 
@@ -176,9 +248,9 @@ class Products extends Component {
   // }
 
 
-  getPageSpecificProducts = (selectedBrands, selectedTypes, selectedSizes) => {
-    
-    const keys = [];
+  getPageSpecificProducts = (selectedBrands) => {
+    this.setState({isGetting: true})
+    // const keys = [];
     firebase.database().ref().on("value", (snapshot) => {
       var d = snapshot.val();
       console.log('retrieving array of products')
@@ -196,11 +268,10 @@ class Products extends Component {
       var collectionKeys = removeKeysWithFalsyValuesFrom(rawCollection);
       var emptyCollection = false;
       if(collectionKeys.length == 0) {emptyCollection = true}    
-      var all = d.Products;
+      var all = d.Products ? d.Products : [];
 
-      //var filters = [{header: "Brand", values: []}, {header: "Type", values: []}, {header: "Size", values: []},];
-      
-      // all = selectedBrand == '' ? all : all.filter( (product) => product.text.brand == selectedBrand );
+      var emptyMarket = all.length > 0 ? false : true;
+      emptyMarket ? this.setState({emptyMarket: true}) : null;
 
 
       //OF COURSE, the FIRST/TOP level of "filtering" that dictates what products are displayed is if whether:
@@ -225,36 +296,102 @@ class Products extends Component {
         all = all.filter((product) => productKeys.includes(product.key) );
       }
 
-      //Second Level is to extract list of information to be displayed in the filterModal
-      //first extract the list of current brands:
-      var brands = [];
-      var types = ['Formal Shirts', 'Casual Shirts', 'Jackets', 'Suits', 'Trousers', 'Jeans', 'Shoes', 'Watches', 'Bracelets', 'Jewellery', 'Sunglasses', 'Handbags', 'Tops', 'Skirts', 'Dresses', 'Coats'];
-      var sizes = ['Extra Small', 'Small', 'Medium', 'Large', 'Extra Large', 'Extra Extra Large'];
+      if(all.length > 0) {
+          
+            
 
-      all.forEach((product)=> {
-        brands.push(product.text.brand);
-      })
-      //TODO: problematic search? right now results are strings that include your searched for string
-      // brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ) 
-      brands = brands.filter(onlyUnique);
+          //var filters = [{header: "Brand", values: []}, {header: "Type", values: []}, {header: "Size", values: []},];
+          
+          // all = selectedBrand == '' ? all : all.filter( (product) => product.text.brand == selectedBrand );
 
-      //Third Level is optional and will be enforced when user has a selectedValue to filter products
-      all = selectedBrands.length > 0 ? all.filter( (product) => selectedBrands.includes(product.text.brand)) : all;
-      all = selectedTypes.length > 0 ? all.filter( (product) => selectedTypes.includes(product.text.type)) : all;
-      all = selectedSizes.length > 0 ? all.filter( (product) => selectedSizes.includes(product.text.size)) : all;
 
-      //After all this filtering, it could be the case that no results match your criteria,
-      var emptyMarket = false;
-      if(all.length == 0) {emptyMarket = true}
+          //Second Level is to extract list of information to be displayed in the filterModal
+          //first extract the list of current brands:
+          var brands = [];
+          var typesForCategory = {men: [], women: [], accessories: []};
 
-      //Final Level is to sort the products in descending order of the number of likes
-      all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
-      var name = d.Users[uid].profile.name;
-      var productsl = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 )
-      var productsr = all.slice( Math.round(all.length/2) , all.length + 1);
-      this.setState({ noProducts, emptyCollection, emptyMarket, types, sizes, brands, productsl, productsr, name, collectionKeys, productKeys, isGetting: false, });
+          //Now because there's a fixed number of values of SIZE for each TYPE, 
+          //just generate the sizes based on the type selected by the person when they tap the category
+          //and for CONDITION We're good because there's only 4 values that apply to any type of product
+          // var sizesForType = {}
+          
+          // var types = ['Formal Shirts', 'Casual Shirts', 'Jackets', 'Suits', 'Trousers', 'Jeans', 'Shoes', 'Watches', 'Bracelets', 'Jewellery', 'Sunglasses', 'Handbags', 'Tops', 'Skirts', 'Dresses', 'Coats'];
+          // var sizes = ['Extra Small', 'Small', 'Medium', 'Large', 'Extra Large', 'Extra Extra Large'];
+      
+          all.forEach((product)=> {
+            brands.push({name: product.text.brand, selected: false});
+            switch(product.text.gender) {
+              case "Men":
+                typesForCategory.men.push(product.text.type);
+                break;
+              case "Women":
+                typesForCategory.women.push(product.text.type);
+                break;
+              case "Accessories":
+                typesForCategory.accessories.push(product.text.type);
+                break;  
+              default: 
+                break;
+            }
 
-    })
+          })
+          // console.log(typesForCategory)
+          //TODO: problematic search? right now results are strings that include your searched for string
+          // brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ) 
+          brands = brands.filter(onlyUnique);
+          typesForCategory.men = typesForCategory.men.filter(onlyUnique);
+          typesForCategory.women = typesForCategory.women.filter(onlyUnique);
+          typesForCategory.accessories = typesForCategory.accessories.filter(onlyUnique);
+
+          //second extract types of clothing for each category:
+          
+
+          //Third Level is optional and will be enforced when user has a selectedValue(s) to filter products
+          all = selectedBrands.length > 0 ? all.filter( (product) => selectedBrands.includes(product.text.brand)) : all;
+          // all = selectedTypes.length > 0 ? all.filter( (product) => selectedTypes.includes(product.text.type)) : all;
+          // all = selectedSizes.length > 0 ? all.filter( (product) => selectedSizes.includes(product.text.size)) : all;
+
+          //After all this filtering, it could be the case that no results match your criteria,
+          //TODO: Firstly, shouldnt this check occur multiple times throughout the code, so maybe a while loop, and secondly, shouldn't we break this function call before it starts trying to perform operations on an empty or undefined variable 
+          
+          
+
+          //Final Level is to sort the products in descending order of the number of likes & assign each index its boolean to handle collapsed or uncollapsed state
+          all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
+          console.log('after sort ' + all)
+          all.forEach((product) => {
+            product['isActive'] = false  
+          })
+          console.log('before split: ' + all);
+          // var {leftProducts, rightProducts} = splitArrayIntoArraysOfSuccessiveElements(all);
+          //TODO:
+          console.log('after split :' + all);
+          // console.log(leftProducts, rightProducts);
+
+          // leftProducts.forEach((product) => {
+          //   product['isActive'] = false  
+          // })
+          // rightProducts.forEach((product) => {
+          //   product['isActive'] = false  
+          // })
+
+
+          
+          var name = d.Users[uid].profile.name;
+          var leftProducts = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 );
+          var rightProducts = all.slice( Math.round(all.length/2) , all.length + 1);
+
+          //emptyMarket and emptyMarketDueToSearchCriteria remain false in this.state;
+          this.setState({ noProducts, emptyCollection, collectionKeys, productKeys, leftProducts, rightProducts, typesForCategory, brands, name, isGetting: false, });
+        
+      }
+
+      else {
+        this.setState({emptyMarketDueToSearchCriteria: true})
+      }
+
+    }) 
+    
     
     
     
@@ -262,7 +399,7 @@ class Products extends Component {
     // .catch( (err) => {console.log(err) })
     
   }
-
+   
   incrementLikes(likes, uid, key) {
     //func applies to scenario when heart icon is gray
     //add like to product, and add this product to user's collection; if already in collection, modal shows user
@@ -289,7 +426,7 @@ class Products extends Component {
         // by re-pulling data from the cloud
         alert("This product has been added to your WishList 💕.");
         setTimeout(() => {
-          this.getPageSpecificProducts([], [], []);  
+          this.getPageSpecificProducts([]);  
         }, timeToRefresh);
         
 
@@ -340,7 +477,7 @@ class Products extends Component {
     firebase.database().ref().update(updates);
     alert("This product has been removed from your WishList 💔.");
     setTimeout(() => {
-      this.getPageSpecificProducts([], [], []);  
+      this.getPageSpecificProducts([]);  
     }, timeToRefresh);
     //locally reflect the updated number of likes and updated collection of the user,
 
@@ -372,379 +509,326 @@ class Products extends Component {
       this.props.navigation.navigate('ProductDetails', {data: data, collectionKeys: collectionKeys, productKeys: productKeys})
   }
 
-
-  //switch between collapsed and expanded states
-  toggleExpanded = () => {
-    this.setState({ collapsed: !this.state.collapsed });
-  };
-
-  setSectionL = section => {
-    this.setState({ activeSectionL: section });
-  };
-
-  setSectionR = section => {
-    this.setState({ activeSectionR: section });
-  };
-
-  renderHeader = (section, _, isActive) => {
+  renderRow = (section, expandFunction) => {
     return (
-      <Animatable.View
-        duration={400}
-        style={[styles.card, isActive ? styles.active : styles.inactive]}
-        transition="backgroundColor"
+      
+      <View
+      style={{height: section.isActive ? cardFull : cardHeaderHeight}}>
       >
+        <TouchableHighlight 
+          onPress={expandFunction} 
+          style={styles.card}
+          underlayColor={almostWhite}
+        >
+        {/* Header Card */}
+        <View 
+        style={[styles.card, section.isActive ? styles.active : styles.inactive]}
+        >
+        
+          <View style={styles.productImageContainer}>
+              <View style={styles.likesRow}>
+                {/* if this product is already in your collection, you have the option to dislike the product,
+                    reducing its total number of likes by 1,
+                    and remove it from your collection. If not already in your collection, you may do the opposite. */}
+                {this.state.collectionKeys.includes(section.key) ? 
+                  <Icon name="heart" 
+                            size={25} 
+                            color='#800000'
+                            onPress={() => {this.decrementLikes(section.text.likes, section.uid, section.key)}}
+                            
 
-        <View style={styles.productImageContainer}>
-            <View style={styles.likesRow}>
-              {/* if this product is already in your collection, you have the option to dislike the product,
-                  reducing its total number of likes by 1,
-                  and remove it from your collection. If not already in your collection, you may do the opposite. */}
-              {this.state.collectionKeys.includes(section.key) ? 
-                <Icon name="heart" 
-                          size={25} 
-                          color='#800000'
-                          onPress={() => {this.decrementLikes(section.text.likes, section.uid, section.key)}}
-                          
+                  /> 
+                :  
+                  <Icon name="heart-outline" 
+                            size={25} 
+                            color='#800000'
+                            onPress={() => {this.incrementLikes(section.text.likes, section.uid, section.key)}}
 
-                /> 
-              :  
-                <Icon name="heart-outline" 
-                          size={25} 
-                          color='#800000'
-                          onPress={() => {this.incrementLikes(section.text.likes, section.uid, section.key)}}
+                  />
+                }
 
+                <Text style={styles.likes}>{section.text.likes}</Text>
+              </View>
+              {section.text.sold ? 
+                <View style={styles.soldTextContainer}>
+                  <Text style={styles.soldText}>SOLD</Text>
+                  <Image 
+                  source={{uri: section.uris[0]}}
+                  style={styles.productImage} 
+                  />
+                </View>
+                
+              :
+              <Image 
+                  source={{uri: section.uris[0]}}
+                  style={styles.productImage}
+              />
+              }  
+          </View>
+
+          {section.text.original_price > 0 ?
+            <View style= { styles.headerPriceMagnifyingGlassRow }>
+              
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+                <Text style={styles.original_price} >
+                  £{section.text.original_price}
+                </Text>
+                <Text style={styles.price} >
+                  £{section.text.price}
+                </Text>
+              </View>
+
+              {section.isActive? 
+                <Icon name="chevron-up" 
+                      size={30} 
+                      color='black'
+                />
+              :
+                <Icon name="chevron-down" 
+                      size={30} 
+                      color='black'
                 />
               }
-
-              <Text style={styles.likes}>{section.text.likes}</Text>
-            </View>
-            {section.text.sold ? 
-              <View style={styles.soldTextContainer}>
-                <Text style={styles.soldText}>SOLD</Text>
-                <Image 
-                source={{uri: section.uris[0]}}
-                style={styles.productImage} 
-                />
-              </View>
               
-             :
-             <Image 
-                source={{uri: section.uris[0]}}
-                style={styles.productImage}
-             />
-            }  
-        </View>
 
-        {section.text.original_price > 0 ?
-          <View style= { styles.headerPriceMagnifyingGlassRow }>
-            
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-              <Text style={styles.original_price} >
-                £{section.text.original_price}
-              </Text>
-              <Text style={styles.price} >
-                £{section.text.price}
-              </Text>
+            </View>        
+          :
+            <View style= { styles.headerPriceMagnifyingGlassRow }>
+              
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+                <Text style={styles.price} >
+                  £{section.text.price}
+                </Text>
+              </View>
+
+              {isActive? 
+                <Icon name="chevron-up" 
+                      size={30} 
+                      color='black'
+                />
+              :
+                <Icon name="chevron-down" 
+                      size={30} 
+                      color='black'
+                />
+              }
+              
+              
             </View>
+          }
 
-            {isActive? 
-              <Icon name="chevron-up" 
-                    size={30} 
-                    color='black'
-              />
-            :
-              <Icon name="chevron-down" 
-                    size={30} 
-                    color='black'
-              />
-            }
-            
+        </View>  
+        </TouchableHighlight>
+        {/* Header Card Ends Here */}
 
-          </View>        
-        :
-          <View style= { styles.headerPriceMagnifyingGlassRow }>
-            
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-              <Text style={styles.price} >
-                £{section.text.price}
-              </Text>
-            </View>
 
-            {isActive? 
-              <Icon name="chevron-up" 
-                    size={30} 
-                    color='black'
-              />
-            :
-              <Icon name="chevron-down" 
-                    size={30} 
-                    color='black'
-              />
-            }
-            
-            
-          </View>
-        }  
 
-                
 
-      </Animatable.View>
-    );
-  };
+        
 
-  renderContent = (section, _, isActive) => {
-    return (
-      <Animatable.View
-        duration={400}
-        style={[styles.contentCard, isActive ? styles.active : styles.inactive]}
-        transition="backgroundColor"
-      >
           
+
+          {/* Content Card */}
+          {section.isActive ?
+            <View 
+              style={styles.contentCard}
+            >
+              <Animatable.View
+                duration={400}
+                style={section.isActive ? styles.active : styles.inactive}
+                transition="backgroundColor"
+              >
+                  
+                
+                <Animatable.View style={styles.priceMagnifyingGlassRow} transition='backgroundColor'>
+                  <Animatable.Text style={styles.brand} animation={section.isActive ? 'bounceInRight' : undefined}>
+                    {section.text.brand}
+                  </Animatable.Text>
+                  <Icon name="magnify" 
+                        size={30} 
+                        color={limeGreen}
+                        onPress={ () => { 
+                            console.log('navigating to full details');
+                            this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys); 
+                            }}  
+                  />
+                </Animatable.View>  
+                
+                <Animatable.Text style={styles.size} animation={section.isActive ? 'bounceInLeft' : undefined}>
+                  Size: {section.text.size}
+                </Animatable.Text>
+                
+              </Animatable.View>
+            </View>   
+          :
+            null
+            } 
+
+
+
+
+
+
+
+
         
-        <Animatable.View style={styles.priceMagnifyingGlassRow} transition='backgroundColor'>
-          <Animatable.Text style={styles.brand} animation={isActive ? 'bounceInRight' : undefined}>
-            {section.text.brand}
-          </Animatable.Text>
-          <Icon name="magnify" 
-                size={30} 
-                color={limeGreen}
-                onPress={ () => { 
-                    console.log('navigating to full details');
-                    this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys); 
-                    }}  
-          />
-        </Animatable.View>  
-        
-        <Animatable.Text style={styles.size} animation={isActive ? 'bounceInLeft' : undefined}>
-          Size: {section.text.size}
-        </Animatable.Text>
-        
-      </Animatable.View>
-    );
+
+      </View>
+      
+    )
   }
-
-  // setFilterSection = section => {
-  //   this.setState({ activeFilterSection: section });
-  // };
-
-  // renderFilterHeader = (section, _, isActive) => {
-  //   return (
-  //     <Animatable.View
-  //       duration={300}
-  //       style={[styles.headerFilterCard, isActive ? styles.active : styles.inactive]}
-  //       transition="backgroundColor"
-  //     >
-
-  //       <Text style={styles.headerFilterText}>
-  //         {section.header}
-  //       </Text>
-  //       {isActive? 
-  //         <Icon name="chevron-up" 
-  //               size={30} 
-  //               color='black'
-  //         />
-  //       :
-  //         <Icon name="chevron-down" 
-  //               size={30} 
-  //               color='black'
-  //         />
-  //       }
-  //     </Animatable.View>
-  //   )
-  // }
-
-  // renderFilterContent = (section, _, isActive) => {
-
-  //   if(section.header == "Brand") {
-  //     return (
-  //       <ScrollView contentContainerStyle={styles.contentContainerStyle}>
-  //         <Animatable.View
-  //         duration={300}
-  //         style={[styles.contentFilterCard, isActive ? styles.active : styles.inactive]}
-  //         transition="backgroundColor"
-  //       >
-  //         {section.values.map( (value, index) => (
-  //           <Animatable.Text 
-  //             onPress={()=>{this.getPageSpecificProducts(value, section.header); this.setState({showFilterModal: false})}} 
-  //             style={styles.contentFilterText} animation={isActive ? 'bounceInDown' : undefined}
-  //           >
-  //             {value}
-  //           </Animatable.Text>
-  //         ))}
-  //       </Animatable.View>
-  //     </ScrollView>
-  //     )
-  //   }
-  //   return (
-  //     <Animatable.View
-  //       duration={300}
-  //       style={[styles.contentFilterCard, isActive ? styles.active : styles.inactive]}
-  //       transition="backgroundColor"
-  //     >
-  //       {section.values.map( (value, index) => (
-  //         <Animatable.Text 
-  //           onPress={()=>{this.getPageSpecificProducts(value, section.header); this.setState({showFilterModal: false})}} 
-  //           style={styles.contentFilterText} animation={isActive ? 'bounceInDown' : undefined}
-  //         >
-  //           {value}
-  //         </Animatable.Text>
-  //       ))}
-  //     </Animatable.View>
-  //   )
-  // }
 
   renderFilterModal = () => {
 
-    var {brands, types, sizes, brandSearchTerm, selectedBrands, selectedTypes, selectedSizes} = this.state
-    
-    brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ); 
-    brands = brands.filter(onlyUnique);
-    types = types.filter( (type) => type.includes(brandSearchTerm) ); 
-    sizes = sizes.filter( (size) => size.includes(brandSearchTerm) );
+    var {brands, typesForCategory, searchTerm, selectedBrands} = this.state
+    console.log(brands, searchTerm, selectedBrands);
+    brands = brands.filter( (brand) => brand.name.includes(searchTerm) ); 
+    console.log(brands);
+    // brands = brands.filter(onlyUnique);
+    // types = types.filter( (type) => type.includes(brandSearchTerm) ); 
+    // sizes = sizes.filter( (size) => size.includes(brandSearchTerm) );
+
 
     return (
-      
       <Modal
       animationType="slide"
-      transparent={false}
+      transparent={true}
       visible={this.state.showFilterModal}
       onRequestClose={() => {
         Alert.alert('Modal has been closed.');
       }}
       >
-    
-        <ScrollView style={{flex: 1, marginTop: 22, }} contentContainerStyle={[styles.filterModalContainer, {backgroundColor: '#fff'}]}>
+      <View style={[{flex: 1},{backgroundColor: highlightGreen}, styles.filterModal]}>
 
-            <View style={{padding: 5}}>
-            <Button  
-              buttonStyle={styles.hideModalButtonStyle}
-              icon={{name: 'chevron-left', type: 'material-community'}}
-              title='Back'
-              onPress={() => {
-                  this.setState( {showFilterModal: false} );
-                }}
-            />
-            </View>
-
-            <View style={styles.searchBarAndIconContainer}>
-
-            <View style={styles.searchBarContainer}>
-              <Hoshi
-                      style={{ width: 250, backgroundColor: '#fff' }}
-                      label={'What Brand, Type, or Size?'}
-                      labelStyle={ {color: rejectRed} }
-                      value={this.state.brandSearchTerm}
-                      onChangeText={(brandSearchTerm)=>{this.setState({ brandSearchTerm })}}
-                      borderColor={treeGreen}
-                      inputStyle={{ color: 'black', fontWeight: '400', fontFamily: avenirNext }}
-                      autoCorrect={false}
-                      
-              />
-            </View> 
-
-            <View style={styles.clearSearchIconContainer}>
-            <Icon name="close" 
-                            size={40} 
-                            color={'#800000'}
-                            onPress={ () => this.setState({brandSearchTerm: ''})}
-              />
-            </View>   
-
-
-            
-            </View>
+        <View style={styles.filterModalHeader}>
           
-          <Text style={[styles.headerText, {color: treeGreen}]}>Brands</Text>
-          <ScrollView style={{flex: 1, backgroundColor: '#122021'}} contentContainerStyle={[styles.filterScrollContainer, {backgroundColor: '#122021'}]}>
-
-            {brands.length > 0? 
-              <SelectMultiple
-                items={brands}
-                selectedItems={this.state.selectedBrands}
-                onSelectionsChange={(selectedBrands) => this.setState({ selectedBrands })} 
-              />
-            :
-              <Text>{noResultsFromSearchForSpecificCategoryText}</Text>
-            }
-
-          </ScrollView>
-          <Text style={[styles.headerText, {color: 'black'}]}>Types</Text>
-          <ScrollView contentContainerStyle={styles.filterScrollContainer}>
-
-            {types.length > 0? 
-              <SelectMultiple
-                items={types}
-                selectedItems={this.state.selectedTypes}
-                onSelectionsChange={(selectedTypes) => this.setState({ selectedTypes })} 
-              />
-            :
-              <Text>{noResultsFromSearchForSpecificCategoryText}</Text>
-            }
-
-          </ScrollView>  
-          <Text style={[styles.headerText, {color: optionLabelBlue}]}>Sizes</Text>
-          <ScrollView contentContainerStyle={styles.filterScrollContainer}>
-
-            {sizes.length > 0? 
-              <SelectMultiple
-                items={sizes}
-                selectedItems={this.state.selectedSizes}
-                onSelectionsChange={(selectedSizes) => this.setState({ selectedSizes })} 
-              />
-            :
-              <Text>{noResultsFromSearchForSpecificCategoryText}</Text>
-            }
-
-          </ScrollView>  
-
-          
-
-                      
-
-            <View style={{padding: 5}}>
-            <Button  
-              buttonStyle={styles.confirmFiltersButtonStyle}
-              icon={{name: 'filter', type: 'material-community'}}
-              title='Confirm Selection'
-              onPress={() => {
-                  this.getPageSpecificProducts(extractValuesFrom(selectedBrands), extractValuesFrom(selectedTypes), extractValuesFrom(selectedSizes));
-                  this.setState( {showFilterModal: false} );
-                }}
+          <TouchableHighlight onPress={()=>this.setState({showFilterModal: false})}>
+            <Icon 
+              name="close" 
+              size={42} 
+              color='#fff'
             />
+          </TouchableHighlight>
+
+          <Text style={styles.filterModalHeaderText}>FILTERS</Text>
+          <Text style={styles.filterModalHeaderClearText}>Reset</Text>
+        </View>
+
+        <ScrollView style={{flex: 0.8}} contentContainerStyle={styles.filterModalContainer}>
+
+          <View style={styles.searchBarAndIconContainer}>
+            <TextInput
+              style={{height: 50, width: 220, fontFamily: 'Avenir Next', fontSize: 20}}
+              placeholder={"Search..."}
+              placeholderTextColor={lightGray}
+              onChangeText={(searchTerm) => this.setState({searchTerm})}
+              value={this.state.searchTerm}
+              multiline={false}
+              maxLength={16}
+              autoCorrect={false}
+              clearButtonMode={'while-editing'}
+            />     
+          </View>
+
+          <GrayLine/>
+
+          <View style={styles.filterBlock}>
+
+            <View style={styles.filterBlockHeadingContainer}>
+              <Text style={new avenirNextText('#fff', 14, "300")}>
+                Brands
+              </Text>
             </View>
 
-            <View style={{padding: 5}}>
-            <Button  
-              buttonStyle={styles.removeFiltersButtonStyle}
-              icon={{name: 'filter-remove', type: 'material-community'}}
-              title='Remove Filters'
-              onPress={() => {
-                  this.getPageSpecificProducts([],[],[]);
-                  this.setState( {selectedBrands: [], selectedTypes: [], selectedSizes: [], showFilterModal: false} );
+            <ScrollView horizontal showsHorizontalScrollIndicator style={styles.optionsScroll} contentContainerStyle={styles.optionsScrollContentContainer}>
+            {brands.map( (brand, index) => (
+              <View style={styles.optionContainer}>
+                <Text 
+                onPress={()=>{
+                  if(selectedBrands.includes(brand.name)) {
+                    let INDEX = selectedBrands.indexOf(brand.name);
+                    if(INDEX == 0) {
+                       selectedBrands = selectedBrands.slice(INDEX + 1, selectedBrands.length)
+                    }
+                    else if(INDEX == selectedBrands.length - 1) {
+                      selectedBrands = selectedBrands.slice(0,INDEX)
+                    }
+                    else {
+                      var left = selectedBrands.slice(0,INDEX)
+                      var right = selectedBrands.slice(INDEX + 1, selectedBrands.length)
+                      selectedBrands = left.concat(right);
+                    }
+                  }
+                  else {
+                    selectedBrands.push(brand.name)
+                  }
+                  this.state.brands[index].selected = !this.state.brands[index].selected; 
+                  this.setState({brands: this.state.brands, selectedBrands});
                 }}
-            />
-            </View>
-            
-            
+                style={[styles.option, {color: !brand.selected ? graphiteGray : '#fff'}]}
+                >
+                {brand.name}
+                </Text>
+              </View>
+            ))}
+            </ScrollView>
+
+
+          </View>
+
+          <GrayLine/>
+
         </ScrollView>
-      
-    </Modal>
+
+        <TouchableHighlight onPress={()=>this.getPageSpecificProducts(selectedBrands)} style={styles.filterModalFooter}>
+        <View style={styles.filterModalFooter}>
+          <Text style={[styles.filterModalFooterText, new avenirNextText('white', 24, "600")]}>APPLY</Text>
+        </View>
+        </TouchableHighlight>
+
+
+
+      </View>
+      </Modal>
     )
+
   }
 
   render() {
     const {showYourProducts, showCollection} = this.props;
-    var {productsl, activeSectionL, productsr, activeSectionR, isGetting, noProducts, emptyMarket, emptyCollection, navToChatLoading, productKeys} = this.state;
+    var {isGetting, noProducts, emptyMarket, emptyMarketDueToSearchCriteria, emptyCollection} = this.state;
 
     if(isGetting) {
       return ( 
-        <View style={{flex: 1}}>
-          <PacmanIndicator color={graphiteGray} />
+        <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
+            <View style={{height: 200, justifyContent: 'center', alignContent: 'center'}}>
+                <PacmanIndicator color={flashOrange} />
+                <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: 'black', textAlign: 'center'}}>
+                    {loadingStrings[randomIntFromInterval(0,3)]}
+                </Text>
+            </View>
+            
         </View>
       )
     }
 
-    if(emptyMarket && !emptyCollection) {
+    else if(emptyMarket) {
+      return (
+        <View style={{marginTop: 22, backgroundColor: '#fff', padding: 5}}>
+          <NothingHereYet specificText={emptyMarketText} />
+        </View>
+    )
+    }
+
+    else if(emptyMarketDueToSearchCriteria) {
+      return (
+        <View style={{marginTop: 22, backgroundColor: '#fff', padding: 5}}>
+          <NothingHereYet specificText={emptyMarketDueToSearchCriteriaText} />
+        </View>
+    )
+    }
+
+    else if(emptyMarket && !emptyCollection) {
       return (
         <View style={{
           flexDirection: 'column',
@@ -754,7 +838,7 @@ class Products extends Component {
         }}
         >
             <NothingHereYet specificText={noResultsFromSearchText}/>
-            {this.renderFilterModal()}
+            {/* {this.renderFilterModal()} */}
             <View style={styles.filterButtonContainerNoMarket}>
               <Button  
                   buttonStyle={styles.filterButtonStyleNoMarket}
@@ -767,7 +851,7 @@ class Products extends Component {
       )
     }
 
-    if(showCollection && emptyCollection && emptyMarket) {
+    else if(showCollection && emptyCollection && emptyMarket) {
         return (
           <View style={{marginTop: 22, backgroundColor: '#fff', padding: 5}}>
             <NothingHereYet specificText={emptyCollectionText} />
@@ -777,7 +861,7 @@ class Products extends Component {
         
     }
 
-    if(showYourProducts && noProducts) {
+    else if(showYourProducts && noProducts) {
       return (
         <View style={{marginTop: 22, backgroundColor: '#fff', padding: 5}}>
           <NothingHereYet specificText={noProductsOfYourOwnText} />
@@ -785,48 +869,79 @@ class Products extends Component {
       )
     }
     
-    return (
+    else {
+      return (
 
       
           <View style={styles.container}>
             <ScrollView
-                  
+                  style={{flex: 1}}
                   contentContainerStyle={styles.contentContainerStyle}
             >
 
-              <Accordion
-                activeSection={activeSectionL}
-                sections={productsl}
-                touchableComponent={TouchableOpacity}
-                renderHeader={this.renderHeader}
-                renderContent={this.renderContent}
-                duration={200}
-                onChange={this.setSectionL}
-                containerStyle={styles.listOfProducts}
-              />
-              
-
+                <ListView
+                    contentContainerStyle={styles.listOfProducts}
+                    dataSource={this.state.leftDS.cloneWithRows(this.state.leftProducts)}
+                    renderRow={(rowData) => this.renderRow(rowData, () => {
+                        // let photoArray;
+                        // section.isActive = !section.isActive;
+                        
+                        let index = this.state.leftProducts.indexOf(rowData);
+                        this.state.leftProducts[index].isActive = !this.state.leftProducts[index].isActive;
+                        this.setState({leftProducts: this.state.leftProducts});
+                        }
+                    )}
+                    enableEmptySections={true}
+                />
+                <ListView
+                    contentContainerStyle={styles.listOfProducts}
+                    dataSource={this.state.rightDS.cloneWithRows(this.state.rightProducts)}
+                    renderRow={(rowData) => this.renderRow(rowData, () => {
+                        // let photoArray;
+                        // section.isActive = !section.isActive;
+                        let index = this.state.rightProducts.indexOf(rowData);
+                        this.state.rightProducts[index].isActive = !this.state.rightProducts[index].isActive;
+                        this.setState({rightProducts: this.state.rightProducts});
+                    })}
+                    enableEmptySections={true}
+                />
               {this.renderFilterModal()}
 
             </ScrollView>
+
             <View style={styles.filterButtonContainer}>
-              <Button  
-                  buttonStyle={styles.filterButtonStyle}
-                  icon={{name: 'filter', type: 'material-community'}}
-                  title='Filter'
-                  onPress={() => this.setState({ showFilterModal: true }) } 
-              />
+
+              <TouchableOpacity 
+                onPress={() => this.setState({ showFilterModal: true }) } 
+                style={styles.filterButton}
+              >
+              <Text style={[styles.filterModalHeaderText, {fontSize: 11}]}>FILTER</Text>
+              </TouchableOpacity>
             </View>
+
           </View>
 
         
       
             
     )
+  }
   
   }
 }
 
+
+
+
+
+{/* <View style={styles.filterButtonContainer}>
+              <Button  
+                  buttonStyle={styles.filterButtonStyle}
+                  icon={{name: 'filter', type: 'material-community'}}
+                  title='Filter'
+                  onPress={() => this.setState({ showFilterModal: true }) } 
+              />
+            </View> */}
 {/* <Accordion
                 activeSection={activeSectionL}
                 sections={productsl}
@@ -864,7 +979,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    marginTop: 22
+    marginTop: 22,
+    paddingBottom: 3,
+    paddingHorizontal: 3,
     // width: 320,
     // height: height,
     // flexDirection: 'column',
@@ -875,15 +992,21 @@ const styles = StyleSheet.create({
 
   contentContainerStyle: {
     flexGrow: 4,   
-    flexDirection: 'column',
+    flexDirection: 'row',
     // flexWrap: 'wrap',
     // paddingTop: 20,
       },
 
   listOfProducts: {
-    flexDirection: 'row',
-    flexWrap: 'wrap'
+    // flexDirection: 'row',
+    // flexWrap: 'wrap',
+    // padding: 5,
+    justifyContent: 'space-evenly', 
+    // will lead to good spacing between cards but the product in last row will be in dead center
+    // alignItems: 'center'
   },    
+
+  sectionContainer: {width: cardWidth, padding: 3},
 
   filterScrollContainer: {
     flexDirection: 'column',
@@ -944,10 +1067,10 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     marginBottom: 20,
   },
-  header: {
-    backgroundColor: '#F5FCFF',
-    padding: 10,
-  },
+  // header: {
+  //   backgroundColor: '#F5FCFF',
+  //   padding: 10,
+  // },
 
   productImageContainer: { 
     flex: 1, 
@@ -960,7 +1083,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center', alignItems: 'center'
   },
   productImage: { 
-    height: cardHeight - 37, width: cardWidth,  position: 'absolute',
+    height: cardHeaderHeight - 37, width: cardWidth,  position: 'absolute',
     zIndex: -1,
     //  top: 0, left: 0, right: 0, bottom: 0, resizeMode: 'cover' 
    },
@@ -975,7 +1098,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     width: cardWidth,
     //width/2 - 10
-    height: 70,
+    height: cardContentHeight,
     //200
     //marginLeft: 2,
     //marginRight: 2,
@@ -983,16 +1106,19 @@ const styles = StyleSheet.create({
     paddingTop: 3,
     // paddingRight: 7,
     paddingLeft: 7,
+    paddingBottom: 5
   },
   content: {
     padding: 20,
     backgroundColor: '#fff',
   },
+
+  //header Card
   card: {
     backgroundColor: '#fff',
     width: cardWidth,
     //width/2 - 0
-    height: cardHeight,
+    height: cardHeaderHeight,
     //200
     //marginLeft: 2,
     //marginRight: 2,
@@ -1002,8 +1128,8 @@ const styles = StyleSheet.create({
   } ,
   //controls the color of the collapsible card when activated
   active: {
-    backgroundColor: almostWhite,
-    // backgroundColor: '#fff',
+    // backgroundColor: almostWhite,
+    backgroundColor: '#fff',
     //#96764c
     //#f4d29a
     //#b78b3e
@@ -1047,58 +1173,121 @@ const styles = StyleSheet.create({
     color: limeGreen
   },
 
-  brand: {
-      // ...material.display1,
-      fontFamily: avenirNext,
-      fontSize: 18,
-      fontStyle: 'normal',
-      color: iOSColors.black
+  brand: new avenirNextText(false,15,"200"),
+
+  size: new avenirNextText(false,15,"400"),
+
+
+  filterButton: {
+    backgroundColor: 'black',
+    justifyContent: 'center',
+    // alignContent: 'center',
+    alignItems: 'center',
+    // marginRight: width/3.6,
+    // position: 'absolute',
+    // left: cardWidth,
+    // bottom: 30,
+    width: 90,
+    height: 26,
+    borderRadius: 30
   },
 
-  size: {
-      fontFamily: avenirNext,
-      fontStyle: 'normal',
-      fontSize: 13,
-      color: iOSColors.black
+  filterButtonContainer: {
+    justifyContent: 'center', alignItems: 'center', position: 'absolute', width: 90,
+    // backgroundColor: 'green',
+    borderRadius: 30,
+    bottom: 30,
+    left: cardWidth - 40,
+    right: cardWidth - 40
+    // marginLeft: cardWidth - 40
   },
 
   
   ////////////////////////////////// 
-  ////////////////////// Partition between marketplace styles and modal styles
+  ////////////////////// Partition between marketplace styles and the filter modal styles
 
-  filterModal: {flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: 10, marginTop: 22},
+  filterModal: {
+    // paddingVertical: 10,
+    paddingHorizontal: 0, 
+    marginTop: 22
+  },
 
-  filterModalContainer: {
-    // flexGrow: 1, 
-    // padding: 10,
-    backgroundColor: '#fff',
-    flexDirection: 'column',
+  filterModalHeader: {
+    flex: 0.2,
+    flexDirection: 'row',
+    backgroundColor: 'black',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: 10
+
   },
 
-  filterButtonStyle : {
-    backgroundColor: 'black',
-    width: 80,
-    // height: 15,
-    borderRadius: 20,
-    alignItems: 'center',
-    alignContent: 'center',
-    // justifyContent: 'center',
-    // alignItems:'center',
-    // alignContent: 'center',
-    position: 'absolute',
-    bottom: 60,
+  filterModalHeaderText: {
+    fontFamily: 'Avenir Next',
+    fontSize: 24,
+    color: '#fff',
+    letterSpacing: 2,
+    fontWeight: "300",
   },
 
-  filterButtonContainer: {
+  filterModalHeaderClearText: {
+    color: '#fff',
+    fontSize: 18,
+    fontFamily: 'Avenir Next',
+    fontWeight: "300"
+  },
+
+
+  filterModalContainer: {
+    flexGrow: 4, 
+    padding: 10,
+    // backgroundColor: '#fff',
+    // flexDirection: 'column',
+    // justifyContent: 'space-evenly',
+    // alignItems: 'center',
+  },
+
+  filterBlock: {
+    paddingVertical: 5,
+    height: 60
+  },
+
+  filterBlockHeadingContainer: {
+    flex: 0.3,
+    justifyContent: 'space-evenly',
+    alignItems: 'center'
+  },
+
+  optionsScroll: {
+    flex: 0.7
+  },
+
+  optionsScrollContentContainer: {
+    flexGrow: 4,
+    flexDirection: 'row'
+  },
+
+  optionContainer: {
     justifyContent: 'center',
-    alignContent: 'center',
     alignItems: 'center',
-    marginRight: width/3.6,
-    // position: 'absolute',
-    // bottom: 30
+    padding: 5
   },
+
+  option: new avenirNextText('#fff', 25, "500"),
+
+  filterModalFooter: {
+    flex: 0.1,
+    backgroundColor: aquaGreen,
+    padding: 25,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  filterModalFooterText: {textAlign: 'center'},
+
+
+  ///////////
+
 
   filterButtonStyleNoMarket : {
     backgroundColor: 'black',
@@ -1172,20 +1361,21 @@ const styles = StyleSheet.create({
   },
 
   searchBarAndIconContainer: {
-    flexDirection: 'row',
-    padding: 5,
-    justifyContent: 'center',
+    // flexDirection: 'row',
+    paddingVertical: 3,
+    // paddingHorizontal: 3,
+    // justifyContent: 'center',
     alignItems: 'center'
   },
 
   searchBarContainer: {
-    flex: 1, 
+    flex: 0.7, 
     paddingHorizontal: 10
     // backgroundColor: 'blue'
   },
 
   clearSearchIconContainer: {
-    flex: 0.2, 
+    flex: 0.3, 
     // backgroundColor: 'red'
   },
 
@@ -1225,6 +1415,357 @@ const styles = StyleSheet.create({
   
 
 });
+
+
+// return (
+      
+//   <Modal
+//   animationType="slide"
+//   transparent={false}
+//   visible={this.state.showFilterModal}
+//   onRequestClose={() => {
+//     Alert.alert('Modal has been closed.');
+//   }}
+//   >
+
+//     <ScrollView style={{flex: 1, marginTop: 22, }} contentContainerStyle={[styles.filterModalContainer, {backgroundColor: '#fff'}]}>
+
+//         <View style={{padding: 5}}>
+//         <Button  
+//           buttonStyle={styles.hideModalButtonStyle}
+//           icon={{name: 'chevron-left', type: 'material-community'}}
+//           title='Back'
+//           onPress={() => {
+//               this.setState( {showFilterModal: false} );
+//             }}
+//         />
+//         </View>
+
+//         <View style={styles.searchBarAndIconContainer}>
+
+//           <View style={styles.searchBarContainer}>
+//             <Hoshi
+//                     style={{ width: 250, backgroundColor: '#fff' }}
+//                     label={'What Brand, Type, or Size?'}
+//                     labelStyle={ {color: rejectRed} }
+//                     value={this.state.brandSearchTerm}
+//                     onChangeText={(brandSearchTerm)=>{this.setState({ brandSearchTerm })}}
+//                     borderColor={treeGreen}
+//                     inputStyle={{ color: 'black', fontWeight: '400', fontFamily: avenirNext }}
+//                     autoCorrect={false}
+                    
+//             />
+//           </View> 
+
+//           <View style={styles.clearSearchIconContainer}>
+//           <Icon name="close" 
+//                           size={40} 
+//                           color={'#800000'}
+//                           onPress={ () => this.setState({brandSearchTerm: ''})}
+//             />
+//           </View>   
+
+
+        
+//         </View>
+      
+//       <Text style={[styles.headerText, {color: treeGreen}]}>Brands</Text>
+//       <ScrollView style={{flex: 1, backgroundColor: '#122021'}} contentContainerStyle={[styles.filterScrollContainer, {backgroundColor: '#122021'}]}>
+
+//         {brands.length > 0? 
+//           <SelectMultiple
+//             items={brands}
+//             selectedItems={this.state.selectedBrands}
+//             onSelectionsChange={(selectedBrands) => this.setState({ selectedBrands })} 
+//           />
+//         :
+//           <Text>{noResultsFromSearchForSpecificCategoryText}</Text>
+//         }
+
+//       </ScrollView>
+//       <Text style={[styles.headerText, {color: 'black'}]}>Types</Text>
+//       <ScrollView contentContainerStyle={styles.filterScrollContainer}>
+
+//         {types.length > 0? 
+//           <SelectMultiple
+//             items={types}
+//             selectedItems={this.state.selectedTypes}
+//             onSelectionsChange={(selectedTypes) => this.setState({ selectedTypes })} 
+//           />
+//         :
+//           <Text>{noResultsFromSearchForSpecificCategoryText}</Text>
+//         }
+
+//       </ScrollView>  
+//       <Text style={[styles.headerText, {color: optionLabelBlue}]}>Sizes</Text>
+//       <ScrollView contentContainerStyle={styles.filterScrollContainer}>
+
+//         {sizes.length > 0? 
+//           <SelectMultiple
+//             items={sizes}
+//             selectedItems={this.state.selectedSizes}
+//             onSelectionsChange={(selectedSizes) => this.setState({ selectedSizes })} 
+//           />
+//         :
+//           <Text>{noResultsFromSearchForSpecificCategoryText}</Text>
+//         }
+
+//       </ScrollView>  
+
+      
+
+                  
+
+//         <View style={{padding: 5}}>
+//         <Button  
+//           buttonStyle={styles.confirmFiltersButtonStyle}
+//           icon={{name: 'filter', type: 'material-community'}}
+//           title='Confirm Selection'
+//           onPress={() => {
+//               this.getPageSpecificProducts(extractValuesFrom(selectedBrands), extractValuesFrom(selectedTypes), extractValuesFrom(selectedSizes));
+//               this.setState( {showFilterModal: false} );
+//             }}
+//         />
+//         </View>
+
+//         <View style={{padding: 5}}>
+//         <Button  
+//           buttonStyle={styles.removeFiltersButtonStyle}
+//           icon={{name: 'filter-remove', type: 'material-community'}}
+//           title='Remove Filters'
+//           onPress={() => {
+//               this.getPageSpecificProducts([],[],[]);
+//               this.setState( {selectedBrands: [], selectedTypes: [], selectedSizes: [], showFilterModal: false} );
+//             }}
+//         />
+//         </View>
+        
+        
+//     </ScrollView>
+  
+// </Modal>
+// )
+  // //switch between collapsed and expanded states
+  // toggleExpanded = () => {
+  //   this.setState({ collapsed: !this.state.collapsed });
+  // };
+
+  // setSectionL = section => {
+  //   this.setState({ activeSectionL: section });
+  // };
+
+  // setSectionR = section => {
+  //   this.setState({ activeSectionR: section });
+  // };
+
+
+
+  // renderHeader = (section, _, isActive) => {
+  //   return (
+  //     <View
+        
+  //       style={[styles.card, section.isActive ? styles.active : styles.inactive]}
+        
+  //     >
+
+  //       <View style={styles.productImageContainer}>
+  //           <View style={styles.likesRow}>
+  //             {/* if this product is already in your collection, you have the option to dislike the product,
+  //                 reducing its total number of likes by 1,
+  //                 and remove it from your collection. If not already in your collection, you may do the opposite. */}
+  //             {this.state.collectionKeys.includes(section.key) ? 
+  //               <Icon name="heart" 
+  //                         size={25} 
+  //                         color='#800000'
+  //                         onPress={() => {this.decrementLikes(section.text.likes, section.uid, section.key)}}
+                          
+
+  //               /> 
+  //             :  
+  //               <Icon name="heart-outline" 
+  //                         size={25} 
+  //                         color='#800000'
+  //                         onPress={() => {this.incrementLikes(section.text.likes, section.uid, section.key)}}
+
+  //               />
+  //             }
+
+  //             <Text style={styles.likes}>{section.text.likes}</Text>
+  //           </View>
+  //           {section.text.sold ? 
+  //             <View style={styles.soldTextContainer}>
+  //               <Text style={styles.soldText}>SOLD</Text>
+  //               <Image 
+  //               source={{uri: section.uris[0]}}
+  //               style={styles.productImage} 
+  //               />
+  //             </View>
+              
+  //            :
+  //            <Image 
+  //               source={{uri: section.uris[0]}}
+  //               style={styles.productImage}
+  //            />
+  //           }  
+  //       </View>
+
+  //       {section.text.original_price > 0 ?
+  //         <View style= { styles.headerPriceMagnifyingGlassRow }>
+            
+  //           <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+  //             <Text style={styles.original_price} >
+  //               £{section.text.original_price}
+  //             </Text>
+  //             <Text style={styles.price} >
+  //               £{section.text.price}
+  //             </Text>
+  //           </View>
+
+  //           {section.isActive? 
+  //             <Icon name="chevron-up" 
+  //                   size={30} 
+  //                   color='black'
+  //             />
+  //           :
+  //             <Icon name="chevron-down" 
+  //                   size={30} 
+  //                   color='black'
+  //             />
+  //           }
+            
+
+  //         </View>        
+  //       :
+  //         <View style= { styles.headerPriceMagnifyingGlassRow }>
+            
+  //           <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+  //             <Text style={styles.price} >
+  //               £{section.text.price}
+  //             </Text>
+  //           </View>
+
+  //           {isActive? 
+  //             <Icon name="chevron-up" 
+  //                   size={30} 
+  //                   color='black'
+  //             />
+  //           :
+  //             <Icon name="chevron-down" 
+  //                   size={30} 
+  //                   color='black'
+  //             />
+  //           }
+            
+            
+  //         </View>
+  //       }  
+
+                
+
+  //     </View>
+  //   );
+  // };
+
+  // renderContent = (section, _, isActive) => {
+  //   return (
+  //     <Animatable.View
+  //       duration={400}
+  //       style={[styles.contentCard, isActive ? styles.active : styles.inactive]}
+  //       transition="backgroundColor"
+  //     >
+          
+        
+  //       <Animatable.View style={styles.priceMagnifyingGlassRow} transition='backgroundColor'>
+  //         <Animatable.Text style={styles.brand} animation={isActive ? 'bounceInRight' : undefined}>
+  //           {section.text.brand}
+  //         </Animatable.Text>
+  //         <Icon name="magnify" 
+  //               size={30} 
+  //               color={limeGreen}
+  //               onPress={ () => { 
+  //                   console.log('navigating to full details');
+  //                   this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys); 
+  //                   }}  
+  //         />
+  //       </Animatable.View>  
+        
+  //       <Animatable.Text style={styles.size} animation={isActive ? 'bounceInLeft' : undefined}>
+  //         Size: {section.text.size}
+  //       </Animatable.Text>
+        
+  //     </Animatable.View>
+  //   );
+  // }
+
+  // // setFilterSection = section => {
+  // //   this.setState({ activeFilterSection: section });
+  // // };
+
+  // renderFilterHeader = (section, _, isActive) => {
+  //   return (
+  //     <Animatable.View
+  //       duration={300}
+  //       style={[styles.headerFilterCard, isActive ? styles.active : styles.inactive]}
+  //       transition="backgroundColor"
+  //     >
+
+  //       <Text style={styles.headerFilterText}>
+  //         {section.header}
+  //       </Text>
+  //       {isActive? 
+  //         <Icon name="chevron-up" 
+  //               size={30} 
+  //               color='black'
+  //         />
+  //       :
+  //         <Icon name="chevron-down" 
+  //               size={30} 
+  //               color='black'
+  //         />
+  //       }
+  //     </Animatable.View>
+  //   )
+  // }
+
+  // renderFilterContent = (section, _, isActive) => {
+
+  //   if(section.header == "Brand") {
+  //     return (
+  //       <ScrollView contentContainerStyle={styles.contentContainerStyle}>
+  //         <Animatable.View
+  //         duration={300}
+  //         style={[styles.contentFilterCard, isActive ? styles.active : styles.inactive]}
+  //         transition="backgroundColor"
+  //       >
+  //         {section.values.map( (value, index) => (
+  //           <Animatable.Text 
+  //             onPress={()=>{this.getPageSpecificProducts(value, section.header); this.setState({showFilterModal: false})}} 
+  //             style={styles.contentFilterText} animation={isActive ? 'bounceInDown' : undefined}
+  //           >
+  //             {value}
+  //           </Animatable.Text>
+  //         ))}
+  //       </Animatable.View>
+  //     </ScrollView>
+  //     )
+  //   }
+  //   return (
+  //     <Animatable.View
+  //       duration={300}
+  //       style={[styles.contentFilterCard, isActive ? styles.active : styles.inactive]}
+  //       transition="backgroundColor"
+  //     >
+  //       {section.values.map( (value, index) => (
+  //         <Animatable.Text 
+  //           onPress={()=>{this.getPageSpecificProducts(value, section.header); this.setState({showFilterModal: false})}} 
+  //           style={styles.contentFilterText} animation={isActive ? 'bounceInDown' : undefined}
+  //         >
+  //           {value}
+  //         </Animatable.Text>
+  //       ))}
+  //     </Animatable.View>
+  //   )
+  // }
 
 
 
