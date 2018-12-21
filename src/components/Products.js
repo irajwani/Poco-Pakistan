@@ -23,7 +23,8 @@ import { splitArrayIntoArraysOfSuccessiveElements } from '../localFunctions/arra
 
 import NothingHereYet from './NothingHereYet.js';
 import { avenirNextText } from '../constructors/avenirNextText.js';
-import { GrayLine } from '../localFunctions/visualFunctions.js';
+import { GrayLine, WhiteSpace } from '../localFunctions/visualFunctions.js';
+import { categories } from '../fashion/sizesAndTypes.js';
 
 const emptyMarketText = "Wow, such empty..."
 const noProductsOfYourOwnText = "So far, you have not uploaded any items on the marketplace.\nTo make some cash 🤑 and free up closet space, upload an article of clothing on the Market\nfrom the 'Sell' screen.";
@@ -134,7 +135,10 @@ class Products extends Component {
 
         ////Filter Modal Stuff
         searchTerm: '',
-
+        selectedBrands: [],
+        selectedCategory: 'Women',
+        selectedType: '',
+        selectedConditions: [],
         // activeSectionL: false,
         // activeSectionR: false,
         // collapsed: true,
@@ -146,7 +150,7 @@ class Products extends Component {
         activeFilterSection: false,
         // selectedBrand: '',
         // brandSearchTerm: '',
-        selectedBrands: [],
+        
         // selectedTypes: [],
         // selectedSizes: [],
       };
@@ -248,8 +252,9 @@ class Products extends Component {
   // }
 
 
-  getPageSpecificProducts = (selectedBrands) => {
-    this.setState({isGetting: true})
+  getPageSpecificProducts = () => {
+    this.setState({isGetting: true});
+    var {selectedBrands, selectedCategory, selectedType, selectedConditions} = this.state;
     // const keys = [];
     firebase.database().ref().on("value", (snapshot) => {
       var d = snapshot.val();
@@ -308,7 +313,8 @@ class Products extends Component {
           //Second Level is to extract list of information to be displayed in the filterModal
           //first extract the list of current brands:
           var brands = [];
-          var typesForCategory = {men: [], women: [], accessories: []};
+          var typesForCategory = {Men: [], Women: [], Accessories: []};
+          var conditions = [{name: "New With Tags", selected: false}, {name: "New Without Tags", selected: false}, {name: "Slightly Used", selected: false}, {name: "Used", selected: false}]
 
           //Now because there's a fixed number of values of SIZE for each TYPE, 
           //just generate the sizes based on the type selected by the person when they tap the category
@@ -322,13 +328,13 @@ class Products extends Component {
             brands.push({name: product.text.brand, selected: false});
             switch(product.text.gender) {
               case "Men":
-                typesForCategory.men.push(product.text.type);
+                typesForCategory.Men.push({name: product.text.type, selected: false});
                 break;
               case "Women":
-                typesForCategory.women.push(product.text.type);
+                typesForCategory.Women.push({name: product.text.type, selected: false});
                 break;
               case "Accessories":
-                typesForCategory.accessories.push(product.text.type);
+                typesForCategory.Accessories.push({name: product.text.type, selected: false});
                 break;  
               default: 
                 break;
@@ -339,16 +345,17 @@ class Products extends Component {
           //TODO: problematic search? right now results are strings that include your searched for string
           // brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ) 
           brands = brands.filter(onlyUnique);
-          typesForCategory.men = typesForCategory.men.filter(onlyUnique);
-          typesForCategory.women = typesForCategory.women.filter(onlyUnique);
-          typesForCategory.accessories = typesForCategory.accessories.filter(onlyUnique);
+          typesForCategory.men = typesForCategory.Men.filter(onlyUnique);
+          typesForCategory.women = typesForCategory.Women.filter(onlyUnique);
+          typesForCategory.accessories = typesForCategory.Accessories.filter(onlyUnique);
 
           //second extract types of clothing for each category:
           
 
           //Third Level is optional and will be enforced when user has a selectedValue(s) to filter products
           all = selectedBrands.length > 0 ? all.filter( (product) => selectedBrands.includes(product.text.brand)) : all;
-          // all = selectedTypes.length > 0 ? all.filter( (product) => selectedTypes.includes(product.text.type)) : all;
+          all = selectedType ? all.filter( (product) => selectedType == product.text.type && selectedCategory == product.text.gender) : all;
+          all = selectedConditions.length > 0 ? all.filter( (product) => selectedConditions.includes(product.text.condition)) : all;
           // all = selectedSizes.length > 0 ? all.filter( (product) => selectedSizes.includes(product.text.size)) : all;
 
           //After all this filtering, it could be the case that no results match your criteria,
@@ -382,7 +389,7 @@ class Products extends Component {
           var rightProducts = all.slice( Math.round(all.length/2) , all.length + 1);
 
           //emptyMarket and emptyMarketDueToSearchCriteria remain false in this.state;
-          this.setState({ noProducts, emptyCollection, collectionKeys, productKeys, leftProducts, rightProducts, typesForCategory, brands, name, isGetting: false, });
+          this.setState({ noProducts, emptyCollection, collectionKeys, productKeys, leftProducts, rightProducts, typesForCategory, brands, conditions, name, isGetting: false, });
         
       }
 
@@ -680,7 +687,7 @@ class Products extends Component {
 
   renderFilterModal = () => {
 
-    var {brands, typesForCategory, searchTerm, selectedBrands} = this.state
+    var {brands, typesForCategory, conditions, searchTerm, selectedBrands, selectedCategory, selectedConditions} = this.state
     console.log(brands, searchTerm, selectedBrands);
     brands = brands.filter( (brand) => brand.name.includes(searchTerm) ); 
     console.log(brands);
@@ -711,7 +718,13 @@ class Products extends Component {
           </TouchableHighlight>
 
           <Text style={styles.filterModalHeaderText}>FILTERS</Text>
-          <Text style={styles.filterModalHeaderClearText}>Reset</Text>
+          <Text
+          onPress={()=>{
+            this.setState({selectedBrands: [], searchTerm: '', selectedCategory: 'Women', selectedConditions: []})
+          }}
+          style={styles.filterModalHeaderClearText}>
+          Reset
+          </Text>
         </View>
 
         <ScrollView style={{flex: 0.8}} contentContainerStyle={styles.filterModalContainer}>
@@ -733,9 +746,9 @@ class Products extends Component {
           <GrayLine/>
 
           <View style={styles.filterBlock}>
-
+            
             <View style={styles.filterBlockHeadingContainer}>
-              <Text style={new avenirNextText('#fff', 14, "300")}>
+              <Text style={new avenirNextText('#fff', 19, "300")}>
                 Brands
               </Text>
             </View>
@@ -778,13 +791,117 @@ class Products extends Component {
 
           <GrayLine/>
 
+          <View style={[styles.filterBlock, {height: 90}]}>
+
+            <View style={styles.filterBlockHeadingContainer}>
+              <Text style={new avenirNextText('#fff', 19, "300")}>
+                Category
+              </Text>
+            </View>
+
+            <View style={styles.categoriesContainer}>
+              {categories.map( (category) => (
+                <Text 
+                style={[styles.option, {fontSize: 19, textAlign: 'justify'}, {color: this.state.selectedCategory == category ? '#fff' : graphiteGray}]} 
+                onPress={()=>{
+                  this.setState({selectedCategory: category})
+                }}>
+                  {category}
+                </Text>
+              ))}
+            </View>
+
+          </View>
+
+          <GrayLine/>
+
+          <View style={[styles.filterBlock]}>
+
+            <View style={styles.filterBlockHeadingContainer}>
+              <Text style={new avenirNextText('#fff', 19, "300")}>
+                Type
+              </Text>
+            </View>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator style={styles.optionsScroll} contentContainerStyle={styles.optionsScrollContentContainer}>
+              {typesForCategory[selectedCategory].map((type, index)=>(
+                <View style={styles.optionContainer}>
+                  <Text
+                   onPress={()=>{
+                    this.state.selectedType == type.name ? null : this.setState({selectedType: type.name});
+                    // this.state.typesForCategory[selectedCategory][index].selected = !this.state.typesForCategory[selectedCategory][index].selected;
+                    // this.setState({typesForCategory: this.state.typesForCategory});
+                   }}
+                   style={[styles.option, {color: this.state.selectedType == type.name ? '#fff' : graphiteGray }]}>
+                   {type.name}
+                   </Text>
+                </View>
+                
+              ))}
+            </ScrollView>
+
+          </View>
+
+          <GrayLine/>  
+
+          <View style={[styles.filterBlock]}>
+
+            <View style={styles.filterBlockHeadingContainer}>
+              <Text style={new avenirNextText('#fff', 19, "300")}>
+                Condition
+              </Text>
+            </View>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator style={styles.optionsScroll} contentContainerStyle={styles.optionsScrollContentContainer}>
+            {conditions.map( (condition, index) => (
+              <View style={styles.optionContainer}>
+                <Text 
+                onPress={()=>{
+                  if(selectedConditions.includes(condition.name)) {
+                    let INDEX = selectedConditions.indexOf(condition.name);
+                    if(INDEX == 0) {
+                       selectedConditions = selectedConditions.slice(INDEX + 1, selectedConditions.length)
+                    }
+                    else if(INDEX == selectedConditions.length - 1) {
+                      selectedConditions = selectedConditions.slice(0,INDEX)
+                    }
+                    else {
+                      var leftConditions = selectedConditions.slice(0,INDEX)
+                      var rightConditions = selectedConditions.slice(INDEX + 1, selectedConditions.length)
+                      selectedConditions = leftConditions.concat(rightConditions);
+                    }
+                  }
+                  else {
+                    selectedConditions.push(condition.name)
+                  }
+                  this.state.conditions[index].selected = !this.state.conditions[index].selected; 
+                  this.setState({brands: this.state.conditions, selectedConditions});
+                }}
+                style={[styles.option, {color: !condition.selected ? graphiteGray : '#fff'}]}
+                >
+                {condition.name}
+                </Text>
+              </View>
+            ))}
+            </ScrollView>
+
+
+          </View>
+
+            
+
         </ScrollView>
 
-        <TouchableHighlight onPress={()=>this.getPageSpecificProducts(selectedBrands)} style={styles.filterModalFooter}>
+        
         <View style={styles.filterModalFooter}>
-          <Text style={[styles.filterModalFooterText, new avenirNextText('white', 24, "600")]}>APPLY</Text>
+          <Text
+          onPress={()=>{this.getPageSpecificProducts(selectedBrands); this.setState({showFilterModal: false})}}
+          style={new avenirNextText(false, 18, "400")}
+          >
+          APPLY
+          </Text>
         </View>
-        </TouchableHighlight>
+        
 
 
 
@@ -1249,22 +1366,26 @@ const styles = StyleSheet.create({
 
   filterBlock: {
     paddingVertical: 5,
-    height: 60
+    height: 100,
+    justifyContent: 'center'
   },
 
   filterBlockHeadingContainer: {
     flex: 0.3,
-    justifyContent: 'space-evenly',
+    // justifyContent: 'space-evenly',
     alignItems: 'center'
   },
 
   optionsScroll: {
-    flex: 0.7
+    flex: 0.7,
+    
   },
 
   optionsScrollContentContainer: {
     flexGrow: 4,
-    flexDirection: 'row'
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    padding: 10
   },
 
   optionContainer: {
@@ -1275,15 +1396,22 @@ const styles = StyleSheet.create({
 
   option: new avenirNextText('#fff', 25, "500"),
 
+  categoriesContainer: {
+    flex: 0.7,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center'
+  },
+
   filterModalFooter: {
     flex: 0.1,
-    backgroundColor: aquaGreen,
-    padding: 25,
+    backgroundColor: '#fff',
+    padding: 10,
     justifyContent: 'center',
     alignItems: 'center'
   },
 
-  filterModalFooterText: {textAlign: 'center'},
+  // filterModalFooterText: {textAlign: 'center'},
 
 
   ///////////
