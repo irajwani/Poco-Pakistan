@@ -19,7 +19,7 @@ import * as Animatable from 'react-native-animatable';
 import { PacmanIndicator } from 'react-native-indicators';
 import { graphiteGray, lightGreen, rejectRed, treeGreen, avenirNext, optionLabelBlue, almostWhite, flashOrange, lightGray, highlightGreen, lightBlack } from '../colors.js';
 
-import { splitArrayIntoArraysOfSuccessiveElements } from '../localFunctions/arrayFunctions';
+// import { splitArrayIntoArraysOfSuccessiveElements } from '../localFunctions/arrayFunctions';
 
 import NothingHereYet from './NothingHereYet.js';
 import { avenirNextText } from '../constructors/avenirNextText.js';
@@ -43,6 +43,23 @@ const cardContentHeight = 70
 const cardFull = cardHeaderHeight + cardContentHeight;
 
 const loadingStrings = ['Acquiring Catalogue of Products...', 'Fetching Marketplace...', 'Loading...', 'Almost there...']
+
+const splitArrayIntoArraysOfSuccessiveElements = (array) => {
+  var first, second;
+  
+  if(array.length == 1) {
+    first = array;
+    second = false
+  }
+  
+  else if(array.length > 1) {
+    first = array.filter( (element, index) => index % 2 == 0 );
+	second = array.filter( (element, index) => index % 2 != 0 );
+  }
+  
+  return {first, second}
+  
+}
 
 function randomIntFromInterval(min,max) {
     return Math.floor(Math.random()*(max-min+1)+min); //min and max included
@@ -159,7 +176,7 @@ class Products extends Component {
 
   componentWillMount() {
     setTimeout(() => {
-      console.log('Mounting Products Component')
+      // console.log('Mounting Products Component')
       //TODO: Maybe this function is being called too many times which leads to way too many notifications?
       // this.initializePushNotifications();
     }, 1000);
@@ -258,7 +275,7 @@ class Products extends Component {
     // const keys = [];
     firebase.database().ref().on("value", (snapshot) => {
       var d = snapshot.val();
-      console.log('retrieving array of products')
+      // console.log('retrieving array of products')
       //Only pull the products that are in this user's collection for the WishList tab.
       const {showCollection, showYourProducts} = this.props;
       const uid = firebase.auth().currentUser.uid;
@@ -275,8 +292,8 @@ class Products extends Component {
       if(collectionKeys.length == 0) {emptyCollection = true}    
       var all = d.Products ? d.Products : [];
 
-      var emptyMarket = all.length > 0 ? false : true;
-      emptyMarket ? this.setState({emptyMarket: true}) : null;
+      // var emptyMarket = all.length > 0 ? false : true;
+      all.length < 1 ? this.setState({emptyMarket: true}) : null;
 
 
       //OF COURSE, the FIRST/TOP level of "filtering" that dictates what products are displayed is if whether:
@@ -345,9 +362,9 @@ class Products extends Component {
           //TODO: problematic search? right now results are strings that include your searched for string
           // brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ) 
           brands = brands.filter(onlyUnique);
-          typesForCategory.men = typesForCategory.Men.filter(onlyUnique);
-          typesForCategory.women = typesForCategory.Women.filter(onlyUnique);
-          typesForCategory.accessories = typesForCategory.Accessories.filter(onlyUnique);
+          typesForCategory.Men = typesForCategory['Men'].filter(onlyUnique);
+          typesForCategory.Women = typesForCategory['Women'].filter(onlyUnique);
+          typesForCategory.Accessories = typesForCategory['Accessories'].filter(onlyUnique);
 
           //second extract types of clothing for each category:
           
@@ -367,10 +384,12 @@ class Products extends Component {
           all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
           console.log('after sort ' + all)
           all.forEach((product) => {
-            product['isActive'] = false  
+            product['isActive'] = false  //boolean for rowData UI expansion
           })
           console.log('before split: ' + all);
           // var {leftProducts, rightProducts} = splitArrayIntoArraysOfSuccessiveElements(all);
+          var leftProducts = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 );
+          var rightProducts = all.slice( Math.round(all.length/2) , all.length + 1);
           //TODO:
           console.log('after split :' + all);
           // console.log(leftProducts, rightProducts);
@@ -385,8 +404,6 @@ class Products extends Component {
 
           
           var name = d.Users[uid].profile.name;
-          var leftProducts = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 );
-          var rightProducts = all.slice( Math.round(all.length/2) , all.length + 1);
 
           //emptyMarket and emptyMarketDueToSearchCriteria remain false in this.state;
           this.setState({ noProducts, emptyCollection, collectionKeys, productKeys, leftProducts, rightProducts, typesForCategory, brands, conditions, name, isGetting: false, });
@@ -415,7 +432,7 @@ class Products extends Component {
       //add a like to the sellers likes count for this particular product
       //unless users already liked this product, in which case, dont do anything
       if(this.state.collectionKeys.includes(key) == true) {
-        console.log('show modal that users already liked this product')
+        // console.log('show modal that users already liked this product')
         alert("This product is already in your collection.")
       } 
       else {
@@ -467,7 +484,7 @@ class Products extends Component {
 
   decrementLikes(likes, uid, key) {
     //this func applies when heart icon is red
-    console.log('decrement number of likes');
+    // console.log('decrement number of likes');
     var userCollectionUpdates = {};
     userCollectionUpdates['/Users/' + firebase.auth().currentUser.uid + '/collection/' + key + '/'] = false;
     firebase.database().ref().update(userCollectionUpdates);
@@ -655,7 +672,6 @@ class Products extends Component {
                         size={30} 
                         color={limeGreen}
                         onPress={ () => { 
-                            console.log('navigating to full details');
                             this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys); 
                             }}  
                   />
@@ -688,9 +704,9 @@ class Products extends Component {
   renderFilterModal = () => {
 
     var {brands, typesForCategory, conditions, searchTerm, selectedBrands, selectedCategory, selectedConditions} = this.state
-    console.log(brands, searchTerm, selectedBrands);
+    // console.log(brands, searchTerm, selectedBrands);
     brands = brands.filter( (brand) => brand.name.includes(searchTerm) ); 
-    console.log(brands);
+    // console.log(brands);
     // brands = brands.filter(onlyUnique);
     // types = types.filter( (type) => type.includes(brandSearchTerm) ); 
     // sizes = sizes.filter( (size) => size.includes(brandSearchTerm) );
@@ -755,8 +771,8 @@ class Products extends Component {
 
             <ScrollView horizontal showsHorizontalScrollIndicator style={styles.optionsScroll} contentContainerStyle={styles.optionsScrollContentContainer}>
             {brands.map( (brand, index) => (
-              <View style={{flexDirection: 'row', padding: 4}}>
-              <View style={styles.optionContainer}>
+              
+              <View key={index} style={[styles.optionContainer, brands.length > 1 && index != brands.length - 1 ? {borderRightWidth: 0.3, borderRightColor: graphiteGray,} : null]}>
                 <Text 
                 onPress={()=>{
                   if(selectedBrands.includes(brand.name)) {
@@ -784,8 +800,7 @@ class Products extends Component {
                 {brand.name}
                 </Text>
               </View>
-              <View style={{height: 60, width: 0.6, backgroundColor: graphiteGray}}/>
-              </View>
+              
             ))}
             </ScrollView>
 
@@ -803,14 +818,16 @@ class Products extends Component {
             </View>
 
             <View style={styles.categoriesContainer}>
-              {categories.map( (category) => (
-                <Text 
-                style={[styles.option, {fontSize: 22, textAlign: 'justify'}, {color: this.state.selectedCategory == category ? highlightGreen : graphiteGray}]} 
-                onPress={()=>{
-                  this.setState({selectedCategory: category})
-                }}>
-                  {category}
-                </Text>
+              {categories.map( (category, index) => (
+                <View key={index} style={[styles.optionContainer, {justifyContent: 'space-between'}]}>
+                  <Text 
+                  style={[styles.option, {fontSize: 22, textAlign: 'center'}, {color: this.state.selectedCategory == category ? highlightGreen : graphiteGray}]} 
+                  onPress={()=>{
+                    this.setState({selectedCategory: category})
+                  }}>
+                    {category}
+                  </Text>
+                </View>
               ))}
             </View>
 
@@ -828,7 +845,7 @@ class Products extends Component {
 
             <ScrollView horizontal showsHorizontalScrollIndicator style={[styles.optionsScroll, {flex: 0.6}]} contentContainerStyle={styles.optionsScrollContentContainer}>
               {typesForCategory[selectedCategory].map((type, index)=>(
-                <View style={styles.optionContainer}>
+                <View key={index} style={[styles.optionContainer, typesForCategory[selectedCategory].length > 1 && index != typesForCategory[selectedCategory].length - 1 ? {borderRightWidth: 0.3, borderRightColor: graphiteGray,} : null]}>
                   <Text
                    onPress={()=>{
                     this.state.selectedType == type.name ? null : this.setState({selectedType: type.name});
@@ -857,7 +874,7 @@ class Products extends Component {
 
             <ScrollView horizontal showsHorizontalScrollIndicator style={styles.optionsScroll} contentContainerStyle={styles.optionsScrollContentContainer}>
             {conditions.map( (condition, index) => (
-              <View style={styles.optionContainer}>
+              <View key={index} style={[styles.optionContainer, conditions.length > 1 && index != conditions.length - 1 ? {borderRightWidth: 0.3, borderRightColor: graphiteGray,} : null]}>
                 <Text 
                 onPress={()=>{
                   if(selectedConditions.includes(condition.name)) {
@@ -878,7 +895,7 @@ class Products extends Component {
                     selectedConditions.push(condition.name)
                   }
                   this.state.conditions[index].selected = !this.state.conditions[index].selected; 
-                  this.setState({brands: this.state.conditions, selectedConditions});
+                  this.setState({conditions: this.state.conditions, selectedConditions});
                 }}
                 style={[styles.option, {color: !condition.selected ? graphiteGray : highlightGreen}]}
                 >
@@ -916,7 +933,7 @@ class Products extends Component {
 
   render() {
     const {showYourProducts, showCollection} = this.props;
-    var {isGetting, noProducts, emptyMarket, emptyMarketDueToSearchCriteria, emptyCollection} = this.state;
+    var {isGetting, noProducts, emptyMarket, emptyMarketDueToSearchCriteria, emptyCollection, rightProducts} = this.state;
 
     if(isGetting) {
       return ( 
@@ -1013,7 +1030,10 @@ class Products extends Component {
                     )}
                     enableEmptySections={true}
                 />
-                <ListView
+
+                
+                { this.state.leftProducts?
+                  <ListView
                     contentContainerStyle={styles.listOfProducts}
                     dataSource={this.state.rightDS.cloneWithRows(this.state.rightProducts)}
                     renderRow={(rowData) => this.renderRow(rowData, () => {
@@ -1025,6 +1045,9 @@ class Products extends Component {
                     })}
                     enableEmptySections={true}
                 />
+                :
+                null
+                }
               {this.renderFilterModal()}
 
             </ScrollView>
@@ -1035,11 +1058,13 @@ class Products extends Component {
                 onPress={() => this.setState({ showFilterModal: true }) } 
                 style={styles.filterButton}
               >
-              <Icon 
-                name="filter-outline" 
-                size={13} 
-                color='#fff'
-              />  
+              
+                <Icon 
+                  name="filter-outline" 
+                  size={15} 
+                  color='#fff'
+                />
+              
               </TouchableOpacity>
             </View>
 
@@ -1281,9 +1306,9 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 
-  original_price: new avenirNextText(false, 17, "300"),
+  original_price: new avenirNextText(false, 17, "500"),
 
-  price: new avenirNextText(limeGreen,17,"300"),
+  price: new avenirNextText(limeGreen,17,"500"),
 
   brand: new avenirNextText(false,15,"200"),
 
@@ -1299,8 +1324,8 @@ const styles = StyleSheet.create({
     // position: 'absolute',
     // left: cardWidth,
     // bottom: 30,
-    width: 50,
-    height: 26,
+    width: 60,
+    height: 32,
     borderRadius: 30
   },
 
@@ -1355,24 +1380,24 @@ const styles = StyleSheet.create({
     padding: 10,
     // backgroundColor: '#fff',
     // flexDirection: 'column',
-    // justifyContent: 'space-evenly',
-    // alignItems: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   filterBlock: {
-    paddingVertical: 5,
-    height: 125,
+    paddingVertical: 2,
+    height: 100,
     justifyContent: 'center'
   },
 
   filterBlockHeadingContainer: {
-    flex: 0.3,
+    flex: 0.6,
     // justifyContent: 'space-evenly',
     alignItems: 'center'
   },
 
   optionsScroll: {
-    flex: 0.7,
+    flex: 0.4,
     
   },
 
@@ -1388,7 +1413,8 @@ const styles = StyleSheet.create({
     // justifyContent: 'space-between',
     // alignContent: 'space-between',
     alignItems: 'center',
-    padding: 5,
+    // paddingVertical: 3,
+    paddingHorizontal: 8,
     // backgroundColor: 'red'
   },
 

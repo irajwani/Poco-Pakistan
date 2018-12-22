@@ -11,8 +11,8 @@ const splitArrayIntoArraysOfSuccessiveElements = (array) => {
     //index % 2 != 0 ? second.push(element) : first.push(element) 
   //)
   
-  var first = array.filter( (element, index) => index % 2 == 0 ),
-  second = array.filter( (element, index) => index % 2 != 0 );
+  var first = array.filter( (element, index) => index % 2 == 0 );
+  var second = array.filter( (element, index) => index % 2 != 0 );
   return {first, second}
 
 } 

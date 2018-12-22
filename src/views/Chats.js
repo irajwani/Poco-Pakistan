@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dimensions, StyleSheet, ScrollView, View, Image } from 'react-native'
+import { Dimensions, StyleSheet, ScrollView, View, Image, TouchableOpacity, TouchableHighlight } from 'react-native'
 import {Text} from 'native-base'
 import {Button} from 'react-native-elements';
 
@@ -11,12 +11,16 @@ import { CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_INSTANCE_LOCATOR } from '../cr
 import {material} from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
 
-import { lightGreen } from '../colors';
+import { lightGreen, coolBlack, highlightGreen, graphiteGray, treeGreen } from '../colors';
+import {avenirNextText} from '../constructors/avenirNextText'
+
 import NothingHereYet from '../components/NothingHereYet';
 
 const noChatsText = "You have not initiated any chats 😳. Converse with a seller by choosing to 'Buy' a product from the Marketplace";
-
-const {width} = Dimensions.get('window')
+const DaysOfTheWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const {width} = Dimensions.get('window');
+const navTabButtonWidth = 115;
+const pictureWidth = 70, pictureHeight = 70;
 
 function removeFalsyValuesFrom(object) {
   const newObject = {};
@@ -44,7 +48,7 @@ class Chats extends Component {
         this.leaveYourRooms(userIdentificationKey);
         
         // this.getChats(userIdentificationKey);
-      }, 20000); //20 seconds
+      }, 60000); //20 seconds
     }, 1000);
 
 
@@ -55,7 +59,7 @@ class Chats extends Component {
         this.getChats(userIdentificationKey);
         
         // this.getChats(userIdentificationKey);
-      }, 7000); //7 seconds
+      }, 45000); //7 seconds
     }, 5000);
 
     //TODO: add refresh button so user may refresh chats manually
@@ -158,63 +162,106 @@ class Chats extends Component {
       .then( (currentUser) => {
         console.log('Second Connect', currentUser.rooms.length)
         this.currentUser = currentUser;
-        
+        //TODO: Construct an array of objects where each object contains:
+        //pictures of product and users, buyer and seller names and Ids
+        //messages from this room
         if(this.currentUser.rooms.length>1) {
-
+          var count = 0;
           //perform the following process across all rooms currentUser is a part of except for the common Users Room
           for(let i = 1; i < this.currentUser.rooms.length; i++) {
+
+            
               
-            var {createdByUserId, name, id} = this.currentUser.rooms[i]
-            var productSellerId, productText, productImageURL;
-            
-            d.Products.forEach( (prod) => {
-                //given the current Room Name, we need the product key to match some part of the room name
-                //to obtain the correct product's properties
-                //note that we only want the product's properties here so it doesn't matter if this loop
-                //comes across ProductKeyX.someBuyer1 or ProductKeyX.someBuyer2
-                if(name.includes(prod.key)) { productSellerId = prod.uid, productText = prod.text; productImageURL = prod.uris[0]; }
+            var {createdByUserId, name, id} = this.currentUser.rooms[i];
+
+            this.currentUser.fetchMessages({
+              roomId: id,
+              direction: "newer",
+              limit: 1
             })
-            var users = this.currentUser.rooms[i].users
-            console.log(name, id);
+            .then( (roomMessages) => {
+              var lastMessageText = false, lastMessageSenderIdentification = false, lastMessageDate = false;
+              // console.log(roomMessages);
+              // const messageIds = [...roomMessages.map(m =>  m.id)];
+
+              //Math.max and .min don't accept arrays, but a list of arguments, so we use spread operator to spread values from array as such within the function
+              // const newestMessageReceivedId = Math.max(...messageIds); 
+              
+              // roomMessages.filter( m => m.id == newestMessageReceivedId )
+              if(roomMessages.length > 0) {
+                lastMessageText = (roomMessages['0'].text).substr(0,40);
+                lastMessageDate = new Date(roomMessages['0'].updatedAt).getDay();
+                lastMessageSenderIdentification = roomMessages['0'].senderId;
+              }
+
+              // console.log(lastMessageDate)
+              var productSellerId, productText, productImageURL;
+            
+              d.Products.forEach( (prod) => {
+                  //given the current Room Name, we need the product key to match some part of the room name
+                  //to obtain the correct product's properties
+                  //note that we only want the product's properties here so it doesn't matter if this loop
+                  //comes across ProductKeyX.someBuyer1 or ProductKeyX.someBuyer2
+                  if(name.includes(prod.key)) { productSellerId = prod.uid, productText = prod.text; productImageURL = prod.uris[0]; }
+              })
+              var users = this.currentUser.rooms[i].users
+              // console.log(name, id);
+              
+              
+              var obj;
+              // var chatUpdates = {};
+              var buyerIdentification = users[0,1].id;
+              var buyer = users[0,1].name;
+              var buyerAvatar = users[0,1].avatarURL ? users[0,1].avatarURL : '';
+              var sellerIdentification = users[0,0].id;
+              var seller = users[0,0].name;
+              var sellerAvatar = users[0,0].avatarURL ? users[0,0].avatarURL : '';
+              obj = { 
+                productSellerId: productSellerId, productText: productText, productImageURL: productImageURL, 
+                createdByUserId: createdByUserId, name: name, id: id, 
+                buyerIdentification, sellerIdentification,
+                seller: seller, sellerAvatar: sellerAvatar, 
+                buyer: buyer, buyerAvatar: buyerAvatar,
+                lastMessageText, lastMessageDate, lastMessageSenderIdentification
+              };
+              chats.push(obj);
+              if(count == this.currentUser.rooms.length - 2){
+                console.log(count, 'all done')
+                this.setState({chats, yourUid: your_uid, noChats: false, isGetting: false});
+                // return null
+              }
+  
+              else {
+                count++;
+              }
+
+              //TODO: Perhaps no need for firebase update
+              // chatUpdates['/Users/' + CHATKIT_USER_NAME + '/chats/' + i + '/'] = obj;
+              // firebase.database().ref().update(chatUpdates);
+              console.log(i, 'complete', this.currentUser.rooms.length)
+            })
+            
+              
             
             
-            var obj;
-            var chatUpdates = {};
-            var buyerIdentification = users[0,1].id;
-            var buyer = users[0,1].name;
-            var buyerAvatar = users[0,1].avatarURL ? users[0,1].avatarURL : '';
-            var sellerIdentification = users[0,0].id;
-            var seller = users[0,0].name;
-            var sellerAvatar = users[0,0].avatarURL ? users[0,0].avatarURL : '';
-            obj = { 
-              productSellerId: productSellerId, productText: productText, productImageURL: productImageURL, 
-              createdByUserId: createdByUserId, name: name, id: id, 
-              buyerIdentification, sellerIdentification,
-              seller: seller, sellerAvatar: sellerAvatar, 
-              buyer: buyer, buyerAvatar: buyerAvatar
-            };
-            chats.push(obj);
-            chatUpdates['/Users/' + CHATKIT_USER_NAME + '/chats/' + i + '/'] = obj;
-            firebase.database().ref().update(chatUpdates);
             
 
         
 
         }
-        console.log(chats);
-        this.setState({chats, noChats: false});
+        // console.log(chats);
+        
         }
 
       else {
-        console.log('NO CHATS');
-        this.setState({noChats: true})
+        // console.log('NO CHATS');
+        this.setState({noChats: true, isGetting: false})
       }
       
       })
 
 
     })
-    .then( () => { this.setState( {isGetting: false} );  } )
     .catch( (err) => {console.log(err) })
     
   }
@@ -227,13 +274,99 @@ class Chats extends Component {
   navToNotifications() {
     this.props.navigation.navigate('Notifications')
   }
+
+  renderUpperNavTab = () => {
+    return (
+      <View style={styles.upperNavTab}>
+
+        <View style={[styles.upperNavTabButton, {backgroundColor: highlightGreen}]}>
+          <Text style={styles.upperNavTabText}>Chats</Text>
+        </View>
+        
+        <TouchableOpacity style={[styles.upperNavTabButton, {borderColor: '#fff', }]} onPress={()=>this.navToNotifications()}>
+          <Text style={styles.upperNavTabText}>Notifications</Text>
+        </TouchableOpacity>
+        
+      </View>
+    )
+  }
+
+  renderChats = (chats) => {
+
+      return(chats.map( (chat, index) => 
+        (
+          
+          <View key={chat.name} style={styles.specificChatContainer}>
+
+            <TouchableOpacity onPress={() => this.navToChat(chat)} style={styles.pictureContainer}>
+              <Image 
+              source={this.state.yourUid == chat.sellerIdentification ? chat.buyerAvatar ? {uri: chat.buyerAvatar } : require('../images/blank.jpg') : chat.sellerAvatar ? {uri: chat.sellerAvatar } : require('../images/blank.jpg')   } 
+              style={[styles.picture, {borderRadius: 37}]} />
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => this.navToChat(chat)} style={styles.textContainer}>
+              <Text style={styles.otherPersonName}>{this.state.yourUid == chat.sellerIdentification ? (chat.buyer.split(' '))[0] : (chat.seller.split(' '))[0] }</Text>
+              <Text style={styles.lastMessageText}>{this.state.yourUid == chat.sellerIdentification ? (chat.buyer.split(' '))[0] : (chat.seller.split(' '))[0]}: {chat.lastMessageText}</Text>
+              <Text style={styles.lastMessageDate}>{DaysOfTheWeek[chat.lastMessageDate]}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => this.navToChat(chat)} style={styles.pictureContainer}>
+              <Image source={ {uri: chat.productImageURL }} 
+              style={styles.picture} />
+            </TouchableOpacity>
+
+
+
+
+          </View>
+          
+        )
+      ))
+    
+      // chats.map( (chat) => {
+      //   return(
+      //     <View key={chat.name} style={{flexDirection: 'column', padding: 5}}>
+      //       <View style={styles.separator}/>
+      //       <View style={styles.rowContainer}>
+              
+      //         <Image source={ {uri: chat.productImageURL }} style={[styles.productprofilepic, styles.productcolor]} />
+              
+      //         <View style={styles.infoandbuttoncontainer}>
+      //           <Text style={[styles.info, styles.productinfo]}>Chat Between:</Text>
+      //           <Text style={[styles.info, styles.sellerinfo]}>{(chat.seller.split(' '))[0]} & {(chat.buyer.split(' '))[0]}</Text>
+      //           <View style={styles.membersRow}>
+                  
+      //               <Image source={ chat.sellerAvatar ? {uri: chat.sellerAvatar } : require('../images/blank.jpg') } style={[styles.profilepic, styles.profilecolor]} />
+      //               <Image source={ chat.buyerAvatar ? {uri: chat.buyerAvatar } : require('../images/blank.jpg') } style={[styles.profilepic, styles.profilecolor]} />
+                  
+      //           </View>   
+      //         </View>
+
+      //         <Button
+      //               small
+      //               buttonStyle={styles.messagebutton}
+      //               icon={{name: 'forum', type: 'material-community'}}
+      //               title="TALK"
+      //               onPress={() => { this.navToChat(chat) } } 
+      //         />  
+                
+
+      //       </View>
+      //       <View style={styles.separator}/>
+      //     </View>
+          
+      //   )
+          
+      //   })
+    
+  }
   
   render() {
     const {chats} = this.state
     if(this.state.isGetting) {
       return ( 
         <View style={{flex: 1}}>
-          <PacmanIndicator color='#189fe2' />
+          <PacmanIndicator color='#800000'/>
         </View>
       )
     }
@@ -241,86 +374,26 @@ class Chats extends Component {
     if(this.state.noChats) {
       return (
         <View style={styles.container}>
-          <View style={styles.upperNavTab}>
-            <Button 
-              buttonStyle={styles.chatsbutton}
-              textStyle={{fontSize: 18, color: 'black'}}
-              title="Chats"
-              
-            />
-            <Button 
-              buttonStyle={styles.notifsbutton}
-              textStyle={{fontSize: 18, color: 'black'}}
-              title="Notifications"
-              onPress={()=>this.navToNotifications()}
-            />
+          {this.renderUpperNavTab()}
+
+          <View style={styles.screen}>
+            <NothingHereYet specificText={noChatsText} />
           </View>
-          <NothingHereYet specificText={noChatsText} />
         </View>
       )
     }
     
     return (
       <View style={styles.container}>
-        <View style={styles.upperNavTab}>
-          <Button 
-            buttonStyle={styles.chatsbutton}
-            textStyle={{fontSize: 18, color: 'black'}}
-            title="Chats"
-            
-          />
-          <Button 
-            buttonStyle={styles.notifsbutton}
-            textStyle={{fontSize: 18, color: 'black'}}
-            title="Notifications"
-            onPress={()=>this.navToNotifications()}
-          />
-        </View>
+
+        {this.renderUpperNavTab()}
+
         <ScrollView
-          style={{ flex: 5 }} 
-          contentContainerStyle={{
-            
-            flexDirection: 'column',
-            
-            
-          }}
+          style={styles.screen} 
+          contentContainerStyle={styles.cc}
         >
               
-          {chats.map( (chat) => {
-            return(
-              <View key={chat.name} style={{flexDirection: 'column', padding: 5}}>
-                <View style={styles.separator}/>
-                <View style={styles.rowContainer}>
-                  
-                  <Image source={ {uri: chat.productImageURL }} style={[styles.productprofilepic, styles.productcolor]} />
-                  
-                  <View style={styles.infoandbuttoncontainer}>
-                    <Text style={[styles.info, styles.productinfo]}>Chat Between:</Text>
-                    <Text style={[styles.info, styles.sellerinfo]}>{(chat.seller.split(' '))[0]} & {(chat.buyer.split(' '))[0]}</Text>
-                    <View style={styles.membersRow}>
-                      
-                        <Image source={ chat.sellerAvatar ? {uri: chat.sellerAvatar } : require('../images/blank.jpg') } style={[styles.profilepic, styles.profilecolor]} />
-                        <Image source={ chat.buyerAvatar ? {uri: chat.buyerAvatar } : require('../images/blank.jpg') } style={[styles.profilepic, styles.profilecolor]} />
-                      
-                    </View>   
-                  </View>
-
-                  <Button
-                        small
-                        buttonStyle={styles.messagebutton}
-                        icon={{name: 'forum', type: 'material-community'}}
-                        title="TALK"
-                        onPress={() => { this.navToChat(chat) } } 
-                  />  
-                    
-
-                </View>
-                <View style={styles.separator}/>
-              </View>
-              
-            )
-              
-            })}
+          {this.renderChats(chats)}
             
         </ScrollView>
       </View>
@@ -339,26 +412,57 @@ const styles = StyleSheet.create({
   upperNavTab: {
     flex: 0.15,
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
-    backgroundColor: lightGreen,
+    backgroundColor: coolBlack,
   },
-  chatsbutton: {
-    backgroundColor: lightGreen,
-    width: width/2 - 30,
+  upperNavTabButton: {
+    // backgroundColor: ,
+    width: navTabButtonWidth,
     height: 50,
-    borderWidth: 0,
-    borderRadius: 0,
-    borderColor: "#0c5911"
+    
+    borderWidth: 1.3,
+    borderRadius: 30,
+    borderColor: "#fff",
+
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
-  notifsbutton: {
-    backgroundColor: "#fff",
-    width: width/2 - 30,
-    height: 50,
-    borderWidth: 1,
-    borderRadius: 0,
-    borderColor: "#0c5911"
+
+  upperNavTabText: new avenirNextText('#fff', 16, "400"),
+  ////////////////
+  screen: { flex: 0.85, backgroundColor: '#fff' },
+
+  cc: {
+    paddingHorizontal: 6, alignItems: 'center'
   },
+
+  specificChatContainer: {
+    flexDirection: 'row', paddingVertical: 6, paddingHorizontal: 0,
+    borderBottomColor: graphiteGray, borderBottomWidth: 0.6
+  },
+
+  pictureContainer: {
+    flex: 0.25,
+    alignItems: 'center'
+  },
+
+  picture: {
+    width: pictureWidth,
+    height: pictureHeight,
+  },
+
+  textContainer: {
+    flex: 0.5,
+  },
+
+  otherPersonName: new avenirNextText(false, 15, '500', 'left'),
+
+  lastMessageText: new avenirNextText(graphiteGray, 13, '400'),
+
+  lastMessageDate: new avenirNextText(treeGreen, 11, '300'),
+
   rowContainer: {
     flexDirection: 'row',
     paddingTop: 10,

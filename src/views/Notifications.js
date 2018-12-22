@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dimensions, Text, Image, View, ScrollView, StyleSheet } from 'react-native'
+import { Dimensions, Text, Image, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native'
 import firebase from '../cloud/firebase';
 // import { database } from '../cloud/database';
 import { withNavigation } from 'react-navigation';
@@ -8,12 +8,14 @@ import { PacmanIndicator } from 'react-native-indicators';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Button } from 'react-native-elements';
 
-import { lightGreen } from '../colors';
+import { lightGreen, coolBlack, highlightGreen } from '../colors';
 import NothingHereYet from '../components/NothingHereYet';
+import { avenirNextText } from '../constructors/avenirNextText';
 
 const noNotificationsText = "The NottMyStyle team believes your products don't warrant any stats yet 👌, thus you have no notifications."
 
 const {width} = Dimensions.get('window');
+const navTabButtonWidth = 115;
 
 class Notifications extends Component {
   constructor(props) {
@@ -51,6 +53,22 @@ class Notifications extends Component {
     
   }
 
+  renderUpperNavTab = () => {
+    return (
+      <View style={styles.upperNavTab}>
+
+        <TouchableOpacity onPress={()=>this.navToChats()} style={[styles.upperNavTabButton, {borderColor: '#fff', }]}>
+          <Text style={styles.upperNavTabText}>Chats</Text>
+        </TouchableOpacity>
+        
+        <View style={[styles.upperNavTabButton, {backgroundColor: highlightGreen}]} >
+          <Text style={styles.upperNavTabText}>Notifications</Text>
+        </View>
+        
+      </View>
+    )
+  }
+
   render() {
     const {isGetting, noNotifications, notifications} = this.state;
     console.log(notifications);
@@ -65,21 +83,10 @@ class Notifications extends Component {
     if(noNotifications) {
       return (
         <View style={styles.container}>
-          <View style={styles.upperNavTab}>
-              <Button 
-                buttonStyle={styles.notifsbutton}
-                textStyle={{fontSize: 18, color: 'black'}}
-                title="Chats"
-                onPress={()=>this.navToChats()}
-              />
-              <Button 
-                buttonStyle={styles.chatsbutton}
-                textStyle={{fontSize: 18, color: 'black'}}
-                title="Notifications"
-              />
+          {this.renderUpperNavTab()}
+          <View style={{flex: 0.85}}>
+            <NothingHereYet specificText={noNotificationsText}/>
           </View>
-          
-          <NothingHereYet specificText={noNotificationsText}/>
           
         </View>
       )
@@ -87,55 +94,39 @@ class Notifications extends Component {
 
     return (
       <View style={styles.container}>
-      <View style={styles.upperNavTab}>
-              <Button 
-                buttonStyle={styles.notifsbutton}
-                textStyle={{fontSize: 18, color: 'black'}}
-                title="Chats"
-                onPress={()=>this.navToChats()}
-              />
-              <Button 
-                buttonStyle={styles.chatsbutton}
-                textStyle={{fontSize: 18, color: 'black'}}
-                title="Notifications"
-              />
-      </View>
-      <ScrollView contentContainerStyle={{
-        // paddingTop: 15,
-        flexDirection: 'column',
-        flexGrow: 1,
-        justifyContent: 'flex-start',
-        alignItems: 'center'
-      }}>
-        {Object.keys(notifications).map( (productKey) => (
-            <View key={productKey} style={{flexDirection: 'column', padding: 5}}>
-              <View style={styles.separator}/>
-              <View style={styles.rowContainer}>
-                <View syle={styles.daysElapsedColumn}>
-                    <Text style={styles.daysOnMarket}>Days on market:</Text>
-                    <Text style={styles.daysElapsed}>{notifications[productKey].daysElapsed}</Text>
-                    <Text>Suggested Price Reduction:</Text>
-                    <View style={styles.priceReduction}>
-                        <Text>£{notifications[productKey].price}</Text>
-                        <Icon
-                            name="arrow-right" 
-                            size={15}  
-                            color={'#800000'}
-                        />
-                        <Text>£{Math.floor(0.80*notifications[productKey].price)}</Text>
-                    </View>
-                </View>    
 
-                
-                <Image source={ {uri: notifications[productKey].uri }} style={[styles.profilepic, styles.productcolor]} />
-                
+        {this.renderUpperNavTab()}
+      
+        <ScrollView style={{flex: 0.85}} contentContainerStyle={styles.cc}>
+          {Object.keys(notifications).map( (productKey) => (
+              <View key={productKey} style={{flexDirection: 'column', padding: 5}}>
+                <View style={styles.separator}/>
+                <View style={styles.rowContainer}>
+                  <View syle={styles.daysElapsedColumn}>
+                      <Text style={styles.daysOnMarket}>Days on market:</Text>
+                      <Text style={styles.daysElapsed}>{notifications[productKey].daysElapsed}</Text>
+                      <Text>Suggested Price Reduction:</Text>
+                      <View style={styles.priceReduction}>
+                          <Text>£{notifications[productKey].price}</Text>
+                          <Icon
+                              name="arrow-right" 
+                              size={15}  
+                              color={'#800000'}
+                          />
+                          <Text>£{Math.floor(0.80*notifications[productKey].price)}</Text>
+                      </View>
+                  </View>    
+
+                  
+                  <Image source={ {uri: notifications[productKey].uri }} style={[styles.profilepic, styles.productcolor]} />
+                  
+                </View>
+                <View style={styles.separator}/>
               </View>
-              <View style={styles.separator}/>
-            </View>
-        ))
-        }
-          
-      </ScrollView>
+          ))
+          }
+            
+        </ScrollView>
       </View>
     )
   }
@@ -145,19 +136,46 @@ export default withNavigation(Notifications);
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     flexDirection: 'column',
     marginTop: 22,
   },
+
+  cc: {
+    paddingHorizontal: 6, alignItems: 'center'
+  },
+
   scrollContainer: {
     flex: 9
   },
+
   upperNavTab: {
-    // flex: 1,
+    flex: 0.15,
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
-    backgroundColor: lightGreen,
+    backgroundColor: coolBlack,
   },
+  upperNavTabButton: {
+    // backgroundColor: ,
+    width: navTabButtonWidth,
+    height: 50,
+    
+    borderWidth: 1.3,
+    borderRadius: 30,
+    borderColor: "#fff",
+
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  upperNavTabText: new avenirNextText('#fff', 16, "400"),
+
+  ////////
+
+
+
   chatsbutton: {
     backgroundColor: lightGreen,
     width: width/2 - 30,
