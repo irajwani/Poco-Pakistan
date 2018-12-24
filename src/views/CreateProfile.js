@@ -451,7 +451,7 @@ class CreateProfile extends Component {
                     }}
                     icon={{name: 'chevron-left', type: 'material-community'}}
                     title='Back'
-                    onPress={() => this.props.navigation.navigate('SignIn') } 
+                    onPress={() => this.props.navigation.goBack() } 
                 />
                 <Button  
                     buttonStyle={ {
