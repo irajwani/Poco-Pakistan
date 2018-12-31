@@ -10,7 +10,7 @@ import CustomCarousel from '../components/CustomCarousel';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 // import styles from '../styles.js'
 // import { database } from '../cloud/database';
-import { Divider } from 'react-native-elements';
+// import { Divider } from 'react-native-elements';
 
 import { material, iOSColors, iOSUIKit } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
@@ -18,9 +18,9 @@ import { PacmanIndicator } from 'react-native-indicators';
 import Chatkit from "@pusher/chatkit";
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
 import email from 'react-native-email';
-import { darkGray, highlightGreen, graphiteGray, rejectRed, darkBlue, lightGray } from '../colors';
+import { highlightGreen, graphiteGray, rejectRed, darkBlue } from '../colors';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
-import BackButton from '../components/BackButton';
+// import BackButton from '../components/BackButton';
 import { avenirNextText } from '../constructors/avenirNextText';
 import { WhiteSpace } from '../localFunctions/visualFunctions';
 

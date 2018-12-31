@@ -3,7 +3,7 @@ import { Dimensions, Text, Modal, StyleSheet, ScrollView, View, TouchableOpacity
 import { withNavigation } from 'react-navigation';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { material, iOSUIKit, iOSColors } from 'react-native-typography'
+// import { material, iOSUIKit, iOSColors } from 'react-native-typography'
 
 import * as Animatable from 'react-native-animatable';
 import Accordion from 'react-native-collapsible/Accordion';
@@ -12,7 +12,7 @@ import Accordion from 'react-native-collapsible/Accordion';
 
 import {EulaTop, EulaLink, EulaBottom, TsAndCs, PrivacyPolicy, ContactUs} from '../legal/Documents.js';
 import BackButton from '../components/BackButton';
-import { avenirNext } from '../colors.js';
+// import { avenirNext } from '../colors.js';
 import { avenirNextText } from '../constructors/avenirNextText.js';
 import { WhiteSpace } from '../localFunctions/visualFunctions.js';
 

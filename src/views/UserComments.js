@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import { Hoshi } from 'react-native-textinput-effects'
 import {withNavigation} from 'react-navigation';
-import {database} from '../cloud/database';
+// import {database} from '../cloud/database';
 import firebase from '../cloud/firebase';
 import { material, systemWeights, human, iOSUIKit, iOSColors } from 'react-native-typography'
 import { PacmanIndicator } from 'react-native-indicators';

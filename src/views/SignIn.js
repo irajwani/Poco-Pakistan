@@ -495,7 +495,7 @@ class SignIn extends Component {
                                 onPress={
                                     () => {
                                         // this.props.navigation.navigate('CreateProfile')
-                                        this.attemptSignUp(user = false, googleUserBoolean = false)
+                                        this.attemptSignUp(user = false, googleUserBoolean = false, facebookUserBoolean = false)
                                         } 
                                     }
                             />

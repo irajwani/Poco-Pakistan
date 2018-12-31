@@ -1,16 +1,17 @@
 import React, { Component } from 'react'
-import { Linking, Dimensions, Text, StyleSheet, View, ScrollView, Platform, Modal, TouchableHighlight, TouchableOpacity } from 'react-native';
+import { Linking, Dimensions, Text, StyleSheet, View, ScrollView, Platform, Modal, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {ButtonGroup, Button, Divider} from 'react-native-elements';
+import {ButtonGroup, Button} from 'react-native-elements';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import RNFetchBlob from 'react-native-fetch-blob';
-import { Sae, Fumi, Kohana } from 'react-native-textinput-effects';
+import { Sae } from 'react-native-textinput-effects';
 import firebase from '../cloud/firebase.js';
 import MultipleAddButton from '../components/MultipleAddButton.js';
 import { iOSColors } from 'react-native-typography';
 import { EulaTop, EulaBottom, TsAndCs, PrivacyPolicy, EulaLink } from '../legal/Documents.js';
-import { confirmBlue, rejectRed, woodBrown, treeGreen, bobbyBlue, highlightGreen, profoundPink, poopBrown, darkBlue, tealBlue } from '../colors.js';
+import { confirmBlue, rejectRed, treeGreen, bobbyBlue, highlightGreen, profoundPink, darkBlue, tealBlue, lightGreen, coolBlack, darkGray } from '../colors.js';
 import { PacmanIndicator } from 'react-native-indicators';
+import {WhiteSpace} from '../localFunctions/visualFunctions';
 
 const {width} = Dimensions.get('window');
 const info = "In order to sign up, ensure that the values you input meet the following conditions:\n1. Take a profile picture of yourself. If you wish to keep your image a secret, just take a picture of your finger pressed against your camera lens to simulate a dark blank photo.\n2. Use a legitimate email address as other buyers and sellers need a way to contact you if the functionality in NottMyStyle is erroneous for some reason.\n3. Your Password's length must be greater than or equal to 6 characters. To add some security, consider using at least one upper case letter and one symbol like !.\n4. Please limit the length of your name to 40 characters.\n5. An Example answer to the 'city, country abbreviation' field is: 'Nottingham, UK' "
@@ -30,9 +31,9 @@ class CreateProfile extends Component {
     //   //now we have to fake the process of them continuing to sign up)
     //   const {user} = params.user ? user : false;
     // If person navigates here to edit their current profile, they should be able to update their profile
-        
+      this.editProfileBoolean = this.props.navigation.getParam('editProfileBoolean', false)
       this.state = {
-          uid: firebase.auth().currentUser.uid,
+          uid:  this.editProfileBoolean ? firebase.auth().currentUser.uid : '',
           email: params.googleUserBoolean || params.facebookUserBoolean ? params.user.email : '',
           pass: '',
           pass2: '',
@@ -418,7 +419,7 @@ class CreateProfile extends Component {
     // googleUser && googlePhotoURL ? pictureuris = [googlePhotoURL] : 'nothing here';
 
     var pictureuris = navigation.getParam('pictureuris', "nothing here");
-
+    this.state.previousUri ? pictureuris = [this.state.previousUri] : null;
     // console.log(pictureuris[0].includes('googleusercontent'))
     // console.log(googleUser, googleUserBoolean, pictureuris);
     var conditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1) && (this.state.pass == this.state.pass2) && (this.state.pass.length >= 6);
@@ -426,7 +427,7 @@ class CreateProfile extends Component {
     // var googleUserConditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1);
     var editProfileConditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1);
     
-    this.state.previousUri ? pictureuris = [this.state.previousUri] : null;
+    
     if(pictureuris[0].includes('googleusercontent')) {
         googleUserBoolean = true
     }
@@ -465,7 +466,7 @@ class CreateProfile extends Component {
                     onPress={() => this.setState({infoModalVisible: true}) } 
                 />
             </View>
-            <Text style={{fontFamily: 'Avenir Next', fontWeight: '800', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text>
+            <Text style={{fontFamily: 'Avenir Next', fontWeight: '300', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text>
             
             <MultipleAddButton navToComponent = {'CreateProfile'} pictureuris={pictureuris} />
     
@@ -475,10 +476,11 @@ class CreateProfile extends Component {
 
                 <View>
                     <Sae
+                        labelStyle={{color: 'black'}}
                         label={'Email Address'}
                         iconClass={FontAwesomeIcon}
                         iconName={'envelope'}
-                        iconColor={'gray'}
+                        iconColor={'black'}
                         value={this.state.email}
                         onChangeText={email => this.setState({ email })}
                         autoCorrect={false}
@@ -486,28 +488,30 @@ class CreateProfile extends Component {
                     />
             
                     <Sae
+                        labelStyle={{color: darkGray}}
                         label={'Password'}
                         iconClass={FontAwesomeIcon}
                         iconName={'user-secret'}
-                        iconColor={tealBlue}
+                        iconColor={darkGray}
                         value={this.state.pass}
                         onChangeText={pass => this.setState({ pass })}
                         autoCorrect={false}
                         secureTextEntry
-                        inputStyle={{ color: tealBlue }}
+                        inputStyle={{ color: darkGray }}
                     />
                     
             
                     <Sae
+                        labelStyle={{color: treeGreen}}
                         label={'Retype Password'}
                         iconClass={FontAwesomeIcon}
                         iconName={'user-secret'}
-                        iconColor={darkBlue}
+                        iconColor={treeGreen}
                         value={this.state.pass2}
                         onChangeText={pass2 => this.setState({ pass2 })}
                         autoCorrect={false}
                         secureTextEntry
-                        inputStyle={{ color: darkBlue }}
+                        inputStyle={{ color: treeGreen }}
                     />
             
                     {passwordConditionMet ?
@@ -536,6 +540,7 @@ class CreateProfile extends Component {
             }    
             
             <Sae
+                labelStyle={{color: 'black'}}
                 style={styles.nameInput}
                 label={'First Name'}
                 iconClass={Icon}
@@ -547,11 +552,12 @@ class CreateProfile extends Component {
                 inputStyle={{ color: 'black' }}
             />
             <Sae
+                labelStyle={{color: 'gray'}}
                 style={styles.nameInput}
                 label={'Last Name'}
                 iconClass={FontAwesomeIcon}
                 iconName={'users'}
-                iconColor={'black'}
+                iconColor={'gray'}
                 value={this.state.lastName}
                 onChangeText={lastName => this.setState({ lastName })}
                 autoCorrect={false}
@@ -560,6 +566,7 @@ class CreateProfile extends Component {
             
     
             <Sae
+                labelStyle={{color: highlightGreen}}
                 label={'City, Country Abbreviation'}
                 iconClass={FontAwesomeIcon}
                 iconName={'globe'}
@@ -569,8 +576,10 @@ class CreateProfile extends Component {
                 autoCorrect={false}
                 inputStyle={{ color: highlightGreen }}
             />
-    
+
+            
             <Sae
+                labelStyle={{color: profoundPink}}
                 label={'@instagram handle'}
                 iconClass={FontAwesomeIcon}
                 iconName={'instagram'}
@@ -580,6 +589,9 @@ class CreateProfile extends Component {
                 autoCorrect={false}
                 inputStyle={{ color: profoundPink }}
             />
+
+            <WhiteSpace height={50}/>
+            
     
             
             <Text style={{fontFamily: 'Avenir Next', fontWeight: '400', fontSize: 20, textAlign: 'center', marginTop: 10}}>What size clothes do you wear?</Text>
@@ -716,20 +728,20 @@ class CreateProfile extends Component {
 
             {/* Action Buttons */}
             
-            <TouchableOpacity disabled = {conditionMet ? true: false} onPress={()=>this.setState({infoModalVisible: true})}>
+            <TouchableOpacity disabled = {this.state.editProfileBoolean ? editProfileConditionMet ? true: false : conditionMet ? true: false} onPress={()=>this.setState({infoModalVisible: true})}>
                 <Button
                     disabled = { this.state.editProfileBoolean ? editProfileConditionMet ? false : true : conditionMet ? false: true}
-                    large
+                    containerViewStyle={{paddingVertical: 20, alignItems: 'center', justifyContent: 'center'}}
                     buttonStyle={{
                         backgroundColor: treeGreen,
-                        width: 250,
-                        height: 85,
+                        width: 150,
+                        height: 45,
                         borderColor: "transparent",
                         borderWidth: 0,
-                        borderRadius: 5
+                        borderRadius: 25
                     }}
                     icon={{name: 'save', type: 'font-awesome'}}
-                    title='SAVE'
+                    title='Save'
                     onPress={
                         () => {
                         if(this.state.editProfileBoolean) {

@@ -6,7 +6,7 @@ import { withNavigation } from 'react-navigation';
 import { material } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Button } from 'react-native-elements';
+// import { Button } from 'react-native-elements';
 
 import { lightGreen, coolBlack, highlightGreen } from '../colors';
 import NothingHereYet from '../components/NothingHereYet';

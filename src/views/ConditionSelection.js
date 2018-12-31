@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, ScrollView, Keyboard, TouchableHighlight } from 'react-native'
-import { Jiro } from 'react-native-textinput-effects';
-import { treeGreen, darkGray } from '../colors';
+import { Text, StyleSheet, View, ScrollView, TouchableHighlight } from 'react-native'
+// import { Jiro } from 'react-native-textinput-effects';
+import { darkGray } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { avenirNextText } from '../constructors/avenirNextText';
 import { GrayLine, WhiteSpace } from '../localFunctions/visualFunctions';

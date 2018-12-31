@@ -382,14 +382,19 @@ class Products extends Component {
 
           //Final Level is to sort the products in descending order of the number of likes & assign each index its boolean to handle collapsed or uncollapsed state
           all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
-          console.log('after sort ' + all)
+          // console.log('after sort ' + all)
+          // var test;
+          // test = 
+          // console.log(test);
           all.forEach((product) => {
             product['isActive'] = false  //boolean for rowData UI expansion
           })
           console.log('before split: ' + all);
           // var {leftProducts, rightProducts} = splitArrayIntoArraysOfSuccessiveElements(all);
-          var leftProducts = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 );
-          var rightProducts = all.slice( Math.round(all.length/2) , all.length + 1);
+          var leftProducts = all.filter( (e, index) => index % 2 == 0);
+          var rightProducts = all.filter( (e, index) => index % 2 != 0);
+          // var leftProducts = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 );
+          // var rightProducts = all.slice( Math.round(all.length/2) , all.length + 1);
           //TODO:
           console.log('after split :' + all);
           // console.log(leftProducts, rightProducts);
@@ -411,7 +416,7 @@ class Products extends Component {
       }
 
       else {
-        this.setState({emptyMarketDueToSearchCriteria: true})
+        this.setState({isGetting: false, emptyMarketDueToSearchCriteria: true})
       }
 
     }) 
@@ -736,7 +741,10 @@ class Products extends Component {
           <Text style={styles.filterModalHeaderText}>FILTERS</Text>
           <Text
           onPress={()=>{
-            this.setState({selectedBrands: [], searchTerm: '', selectedCategory: 'Women', selectedConditions: []})
+            // let brandsReset = this.state.brands;
+            this.state.brands.forEach( (brand) => brand.selected = false);
+            this.state.conditions.forEach( (condition) => condition.selected = false);
+            this.setState({brands: this.state.brands, conditions: this.state.conditions, selectedBrands: [], searchTerm: '', selectedCategory: 'Women', selectedType: '', selectedConditions: []})
           }}
           style={styles.filterModalHeaderClearText}>
           Reset

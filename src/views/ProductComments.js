@@ -1,12 +1,12 @@
 import React, {Component} from 'react'
-import { Dimensions, Keyboard, Text, TextInput, TouchableHighlight, Image, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { Dimensions, Keyboard, Text, TouchableHighlight, Image, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { Hoshi } from 'react-native-textinput-effects'
 import {withNavigation} from 'react-navigation';
 import firebase from '../cloud/firebase';
 import { material, human, iOSUIKit, iOSColors, systemWeights } from 'react-native-typography'
-import { almostWhite, highlightGreen, treeGreen, profoundPink, avenirNext, graphiteGray, darkGray, optionLabelBlue, rejectRed } from '../colors';
+import { almostWhite, highlightGreen, treeGreen, avenirNext, graphiteGray, darkGray, optionLabelBlue, rejectRed } from '../colors';
 import FontAwesomeIcon  from 'react-native-vector-icons/FontAwesome';
 //for each comment, use their time of post as the key
 

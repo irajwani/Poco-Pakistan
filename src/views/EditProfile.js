@@ -1,17 +1,17 @@
 import React, { Component } from 'react'
 import { Dimensions, Text, StyleSheet, View, ScrollView, Platform } from 'react-native';
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
-import {Fab} from 'native-base';
+// import {Fab} from 'native-base';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ButtonGroup, Button, Divider} from 'react-native-elements';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import RNFetchBlob from 'react-native-fetch-blob';
-import { Sae, Fumi } from 'react-native-textinput-effects';
+import { Sae } from 'react-native-textinput-effects';
 import firebase from '../cloud/firebase.js';
 import MultipleAddButton from '../components/MultipleAddButton.js';
 import { almostWhite, highlightGreen, profoundPink } from '../colors.js';
 
-const {width, height} = Dimensions.get('window')
+const {width} = Dimensions.get('window')
 
 const Blob = RNFetchBlob.polyfill.Blob;
 const fs = RNFetchBlob.fs;
