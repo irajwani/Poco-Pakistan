@@ -5,6 +5,7 @@ import PushNotification from 'react-native-push-notification';
 
 import { Hoshi } from 'react-native-textinput-effects';
 import { PacmanIndicator } from 'react-native-indicators';
+// import Spinner from 'react-native-spinkit';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Button} from 'react-native-elements'
 //import AwesomeButtonRick from 'react-native-really-awesome-button/src/themes/rick'
@@ -23,7 +24,8 @@ import {avenirNextText} from '../constructors/avenirNextText'
 // import { SignUpToCreateProfileStack } from '../stackNavigators/signUpToEditProfileStack';
 
 // var provider = new firebase.auth.GoogleAuthProvider();
-import {lightGray} from '../colors'
+import {lightGray, treeGreen, highlightGreen, lightGreen} from '../colors'
+import { LoadingIndicator } from '../localFunctions/visualFunctions.js';
 // import { withNavigation } from 'react-navigation';
 // const {width,} = Dimensions.get('window');
 
@@ -250,10 +252,12 @@ class SignIn extends Component {
         const { email, pass } = this.state;
 
         if (!email || !pass) {
-            alert("You cannot Sign In if your email and/or password fields are blank.")
+            alert("You cannot Sign In if your email and/or password fields are blank.");
+            this.setState({loading: false});
         }
         else if (!pass.length >= 6) {
-            alert("Your password's length must be greater or equal to 6 characters.")
+            alert("Your password's length must be greater or equal to 6 characters.");
+            this.setState({loading: false});
         }
         else {
 //now that person has input text, their email and password are here
@@ -443,7 +447,7 @@ class SignIn extends Component {
                 
                 {loading ? 
                     <View style={styles.allAuthButtonsContainer}>
-                        <PacmanIndicator color='#28a526' />
+                        <LoadingIndicator isVisible={loading} color={lightGreen} type={'Wordpress'}/>
                     </View>
                 :
                     

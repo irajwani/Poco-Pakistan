@@ -4,12 +4,15 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Button, Divider} from 'react-native-elements'
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
 import firebase from '../cloud/firebase.js';
-// import {database} from '../cloud/database';
+
+import ActionSheet from 'react-native-actionsheet'
+
 import { iOSColors, iOSUIKit, human } from 'react-native-typography';
 import LinearGradient from 'react-native-linear-gradient'
 import ReviewsList from '../components/ReviewsList.js';
 import { PacmanIndicator } from 'react-native-indicators';
 import { highlightGreen, graphiteGray, avenirNext } from '../colors.js';
+import { LoadingIndicator } from '../localFunctions/visualFunctions.js';
 const {width, height} = Dimensions.get('window');
 
 const resizeMode = 'center';
@@ -33,6 +36,12 @@ class ProfilePage extends Component {
 
   constructor(props) {
     super(props);
+    this.gradientColors = {
+      0: ['#7de853','#0baa26', '#064711'],
+      1: ['#7de853','#0baa26', '#064711'],
+      2: ['#7de853','#0baa26', '#064711'],
+      3: ['#7de853','#0baa26', '#064711'],
+    }
     this.state = {
       name: '',
       email: '',
@@ -44,6 +53,7 @@ class ProfilePage extends Component {
       products: [],
       isGetting: true,
       noComments: false,
+      gradient: this.gradientColors[0],
 
     }
 
@@ -163,16 +173,26 @@ class ProfilePage extends Component {
     this.props.navigation.navigate('OtherUserProfilePage', {uid: uid})
   }
 
+  showActionSheet = () => {
+    // console.log('adding Item')
+    this.ActionSheet.show()
+
+  }
+
+  setGradient = (index) => {
+    this.setState({gradient: this.gradientColors[index]})
+  }
+
   render() {
-    var {isGetting, comments} = this.state;
-    console.log(comments, 'the user has no comments, perfectly harmless')
+    var {isGetting, comments, gradient} = this.state;
+    console.log(comments, 'the user has no comments, perfectly harmless');
     const gradientColors = ['#7de853','#0baa26', '#064711'];
-    const gradientColors2 = ['#0a968f','#6ee5df', ];
+    // const gradientColors2 = ['#0a968f','#6ee5df', ];
 
     if(isGetting){
       return(
-        <View style={{flex: 1}}>
-          <PacmanIndicator color='#28a526' />
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30}}>
+          <LoadingIndicator isVisible={isGetting} color={'#0baa26'} type={'Wordpress'}/>
         </View>
       )
     }
@@ -182,7 +202,9 @@ class ProfilePage extends Component {
       <View style={styles.mainContainer}>
       <View style={styles.headerContainer}>
 
-        <LinearGradient style={styles.linearGradient} colors={gradientColors} >
+        <LinearGradient style={styles.linearGradient} colors={gradientColors}>
+        
+        
         <View style={styles.header}>
 
          <View style={styles.gearAndPicColumn}>
@@ -229,6 +251,8 @@ class ProfilePage extends Component {
           
 
         </View>
+        
+
       </LinearGradient>
       </View>
 
@@ -296,6 +320,8 @@ class ProfilePage extends Component {
 
       </View>
 
+            
+
       </View>
       
 
@@ -316,6 +342,16 @@ export default ProfilePage;
 // onPress={() => this.props.navigation.navigate('Users')}
 
 // />
+
+{/* <ActionSheet
+            ref={o => this.ActionSheet = o}
+            title={'Color Gradient Scheme:'}
+            options={['Green', 'Red', 'Blue', 'Black', 'cancel']}
+            cancelButtonIndex={4}
+            destructiveButtonIndex={4}
+            onPress={(index) => { this.setGradient(index) }}
+            
+            /> */}
 
 const styles = StyleSheet.create({
   

@@ -23,7 +23,7 @@ import { graphiteGray, lightGreen, rejectRed, treeGreen, avenirNext, optionLabel
 
 import NothingHereYet from './NothingHereYet.js';
 import { avenirNextText } from '../constructors/avenirNextText.js';
-import { GrayLine, WhiteSpace } from '../localFunctions/visualFunctions.js';
+import { GrayLine, WhiteSpace, LoadingIndicator } from '../localFunctions/visualFunctions.js';
 import { categories } from '../fashion/sizesAndTypes.js';
 
 const emptyMarketText = "Wow, such empty..."
@@ -683,7 +683,7 @@ class Products extends Component {
                 </Animatable.View>  
                 
                 <Animatable.Text style={styles.size} animation={section.isActive ? 'bounceInLeft' : undefined}>
-                  Size: {section.text.size}
+                 {section.text.gender == "Accessories" ? "Accessory" : `Size: ${section.text.size}`}
                 </Animatable.Text>
                 
               </Animatable.View>
@@ -947,7 +947,7 @@ class Products extends Component {
       return ( 
         <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
             <View style={{height: 200, justifyContent: 'center', alignContent: 'center'}}>
-                <PacmanIndicator color={flashOrange} />
+              <LoadingIndicator isVisible={isGetting} color={flashOrange} type={'Wordpress'}/>
                 <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: 'black', textAlign: 'center'}}>
                     {loadingStrings[randomIntFromInterval(0,3)]}
                 </Text>

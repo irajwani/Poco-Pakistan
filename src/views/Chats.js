@@ -15,6 +15,7 @@ import { lightGreen, coolBlack, highlightGreen, graphiteGray, treeGreen } from '
 import {avenirNextText} from '../constructors/avenirNextText'
 
 import NothingHereYet from '../components/NothingHereYet';
+import { LoadingIndicator } from '../localFunctions/visualFunctions';
 
 const noChatsText = "You have not initiated any chats 😳. Converse with a seller by choosing to 'Buy' a product from the Marketplace";
 const DaysOfTheWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -365,8 +366,8 @@ class Chats extends Component {
     const {chats} = this.state
     if(this.state.isGetting) {
       return ( 
-        <View style={{flex: 1}}>
-          <PacmanIndicator color='#800000'/>
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <LoadingIndicator isVisible={this.state.isGetting} color={'black'} type={'Wordpress'}/>
         </View>
       )
     }

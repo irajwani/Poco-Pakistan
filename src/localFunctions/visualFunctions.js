@@ -1,6 +1,7 @@
 import React from 'react';
 import {View, TouchableWithoutFeedback, Keyboard} from 'react-native';
 import { darkGray } from '../colors';
+import Spinner from 'react-native-spinkit';
 
 const GrayLine = () => (
     <View style={{backgroundColor: darkGray, height: 0.5}}/>
@@ -20,4 +21,8 @@ const DismissKeyboardView = ({children}) => (
     </TouchableWithoutFeedback>
   )
 
-export {GrayLine, WhiteSpace, DismissKeyboardView}
+const LoadingIndicator = ({isVisible, type, color}) => (
+    <Spinner style={{}} isVisible={isVisible} size={50} type={type} color={color}/>    
+) 
+
+export {GrayLine, WhiteSpace, LoadingIndicator, DismissKeyboardView}

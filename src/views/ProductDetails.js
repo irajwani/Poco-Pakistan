@@ -18,11 +18,11 @@ import { PacmanIndicator } from 'react-native-indicators';
 import Chatkit from "@pusher/chatkit";
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
 import email from 'react-native-email';
-import { highlightGreen, graphiteGray, rejectRed, darkBlue } from '../colors';
+import { highlightGreen, graphiteGray, rejectRed, darkBlue, profoundPink, aquaGreen } from '../colors';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 // import BackButton from '../components/BackButton';
 import { avenirNextText } from '../constructors/avenirNextText';
-import { WhiteSpace } from '../localFunctions/visualFunctions';
+import { WhiteSpace, LoadingIndicator } from '../localFunctions/visualFunctions';
 
 var {height, width} = Dimensions.get('window');
 
@@ -287,16 +287,23 @@ class ProductDetails extends Component {
 
     if (isGetting) {
       return (
-        <View style={{flex: 1}}>
-          <PacmanIndicator color='black' />
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <LoadingIndicator isVisible={isGetting} color={profoundPink} type={'Wordpress'}/>
         </View>
       )
     }
 
     if(navToChatLoading) {
       return(
-        <View style={{flex: 1}}>
-          <PacmanIndicator color='#186f87' />
+        <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
+
+          <View style={{height: 200, justifyContent: 'center', alignContent: 'center', alignItems: 'center'}}>
+            <LoadingIndicator isVisible={navToChatLoading} color={aquaGreen} type={'Wordpress'}/>
+            <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: aquaGreen, textAlign: 'center'}}>
+              Navigating to Chat regarding purchase of {text.name}, by {text.brand}
+            </Text>
+          </View>  
+
         </View>
       )
     }

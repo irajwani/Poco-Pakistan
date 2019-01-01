@@ -18,7 +18,7 @@ import { iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
 import { confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, highlightYellow, profoundPink, tealBlue, graphiteGray } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { DismissKeyboardView, WhiteSpace, GrayLine } from '../localFunctions/visualFunctions';
+import { DismissKeyboardView, WhiteSpace, GrayLine, LoadingIndicator } from '../localFunctions/visualFunctions';
 import { avenirNextText } from '../constructors/avenirNextText';
 
 
@@ -169,10 +169,10 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
             gender = 'Men'
             break; 
         case 1:
-            gender = 'Accessories'
+            gender = 'Women'
             break;
         case 2:
-            gender = 'Women'
+            gender = 'Accessories'
             break;
         default:
             gender = 'Men'
@@ -440,7 +440,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
     var userChangedAtLeastOneField = (this.state.name) || (this.state.description) || (this.state.brand) || ( (Number.isFinite(original_price)) && (original_price > 0) && (price < 1001) ) || ( (Number.isFinite(price)) && (price > 0) && (price < 1001) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) );
     var partialConditionMet = (this.state.name) || (this.state.brand) || ( (Number.isFinite(price)) && (price > 0) && (price < 1001) ) || ( (Array.isArray(pictureuris) && pictureuris.length >= 1) );
     //The full condition for when a user is allowed to upload a product to the market
-    var conditionMet = (this.state.name) && (this.state.brand) && (Number.isFinite(price)) && (price > 0) && (price < 1001) && (Array.isArray(pictureuris) && pictureuris.length >= 1) && (type) && (size)
+    var conditionMet = (this.state.name) && (this.state.brand) && (Number.isFinite(price)) && (price > 0) && (price < 1001) && (Array.isArray(pictureuris) && pictureuris.length >= 1) && (type) && ( (this.state.gender == 2 ) || (this.state.gender < 2) && (size) );
     //var priceIsWrong = (original_price != '') && ((price == 0) || (price.charAt(0) == 0 ) || (original_price == 0) || (original_price.charAt(0) == 0) )
 
     //console.log(priceIsWrong);
@@ -453,8 +453,9 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
     if(isUploading) {
         return (
             <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
-                <View style={{height: 200, justifyContent: 'center', alignContent: 'center'}}>
-                    <PacmanIndicator color='#800000' />
+                <View style={{height: 200, justifyContent: 'center', alignContent: 'center', alignItems: 'center'}}>
+                    <LoadingIndicator isVisible={isUploading} color={'#800000'} type={'Bounce'}/>
+                    <WhiteSpace height={20}/>
                     <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: '#800000', textAlign: 'center'}}>
                         Your product {this.state.name} is being uploaded to the market. Please do not resubmit the same product.
                     </Text>
