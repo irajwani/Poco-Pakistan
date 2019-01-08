@@ -64,6 +64,8 @@ class ProductDetails extends Component {
       productComments: '',
       showReportUserModal: false,
       report: '',
+      //Purchase Modal Stuff
+      showPurchaseModal: false,
     }
   }
 
@@ -266,21 +268,106 @@ class ProductDetails extends Component {
     .catch(console.error)
   }
 
+  renderReportUserModal = () => {
+    {/* Modal to input Report about product */}
+    <Modal
+    animationType="slide"
+    transparent={false}
+    visible={this.state.showReportUserModal}
+    onRequestClose={() => {
+      Alert.alert('Modal has been closed.');
+    }}
+    >
+      <DismissKeyboardView>
+          <View style={styles.reportModal}>
+              <Text style={styles.reportModalHeader}>Please Explain What You Wish To Report About This Product</Text>
+              <TextInput
+                  style={styles.reportInput}
+                  onChangeText={(report) => this.setState({report})}
+                  value={this.state.report}
+                  multiline={true}
+                  numberOfLines={4}
+              />
+              <Button
+                  title='Send' 
+                  titleStyle={{ fontWeight: "300" }}
+                  buttonStyle={{
+                  backgroundColor: darkBlue,
+                  //#2ac40f
+                  width: 90,
+                  height: 40,
+                  borderColor: "#fff",
+                  borderWidth: 1,
+                  borderRadius: 20,
+                  }}
+                  containerStyle={{ marginTop: 0, marginBottom: 0 }}
+                  onPress={() => {this.reportItem(this.state.yourProfile, data)}} 
+              />
+              
+              <TouchableHighlight
+                  underlayColor={'#fff'}
+                  onPress={() => {
+                      this.setState( {showReportUserModal: false} )
+                  }}>
+                  <Text style={styles.hideModal}>Back</Text>
+              </TouchableHighlight>
+          </View>
+        </DismissKeyboardView>
+    </Modal>
+  }
+
+  renderPurchaseModal = () => {
+    const {deliveryOptionModal, deliveryOptionHeader, deliveryOptionBody} = styles;
+    return (
+      <Modal 
+      animationType="slide"
+      transparent={true}
+      visible={this.state.showPurchaseModal}
+      
+      >
+        <View style={deliveryOptionModal}>
+
+          <View style={deliveryOptionHeader}>
+
+            <View style={backIconContainer}>
+
+            </View>
+
+            
+            <View style={logoContainer}>
+
+            </View>
+
+          </View>
+
+
+          <View style={styles.deliveryOptionBody}>
+          
+          </View>
+
+
+
+        </View>
+
+      </Modal>
+    )
+  }
+
   render() {
-    const { params } = this.props.navigation.state;
-    const { data, collectionKeys, productKeys } = params;
+    const { params } = this.props.navigation.state,
+    { data, collectionKeys, productKeys } = params,
     
-    const { isGetting, profile, navToChatLoading, productComments, uid } = this.state;
-    const {text} = data;
-    const details = {
+    { isGetting, profile, navToChatLoading, productComments, uid } = this.state,
+    {text} = data,
+    details = {
       brand: text.brand,
       gender: text.gender,
       size: text.size,
       type: text.type,
       condition: text.condition,
       original_price: text.original_price
-    };
-    const description = text.description;
+    },
+    description = text.description;
     // const {comments} = text;
 
     // console.log(firebase.auth().currentUser.uid == data.uid, firebase.auth().currentUser.uid, data.uid);
@@ -495,7 +582,7 @@ class ProductDetails extends Component {
                     <Text 
                     onPress={()=>{this.setState({showFullDescription: !this.state.showFullDescription})}} 
                     style={styles.description}>
-                    {this.state.showFullDescription ? text.description : text.description.substring(0,124) + "...." + "  " +  "(Show More?)"}
+                    {this.state.showFullDescription ? text.description : text.description.replace(/ +/g, " ").substring(0,124) + "...." + "  " +  "(Show More?)"}
                     </Text>
                   :
                     <Text style={styles.description}>{text.description}</Text>
@@ -565,55 +652,11 @@ class ProductDetails extends Component {
                       
               )}
           
-        
 
-        
+        {this.renderReportUserModal()}
 
-        {/* Modal to input Report about product */}
-       <Modal
-          animationType="slide"
-          transparent={false}
-          visible={this.state.showReportUserModal}
-          onRequestClose={() => {
-            Alert.alert('Modal has been closed.');
-          }}
-       >
-        <DismissKeyboardView>
-            <View style={styles.reportModal}>
-                <Text style={styles.reportModalHeader}>Please Explain What You Wish To Report About This Product</Text>
-                <TextInput
-                    style={styles.reportInput}
-                    onChangeText={(report) => this.setState({report})}
-                    value={this.state.report}
-                    multiline={true}
-                    numberOfLines={4}
-                />
-                <Button
-                    title='Send' 
-                    titleStyle={{ fontWeight: "300" }}
-                    buttonStyle={{
-                    backgroundColor: darkBlue,
-                    //#2ac40f
-                    width: 90,
-                    height: 40,
-                    borderColor: "#fff",
-                    borderWidth: 1,
-                    borderRadius: 20,
-                    }}
-                    containerStyle={{ marginTop: 0, marginBottom: 0 }}
-                    onPress={() => {this.reportItem(this.state.yourProfile, data)}} 
-                />
-                
-                <TouchableHighlight
-                    underlayColor={'#fff'}
-                    onPress={() => {
-                        this.setState( {showReportUserModal: false} )
-                    }}>
-                    <Text style={styles.hideModal}>Back</Text>
-                </TouchableHighlight>
-            </View>
-          </DismissKeyboardView>
-        </Modal>
+        {this.renderPurchaseModal()}
+
 
       </ScrollView> 
     );
