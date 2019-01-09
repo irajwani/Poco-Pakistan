@@ -18,11 +18,12 @@ import { PacmanIndicator } from 'react-native-indicators';
 import Chatkit from "@pusher/chatkit";
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
 import email from 'react-native-email';
-import { highlightGreen, graphiteGray, rejectRed, darkBlue, profoundPink, aquaGreen } from '../colors';
+import { highlightGreen, treeGreen, graphiteGray, rejectRed, darkBlue, profoundPink, aquaGreen } from '../colors';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 // import BackButton from '../components/BackButton';
 import { avenirNextText } from '../constructors/avenirNextText';
 import { WhiteSpace, LoadingIndicator } from '../localFunctions/visualFunctions';
+import NottLogo from '../../nottLogo/ios/NottLogo.js';
 
 var {height, width} = Dimensions.get('window');
 
@@ -270,7 +271,7 @@ class ProductDetails extends Component {
 
   renderReportUserModal = () => {
     {/* Modal to input Report about product */}
-    <Modal
+    return (<Modal
     animationType="slide"
     transparent={false}
     visible={this.state.showReportUserModal}
@@ -313,11 +314,11 @@ class ProductDetails extends Component {
               </TouchableHighlight>
           </View>
         </DismissKeyboardView>
-    </Modal>
+    </Modal>)
   }
 
   renderPurchaseModal = () => {
-    const {deliveryOptionModal, deliveryOptionHeader, deliveryOptionBody} = styles;
+    const {deliveryOptionModal, deliveryOptionHeader, backIconContainer, logoContainer, logo, deliveryOptionBody, } = styles;
     return (
       <Modal 
       animationType="slide"
@@ -330,20 +331,29 @@ class ProductDetails extends Component {
           <View style={deliveryOptionHeader}>
 
             <View style={backIconContainer}>
-
+              <FontAwesomeIcon
+                name='arrow-left'
+                size={25}
+                color={'black'}
+                onPress = { () => { 
+                    this.setState({showPurchaseModal: false })
+                    } }
+                />
             </View>
 
             
             <View style={logoContainer}>
-
+                <NottLogo/>
             </View>
 
           </View>
 
-
           <View style={styles.deliveryOptionBody}>
-          
+              
           </View>
+
+
+          
 
 
 
@@ -552,14 +562,33 @@ class ProductDetails extends Component {
                   />
                 </View> 
             :
-              <Icon
-                name="flag-variant-outline" 
-                size={40}  
-                color={'#800'}
-                onPress = { () => { 
-                            this.setState({showReportUserModal: true})
-                            } }
-              />
+              <View style={styles.buyOrReportActionContainer}>
+                <Button 
+                  title='Buy' 
+                  titleStyle={{ fontWeight: "300", color: 'black' }}
+                  buttonStyle={{
+                  backgroundColor: treeGreen,
+                  //#2ac40f
+                  width: 80,
+                  height: 40,
+                  // borderColor: "#fff",
+                  // borderWidth: 1,
+                  borderRadius: 10,
+                  }}
+                  containerStyle={{ marginTop: 0, marginBottom: 0 }}
+                  onPress={() => {this.setState({showPurchaseModal: true})}} 
+                />
+                <Icon
+                  name="flag-variant-outline" 
+                  size={40}  
+                  color={'#800'}
+                  onPress = { () => { 
+                    this.setState({showReportUserModal: true})
+                  } }
+                />
+              </View>
+
+              
             
 
             }
@@ -774,7 +803,7 @@ const styles = StyleSheet.create( {
   },
 
   detailsColumn: {
-    flex: 5,
+    flex: 4,
     flexDirection: 'column',
     paddingBottom: 3,
     paddingTop: 1,
@@ -791,8 +820,9 @@ const styles = StyleSheet.create( {
 
   secondaryActionsColumn: {
     justifyContent: 'flex-start',
+    alignItems: 'flex-end',
     flexDirection: 'column',
-    flex: 1,
+    flex: 2,
     // backgroundColor: 'green'
   },
 
@@ -807,6 +837,11 @@ const styles = StyleSheet.create( {
   infoAndButtonsColumn: {
     flex: 1,
     flexDirection: 'column',
+  },
+
+  buyOrReportActionContainer: {
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
   },
 
   brandText: {
