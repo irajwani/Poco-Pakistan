@@ -16,7 +16,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { material, iOSColors, iOSUIKit } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
 
-import Chatkit from "@pusher/chatkit";
+import Chatkit from "@pusher/chatkit-client";
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
 import email from 'react-native-email';
 import { highlightGreen, treeGreen, graphiteGray, rejectRed, darkBlue, profoundPink, aquaGreen } from '../colors';

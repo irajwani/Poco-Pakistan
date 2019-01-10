@@ -6,7 +6,7 @@ import {Button} from 'react-native-elements';
 // import {database} from '../cloud/database'
 import firebase from '../cloud/firebase';
 import { withNavigation } from 'react-navigation';
-import Chatkit from '@pusher/chatkit';
+import Chatkit from '@pusher/chatkit-client';
 import { CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_INSTANCE_LOCATOR } from '../credentials/keys';
 import {material} from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
@@ -38,41 +38,41 @@ class Chats extends Component {
     this.state = { chats: [], isGetting: true, noChats: false };
   }
 
-  componentDidMount() {
+  // componentDidMount() {
 
-    var userIdentificationKey = firebase.auth().currentUser.uid
+  //   var userIdentificationKey = firebase.auth().currentUser.uid
 
-    setTimeout(() => {
-      this.leaveYourRooms(userIdentificationKey);
-      this.chatLeaveRoomsRefreshId = setInterval(() => {
+  //   setTimeout(() => {
+  //     this.leaveYourRooms(userIdentificationKey);
+  //     this.chatLeaveRoomsRefreshId = setInterval(() => {
   
-        this.leaveYourRooms(userIdentificationKey);
+  //       this.leaveYourRooms(userIdentificationKey);
         
-        // this.getChats(userIdentificationKey);
-      }, 60000); //20 seconds
-    }, 1000);
+  //       // this.getChats(userIdentificationKey);
+  //     }, 60000); //20 seconds
+  //   }, 1000);
 
 
-    setTimeout(() => {
-      this.getChats(userIdentificationKey);
-      this.chatRefreshId = setInterval(() => {
+  //   setTimeout(() => {
+  //     this.getChats(userIdentificationKey);
+  //     this.chatRefreshId = setInterval(() => {
   
-        this.getChats(userIdentificationKey);
+  //       this.getChats(userIdentificationKey);
         
-        // this.getChats(userIdentificationKey);
-      }, 45000); //7 seconds
-    }, 5000);
+  //       // this.getChats(userIdentificationKey);
+  //     }, 45000); //7 seconds
+  //   }, 5000);
 
-    //TODO: add refresh button so user may refresh chats manually
+  //   //TODO: add refresh button so user may refresh chats manually
 
     
     
-  }
+  // }
 
-  componentWillUnmount() {
-    clearInterval(this.chatRefreshId);
-    clearInterval(this.chatLeaveRoomsRefreshId);
-  }
+  // componentWillUnmount() {
+  //   clearInterval(this.chatRefreshId);
+  //   clearInterval(this.chatLeaveRoomsRefreshId);
+  // }
 
   leaveYourRooms(your_uid) {
 
@@ -263,7 +263,7 @@ class Chats extends Component {
 
 
     })
-    .catch( (err) => {console.log(err) })
+    .catch( (err) => {console.log('error with getChats' + err) })
     
   }
 

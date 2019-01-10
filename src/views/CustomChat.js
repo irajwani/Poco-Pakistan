@@ -7,7 +7,7 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 // import emojiUtils from 'emoji-utils';
 
-import Chatkit from "@pusher/chatkit";
+import Chatkit from "@pusher/chatkit-client";
 import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
 import { treeGreen } from '../colors';
 
