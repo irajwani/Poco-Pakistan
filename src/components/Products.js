@@ -16,7 +16,7 @@ import * as Animatable from 'react-native-animatable';
 // import FacebookTabBar from './FacebookTabBar'
 
 // import PushNotification from 'react-native-push-notification';
-import { PacmanIndicator } from 'react-native-indicators';
+// import { PacmanIndicator } from 'react-native-indicators';
 import { graphiteGray, lightGreen, rejectRed, treeGreen, avenirNext, optionLabelBlue, almostWhite, flashOrange, lightGray, highlightGreen, lightBlack } from '../colors.js';
 
 // import { splitArrayIntoArraysOfSuccessiveElements } from '../localFunctions/arrayFunctions';

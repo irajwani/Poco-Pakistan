@@ -19,11 +19,11 @@ import { PacmanIndicator } from 'react-native-indicators';
 import Chatkit from "@pusher/chatkit-client";
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
 import email from 'react-native-email';
-import { highlightGreen, treeGreen, graphiteGray, rejectRed, darkBlue, profoundPink, aquaGreen } from '../colors';
+import { lightGreen, highlightGreen, treeGreen, graphiteGray, rejectRed, darkBlue, profoundPink, aquaGreen } from '../colors';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 // import BackButton from '../components/BackButton';
 import { avenirNextText } from '../constructors/avenirNextText';
-import { WhiteSpace, LoadingIndicator } from '../localFunctions/visualFunctions';
+import { WhiteSpace, LoadingIndicator, CustomTouchableO } from '../localFunctions/visualFunctions';
 import NottLogo from '../../nottLogo/ios/NottLogo.js';
 
 var {height, width} = Dimensions.get('window');
@@ -327,33 +327,6 @@ class ProductDetails extends Component {
     )
   }
 
-  r = () => {
-    return (
-      <Modal 
-      animationType="slide"
-      transparent={false}
-      visible={this.state.showPurchaseModal}
-      
-      >
-        <View style={styles.deliveryOptionModal}>
-
-          <View style={styles.deliveryOptionHeader}>
-            <Text>YO</Text>
-          </View>
-
-          <View style={styles.deliveryOptionBody}>
-
-          </View>
-
-        </View>
-      </Modal>
-
-      
-
-      
-    )
-  }
-
   renderPurchaseModal = () => {
     const {deliveryOptionModal, deliveryOptionHeader, backIconContainer, logoContainer, logo, deliveryOptionBody, deliveryOptionContainer, radioButton } = styles;
     return (
@@ -363,31 +336,37 @@ class ProductDetails extends Component {
       visible={this.state.showPurchaseModal}
       
       >
-        <View style={styles.deliveryOptionModal}>
+        <View style={deliveryOptionModal}>
 
           <View style={deliveryOptionHeader}>
 
-            <View style={backIconContainer}>
-              <FontAwesomeIcon
-                name='arrow-left'
-                size={25}
-                color={'black'}
-                onPress = { () => { 
-                    this.setState({showPurchaseModal: false })
-                    } }
-                />
-            </View>
-
             
-            <View style={logoContainer}>
-                <Image style={styles.logo} source={require("../images/logo.png")}/>
-            </View>
+            <FontAwesomeIcon
+              name='arrow-left'
+              size={28}
+              color={'black'}
+              onPress = { () => { 
+                  this.setState({showPurchaseModal: false })
+                  } }
+              />
+          
+            <Image style={styles.logo} source={require("../images/logo.png")}/>
+            
+
+            <FontAwesomeIcon
+              name='close'
+              size={28}
+              color={'black'}
+              onPress = { () => { 
+                  this.setState({showPurchaseModal: false })
+                  } }
+              />
 
           </View>
 
           <View style={deliveryOptionBody}>
 
-              <Text style={new avenirNextText('black', 24, "600")}>
+              <Text style={new avenirNextText('black', 24, "400")}>
                 Delivery:
               </Text>
 
@@ -398,36 +377,47 @@ class ProductDetails extends Component {
               
                 {this.state.deliveryOptions.map( (option, index) => (
                   <View style={deliveryOptionContainer}>
-                  <TouchableOpacity 
-                    style={radioButton} 
-                    onPress={() => {
-                      //Select this option and if another option is selected, deselect it
-                      this.state.deliveryOptions[index].selected = !this.state.deliveryOptions[index].selected;
-                      if(index == 0) {
-                        this.state.deliveryOptions[1].selected == true ?
-                          this.state.deliveryOptions[1].selected = false
-                          :
-                          null
-                      }
 
-                      else {
-                        this.state.deliveryOptions[0].selected == true ?
-                          this.state.deliveryOptions[0].selected = false
-                          :
-                          null
-                      }
-                      
-                      this.setState({deliveryOptions: this.state.deliveryOptions});
-                    }}
-                    >
-                    {option.selected ? <SelectedOptionBullet/> : null}
-                    </TouchableOpacity>
-                    <Text style={new avenirNextText('black', 20, "400")}>{option.text}</Text>
+                    <View style={styles.radioButtonContainer}>
+                      <TouchableOpacity 
+                      style={radioButton} 
+                      onPress={() => {
+                        //Select this option and if another option is selected, deselect it
+                        this.state.deliveryOptions[index].selected = !this.state.deliveryOptions[index].selected;
+                        if(index == 0) {
+                          this.state.deliveryOptions[1].selected == true ?
+                            this.state.deliveryOptions[1].selected = false
+                            :
+                            null
+                        }
+
+                        else {
+                          this.state.deliveryOptions[0].selected == true ?
+                            this.state.deliveryOptions[0].selected = false
+                            :
+                            null
+                        }
+                        
+                        this.setState({deliveryOptions: this.state.deliveryOptions});
+                      }}
+                      >
+                      {option.selected ? <SelectedOptionBullet/> : null}
+                      </TouchableOpacity>
+                    </View>
+                    
+                    <View style={styles.deliveryOptionTextContainer}>
+                      <Text style={new avenirNextText('black', 20, "400")}>{option.text}</Text>
+                    </View>
                   </View>
                 ))}
               
 
           </View>
+
+          <CustomTouchableO 
+          disabled={this.state.deliveryOptions[0].selected || this.state.deliveryOptions[1].selected ? false : true } 
+          flex={0.15} color={treeGreen} text={'Next'} textColor={'#fff'} textSize={25}
+          />
           
          
 
@@ -1127,39 +1117,57 @@ description: {textAlign: 'justify', ...new avenirNextText(graphiteGray, 18, "300
 
 deliveryOptionModal: {
   backgroundColor: "#fff",
-  flex: 1
+  flex: 1,
+  marginTop: 22
 },
 
 deliveryOptionHeader: {
-  flex: 0.15,
-  backgroundColor: treeGreen,
-  flexDirection: 'row'
+  flex: 0.1,
+  //TODO: find nottGreen hex code
+  backgroundColor: lightGreen,
+  justifyContent: 'space-evenly',
+  alignItems: 'center',
+  flexDirection: 'row',
+  paddingHorizontal: 5,
 },
 
 backIconContainer: {
-  // flex: 0.2
+  flex: 0.4,
+  // justifyContent: 'flex-start',
+  // alignItems: 'center'
 },
 
 logoContainer: {
-  // flex: 0.8,
-  width: 10,
-  height: 10
+  flex: 0.6,
+  // justifyContent: 'flex-start',
+  // alignItems: 'center',
+  // backgroundColor: 'red'
+  // width: 40,
+  // height: 40
 },
 
 logo: {
-  width: 10,
-  height: 10
+  width: 45,
+  height: 45,
 },
 
 deliveryOptionBody: {
-  flex: 0.85,
-  // padding: 10,
+  flex: 0.75,
+  padding: 10,
   // alignItems: 'center'
   // backgroundColor: ''
 },
 
 deliveryOptionContainer: {
-  flexDirection: 'row'
+  flexDirection: 'row',
+  
+  padding: 10
+},
+
+radioButtonContainer: {
+  paddingHorizontal: 10,
+  // justifyContent: 'space',
+  alignItems: 'center',
 },
 
 radioButton: {
@@ -1168,8 +1176,15 @@ radioButton: {
   borderRadius: 15,
   borderWidth: 0.5,
   borderColor: 'black',
-  backgroundColor: '#fff'
-}
+  backgroundColor: '#fff',
+  justifyContent: 'center',
+  alignItems: 'center'
+},
+
+deliveryOptionTextContainer: {
+  paddingHorizontal: 10,
+  alignItems: 'flex-start'
+},
 
 
 } )

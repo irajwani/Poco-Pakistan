@@ -1,7 +1,8 @@
 import React from 'react';
-import {View, TouchableWithoutFeedback, Keyboard} from 'react-native';
+import { View, TouchableWithoutFeedback, Keyboard, TouchableOpacity, Text } from 'react-native';
 import { darkGray } from '../colors';
 import Spinner from 'react-native-spinkit';
+import { avenirNextText } from '../constructors/avenirNextText';
 
 const GrayLine = () => (
     <View style={{backgroundColor: darkGray, height: 0.5}}/>
@@ -25,4 +26,13 @@ const LoadingIndicator = ({isVisible, type, color}) => (
     <Spinner style={{}} isVisible={isVisible} size={50} type={type} color={color}/>    
 ) 
 
-export {GrayLine, WhiteSpace, LoadingIndicator, DismissKeyboardView}
+const CustomTouchableO = ({disabled, flex, color, text, textSize, textColor}) => {
+    return(
+        <TouchableOpacity disabled={disabled} style={{justifyContent: 'center', alignItems: 'center', backgroundColor: color, flex: flex}}>
+            <Text style={new avenirNextText(textColor, textSize, "300")}>{text}</Text>
+        </TouchableOpacity>
+    )
+    
+}
+
+export {GrayLine, WhiteSpace, LoadingIndicator, DismissKeyboardView, CustomTouchableO}
