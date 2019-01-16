@@ -580,7 +580,7 @@ class ProductDetails extends Component {
       )
     }
 
-    else if(activeScreen == "postalDelivery") {
+    else if(activeScreen ==  "postalDelivery") {
       return (
       <Modal 
       animationType={modalAnimationType}
