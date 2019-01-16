@@ -13,8 +13,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 // import { database } from '../cloud/database';
 // import { Divider } from 'react-native-elements';
 
-import { material, iOSColors, iOSUIKit } from 'react-native-typography';
-import { PacmanIndicator } from 'react-native-indicators';
+import { iOSColors } from 'react-native-typography';
+// import { PacmanIndicator } from 'react-native-indicators';
 
 import Chatkit from "@pusher/chatkit-client";
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
@@ -22,7 +22,7 @@ import email from 'react-native-email';
 import { lightGreen, highlightGreen, treeGreen, graphiteGray, rejectRed, darkBlue, profoundPink, aquaGreen } from '../colors';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 // import BackButton from '../components/BackButton';
-import { avenirNextText } from '../constructors/avenirNextText';
+import { avenirNextText, delOpt, deliveryOptions } from '../constructors/avenirNextText';
 import { WhiteSpace, LoadingIndicator, CustomTouchableO } from '../localFunctions/visualFunctions';
 import NottLogo from '../../nottLogo/ios/NottLogo.js';
 
@@ -30,6 +30,7 @@ var {height, width} = Dimensions.get('window');
 
 const limeGreen = '#2e770f';
 // const profoundPink = '#c64f5f';
+const modalAnimationType = "slide";
 
 const chatIcon = {
   title: 'Chat',
@@ -74,7 +75,10 @@ class ProductDetails extends Component {
       report: '',
       //Purchase Modal Stuff
       showPurchaseModal: false,
-      deliveryOptions: [{text: "Collection in person", selected: false}, {text: "Postal Delivery", selected:false}],
+      activeScreen: "initial",
+      deliveryOptions: [
+        {text: "Collection in person", selected: false, options: ["Contact via Chat", "OR",  "Proceed to Payment"], },
+        {text: "Postal Delivery", selected:false}],
     }
   }
 
@@ -327,11 +331,259 @@ class ProductDetails extends Component {
     )
   }
 
+  proceedToPayment = () => {
+    console.log('.....')
+  }
+
+  goToNextPage = () => {
+    switch(this.state.activeScreen) {
+      case "postalDelivery":
+        this.setState({activeScreen: "visaCheckoutScreen"});
+        break;
+      default:
+        this.setState({activeScreen: this.state.deliveryOptions[0].selected ? 'collectionInPerson' : 'postalDelivery'});
+        break;
+
+    }
+    
+    // this.props.navigation.navigate()
+  }
+
+  goToAddDeliveryAddress = () => {
+    this.setState({activeScreen: 'addDeliveryAddress'});
+  }
+
+  goToPreviousPage = () => {
+    switch(this.state.activeScreen) {
+      case ("collectionInPerson" || "postalDelivery"):
+        this.setState({activeScreen: "initial"});
+        break;
+      case "addDeliveryAddress":
+        this.setState({activeScreen: "postalDelivery"});
+        break;
+      default:
+        this.setState({activeScreen: "initial"})
+    }
+  }
+
   renderPurchaseModal = () => {
     const {deliveryOptionModal, deliveryOptionHeader, backIconContainer, logoContainer, logo, deliveryOptionBody, deliveryOptionContainer, radioButton } = styles;
-    return (
+    const {activeScreen} = this.state;
+
+    
+
+    if(activeScreen == "initial") {
+      return (
+        <Modal 
+        animationType="slide"
+        transparent={false}
+        visible={this.state.showPurchaseModal}
+        
+        >
+          <View style={deliveryOptionModal}>
+  
+            <View style={deliveryOptionHeader}>
+  
+              
+              <FontAwesomeIcon
+                name='arrow-left'
+                size={28}
+                color={'black'}
+                onPress = { () => { 
+                    // this.setState({showPurchaseModal: false })
+                    } }
+                />
+            
+              <Image style={styles.logo} source={require("../images/logo.png")}/>
+              
+  
+              <FontAwesomeIcon
+                name='close'
+                size={28}
+                color={'black'}
+                onPress = { () => { 
+                    this.setState({showPurchaseModal: false })
+                    } }
+                />
+  
+            </View>
+  
+            <View style={deliveryOptionBody}>
+  
+                <Text style={new avenirNextText('black', 24, "400")}>
+                  Delivery:
+                </Text>
+  
+                <Text style={new avenirNextText(graphiteGray, 24, "200")}>
+                  Choose how you would like your product delivered:
+                </Text>
+
+                <WhiteSpace height={40}/>
+  
+                
+                  {this.state.deliveryOptions.map( (option, index) => (
+                    <View style={deliveryOptionContainer}>
+  
+                      <View style={styles.radioButtonContainer}>
+                        <TouchableOpacity 
+                        style={radioButton} 
+                        onPress={() => {
+                          //Select this option and if another option is selected, deselect it
+                          this.state.deliveryOptions[index].selected = !this.state.deliveryOptions[index].selected;
+                          if(index == 0) {
+                            this.state.deliveryOptions[1].selected == true ?
+                              this.state.deliveryOptions[1].selected = false
+                              :
+                              null
+                          }
+  
+                          else {
+                            this.state.deliveryOptions[0].selected == true ?
+                              this.state.deliveryOptions[0].selected = false
+                              :
+                              null
+                          }
+                          
+                          this.setState({deliveryOptions: this.state.deliveryOptions});
+                        }}
+                        >
+                        {option.selected ? <SelectedOptionBullet/> : null}
+                        </TouchableOpacity>
+                      </View>
+                      
+                      <View style={styles.deliveryOptionTextContainer}>
+                        <Text style={new avenirNextText('black', 20, "400")}>{option.text}</Text>
+                      </View>
+                    </View>
+                  ))}
+                
+  
+            </View>
+  
+            <CustomTouchableO 
+            onPress={this.goToNextPage}
+            disabled={this.state.deliveryOptions[0].selected || this.state.deliveryOptions[1].selected ? false : true } 
+            flex={0.15} color={treeGreen} text={'Next'} textColor={'#fff'} textSize={25}
+            />
+            
+           
+  
+           </View>
+  
+        </Modal>
+      )
+    }
+
+    else if(activeScreen == "collectionInPerson") {
+      return (
+        <Modal 
+        animationType="slide"
+        transparent={false}
+        visible={this.state.showPurchaseModal}
+        
+        >
+          <View style={deliveryOptionModal}>
+  
+            <View style={deliveryOptionHeader}>
+  
+              
+              <FontAwesomeIcon
+                name='arrow-left'
+                size={28}
+                color={'black'}
+                onPress = { () => { 
+                    this.goToPreviousPage()
+                    // this.setState({showPurchaseModal: false })
+                    } }
+                />
+            
+              <Image style={styles.logo} source={require("../images/logo.png")}/>
+              
+              <FontAwesomeIcon
+                name='close'
+                size={28}
+                color={'black'}
+                onPress = { () => { 
+                  //TODO: clear selected options in deliveryOptions
+                    this.setState({showPurchaseModal: false })
+                    } }
+                />
+  
+            </View>
+  
+            <View style={[deliveryOptionBody, {flex: 0.9}]}>
+  
+                <Text style={new avenirNextText('black', 24, "400")}>
+                  Collection in Person
+                </Text>
+  
+                <Text style={new avenirNextText(graphiteGray, 24, "300")}>
+                  Let the seller know when and where you will be meeting via chat.
+                </Text>
+
+                <WhiteSpace height={30}/>
+  
+                
+                  {this.state.deliveryOptions[0].options.map( (option, index) => (
+
+                    index != 1 ?
+                    <View style={styles.collectionInPersonContainer}>
+
+                      <TouchableOpacity style={styles.collectionInPersonButton}>
+
+                        <View style={styles.collectionInPersonOptionsContainer}>
+
+                          <Icon
+                            name={index == 0 ? 'message-text-outline' : "credit-card"}
+                            size={33}
+                            color={chatIcon.color}
+                            onPress = { () => { 
+                                // console.log('going to chat');
+                                //subscribe to room key
+                                index == 0 ? 
+                                  this.navToChat(this.props.navigation.state.params.data.uid, this.props.navigation.state.params.data.key)
+                                  : 
+                                  this.proceedToPayment
+                                } }
+
+                          />
+                          <Text style={new avenirNextText(graphiteGray, 20, "200")}>
+                            {option}
+                          </Text>
+                          
+                        </View>
+
+                      </TouchableOpacity>
+
+                    </View>
+
+                    :
+
+                    <View style={styles.collectionInPersonContainer}>
+
+                      <Text style={new avenirNextText(graphiteGray, 28, "300")}>OR</Text>
+
+                    </View>
+
+
+
+                  ))}
+                
+  
+            </View>
+            
+           
+  
+           </View>
+  
+        </Modal>
+      )
+    }
+
+    else if(activeScreen == "postalDelivery") {
+      return (
       <Modal 
-      animationType="slide"
+      animationType={modalAnimationType}
       transparent={false}
       visible={this.state.showPurchaseModal}
       
@@ -346,78 +598,82 @@ class ProductDetails extends Component {
               size={28}
               color={'black'}
               onPress = { () => { 
-                  this.setState({showPurchaseModal: false })
+                  this.goToPreviousPage()
+                  // this.setState({showPurchaseModal: false })
                   } }
               />
           
             <Image style={styles.logo} source={require("../images/logo.png")}/>
             
-
             <FontAwesomeIcon
               name='close'
               size={28}
               color={'black'}
               onPress = { () => { 
+                //TODO: clear selected options in deliveryOptions
                   this.setState({showPurchaseModal: false })
                   } }
               />
 
           </View>
 
-          <View style={deliveryOptionBody}>
+          <View style={[deliveryOptionBody, {flex: 0.9}]}>
 
               <Text style={new avenirNextText('black', 24, "400")}>
-                Delivery:
+                Postal Delivery
               </Text>
 
-              <Text style={new avenirNextText(graphiteGray, 24, "200")}>
-                Choose how you would like your product delivered:
+              <Text style={new avenirNextText(graphiteGray, 24, "300")}>
+                Address:
               </Text>
 
-              
-                {this.state.deliveryOptions.map( (option, index) => (
-                  <View style={deliveryOptionContainer}>
+              <WhiteSpace height={5}/>
 
-                    <View style={styles.radioButtonContainer}>
-                      <TouchableOpacity 
-                      style={radioButton} 
-                      onPress={() => {
-                        //Select this option and if another option is selected, deselect it
-                        this.state.deliveryOptions[index].selected = !this.state.deliveryOptions[index].selected;
-                        if(index == 0) {
-                          this.state.deliveryOptions[1].selected == true ?
-                            this.state.deliveryOptions[1].selected = false
-                            :
-                            null
-                        }
+              <TouchableOpacity onPress={this.goToAddDeliveryAddress} style={styles.addDeliveryAddressButton}>
+                  <View>
 
-                        else {
-                          this.state.deliveryOptions[0].selected == true ?
-                            this.state.deliveryOptions[0].selected = false
-                            :
-                            null
-                        }
-                        
-                        this.setState({deliveryOptions: this.state.deliveryOptions});
-                      }}
-                      >
-                      {option.selected ? <SelectedOptionBullet/> : null}
-                      </TouchableOpacity>
-                    </View>
+                    <Icon
+                      name="plus"
+                      size={18}
+                      color={"#fff"}
+                    />
+
+                    <Text style={new avenirNextText("#fff", 20, "200")}>
+                      Add your delivery address
+                    </Text>
                     
-                    <View style={styles.deliveryOptionTextContainer}>
-                      <Text style={new avenirNextText('black', 20, "400")}>{option.text}</Text>
-                    </View>
                   </View>
-                ))}
+              </TouchableOpacity>
+
+              <WhiteSpace height={90}/>
+
+              <View style={styles.collectionInPersonContainer}>
+
+                <TouchableOpacity 
+                onPress={this.proceedToPayment} 
+                style={styles.collectionInPersonButton}>
+
+                  <View style={styles.collectionInPersonOptionsContainer}>
+
+                    <Icon
+                      name="credit-card"
+                      size={33}
+                      color={chatIcon.color}
+
+                    />
+                    <Text style={new avenirNextText('black', 20, "200")}>
+                      Proceed to Payment
+                    </Text>
+                    
+                  </View>
+
+                </TouchableOpacity>
+
+              </View>
+                
               
 
           </View>
-
-          <CustomTouchableO 
-          disabled={this.state.deliveryOptions[0].selected || this.state.deliveryOptions[1].selected ? false : true } 
-          flex={0.15} color={treeGreen} text={'Next'} textColor={'#fff'} textSize={25}
-          />
           
          
 
@@ -425,6 +681,10 @@ class ProductDetails extends Component {
 
       </Modal>
     )
+
+    }
+    
+    
   }
 
   render() {
@@ -630,7 +890,7 @@ class ProductDetails extends Component {
                 <RNButton 
                   title='Purchase' 
                   color={treeGreen}
-                  onPress={() => {this.setState({showPurchaseModal: true})}} 
+                  onPress={() => {console.log('open Purchase Modal');this.setState({showPurchaseModal: true})}} 
                 />
                 <Icon
                   name="flag-variant-outline" 
@@ -1115,6 +1375,19 @@ description: {textAlign: 'justify', ...new avenirNextText(graphiteGray, 18, "300
 
 ////Purchase Modal Stuff
 
+
+///////////////////////////
+///////////////////////////
+///////////////////////////
+//Initial Screen
+
+
+////////////
+////////////
+///////////
+///////////
+///////////
+
 deliveryOptionModal: {
   backgroundColor: "#fff",
   flex: 1,
@@ -1125,10 +1398,10 @@ deliveryOptionHeader: {
   flex: 0.1,
   //TODO: find nottGreen hex code
   backgroundColor: lightGreen,
-  justifyContent: 'space-evenly',
+  justifyContent: 'space-between',
   alignItems: 'center',
   flexDirection: 'row',
-  paddingHorizontal: 5,
+  paddingHorizontal: 12,
 },
 
 backIconContainer: {
@@ -1185,6 +1458,52 @@ deliveryOptionTextContainer: {
   paddingHorizontal: 10,
   alignItems: 'flex-start'
 },
+
+
+///////////////////////////
+///////////////////////////
+///////////////////////////
+//collectionInPerson Screen
+
+
+////////////
+////////////
+///////////
+///////////
+///////////
+
+///////////////////////////
+///////////////////////////
+///////////////////////////
+//postalDeliveryScreen
+
+collectionInPersonContainer: {
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingVertical: 10
+},
+
+collectionInPersonButton: {
+  width: 270,
+  height: 60,
+  borderRadius: 15,
+  backgroundColor: aquaGreen,
+  justifyContent: 'center',
+  // alignItems: 'center'
+},
+
+collectionInPersonOptionsContainer: {
+  flexDirection: 'row',
+  padding: 5,
+  justifyContent: 'space-evenly',
+  alignItems: 'center'
+},
+////////////
+////////////
+///////////
+///////////
+///////////
+
 
 
 } )

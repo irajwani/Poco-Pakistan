@@ -26,9 +26,9 @@ const LoadingIndicator = ({isVisible, type, color}) => (
     <Spinner style={{}} isVisible={isVisible} size={50} type={type} color={color}/>    
 ) 
 
-const CustomTouchableO = ({disabled, flex, color, text, textSize, textColor}) => {
+const CustomTouchableO = ({onPress, disabled, flex, color, text, textSize, textColor}) => {
     return(
-        <TouchableOpacity disabled={disabled} style={{justifyContent: 'center', alignItems: 'center', backgroundColor: color, flex: flex}}>
+        <TouchableOpacity onPress={onPress} disabled={disabled} style={{justifyContent: 'center', alignItems: 'center', backgroundColor: color, flex: flex}}>
             <Text style={new avenirNextText(textColor, textSize, "300")}>{text}</Text>
         </TouchableOpacity>
     )
