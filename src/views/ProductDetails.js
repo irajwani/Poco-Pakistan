@@ -19,7 +19,7 @@ import { iOSColors } from 'react-native-typography';
 import Chatkit from "@pusher/chatkit-client";
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
 import email from 'react-native-email';
-import { lightGreen, highlightGreen, treeGreen, graphiteGray, rejectRed, darkBlue, profoundPink, aquaGreen } from '../colors';
+import { lightGreen, highlightGreen, treeGreen, graphiteGray, rejectRed, darkBlue, profoundPink, aquaGreen, bobbyBlue } from '../colors';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 // import BackButton from '../components/BackButton';
 import { avenirNextText, delOpt, deliveryOptions } from '../constructors/avenirNextText';
@@ -38,6 +38,13 @@ const chatIcon = {
   type:{name: 'message-text', type: 'material-community'}
 }
 
+const addressFields = [
+  {key: "fullName", header: "Full Name", placeholder: "e.g. Angelina Capato"},
+  {key: "addressOne" , header: "Address Line 1" , placeholder: "e.g. House 133"},
+  {key: "addressTwo" , header: "Address Line 2" , placeholder: "e.g. Raleigh Park"},
+  {key: "postCode" , header: "Postcode" , placeholder: "e.g. NG71NY"},
+  {key: "city" , header: "City" , placeholder: "e.g. Nottingham"},
+]
 
 
 function removeFalsyValuesFrom(object) {
@@ -78,7 +85,13 @@ class ProductDetails extends Component {
       activeScreen: "initial",
       deliveryOptions: [
         {text: "Collection in person", selected: false, options: ["Contact via Chat", "OR",  "Proceed to Payment"], },
-        {text: "Postal Delivery", selected:false}],
+        {text: "Postal Delivery", selected:false}
+      ],
+      fullName: "",
+      addressOne: "",
+      addressTwo: "",
+      postCode: "",
+      city: "",
     }
   }
 
@@ -150,7 +163,13 @@ class ProductDetails extends Component {
       
       var productComments = d.Users[data.uid].products[data.key].comments ? d.Users[data.uid].products[data.key].comments : {a: {text: 'No Reviews have been left for this product yet.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
       
-      this.setState( {yourProfile, uid, otherUserUid, profile, productComments,} )
+      var addresses = false;
+      d.Users[uid].addresses ?
+        addresses = d.Users[uid].addresses
+        :
+        null
+      console.log(addresses, typeof addresses);
+      this.setState( {yourProfile, uid, otherUserUid, profile, productComments, addresses} )
     })
     .then( () => {
       this.setState({isGetting: false})
@@ -331,6 +350,31 @@ class ProductDetails extends Component {
     )
   }
 
+  onChange = (text, key) => {
+    //For address fields in addAddress
+    this.state[key] = text;
+    this.setState(this.state);
+  }
+
+  addAddress = () => {
+    const {fullName, addressOne, addressTwo, postCode, city} = this.state;
+    var postData = {
+      fullName,
+      addressOne,
+      addressTwo,
+      postCode,
+      city,
+      selected: false
+    };
+    var updates = {};
+    
+    updates['/Users/' + this.state.uid + '/addresses/' + Date.now() + '/'] = postData;
+    firebase.database().ref().update(updates);
+    this.goToPreviousPage();
+    // this.getUserAndProductAndOtherUserData();
+    // this.setState({isGetting: true});
+  }
+
   proceedToPayment = () => {
     console.log('.....')
   }
@@ -354,6 +398,7 @@ class ProductDetails extends Component {
   }
 
   goToPreviousPage = () => {
+    //Depending on the active screen, navigate to the previous page accordingly
     switch(this.state.activeScreen) {
       case ("collectionInPerson" || "postalDelivery"):
         this.setState({activeScreen: "initial"});
@@ -364,6 +409,11 @@ class ProductDetails extends Component {
       default:
         this.setState({activeScreen: "initial"})
     }
+  }
+
+  closePurchaseModal = () => {
+    //TODO: clear selected options in deliveryOptions
+    this.setState({showPurchaseModal: false });
   }
 
   renderPurchaseModal = () => {
@@ -580,7 +630,7 @@ class ProductDetails extends Component {
       )
     }
 
-    else if(activeScreen ==  "postalDelivery") {
+    else if(activeScreen == "postalDelivery") {
       return (
       <Modal 
       animationType={modalAnimationType}
@@ -617,37 +667,74 @@ class ProductDetails extends Component {
 
           </View>
 
-          <View style={[deliveryOptionBody, {flex: 0.9}]}>
+          <View style={deliveryOptionBody}>
 
-              <Text style={new avenirNextText('black', 24, "400")}>
-                Postal Delivery
-              </Text>
+              <View style={{flex: 0.3}}>
+                <Text style={new avenirNextText('black', 24, "400")}>
+                  Postal Delivery
+                </Text>
 
-              <Text style={new avenirNextText(graphiteGray, 24, "300")}>
-                Address:
-              </Text>
+                <Text style={new avenirNextText(graphiteGray, 24, "300")}>
+                  Address:
+                </Text>
+              </View>  
 
-              <WhiteSpace height={5}/>
+              
+              
+              {this.state.addresses ?
+                <ScrollView style={{flex: 0.35}} contentContainerStyle={styles.addressesContainer}>
+                  {Object.keys(this.state.addresses).map( (key, index) => (
+                    <View>
+                    <TouchableOpacity 
+                    onPress={ () => {
+                      Object.keys(this.state.addresses).forEach( (k) => {
+                        this.state.addresses[k].selected = false
+                      })
+                      this.state.addresses[key].selected = !this.state.addresses[key].selected
+                      this.setState(this.state); 
+                    }}
+                    style={styles.addressContainerButton}
+                    >
+                      <View style={styles.addressContainer}>
+                        <View style={styles.radioButton}>
+                          {this.state.addresses[key].selected ? <SelectedOptionBullet/> : null}
+                        </View>
+                        <Text style={styles.addressText}>{this.state.addresses[key].addressOne + ", " + this.state.addresses[key].addressTwo + ", " + this.state.addresses[key].city + ","}</Text>
+                        <Text style={styles.addressText}>{this.state.addresses[key].postCode}</Text>
+                      </View>
+                    </TouchableOpacity>
+                    <WhiteSpace height={10}/>
+                    </View>
+                  ))}
+                </ScrollView>
+              :
+                null
+              }
 
-              <TouchableOpacity onPress={this.goToAddDeliveryAddress} style={styles.addDeliveryAddressButton}>
-                  <View>
+              
+              
+              <View style={{flex: this.state.addresses ? 0.35 : 0.7, alignItems: 'center'}}>
+                <TouchableOpacity onPress={this.goToAddDeliveryAddress} style={styles.addDeliveryAddressButton}>
+                    <View style={styles.collectionInPersonOptionsContainer}>
 
-                    <Icon
-                      name="plus"
-                      size={18}
-                      color={"#fff"}
-                    />
+                      <Icon
+                        name="plus-circle-outline"
+                        size={18}
+                        color={"#fff"}
+                      />
 
-                    <Text style={new avenirNextText("#fff", 20, "200")}>
-                      Add your delivery address
-                    </Text>
-                    
-                  </View>
-              </TouchableOpacity>
+                      <Text style={new avenirNextText("#fff", 20, "300")}>
+                        Add your delivery address
+                      </Text>
+                      
+                    </View>
+                </TouchableOpacity>
+              </View>
+              
 
-              <WhiteSpace height={90}/>
+          </View>
 
-              <View style={styles.collectionInPersonContainer}>
+          <View style={[styles.collectionInPersonContainer, {flex: 0.15}]}>
 
                 <TouchableOpacity 
                 onPress={this.proceedToPayment} 
@@ -663,6 +750,104 @@ class ProductDetails extends Component {
                     />
                     <Text style={new avenirNextText('black', 20, "200")}>
                       Proceed to Payment
+                    </Text>
+                    
+                  </View>
+
+                </TouchableOpacity>
+
+          </View>
+          
+         
+
+         </View>
+
+      </Modal>
+    )
+
+    }
+
+    else if(activeScreen == "addDeliveryAddress") {
+      var filledOutAddress = (this.state.fullName && this.state.addressOne && this.state.addressTwo && this.state.city);
+      return (
+      <Modal 
+      animationType={modalAnimationType}
+      transparent={false}
+      visible={this.state.showPurchaseModal}
+      
+      >
+        <View style={deliveryOptionModal}>
+
+          <View style={deliveryOptionHeader}>
+
+            
+            <FontAwesomeIcon
+              name='arrow-left'
+              size={28}
+              color={'black'}
+              onPress = { () => { 
+                  this.goToPreviousPage()
+                  // this.setState({showPurchaseModal: false })
+                  } }
+            />
+          
+            <Image style={styles.logo} source={require("../images/logo.png")}/>
+            
+            <FontAwesomeIcon
+              name='close'
+              size={28}
+              color={'black'}
+              onPress={this.closePurchaseModal}
+              />
+
+          </View>
+
+          <View style={[deliveryOptionBody, {flex: 0.9}]}>
+
+              <View style={{flex: 0.1}}>
+                <Text style={new avenirNextText('black', 17, "400")}>
+                  Address:
+                </Text>
+              </View>
+
+              <WhiteSpace height={10}/>
+
+              <ScrollView style={{flex: 0.25}} contentContainerStyle={styles.addressForm}>
+                  {addressFields.map( (field, index) => (
+                    <View style={styles.addressField}>
+                      <Text style={new avenirNextText("black", 14, "400")}>{field.header}</Text>
+                      <TextInput
+                      onChangeText={(text) => this.onChange(text, field.key)}
+                      value={this.state[field.key]}
+                      style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 13, color: treeGreen}}
+                      placeholder={field.placeholder}
+                      placeholderTextColor={graphiteGray}
+                      multiline={false}
+                      maxLength={index == 1 || index == 2 ? 50 : 24}
+                      autoCorrect={false}
+                      clearButtonMode={'while-editing'}
+                      />
+                    </View>
+                  ))}
+              </ScrollView>
+
+              <View style={[styles.collectionInPersonContainer, {flex: 0.65}]}>
+
+                <TouchableOpacity
+                disabled={filledOutAddress ? false : true} 
+                onPress={this.addAddress} 
+                style={styles.collectionInPersonButton}>
+
+                  <View style={[styles.collectionInPersonOptionsContainer, {width: 180}]}>
+
+                    <FontAwesomeIcon
+                      name="address-book"
+                      size={33}
+                      color={'black'}
+
+                    />
+                    <Text style={new avenirNextText('black', 20, "200")}>
+                      Add Address
                     </Text>
                     
                   </View>
@@ -887,11 +1072,14 @@ class ProductDetails extends Component {
                 </View> 
             :
               <View style={styles.buyOrReportActionContainer}>
-                <RNButton 
-                  title='Purchase' 
-                  color={treeGreen}
-                  onPress={() => {console.log('open Purchase Modal');this.setState({showPurchaseModal: true})}} 
-                />
+                <TouchableOpacity
+                  disabled={data.text.sold ? true : false} 
+                  style={styles.purchaseButton}
+                  onPress={() => {this.setState({showPurchaseModal: true})}} 
+                >
+                  <Text style={new avenirNextText("#fff",15,"300")}>Purchase</Text>
+                </TouchableOpacity>
+                <WhiteSpace height={40}/>
                 <Icon
                   name="flag-variant-outline" 
                   size={40}  
@@ -1158,6 +1346,18 @@ const styles = StyleSheet.create( {
   buyOrReportActionContainer: {
     justifyContent: 'space-between',
     alignItems: 'flex-end',
+  },
+
+  purchaseButton: {
+    width: 70,
+    height: 30,
+    backgroundColor: treeGreen,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center'
+    // borderWidth: 1,
+    // borderColor: '#fff',
+
   },
 
   brandText: {
@@ -1487,7 +1687,7 @@ collectionInPersonButton: {
   width: 270,
   height: 60,
   borderRadius: 15,
-  backgroundColor: aquaGreen,
+  backgroundColor: lightGreen,
   justifyContent: 'center',
   // alignItems: 'center'
 },
@@ -1497,6 +1697,45 @@ collectionInPersonOptionsContainer: {
   padding: 5,
   justifyContent: 'space-evenly',
   alignItems: 'center'
+},
+
+addressesContainer: {
+  paddingHorizontal: 10,
+  justifyContent: 'space-evenly',
+},
+
+addressContainerButton: {
+  width: 260,
+  height: 50,
+  backgroundColor: bobbyBlue,
+  borderRadius: 5,
+},
+
+addressContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: 10,
+},
+
+addressText: new avenirNextText("black", 18, "300"),
+
+addDeliveryAddressButton: {
+  width: 270,
+  height: 40,
+  borderRadius: 15,
+  backgroundColor: treeGreen,
+},
+
+addressForm: {
+  paddingHorizontal: 10,
+  // justifyContent: '',
+  
+
+},
+
+addressField: {
+  alignItems: 'flex-start',
 },
 ////////////
 ////////////
