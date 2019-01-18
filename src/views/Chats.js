@@ -38,41 +38,41 @@ class Chats extends Component {
     this.state = { chats: [], isGetting: true, noChats: false };
   }
 
-  // componentDidMount() {
+  componentDidMount() {
 
-  //   var userIdentificationKey = firebase.auth().currentUser.uid
+    var userIdentificationKey = firebase.auth().currentUser.uid
 
-  //   setTimeout(() => {
-  //     this.leaveYourRooms(userIdentificationKey);
-  //     this.chatLeaveRoomsRefreshId = setInterval(() => {
+    setTimeout(() => {
+      this.leaveYourRooms(userIdentificationKey);
+      this.chatLeaveRoomsRefreshId = setInterval(() => {
   
-  //       this.leaveYourRooms(userIdentificationKey);
+        this.leaveYourRooms(userIdentificationKey);
         
-  //       // this.getChats(userIdentificationKey);
-  //     }, 60000); //20 seconds
-  //   }, 1000);
+        // this.getChats(userIdentificationKey);
+      }, 60000); //20 seconds
+    }, 1000);
 
 
-  //   setTimeout(() => {
-  //     this.getChats(userIdentificationKey);
-  //     this.chatRefreshId = setInterval(() => {
+    setTimeout(() => {
+      this.getChats(userIdentificationKey);
+      this.chatRefreshId = setInterval(() => {
   
-  //       this.getChats(userIdentificationKey);
+        this.getChats(userIdentificationKey);
         
-  //       // this.getChats(userIdentificationKey);
-  //     }, 45000); //7 seconds
-  //   }, 5000);
+        // this.getChats(userIdentificationKey);
+      }, 45000); //7 seconds
+    }, 5000);
 
-  //   //TODO: add refresh button so user may refresh chats manually
+    //TODO: add refresh button so user may refresh chats manually
 
     
     
-  // }
+  }
 
-  // componentWillUnmount() {
-  //   clearInterval(this.chatRefreshId);
-  //   clearInterval(this.chatLeaveRoomsRefreshId);
-  // }
+  componentWillUnmount() {
+    clearInterval(this.chatRefreshId);
+    clearInterval(this.chatLeaveRoomsRefreshId);
+  }
 
   leaveYourRooms(your_uid) {
 
@@ -110,18 +110,29 @@ class Chats extends Component {
         if(this.currentUser.rooms.length>1) {
           //if any room name has a blockedUser name in it, leave that room
           for(let i = 1; i < this.currentUser.rooms.length; i++) { 
+            this.currentUser.subscribeToRoom({
+              roomId: this.currentUser.rooms[i].id,
+              // hooks: {
+              //   onNewMessage: this.onReceive.bind(this)
+              // }
+            }).then( () => {
+              var {users, id} = this.currentUser.rooms[i];
+              console.log('BOOOGAAWOOWOWOWA FIRST' + id)
+              console.log(users);
+              var buyer = users[0,1].id;
+              var seller = users[0,0].id;
+              if(usersBlocked.includes(buyer) || usersBlocked.includes(seller)) {
+                this.currentUser.leaveRoom({
+                  roomId: id
+                })
+                .then( () => console.log(`user successfully removed from room with ID: ${id}`))
+                .catch( (err) => console.log(err))
+              }
+
+            })  
             
-            var {users, id} = this.currentUser.rooms[i];
-            var buyer = users[0,1].id;
-            var seller = users[0,0].id;
-            // console.log(buyer);
-            if(usersBlocked.includes(buyer) || usersBlocked.includes(seller)) {
-              this.currentUser.leaveRoom({
-                roomId: id
-              })
-              .then( () => console.log(`user successfully removed from room with ID: ${id}`))
-              .catch( (err) => console.log(err))
-            }
+
+            
           }
 
         }
@@ -170,10 +181,10 @@ class Chats extends Component {
           var count = 0;
           //perform the following process across all rooms currentUser is a part of except for the common Users Room
           for(let i = 1; i < this.currentUser.rooms.length; i++) {
-
             
-              
             var {createdByUserId, name, id} = this.currentUser.rooms[i];
+            console.log('Second BOOOGAAWOOWOWOWA' + this.currentUser.rooms[i]);
+            
 
             this.currentUser.fetchMessages({
               roomId: id,
@@ -205,41 +216,51 @@ class Chats extends Component {
                   //comes across ProductKeyX.someBuyer1 or ProductKeyX.someBuyer2
                   if(name.includes(prod.key)) { productSellerId = prod.uid, productText = prod.text; productImageURL = prod.uris[0]; }
               })
-              var users = this.currentUser.rooms[i].users
-              // console.log(name, id);
-              
-              
-              var obj;
-              // var chatUpdates = {};
-              var buyerIdentification = users[0,1].id;
-              var buyer = users[0,1].name;
-              var buyerAvatar = users[0,1].avatarURL ? users[0,1].avatarURL : '';
-              var sellerIdentification = users[0,0].id;
-              var seller = users[0,0].name;
-              var sellerAvatar = users[0,0].avatarURL ? users[0,0].avatarURL : '';
-              obj = { 
-                productSellerId: productSellerId, productText: productText, productImageURL: productImageURL, 
-                createdByUserId: createdByUserId, name: name, id: id, 
-                buyerIdentification, sellerIdentification,
-                seller: seller, sellerAvatar: sellerAvatar, 
-                buyer: buyer, buyerAvatar: buyerAvatar,
-                lastMessageText, lastMessageDate, lastMessageSenderIdentification
-              };
-              chats.push(obj);
-              if(count == this.currentUser.rooms.length - 2){
-                console.log(count, 'all done')
-                this.setState({chats, yourUid: your_uid, noChats: false, isGetting: false});
-                // return null
-              }
+              this.currentUser.subscribeToRoom({
+                roomId: id,
+                // hooks: {
+                //   onNewMessage: this.onReceive.bind(this)
+                // }
+              })
+              .then( () => {
+                var {users} = this.currentUser.rooms[i]
+                console.log(users);
+                // console.log(name, id);
+                
+                
+                var obj;
+                // var chatUpdates = {};
+                var buyerIdentification = users[0,1].id;
+                var buyer = users[0,1].name;
+                var buyerAvatar = users[0,1].avatarURL ? users[0,1].avatarURL : '';
+                var sellerIdentification = users[0,0].id;
+                var seller = users[0,0].name;
+                var sellerAvatar = users[0,0].avatarURL ? users[0,0].avatarURL : '';
+                obj = { 
+                  productSellerId: productSellerId, productText: productText, productImageURL: productImageURL, 
+                  createdByUserId: createdByUserId, name: name, id: id, 
+                  buyerIdentification, sellerIdentification,
+                  seller: seller, sellerAvatar: sellerAvatar, 
+                  buyer: buyer, buyerAvatar: buyerAvatar,
+                  lastMessageText, lastMessageDate, lastMessageSenderIdentification
+                };
+                chats.push(obj);
+                if(count == this.currentUser.rooms.length - 2){
+                  console.log(count, 'all done')
+                  this.setState({chats, yourUid: your_uid, noChats: false, isGetting: false});
+                  // return null
+                }
+    
+                else {
+                  count++;
+                }
   
-              else {
-                count++;
-              }
-
-              //TODO: Perhaps no need for firebase update
-              // chatUpdates['/Users/' + CHATKIT_USER_NAME + '/chats/' + i + '/'] = obj;
-              // firebase.database().ref().update(chatUpdates);
-              console.log(i, 'complete', this.currentUser.rooms.length)
+                //TODO: Perhaps no need for firebase update
+                // chatUpdates['/Users/' + CHATKIT_USER_NAME + '/chats/' + i + '/'] = obj;
+                // firebase.database().ref().update(chatUpdates);
+                console.log(i, 'complete', this.currentUser.rooms.length)
+              });  
+              
             })
             
               
@@ -395,7 +416,6 @@ class Chats extends Component {
         >
               
           {this.renderChats(chats)}
-            
         </ScrollView>
       </View>
     )
