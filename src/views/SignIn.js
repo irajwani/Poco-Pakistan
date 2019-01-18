@@ -424,7 +424,7 @@ class SignIn extends Component {
                                 // this is used to set backgroundColor of label mask.
                                 // please pass the backgroundColor of your TextInput container.
                                 backgroundColor={'#122021'}
-                                inputStyle={new avenirNextText('#0d7018', 19, "300")}
+                                inputStyle={new avenirNextText(lightGreen, 19, "300")}
                             />
                         </View>    
                         <View style={{paddingVertical: 2}}>
@@ -470,7 +470,7 @@ class SignIn extends Component {
                                 title='Sign In' 
                                 titleStyle={{ fontWeight: "700" }}
                                 buttonStyle={{
-                                backgroundColor: "#16994f",
+                                backgroundColor: lightGreen,
                                 //#2ac40f
                                 //#45bc53
                                 //#16994f

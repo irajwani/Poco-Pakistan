@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Platform, Text, TextInput, StyleSheet, View, TouchableHighlight, ScrollView } from 'react-native'
+import { Platform, Text, TextInput, StyleSheet, View, TouchableHighlight, TouchableOpacity, ScrollView } from 'react-native'
 import {withNavigation} from 'react-navigation';
 // import { Jiro } from 'react-native-textinput-effects';
 // import NumericInput from 'react-native-numeric-input' 
@@ -16,7 +16,7 @@ import firebase from '../cloud/firebase.js';
 // import * as Animatable from 'react-native-animatable';
 import { iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
-import { confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, highlightYellow, profoundPink, tealBlue, graphiteGray } from '../colors';
+import { lightGreen, confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, highlightYellow, profoundPink, tealBlue, graphiteGray, lightBlack } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { DismissKeyboardView, WhiteSpace, GrayLine, LoadingIndicator } from '../localFunctions/visualFunctions';
 import { avenirNextText } from '../constructors/avenirNextText';
@@ -69,6 +69,7 @@ class CreateItem extends Component {
         //   insta: '',
           description: item ? item.text.description ? item.text.description : '' : '',
           typing: true,
+          canSnailMail: false,
           isUploading: false,
           pictureuris: 'nothing here',
           helpDialogVisible: false,
@@ -134,8 +135,8 @@ class CreateItem extends Component {
 //Nav to Fill In:
 
 //1. Price and Original Price
-navToFillPrice = (sellingPriceBoolean) => {
-    this.props.navigation.navigate('PriceSelection', {sellingPrice: sellingPriceBoolean})
+navToFillPrice = (typeOfPrice) => {
+    this.props.navigation.navigate('PriceSelection', {typeOfPrice: typeOfPrice})
 }
 
 //2. Type and Condition
@@ -152,7 +153,7 @@ helpUserFillDetails = () => {
     // alert(`Please enter details for the following fields:\n${this.state.name ? name}`)
 }
 
-updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, price, original_price, condition, size, oldItemPostKey, oldItemUploadDate) => {
+updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, condition, size, oldItemPostKey, oldItemUploadDate) => {
     this.setState({isUploading: true});    
     // if(priceIsWrong) {
     //     alert("You must a choose a non-zero positive real number for the selling price/retail price of this product");
@@ -193,7 +194,8 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
         likes: 0,
         comments: '',
         time: oldItemPostKey ? oldItemUploadDate : Date.now(), //for now, do ot override initial upload Date
-        dateSold: ''
+        dateSold: '',
+        post_price: post_price ? post_price : false,
       };
     
     var updates = {};  
@@ -428,7 +430,8 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
     var condition = navigation.getParam('condition', false); 
     var type = navigation.getParam('type', false); 
     var size = navigation.getParam('size', false)
-    console.log(pictureuris);
+    var post_price = navigation.getParam('post_price', 0);
+    // console.log(pictureuris);
     ////
 
     ///
@@ -607,7 +610,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
             <GrayLine/>
 
             {/* Original Price */}
-            <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice(false)}>
+            <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice("retailPrice")}>
             <View style={styles.navToFillDetailRow}>
                 
                 <View style={[styles.detailHeaderContainer, {flex: original_price > 0 ? 0.5 : 0.8}]}>
@@ -638,7 +641,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
         {/* Product Price.  */}
 
 
-            <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice(true)}>
+            <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice("sellingPrice")}>
             <View style={styles.navToFillDetailRow}>
                 
                 <View style={[styles.detailHeaderContainer, {flex: price > 0 ? 0.5 : 0.8}]}>
@@ -757,6 +760,68 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
             </TouchableHighlight>
 
             <GrayLine/>
+            {/* Check if person can send by post. If they can, 
+            another row shows up which lets them input an estimated postal price, 
+            which gets tacked on as a property of this product */}
+            <View style={styles.navToFillDetailRow}>
+
+                <View style={[styles.detailHeaderContainer, {paddingHorizontal: 6,flex: 0.8}]}>
+                    <Text style={[styles.detailHeader, {fontSize: 17}]}>Can you snail mail this item?</Text>
+                </View>
+
+                <View style={[styles.checkBoxContainer, {flex: 0.2}]}>
+                    <TouchableOpacity 
+                    onPress={() => this.setState({canSnailMail: !this.state.canSnailMail})}
+                    style={[styles.checkBox, this.state.canSnailMail ? {borderStyle: 'solid'} : {borderStyle: 'dashed'} ]}
+                    >
+                        {this.state.canSnailMail ?
+                            <Icon 
+                            name="check"
+                            size={35}
+                            color={lightGreen}
+                            />
+                        :
+                            null
+                        }
+                    </TouchableOpacity>
+                </View>
+
+            </View>
+
+            <GrayLine/>
+
+
+            {this.state.canSnailMail ?
+                <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice("postPrice")}>
+                <View style={styles.navToFillDetailRow}>
+                
+                    <View style={[styles.detailHeaderContainer, {flex: post_price > 0 ? 0.5 : 0.8}]}>
+                        <Text style={styles.detailHeader}>Estimated cost of shipping</Text>
+                    </View>
+
+                    {post_price > 0 ?
+                    <View style={[styles.displayedPriceContainer, {flex: 0.3}]}>
+                        <Text style={[styles.displayedPrice, {color: darkBlue}]}>£{post_price}</Text>
+                    </View>
+                    :
+                    null
+                    }
+
+                    <View style={[styles.navToFillDetailIcon, {flex: post_price > 0 ? 0.2 : 0.2 }]}>
+                        <Icon 
+                        name="chevron-right"
+                        size={40}
+                        color='black'
+                        />
+                    </View>
+                    <GrayLine/>
+                </View>
+                </TouchableHighlight>
+            :
+                null
+            }
+
+            
 
             <WhiteSpace height={15} />       
             
@@ -777,9 +842,9 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                 onPress={() => {
                     conditionMet ?
                         this.state.editItemBoolean ?
-                            this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, condition, size, this.state.oldItemPostKey, this.state.oldUploadDate)
+                            this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, condition, size, this.state.oldItemPostKey, this.state.oldUploadDate)
                         :
-                            this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, condition, size, false, false)
+                            this.updateFirebaseAndNavToProfile(pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, condition, size, false, false)
                     :
                         this.helpUserFillDetails();
                                 } } 
@@ -1015,6 +1080,18 @@ const styles = StyleSheet.create({
 
     dialogContentContainer: {
         padding: 5,
+    },
+
+    checkBoxContainer: {
+        padding: 10,
+        alignItems: 'center'
+    },
+
+    checkBox: {
+        width: 40,
+        height: 40,
+        borderWidth: 1.2,
+        borderColor: 'black',
     }
 })
 

@@ -11,19 +11,19 @@ export default class PriceSelection extends Component {
       this.state = {
           price: 0,
           original_price: 0,
+          post_price: 0,
       }
   }
-
   
-  navToCreateItem = (sellingPriceBoolean) => {
-      const {original_price, price} = this.state
-      sellingPriceBoolean ? this.props.navigation.navigate('CreateItem', {price: price}) : this.props.navigation.navigate('CreateItem', {original_price: original_price});
+  navToCreateItem = (typeOfPrice) => {
+      const {original_price, price, post_price} = this.state
+      this.props.navigation.navigate('CreateItem', typeOfPrice == 'sellingPrice' ? {price: price} : typeOfPrice == 'retailPrice' ? {original_price: original_price} : {post_price: post_price});
   }
 
   render() {
     const {navigation} = this.props;
-    const sellingPriceBoolean = navigation.getParam('sellingPrice', true);
-    console.log(( (this.state.price > 0) && (Number.isFinite(this.state.price)) ) || ( (this.state.original_price > 0) && (Number.isFinite(this.state.original_price)) ));
+    const typeOfPrice = navigation.getParam('typeOfPrice', 'sellingPrice');
+    // console.log(( (this.state.price > 0) && (Number.isFinite(this.state.price)) ) || ( (this.state.original_price > 0) && (Number.isFinite(this.state.original_price)) ));
 
     return (
       <View style={styles.mainContainer}>
@@ -37,9 +37,9 @@ export default class PriceSelection extends Component {
                     onPress={()=>this.props.navigation.goBack()}
                 />
             </View>
-            {( (this.state.price > 0) && (Number.isFinite(this.state.price)) ) || ( (this.state.original_price > 0) && (Number.isFinite(this.state.original_price)) ) ?
+            {( (this.state.price > 0) && (Number.isFinite(this.state.price)) ) || ( (this.state.original_price > 0) && (Number.isFinite(this.state.original_price)) ) || ( (this.state.post_price > 0) && (Number.isFinite(this.state.post_price)) ) ?
              <View style={[styles.iconContainer, {justifyContent: 'center', alignItems: 'flex-end'}]}>
-                <Text style={styles.saveText} onPress={()=>this.navToCreateItem(sellingPriceBoolean)}>Save</Text>
+                <Text style={styles.saveText} onPress={()=>this.navToCreateItem(typeOfPrice)}>Save</Text>
              </View> 
             : 
              null}    
@@ -48,13 +48,13 @@ export default class PriceSelection extends Component {
         <View style={{height: 1, backgroundColor: darkGray}}/>
 
         <View style={styles.selectionContainer}>
-        {sellingPriceBoolean ?
+        
             <Jiro
-                label={'Selling Price (GBP)'}
-                value={this.state.price}
-                maxLength={3}
-                onChangeText={price => {
-                    this.setState({ price: Number(price) });
+                label={typeOfPrice == "sellingPrice" ? 'Selling Price (£)' : typeOfPrice == "retailPrice" ? 'Original price of this item (£)' : 'Estimated cost of postal services (£)'}
+                value={typeOfPrice == "sellingPrice" ? this.state.price : typeOfPrice == "retailPrice" ? this.state.original_price : this.state.post_price}
+                maxLength={typeOfPrice == "postPrice" ? 2 : 3}
+                onChangeText={p => {
+                    this.setState(typeOfPrice == "sellingPrice" ? { price: Number(p) } : typeOfPrice == "retailPrice" ? { original_price: Number(p)} : { post_price: Number(p)});
                     } }
                 autoCorrect={false}
                 // this is used as active border color
@@ -65,22 +65,8 @@ export default class PriceSelection extends Component {
                 inputStyle={{ fontFamily: 'Avenir Next', color: 'black' }}
                 keyboardType='number-pad'
             />
-        :
-            <Jiro
-                label={'Original price of this item (£)'}
-                value={this.state.original_price}
-                maxLength={3}
-                onChangeText={original_price => this.setState({ original_price: Number(original_price) })}
-                autoCorrect={false}
-                // this is used as active border color
-                borderColor={'#800000'}
-                // this is used to set backgroundColor of label mask.
-                // please pass the backgroundColor of your TextInput container.
-                backgroundColor={'#F9F7F6'}
-                inputStyle={{ fontFamily: 'Avenir Next', color: 'black' }}
-                keyboardType='number-pad'
-        /> 
-        }
+        
+        
             
         </View>
         
