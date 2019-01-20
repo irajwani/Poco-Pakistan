@@ -19,7 +19,7 @@ import { iOSColors } from 'react-native-typography';
 import Chatkit from "@pusher/chatkit-client";
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
 import email from 'react-native-email';
-import { lightGreen, highlightGreen, treeGreen, graphiteGray, rejectRed, darkBlue, profoundPink, aquaGreen, bobbyBlue } from '../colors';
+import { lightGreen, highlightGreen, treeGreen, graphiteGray, rejectRed, darkBlue, profoundPink, aquaGreen, bobbyBlue, mantisGreen, logoGreen } from '../colors';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 // import BackButton from '../components/BackButton';
 import { avenirNextText, delOpt, deliveryOptions } from '../constructors/avenirNextText';
@@ -440,11 +440,11 @@ class ProductDetails extends Component {
                 size={28}
                 color={'black'}
                 onPress = { () => { 
-                    // this.setState({showPurchaseModal: false })
+                    this.setState({showPurchaseModal: false })
                     } }
                 />
             
-              <Image style={styles.logo} source={require("../images/logo.png")}/>
+              <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
               
   
               <FontAwesomeIcon
@@ -547,7 +547,7 @@ class ProductDetails extends Component {
                     } }
                 />
             
-              <Image style={styles.logo} source={require("../images/logo.png")}/>
+              <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
               
               <FontAwesomeIcon
                 name='close'
@@ -653,7 +653,7 @@ class ProductDetails extends Component {
                   } }
               />
           
-            <Image style={styles.logo} source={require("../images/logo.png")}/>
+            <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
             
             <FontAwesomeIcon
               name='close'
@@ -791,7 +791,7 @@ class ProductDetails extends Component {
                   } }
             />
           
-            <Image style={styles.logo} source={require("../images/logo.png")}/>
+            <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
             
             <FontAwesomeIcon
               name='close'
@@ -919,7 +919,7 @@ class ProductDetails extends Component {
       <ScrollView style={styles.mainContainer} contentContainerStyle={styles.contentContainer}>
         
         {/* image carousel in center with back button on its left */}
-        <View style={{marginTop: 5, flex: 2, flexDirection: 'row', paddingVertical: 5, paddingRight: 2, paddingLeft: 1 }}>
+        <View style={styles.backIconAndCarouselContainer}>
           <View style={{flex: 0.035, justifyContent: 'flex-start',}}>
               <FontAwesomeIcon
               name='chevron-left'
@@ -938,7 +938,7 @@ class ProductDetails extends Component {
           {/* Product Name (Not Brand) and Price Row */}
         <View style={styles.nameAndPriceRow}>
           <View style={styles.nameContainer}>
-            <Text style={styles.brandText}>{text.name.toUpperCase()}</Text>
+            <Text style={new avenirNextText('black', 18, "300")}>{text.name.toUpperCase()}</Text>
           </View>
 
           <View style={styles.likesContainer}>
@@ -1002,12 +1002,11 @@ class ProductDetails extends Component {
             }
           </View>
 
-          
-          <View style={styles.actionIconContainer}>
-            {productKeys.includes(data.key) ?
+          {productKeys.includes(data.key) ?
+            <View style={styles.actionIconContainer}>
               <Icon
                 name='wrench'
-                size={50}
+                size={32}
                 color={'black'}
                 onPress = { () => { 
                     // console.log('going to edit item details');
@@ -1015,10 +1014,12 @@ class ProductDetails extends Component {
                     this.navToEditItem(data);
                     } }
               />
-              :
+            </View>
+            :
+            <View style={styles.actionIconContainer}>
               <Icon
                 name='message-text-outline'
-                size={50}
+                size={35}
                 color={chatIcon.color}
                 onPress = { () => { 
                     // console.log('going to chat');
@@ -1027,8 +1028,16 @@ class ProductDetails extends Component {
                     } }
 
               />
-            }
-          </View>
+              <TouchableOpacity
+                disabled={data.text.sold ? true : false} 
+                style={styles.purchaseButton}
+                onPress={() => {this.setState({showPurchaseModal: true})}} 
+              >
+                <Text style={new avenirNextText("#fff",15,"300")}>Buy</Text>
+              </TouchableOpacity>
+            </View>
+          }
+
         </View>
 
         <View style={{backgroundColor: 'black', height: 1.5}} />
@@ -1072,14 +1081,6 @@ class ProductDetails extends Component {
                 </View> 
             :
               <View style={styles.buyOrReportActionContainer}>
-                <TouchableOpacity
-                  disabled={data.text.sold ? true : false} 
-                  style={styles.purchaseButton}
-                  onPress={() => {this.setState({showPurchaseModal: true})}} 
-                >
-                  <Text style={new avenirNextText("#fff",15,"300")}>Purchase</Text>
-                </TouchableOpacity>
-                <WhiteSpace height={40}/>
                 <Icon
                   name="flag-variant-outline" 
                   size={40}  
@@ -1219,6 +1220,8 @@ const styles = StyleSheet.create( {
     // marginBottom: 5
   },
 
+  backIconAndCarouselContainer: {marginTop: 5, flex: 2, flexDirection: 'row', paddingVertical: 5, paddingRight: 2, paddingLeft: 1 },
+
   nameAndPriceRow: {
     flexDirection: 'row',
     // backgroundColor: 'red',
@@ -1227,7 +1230,8 @@ const styles = StyleSheet.create( {
   },
 
   nameContainer: {
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
+    // align
     flex: 0.7,
   },
 
@@ -1251,15 +1255,15 @@ const styles = StyleSheet.create( {
   },
 
   profilePicture: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     borderColor: 'black',
     borderWidth: 1,
   },
 
   profilePictureContainer: {
-    flex: 1.5,
+    flex: 0.2,
     padding: 0,
     // height:100,
     // width: 150,
@@ -1268,7 +1272,7 @@ const styles = StyleSheet.create( {
   },
 
   profileTextContainer: {
-    flex: 2.5,
+    flex: 0.4,
     flexDirection: 'column',
     justifyContent: 'center',
     alignContent: 'flex-end',
@@ -1293,9 +1297,10 @@ const styles = StyleSheet.create( {
   },
 
   actionIconContainer: {
-    flex: 1.5,
+    flex: 0.4,
+    flexDirection: 'row',
     // backgroundColor: 'brown',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
     padding: 0
   },
@@ -1344,14 +1349,14 @@ const styles = StyleSheet.create( {
   },
 
   buyOrReportActionContainer: {
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
     alignItems: 'flex-end',
   },
 
   purchaseButton: {
-    width: 70,
+    width: 60,
     height: 30,
-    backgroundColor: treeGreen,
+    backgroundColor: mantisGreen,
     borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center'
@@ -1597,7 +1602,7 @@ deliveryOptionModal: {
 deliveryOptionHeader: {
   flex: 0.1,
   //TODO: find nottGreen hex code
-  backgroundColor: lightGreen,
+  backgroundColor: logoGreen,
   justifyContent: 'space-between',
   alignItems: 'center',
   flexDirection: 'row',
@@ -1778,21 +1783,21 @@ textContainer: {
 },
 
 name: {
-  fontSize: 18,
+  fontSize: 14,
   fontFamily: 'Avenir Next',
   fontWeight: '400'
 },
 
 email: {
   //actually this is for your country location value
-    fontSize: 18,
+    fontSize: 14,
     fontFamily: 'Avenir Next',
     fontWeight: '200',
     fontStyle: 'italic'
   },
   
 insta: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Avenir Next',
     color: '#800000',
     fontWeight: '600',

@@ -38,230 +38,247 @@ class Chats extends Component {
     this.state = { chats: [], isGetting: true, noChats: false };
   }
 
-  componentDidMount() {
-
-    var userIdentificationKey = firebase.auth().currentUser.uid
-
+  componentWillMount() {
+    var your_uid = firebase.auth().currentUser.uid;
     setTimeout(() => {
-      this.leaveYourRooms(userIdentificationKey);
-      this.chatLeaveRoomsRefreshId = setInterval(() => {
-  
-        this.leaveYourRooms(userIdentificationKey);
-        
-        // this.getChats(userIdentificationKey);
-      }, 60000); //20 seconds
+      this.getChats(your_uid);
     }, 1000);
-
-
-    setTimeout(() => {
-      this.getChats(userIdentificationKey);
-      this.chatRefreshId = setInterval(() => {
-  
-        this.getChats(userIdentificationKey);
-        
-        // this.getChats(userIdentificationKey);
-      }, 45000); //7 seconds
-    }, 5000);
-
-    //TODO: add refresh button so user may refresh chats manually
-
-    
-    
   }
 
-  componentWillUnmount() {
-    clearInterval(this.chatRefreshId);
-    clearInterval(this.chatLeaveRoomsRefreshId);
-  }
-
-  leaveYourRooms(your_uid) {
-
-    firebase.database().ref().once("value", (snapshot) => {
-      var d = snapshot.val()
-      //if a uid has a userId with pusher chat kit account
-      var CHATKIT_USER_NAME = your_uid;
-      const tokenProvider = new Chatkit.TokenProvider({
-        url: CHATKIT_TOKEN_PROVIDER_ENDPOINT,
-        query: {
-          user_id: CHATKIT_USER_NAME
-        }
-      });
-
-      // This will instantiate a `chatManager` object. This object can be used to subscribe to any number of rooms and users and corresponding messages.
-      // For the purpose of this example we will use single room-user pair.
-      const chatManager = new Chatkit.ChatManager({
-        instanceLocator: CHATKIT_INSTANCE_LOCATOR,
-        userId: CHATKIT_USER_NAME,
-        tokenProvider: tokenProvider
-      });
-
-      chatManager.connect()
-      .then( (currentUser) => {
-        console.log('First Connect', currentUser.rooms.length)
-        this.currentUser = currentUser;
-        ////////
-        ///// leave the rooms for which you've blocked Users
-        ///// use the removeFalsyValues function because some uid keys could have falsy values if one decides to unblock user.
-        var rawUsersBlocked = d.Users[CHATKIT_USER_NAME].usersBlocked ? d.Users[CHATKIT_USER_NAME].usersBlocked : {};
-        var usersBlocked = removeFalsyValuesFrom(rawUsersBlocked);
-        // console.log(usersBlocked);
-        ///////
-
-        if(this.currentUser.rooms.length>1) {
-          //if any room name has a blockedUser name in it, leave that room
-          for(let i = 1; i < this.currentUser.rooms.length; i++) { 
-            this.currentUser.subscribeToRoom({
-              roomId: this.currentUser.rooms[i].id,
-              // hooks: {
-              //   onNewMessage: this.onReceive.bind(this)
-              // }
-            }).then( () => {
-              var {users, id} = this.currentUser.rooms[i];
-              console.log('BOOOGAAWOOWOWOWA FIRST' + id)
-              console.log(users);
-              var buyer = users[0,1].id;
-              var seller = users[0,0].id;
-              if(usersBlocked.includes(buyer) || usersBlocked.includes(seller)) {
-                this.currentUser.leaveRoom({
-                  roomId: id
-                })
-                .then( () => console.log(`user successfully removed from room with ID: ${id}`))
-                .catch( (err) => console.log(err))
-              }
-
-            })  
-            
-
-            
-          }
-
-        }
-
-      } )
-
+  getChats = (your_uid) => {
+    firebase.database().ref().on('value', (snapshot) => {
+      var d = snapshot.val();
+      var chats = d.Users[your_uid].conversations ? d.Users[your_uid].conversations : false;
+      chats = Object.values(chats);
+      console.log(chats);
+      this.setState({chats, yourUid: your_uid, noChats: !chats ? true : false , isGetting: false});
     })
+  }
+
+  // componentDidMount() {
+
+  //   var userIdentificationKey = firebase.auth().currentUser.uid
+
+  //   setTimeout(() => {
+  //     this.leaveYourRooms(userIdentificationKey);
+  //     this.chatLeaveRoomsRefreshId = setInterval(() => {
+  
+  //       this.leaveYourRooms(userIdentificationKey);
+        
+  //       // this.getChats(userIdentificationKey);
+  //     }, 60000); //20 seconds
+  //   }, 1000);
+
+
+  //   setTimeout(() => {
+  //     this.getChats(userIdentificationKey);
+  //     this.chatRefreshId = setInterval(() => {
+  
+  //       this.getChats(userIdentificationKey);
+        
+  //       // this.getChats(userIdentificationKey);
+  //     }, 45000); //7 seconds
+  //   }, 5000);
+
+  //   //TODO: add refresh button so user may refresh chats manually
+
+    
+    
+  // }
+
+  // componentWillUnmount() {
+  //   clearInterval(this.chatRefreshId);
+  //   clearInterval(this.chatLeaveRoomsRefreshId);
+  // }
+
+  // leaveYourRooms(your_uid) {
+
+  //   firebase.database().ref().once("value", (snapshot) => {
+  //     var d = snapshot.val()
+  //     //if a uid has a userId with pusher chat kit account
+  //     var CHATKIT_USER_NAME = your_uid;
+  //     const tokenProvider = new Chatkit.TokenProvider({
+  //       url: CHATKIT_TOKEN_PROVIDER_ENDPOINT,
+  //       query: {
+  //         user_id: CHATKIT_USER_NAME
+  //       }
+  //     });
+
+  //     // This will instantiate a `chatManager` object. This object can be used to subscribe to any number of rooms and users and corresponding messages.
+  //     // For the purpose of this example we will use single room-user pair.
+  //     const chatManager = new Chatkit.ChatManager({
+  //       instanceLocator: CHATKIT_INSTANCE_LOCATOR,
+  //       userId: CHATKIT_USER_NAME,
+  //       tokenProvider: tokenProvider
+  //     });
+
+  //     chatManager.connect()
+  //     .then( (currentUser) => {
+  //       console.log('First Connect', currentUser.rooms.length)
+  //       this.currentUser = currentUser;
+  //       ////////
+  //       ///// leave the rooms for which you've blocked Users
+  //       ///// use the removeFalsyValues function because some uid keys could have falsy values if one decides to unblock user.
+  //       var rawUsersBlocked = d.Users[CHATKIT_USER_NAME].usersBlocked ? d.Users[CHATKIT_USER_NAME].usersBlocked : {};
+  //       var usersBlocked = removeFalsyValuesFrom(rawUsersBlocked);
+  //       // console.log(usersBlocked);
+  //       ///////
+
+  //       if(this.currentUser.rooms.length>1) {
+  //         //if any room name has a blockedUser name in it, leave that room
+  //         for(let i = 1; i < this.currentUser.rooms.length; i++) { 
+  //           this.currentUser.subscribeToRoom({
+  //             roomId: this.currentUser.rooms[i].id,
+  //             // hooks: {
+  //             //   onNewMessage: this.onReceive.bind(this)
+  //             // }
+  //           }).then( () => {
+  //             var {users, id} = this.currentUser.rooms[i];
+  //             console.log('BOOOGAAWOOWOWOWA FIRST' + id)
+  //             console.log(users);
+  //             var buyer = users[0,1].id;
+  //             var seller = users[0,0].id;
+  //             if(usersBlocked.includes(buyer) || usersBlocked.includes(seller)) {
+  //               this.currentUser.leaveRoom({
+  //                 roomId: id
+  //               })
+  //               .then( () => console.log(`user successfully removed from room with ID: ${id}`))
+  //               .catch( (err) => console.log(err))
+  //             }
+
+  //           })  
+            
+
+            
+  //         }
+
+  //       }
+
+  //     } )
+
+  //   })
     
   
 
-  }
+  // }
 
-  getChats(your_uid) {
-    //first generate, and then retrieve chats for particular user
-    firebase.database().ref().once('value', (snapshot) => {
-      var d = snapshot.val(); //to get latest products database
-      var chats = [];
+  // getChats(your_uid) {
+  //   //first generate, and then retrieve chats for particular user
+  //   firebase.database().ref().once('value', (snapshot) => {
+  //     var d = snapshot.val(); //to get latest products database
+  //     var chats = [];
       
-      //if a uid has a userId with pusher chat kit account
-      var CHATKIT_USER_NAME = your_uid;
-      const tokenProvider = new Chatkit.TokenProvider({
-        url: CHATKIT_TOKEN_PROVIDER_ENDPOINT,
-        query: {
-          user_id: CHATKIT_USER_NAME
-        }
-      });
+  //     //if a uid has a userId with pusher chat kit account
+  //     var CHATKIT_USER_NAME = your_uid;
+  //     const tokenProvider = new Chatkit.TokenProvider({
+  //       url: CHATKIT_TOKEN_PROVIDER_ENDPOINT,
+  //       query: {
+  //         user_id: CHATKIT_USER_NAME
+  //       }
+  //     });
 
-      // This will instantiate a `chatManager` object. This object can be used to subscribe to any number of rooms and users and corresponding messages.
-      // For the purpose of this example we will use single room-user pair.
-      const chatManager = new Chatkit.ChatManager({
-        instanceLocator: CHATKIT_INSTANCE_LOCATOR,
-        userId: CHATKIT_USER_NAME,
-        tokenProvider: tokenProvider
-      });
+  //     // This will instantiate a `chatManager` object. This object can be used to subscribe to any number of rooms and users and corresponding messages.
+  //     // For the purpose of this example we will use single room-user pair.
+  //     const chatManager = new Chatkit.ChatManager({
+  //       instanceLocator: CHATKIT_INSTANCE_LOCATOR,
+  //       userId: CHATKIT_USER_NAME,
+  //       tokenProvider: tokenProvider
+  //     });
 
 
 
-      chatManager.connect()
-      .then( (currentUser) => {
-        console.log('Second Connect', currentUser.rooms.length)
-        this.currentUser = currentUser;
-        //TODO: Construct an array of objects where each object contains:
-        //pictures of product and users, buyer and seller names and Ids
-        //messages from this room
-        if(this.currentUser.rooms.length>1) {
-          var count = 0;
-          //perform the following process across all rooms currentUser is a part of except for the common Users Room
-          for(let i = 1; i < this.currentUser.rooms.length; i++) {
+  //     chatManager.connect()
+  //     .then( (currentUser) => {
+  //       console.log('Second Connect', currentUser.rooms.length)
+  //       this.currentUser = currentUser;
+  //       //TODO: Construct an array of objects where each object contains:
+  //       //pictures of product and users, buyer and seller names and Ids
+  //       //messages from this room
+  //       if(this.currentUser.rooms.length>1) {
+  //         var count = 0;
+  //         //perform the following process across all rooms currentUser is a part of except for the common Users Room
+  //         for(let i = 1; i < this.currentUser.rooms.length; i++) {
             
-            var {createdByUserId, name, id} = this.currentUser.rooms[i];
-            console.log('Second BOOOGAAWOOWOWOWA' + this.currentUser.rooms[i]);
+  //           var {createdByUserId, name, id} = this.currentUser.rooms[i];
+  //           console.log('Second BOOOGAAWOOWOWOWA' + this.currentUser.rooms[i]);
             
 
-            this.currentUser.fetchMessages({
-              roomId: id,
-              direction: "newer",
-              limit: 1
-            })
-            .then( (roomMessages) => {
-              var lastMessageText = false, lastMessageSenderIdentification = false, lastMessageDate = false;
-              // console.log(roomMessages);
-              // const messageIds = [...roomMessages.map(m =>  m.id)];
+  //           this.currentUser.fetchMessages({
+  //             roomId: id,
+  //             direction: "newer",
+  //             limit: 1
+  //           })
+  //           .then( (roomMessages) => {
+  //             var lastMessageText = false, lastMessageSenderIdentification = false, lastMessageDate = false;
+  //             // console.log(roomMessages);
+  //             // const messageIds = [...roomMessages.map(m =>  m.id)];
 
-              //Math.max and .min don't accept arrays, but a list of arguments, so we use spread operator to spread values from array as such within the function
-              // const newestMessageReceivedId = Math.max(...messageIds); 
+  //             //Math.max and .min don't accept arrays, but a list of arguments, so we use spread operator to spread values from array as such within the function
+  //             // const newestMessageReceivedId = Math.max(...messageIds); 
               
-              // roomMessages.filter( m => m.id == newestMessageReceivedId )
-              if(roomMessages.length > 0) {
-                lastMessageText = (roomMessages['0'].text).substr(0,40);
-                lastMessageDate = new Date(roomMessages['0'].updatedAt).getDay();
-                lastMessageSenderIdentification = roomMessages['0'].senderId;
-              }
+  //             // roomMessages.filter( m => m.id == newestMessageReceivedId )
+  //             if(roomMessages.length > 0) {
+  //               lastMessageText = (roomMessages['0'].text).substr(0,40);
+  //               lastMessageDate = new Date(roomMessages['0'].updatedAt).getDay();
+  //               lastMessageSenderIdentification = roomMessages['0'].senderId;
+  //             }
 
-              // console.log(lastMessageDate)
-              var productSellerId, productText, productImageURL;
+  //             // console.log(lastMessageDate)
+  //             var productSellerId, productText, productImageURL;
             
-              d.Products.forEach( (prod) => {
-                  //given the current Room Name, we need the product key to match some part of the room name
-                  //to obtain the correct product's properties
-                  //note that we only want the product's properties here so it doesn't matter if this loop
-                  //comes across ProductKeyX.someBuyer1 or ProductKeyX.someBuyer2
-                  if(name.includes(prod.key)) { productSellerId = prod.uid, productText = prod.text; productImageURL = prod.uris[0]; }
-              })
-              this.currentUser.subscribeToRoom({
-                roomId: id,
-                // hooks: {
-                //   onNewMessage: this.onReceive.bind(this)
-                // }
-              })
-              .then( () => {
-                var {users} = this.currentUser.rooms[i]
-                console.log(users);
-                // console.log(name, id);
+  //             d.Products.forEach( (prod) => {
+  //                 //given the current Room Name, we need the product key to match some part of the room name
+  //                 //to obtain the correct product's properties
+  //                 //note that we only want the product's properties here so it doesn't matter if this loop
+  //                 //comes across ProductKeyX.someBuyer1 or ProductKeyX.someBuyer2
+  //                 if(name.includes(prod.key)) { productSellerId = prod.uid, productText = prod.text; productImageURL = prod.uris[0]; }
+  //             })
+  //             this.currentUser.subscribeToRoom({
+  //               roomId: id,
+  //               // hooks: {
+  //               //   onNewMessage: this.onReceive.bind(this)
+  //               // }
+  //             })
+  //             .then( () => {
+  //               var {users} = this.currentUser.rooms[i]
+  //               console.log(users);
+  //               // console.log(name, id);
                 
                 
-                var obj;
-                // var chatUpdates = {};
-                var buyerIdentification = users[0,1].id;
-                var buyer = users[0,1].name;
-                var buyerAvatar = users[0,1].avatarURL ? users[0,1].avatarURL : '';
-                var sellerIdentification = users[0,0].id;
-                var seller = users[0,0].name;
-                var sellerAvatar = users[0,0].avatarURL ? users[0,0].avatarURL : '';
-                obj = { 
-                  productSellerId: productSellerId, productText: productText, productImageURL: productImageURL, 
-                  createdByUserId: createdByUserId, name: name, id: id, 
-                  buyerIdentification, sellerIdentification,
-                  seller: seller, sellerAvatar: sellerAvatar, 
-                  buyer: buyer, buyerAvatar: buyerAvatar,
-                  lastMessageText, lastMessageDate, lastMessageSenderIdentification
-                };
-                chats.push(obj);
-                if(count == this.currentUser.rooms.length - 2){
-                  console.log(count, 'all done')
-                  this.setState({chats, yourUid: your_uid, noChats: false, isGetting: false});
-                  // return null
-                }
+  //               var obj;
+  //               // var chatUpdates = {};
+  //               var buyerIdentification = users[0,1].id;
+  //               var buyer = users[0,1].name;
+  //               var buyerAvatar = users[0,1].avatarURL ? users[0,1].avatarURL : '';
+  //               var sellerIdentification = users[0,0].id;
+  //               var seller = users[0,0].name;
+  //               var sellerAvatar = users[0,0].avatarURL ? users[0,0].avatarURL : '';
+  //               obj = { 
+  //                 productSellerId: productSellerId, productText: productText, productImageURL: productImageURL, 
+  //                 createdByUserId: createdByUserId, name: name, id: id, 
+  //                 buyerIdentification, sellerIdentification,
+  //                 seller: seller, sellerAvatar: sellerAvatar, 
+  //                 buyer: buyer, buyerAvatar: buyerAvatar,
+  //                 lastMessageText, lastMessageDate, lastMessageSenderIdentification
+  //               };
+  //               chats.push(obj);
+  //               if(count == this.currentUser.rooms.length - 2){
+  //                 console.log(count, 'all done')
+  //                 this.setState({chats, yourUid: your_uid, noChats: false, isGetting: false});
+  //                 // return null
+  //               }
     
-                else {
-                  count++;
-                }
+  //               else {
+  //                 count++;
+  //               }
   
-                //TODO: Perhaps no need for firebase update
-                // chatUpdates['/Users/' + CHATKIT_USER_NAME + '/chats/' + i + '/'] = obj;
-                // firebase.database().ref().update(chatUpdates);
-                console.log(i, 'complete', this.currentUser.rooms.length)
-              });  
+  //               //TODO: Perhaps no need for firebase update
+  //               // chatUpdates['/Users/' + CHATKIT_USER_NAME + '/chats/' + i + '/'] = obj;
+  //               // firebase.database().ref().update(chatUpdates);
+  //               console.log(i, 'complete', this.currentUser.rooms.length)
+  //             });  
               
-            })
+  //           })
             
               
             
@@ -270,23 +287,23 @@ class Chats extends Component {
 
         
 
-        }
-        // console.log(chats);
+  //       }
+  //       // console.log(chats);
         
-        }
+  //       }
 
-      else {
-        // console.log('NO CHATS');
-        this.setState({noChats: true, isGetting: false})
-      }
+  //     else {
+  //       // console.log('NO CHATS');
+  //       this.setState({noChats: true, isGetting: false})
+  //     }
       
-      })
+  //     })
 
 
-    })
-    .catch( (err) => {console.log('error with getChats' + err) })
+  //   })
+  //   .catch( (err) => {console.log('error with getChats' + err) })
     
-  }
+  // }
 
   navToChat(chat) {
     const {productSellerId, id, buyer, seller, buyerAvatar, sellerAvatar, buyerIdentification, sellerIdentification} = chat;

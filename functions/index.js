@@ -109,9 +109,15 @@ exports.updateOldUser = functions.database.ref('/Users/{uid}/{profile}/uri').onW
 //     }
 // )
 
+//FUNCTION NUMBAH 4
+exports.populateConversations = functions.database.ref('Users/{uid}/lastMessage/').onWrite(
+    (snapshot, context) => {
+        var lastMessage = snapshot.after.val();
+        console.log(lastMessage);
+    }
+)
 
-
-//FUNCTION NUMBAH 4 ?
+//FUNCTION NUMBAH 5 ?
 exports.updateProducts = functions.database.ref('Users/{uid}/{products}').onWrite(
     (snapshot, context) => {
         // console.log('Initializing Reconstruction of Products Branch');

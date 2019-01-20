@@ -20,8 +20,12 @@ class CustomChat extends Component {
     header: null
   }
     
-  state = {
-    messages: [],
+  constructor(props){
+    super(props);
+    this.state = {
+      messages: [],
+      isGetting: true,
+    }
   }
 
   componentWillMount() {
@@ -30,13 +34,19 @@ class CustomChat extends Component {
     const {params} = this.props.navigation.state;
     
     const id = params ? params.id : null;
+    const buyerIdentification = params.buyerIdentification;
+    const buyerAvatar = params.buyerAvatar;
+    const sellerIdentification = params.sellerIdentification;
+    const sellerAvatar = params.sellerAvatar
+    
+    // console.log(buyerIdentification, sellerIdentification, id)
 
     // This will create a `tokenProvider` object. This object will be later used to make a Chatkit Manager instance.
     const tokenProvider = new Chatkit.TokenProvider({
       url: CHATKIT_TOKEN_PROVIDER_ENDPOINT,
-      query: {
-        user_id: CHATKIT_USER_NAME
-      }
+      // query: {
+      //   user_id: CHATKIT_USER_NAME
+      // }
     });
 
     // This will instantiate a `chatManager` object. This object can be used to subscribe to any number of rooms and users and corresponding messages.
@@ -46,10 +56,13 @@ class CustomChat extends Component {
       userId: CHATKIT_USER_NAME,
       tokenProvider: tokenProvider
     });
+    // console.log(chatManager)
 
     // In order to subscribe to the messages this user is receiving in this room, we need to `connect()` the `chatManager` and have a hook on `onNewMessage`. There are several other hooks that you can use for various scenarios. A comprehensive list can be found [here](https://docs.pusher.com/chatkit/reference/javascript#connection-hooks).
     chatManager.connect().then(currentUser => {
       this.currentUser = currentUser;
+
+      // console.log(currentUser);
       // this.currentUser.setReadCursor({
       //   roomId: id,
       //   position: ,
@@ -62,9 +75,30 @@ class CustomChat extends Component {
         //roomId: this.currentUser.rooms[0].id,
         roomId: id,
         hooks: {
-          onNewMessage: this.onReceive.bind(this)
+          onNewMessage: this.onReceive.bind(this, buyerIdentification, sellerIdentification)
         }
-      });
+      })
+      .then( () => {
+        console.log('successfully subscribed to room');
+        this.currentUser.fetchMessages({roomId: id})
+        .then((messages) => {
+          console.log(messages);
+          messages = messages.map( (message) => {
+            return {
+              createdAt: new Date(message.createdAt),
+              text: message.text,
+              user: {
+                _id: message.senderId,
+                avatar: message.senderId == sellerIdentification ? sellerAvatar : buyerAvatar
+              },
+              _id: String(message.id)
+            }
+          })
+          console.log(messages);
+          this.setState({messages, isGetting: false})
+        })
+      })
+      .catch( (err) => console.log(err));
     });
   
 
@@ -105,7 +139,7 @@ class CustomChat extends Component {
 
   //onReceive function not supposed to be here?
   //Think he's using renderMessage to produce the UI which receives the messages as props
-  onReceive(data) {
+  onReceive(data, buyerIdentification, sellerIdentification) {
     console.log(data);
     //...
     const { id, senderId, text, createdAt, sender } = data;
@@ -120,7 +154,7 @@ class CustomChat extends Component {
         avatar: avatarURL,
       }
     };
-
+    // this.updateLastMessageInCloud(incomingMessage, buyerIdentification, sellerIdentification);
     this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, incomingMessage),
     }));
@@ -132,7 +166,17 @@ class CustomChat extends Component {
       text: message.text,
       roomId: id,
     });
+    console.log(message);
     
+  }
+
+  updateLastMessageInCloud = (msg, buyerIdentification, sellerIdentification) => {
+    //for both participants, update the cloud with most recent message
+    var updates = {};
+    updates['Users/' + buyerIdentification + '/lastMessage/'] = msg;
+    firebase.database().ref().update(updates);
+    updates['Users/' + sellerIdentification + '/lastMessage/' ] = msg;
+    firebase.database().ref().update(updates);
   }
 
   navToOtherUserProfilePage = (uid) => {
@@ -158,8 +202,15 @@ class CustomChat extends Component {
     var chattingWithPersonThatLooksLike = buyer && seller ? sellerIdentification == CHATKIT_USER_NAME ? buyerAvatar : sellerAvatar : false
 
     console.log(this.state.messages);
+
+    if(this.state.isGetting) {
+      return (
+        <View>Loading...</View>
+      )
+    }
     
-    return (
+    else {
+      return (
       <View style={styles.mainContainer}>
 
         <View style={[styles.topRow, {backgroundColor: '#fff'}]}>
@@ -221,6 +272,9 @@ class CustomChat extends Component {
 
       </View>
     )
+  }
+
+
   }
 }
 
