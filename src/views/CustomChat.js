@@ -9,7 +9,8 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 import Chatkit from "@pusher/chatkit-client";
 import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
-import { treeGreen } from '../colors';
+import { treeGreen, mantisGreen } from '../colors';
+import { LoadingIndicator } from '../localFunctions/visualFunctions';
 
 
 
@@ -205,7 +206,9 @@ class CustomChat extends Component {
 
     if(this.state.isGetting) {
       return (
-        <View>Loading...</View>
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30}}>
+          <LoadingIndicator isVisible={this.state.isGetting} color={mantisGreen} type={'9CubeGrid'}/>
+        </View>
       )
     }
     
@@ -218,7 +221,7 @@ class CustomChat extends Component {
           <View style={styles.backIconContainer}>
             <FontAwesomeIcon
               name='chevron-circle-left'
-              size={45}
+              size={30}
               color={'#76ce1e'}
               onPress = { () => { 
                 this.props.navigation.goBack();
@@ -252,22 +255,22 @@ class CustomChat extends Component {
 
         <View style={{backgroundColor: 'black', height: 1.5}}/>
         
-        <View style={{flex: 1}}>
-        <GiftedChat
-          messages={this.state.messages}
-          onSend={messages => this.onSend(messages, id)}
-          user={{
-            _id: CHATKIT_USER_NAME
-          }}
-          //renderMessage={this.renderMessage}
-          //renderBubble={this.renderBubble}
-          showUserAvatar={true}
-          showAvatarForEveryMessage={false}
-          renderAvatarOnTop={true}
-          loadEarlier={false}
+        <View style={{flex: 0.88}}>
+          <GiftedChat
+            messages={this.state.messages}
+            onSend={messages => this.onSend(messages, id)}
+            user={{
+              _id: CHATKIT_USER_NAME
+            }}
+            //renderMessage={this.renderMessage}
+            //renderBubble={this.renderBubble}
+            showUserAvatar={true}
+            showAvatarForEveryMessage={false}
+            renderAvatarOnTop={true}
+            loadEarlier={false}
+              
             
-          
-        />
+          />
         </View>
 
       </View>
@@ -281,9 +284,9 @@ class CustomChat extends Component {
 export default withNavigation(CustomChat);
 
 const styles = StyleSheet.create({
-  mainContainer: {flex: 1, marginTop: 22},
+  mainContainer: {flex: 1,marginTop: 18},
 
-  topRow: { flex: 0.2, flexDirection: 'row', paddingHorizontal: 10, alignItems: 'center', justifyContent: 'space-evenly' },
+  topRow: { flex: 0.12, flexDirection: 'row', paddingHorizontal: 10, alignItems: 'center', justifyContent: 'space-evenly' },
   
   backIconContainer: {
     flex: 0.3,
@@ -299,15 +302,15 @@ const styles = StyleSheet.create({
 
   chatInfoText: {
     fontFamily: 'Avenir Next',
-    fontSize: 19,
+    fontSize: 14,
     textAlign: 'left',
     fontWeight: 'bold',
   },
 
   profilePic: {
-    width: 50,
-    height: 50,
-    borderRadius: 25
+    width: 40,
+    height: 40,
+    borderRadius: 20
 },
 
 })

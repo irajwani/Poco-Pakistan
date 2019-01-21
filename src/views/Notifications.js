@@ -8,9 +8,10 @@ import { PacmanIndicator } from 'react-native-indicators';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 // import { Button } from 'react-native-elements';
 
-import { lightGreen, coolBlack, highlightGreen } from '../colors';
+import { lightGreen, coolBlack, highlightGreen, mantisGreen } from '../colors';
 import NothingHereYet from '../components/NothingHereYet';
 import { avenirNextText } from '../constructors/avenirNextText';
+import { LoadingIndicator } from '../localFunctions/visualFunctions';
 
 const noNotificationsText = "The NottMyStyle team believes your products don't warrant any stats yet 👌, thus you have no notifications."
 
@@ -74,9 +75,9 @@ class Notifications extends Component {
     console.log(notifications);
     if(isGetting) {
         return (
-            <View style={{flex: 1}}>
-                <PacmanIndicator color='#0a968f' />
-            </View>
+          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30}}>
+            <LoadingIndicator isVisible={isGetting} color={'black'} type={'Bounce'}/>
+          </View>
         )
     }
 
