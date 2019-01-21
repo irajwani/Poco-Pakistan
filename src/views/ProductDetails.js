@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { TouchableWithoutFeedback, Keyboard, ScrollView, View, Text, TextInput, Image, TouchableHighlight, TouchableOpacity, Modal, Dimensions, StyleSheet, Linking } from 'react-native';
-import {Button  as RNButton} from 'react-native';
+import { TouchableWithoutFeedback, Keyboard, ScrollView, View, Text, TextInput, Image, TouchableHighlight, TouchableOpacity, Modal, Dimensions, StyleSheet, Linking, WebView } from 'react-native';
+// import {Button  as RNButton} from 'react-native';
 import {Button} from 'react-native-elements';
 
 import { withNavigation } from 'react-navigation';
@@ -31,7 +31,8 @@ var {height, width} = Dimensions.get('window');
 const limeGreen = '#2e770f';
 // const profoundPink = '#c64f5f';
 const modalAnimationType = "slide";
-const paymentScreensIconSize = 37
+const paymentScreensIconSize = 45;
+const paymentUri = "https://calm-coast-12842.herokuapp.com";
 
 const chatIcon = {
   title: 'Chat',
@@ -46,6 +47,10 @@ const addressFields = [
   {key: "postCode" , header: "Postcode" , placeholder: "e.g. NG71NY"},
   {key: "city" , header: "City" , placeholder: "e.g. Nottingham"},
 ]
+
+const paymentText = "Pay with PayPal"
+const chatButtonWidth = 210;
+const paymentButtonWidth = 200;
 
 
 function removeFalsyValuesFrom(object) {
@@ -85,7 +90,7 @@ class ProductDetails extends Component {
       showPurchaseModal: false,
       activeScreen: "initial",
       deliveryOptions: [
-        {text: "Collection in person", selected: false, options: ["Contact via Chat", "OR",  "Proceed to Payment"], },
+        {text: "Collection in person", selected: false, options: ["Contact via Chat", "OR",  paymentText], },
         {text: "Postal Delivery", selected:false}
       ],
       fullName: "",
@@ -93,6 +98,8 @@ class ProductDetails extends Component {
       addressTwo: "",
       postCode: "",
       city: "",
+      //PayPal Modal stuff
+      paymentStatus: "pending",
     }
   }
 
@@ -377,7 +384,20 @@ class ProductDetails extends Component {
   }
 
   proceedToPayment = () => {
-    console.log('.....')
+    this.setState({activeScreen: 'paypalModal'});
+  }
+
+  handleResponse = (data) => {
+    if(data.title == "success") {
+        this.setState({activeScreen: "afterPaymentScreen", paymentStatus: "success"});
+    }
+
+    else if(data.title == "cancel") {
+        this.setState({showModal: "afterPaymentScreen", paymentStatus: "canceled"});
+    }
+    else {
+        return;
+    }
   }
 
   goToNextPage = () => {
@@ -514,7 +534,7 @@ class ProductDetails extends Component {
             <CustomTouchableO 
             onPress={this.goToNextPage}
             disabled={this.state.deliveryOptions[0].selected || this.state.deliveryOptions[1].selected ? false : true } 
-            flex={0.15} color={treeGreen} text={'Next'} textColor={'#fff'} textSize={25}
+            flex={0.15} color={'#39b729'} text={'Next'} textColor={'#fff'} textSize={25}
             />
             
            
@@ -580,7 +600,7 @@ class ProductDetails extends Component {
                     index != 1 ?
                     <View style={styles.collectionInPersonContainer}>
 
-                      <TouchableOpacity style={styles.collectionInPersonButton}>
+                      <TouchableOpacity style={[styles.collectionInPersonButton, {width: index == 0 ? chatButtonWidth : paymentButtonWidth}]}>
 
                         <View style={styles.collectionInPersonOptionsContainer}>
 
@@ -594,7 +614,7 @@ class ProductDetails extends Component {
                                 index == 0 ? 
                                   this.navToChat(this.props.navigation.state.params.data.uid, this.props.navigation.state.params.data.key)
                                   : 
-                                  this.proceedToPayment
+                                  this.proceedToPayment()
                                 } }
 
                           />
@@ -716,18 +736,15 @@ class ProductDetails extends Component {
               
               <View style={{flex: this.state.addresses ? 0.35 : 0.7, alignItems: 'center'}}>
                 <TouchableOpacity onPress={this.goToAddDeliveryAddress} style={styles.addDeliveryAddressButton}>
-                    <View style={styles.collectionInPersonOptionsContainer}>
-
+                    <View style={[styles.collectionInPersonOptionsContainer, {justifyContent: 'space-evenly'}]}>
+                     <Text style={new avenirNextText("black", 20, "300")}>
+                        Add your delivery address
+                      </Text>
                       <Icon
-                        name="plus-circle-outline"
+                        name="plus"
                         size={22}
                         color={mantisGreen}
                       />
-
-                      <Text style={new avenirNextText("#fff", 20, "300")}>
-                        Add your delivery address
-                      </Text>
-                      
                     </View>
                 </TouchableOpacity>
               </View>
@@ -739,7 +756,7 @@ class ProductDetails extends Component {
 
                 <TouchableOpacity 
                 onPress={this.proceedToPayment} 
-                style={styles.collectionInPersonButton}>
+                style={[styles.collectionInPersonButton, {width: paymentButtonWidth }]}>
 
                   <View style={styles.collectionInPersonOptionsContainer}>
 
@@ -750,7 +767,7 @@ class ProductDetails extends Component {
 
                     />
                     <Text style={new avenirNextText('black', 20, "300")}>
-                      Proceed to Payment
+                      {paymentText}
                     </Text>
                     
                   </View>
@@ -868,6 +885,41 @@ class ProductDetails extends Component {
       </Modal>
     )
 
+    }
+
+    else if(activeScreen == "paypalModal") {
+      return (
+        <Modal
+        animationType={modalAnimationType}
+        transparent={false}
+        visible={this.state.showPurchaseModal}
+        >
+          <WebView 
+            source={{uri: paymentUri}} 
+            onNavigationStateChange={data => this.handleResponse(data)}
+            injectedJavaScript={`document.f1.submit()`}
+          />
+        </Modal>
+      )
+    }
+
+    else if(activeScreen == "afterPaymentScreen") {
+      return (
+        <Modal
+        animationType={modalAnimationType}
+        transparent={false}
+        visible={this.state.showPurchaseModal}
+        >
+          <View style={deliveryOptionModal}>
+
+            <View style={deliveryOptionHeader}>
+            </View>
+            <View style={deliveryOptionBody}>
+            </View>
+
+          </View>  
+        </Modal>
+      )
     }
     
     
@@ -1690,12 +1742,12 @@ collectionInPersonContainer: {
 },
 
 collectionInPersonButton: {
-  width: 270,
+  // width: 230,
   height: 60,
   borderRadius: 15,
-  backgroundColor: lightGreen,
+  backgroundColor: '#99e265',
   justifyContent: 'center',
-  // alignItems: 'center'
+  alignItems: 'center'
 },
 
 collectionInPersonOptionsContainer: {

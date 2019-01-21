@@ -11,7 +11,7 @@ import { iOSColors, iOSUIKit, human } from 'react-native-typography';
 import LinearGradient from 'react-native-linear-gradient'
 import ReviewsList from '../components/ReviewsList.js';
 import { PacmanIndicator } from 'react-native-indicators';
-import { highlightGreen, graphiteGray, avenirNext } from '../colors.js';
+import { highlightGreen, graphiteGray, avenirNext, mantisGreen,darkGreen,lightGreen,treeGreen, limeGreen } from '../colors.js';
 import { LoadingIndicator } from '../localFunctions/visualFunctions.js';
 const {width, height} = Dimensions.get('window');
 
@@ -186,7 +186,7 @@ class ProfilePage extends Component {
   render() {
     var {isGetting, comments, gradient} = this.state;
     console.log(comments, 'the user has no comments, perfectly harmless');
-    const gradientColors = ['#7de853','#0baa26', '#064711'];
+    const gradientColors = [limeGreen,lightGreen, treeGreen];
     // const gradientColors2 = ['#0a968f','#6ee5df', ];
 
     if(isGetting){
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
   },
 
   subText: {
-    fontFamily: 'Iowan Old Style',
+    fontFamily: 'Avenir Next',
     fontSize: 18,
     fontWeight: '400',
     color: graphiteGray,
@@ -524,15 +524,15 @@ const styles = StyleSheet.create({
     fontFamily: avenirNext,
     fontSize: 18,
     color: '#fff',
-    fontWeight: '600',
-    fontStyle: 'italic'
+    fontWeight: '300',
+    // fontStyle: 'italic'
   },
   insta: {
     fontFamily: avenirNext,
     fontSize: 18,
     color: '#fff',
-    fontWeight: '600',
-    fontStyle: 'italic'
+    fontWeight: '300',
+    // fontStyle: 'italic'
   },
 
   companyLogoContainer: {
@@ -570,7 +570,7 @@ title: {
 },
 
 reviewsHeader: {
-  fontFamily: 'Iowan Old Style',
+  fontFamily: 'Avenir Next',
   fontSize: 24,
   fontWeight: "normal",
   paddingLeft: 10
