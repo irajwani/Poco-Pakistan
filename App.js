@@ -35,7 +35,7 @@ export default class App extends Component {
     
     return (
 
-      <SignUpToCreateProfileStack/>
+      <Test/>
 
     );
   }

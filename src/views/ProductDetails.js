@@ -19,7 +19,7 @@ import { iOSColors } from 'react-native-typography';
 import Chatkit from "@pusher/chatkit-client";
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
 import email from 'react-native-email';
-import { lightGreen, highlightGreen, treeGreen, graphiteGray, rejectRed, darkBlue, profoundPink, aquaGreen, bobbyBlue, mantisGreen, logoGreen } from '../colors';
+import { lightGreen, highlightGreen, treeGreen, graphiteGray, rejectRed, darkBlue, profoundPink, aquaGreen, bobbyBlue, mantisGreen, logoGreen, lightGray } from '../colors';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 // import BackButton from '../components/BackButton';
 import { avenirNextText, delOpt, deliveryOptions } from '../constructors/avenirNextText';
@@ -31,6 +31,7 @@ var {height, width} = Dimensions.get('window');
 const limeGreen = '#2e770f';
 // const profoundPink = '#c64f5f';
 const modalAnimationType = "slide";
+const paymentScreensIconSize = 37
 
 const chatIcon = {
   title: 'Chat',
@@ -585,7 +586,7 @@ class ProductDetails extends Component {
 
                           <Icon
                             name={index == 0 ? 'message-text-outline' : "credit-card"}
-                            size={33}
+                            size={paymentScreensIconSize}
                             color={chatIcon.color}
                             onPress = { () => { 
                                 // console.log('going to chat');
@@ -597,7 +598,7 @@ class ProductDetails extends Component {
                                 } }
 
                           />
-                          <Text style={new avenirNextText(graphiteGray, 20, "200")}>
+                          <Text style={new avenirNextText('black', 20, "300")}>
                             {option}
                           </Text>
                           
@@ -693,7 +694,7 @@ class ProductDetails extends Component {
                       this.state.addresses[key].selected = !this.state.addresses[key].selected
                       this.setState(this.state); 
                     }}
-                    style={styles.addressContainerButton}
+                    style={[styles.addressContainerButton, {backgroundColor: this.state.addresses[key].selected ? lightGray : '#fff' }]}
                     >
                       <View style={styles.addressContainer}>
                         <View style={styles.radioButton}>
@@ -719,8 +720,8 @@ class ProductDetails extends Component {
 
                       <Icon
                         name="plus-circle-outline"
-                        size={18}
-                        color={"#fff"}
+                        size={22}
+                        color={mantisGreen}
                       />
 
                       <Text style={new avenirNextText("#fff", 20, "300")}>
@@ -744,11 +745,11 @@ class ProductDetails extends Component {
 
                     <Icon
                       name="credit-card"
-                      size={33}
+                      size={paymentScreensIconSize}
                       color={chatIcon.color}
 
                     />
-                    <Text style={new avenirNextText('black', 20, "200")}>
+                    <Text style={new avenirNextText('black', 20, "300")}>
                       Proceed to Payment
                     </Text>
                     
@@ -842,11 +843,11 @@ class ProductDetails extends Component {
 
                     <FontAwesomeIcon
                       name="address-book"
-                      size={33}
+                      size={paymentScreensIconSize}
                       color={'black'}
 
                     />
-                    <Text style={new avenirNextText('black', 20, "200")}>
+                    <Text style={new avenirNextText('black', 20, "300")}>
                       Add Address
                     </Text>
                     
@@ -1712,7 +1713,6 @@ addressesContainer: {
 addressContainerButton: {
   width: 260,
   height: 50,
-  backgroundColor: bobbyBlue,
   borderRadius: 5,
 },
 
@@ -1729,7 +1729,7 @@ addDeliveryAddressButton: {
   width: 270,
   height: 40,
   borderRadius: 15,
-  backgroundColor: treeGreen,
+  backgroundColor: '#fff',
 },
 
 addressForm: {
