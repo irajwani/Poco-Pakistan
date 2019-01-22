@@ -38,7 +38,7 @@ const chatIcon = {
   title: 'Chat',
   color: 'black',
   type:{name: 'message-text', type: 'material-community'}
-}
+};
 
 const addressFields = [
   {key: "fullName", header: "Full Name", placeholder: "e.g. Angelina Capato"},
@@ -46,9 +46,10 @@ const addressFields = [
   {key: "addressTwo" , header: "Address Line 2" , placeholder: "e.g. Raleigh Park"},
   {key: "postCode" , header: "Postcode" , placeholder: "e.g. NG71NY"},
   {key: "city" , header: "City" , placeholder: "e.g. Nottingham"},
-]
+];
 
-const paymentText = "Pay with PayPal"
+const paymentText = "Pay with PayPal";
+const successfulTransactionText = "Your transaction has been processed successfully.";
 const chatButtonWidth = 210;
 const paymentButtonWidth = 200;
 
@@ -99,6 +100,10 @@ class ProductDetails extends Component {
       postCode: "",
       city: "",
       //PayPal Modal stuff
+      sku: '',
+      price: '',
+      name: '',
+      description: '',
       paymentStatus: "pending",
     }
   }
@@ -171,20 +176,26 @@ class ProductDetails extends Component {
       
       var productComments = d.Users[data.uid].products[data.key].comments ? d.Users[data.uid].products[data.key].comments : {a: {text: 'No Reviews have been left for this product yet.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
       
+      //When this component launches for the first time, we want to retrieve the person's addresses from the cloud (if they have any)
+      //When this function is run everytime after
       var addresses = false;
-      d.Users[uid].addresses ?
-        addresses = d.Users[uid].addresses
-        :
-        null
-      console.log(addresses, typeof addresses);
-      this.setState( {yourProfile, uid, otherUserUid, profile, productComments, addresses} )
+      addresses = this.state.addresses ? d.Users[uid].addresses.length != this.state.addresses.length ? d.Users[uid].addresses : this.state.addresses : d.Users[uid].addresses ? d.Users[uid].addresses : false
+      // !this.state.addresses && d.Users[uid].addresses ?
+      //   addresses = d.Users[uid].addresses
+      //   :
+      //   null
+      // console.log(addresses, typeof addresses);
+      this.setState( {
+        yourProfile, uid, otherUserUid, profile, productComments, addresses,
+        price: data.text.price, name: data.text.name, sku: data.key, description: data.text.description.replace(/ +/g, " ").substring(0,124)
+      } )
     })
     .then( () => {
       this.setState({isGetting: false})
     })
   }
 
-  setSaleTo(soldStatus, uid, productKey) {
+  setSaleTo(soldStatus, uid, productKey, isBuyer = false) {
     var updates={};
     // var postData = {soldStatus: soldStatus, dateSold: Date.now()}
     updates['Users/' + uid + '/products/' + productKey + '/sold/'] = soldStatus;
@@ -193,7 +204,7 @@ class ProductDetails extends Component {
     firebase.database().ref().update(updates);
     //just alert user this product has been marked as sold, and will show as such on their next visit to the app.
     var status = soldStatus ? 'sold' : 'available for purchase'
-    alert(`Product has been marked as ${status}.\n If you wish to see the effects of this change immediately,\n please go back to the Market`)
+    isBuyer ? null : alert(`Product has been marked as ${status}.\n If you wish to see the effects of this change immediately,\n please go back to the Market`)
 
   }
 
@@ -785,7 +796,7 @@ class ProductDetails extends Component {
 
     }
 
-    else if(activeScreen == "addDeliveryAddress") {
+    else if(activeScreen == "afterPaymentScreen") {
       var filledOutAddress = (this.state.fullName && this.state.addressOne && this.state.addressTwo && this.state.city);
       return (
       <Modal 
@@ -895,7 +906,7 @@ class ProductDetails extends Component {
         visible={this.state.showPurchaseModal}
         >
           <WebView 
-            source={{uri: paymentUri}} 
+            source={{uri: paymentUri + `/?price=${this.state.price}&name=${this.state.name}&description=${this.state.description}&sku=${this.state.sku}`}} 
             onNavigationStateChange={data => this.handleResponse(data)}
             injectedJavaScript={`document.f1.submit()`}
           />
@@ -903,7 +914,7 @@ class ProductDetails extends Component {
       )
     }
 
-    else if(activeScreen == "afterPaymentScreen") {
+    else if(activeScreen == "addDeliveryAddress") {
       return (
         <Modal
         animationType={modalAnimationType}
@@ -913,8 +924,23 @@ class ProductDetails extends Component {
           <View style={deliveryOptionModal}>
 
             <View style={deliveryOptionHeader}>
+
+              <FontAwesomeIcon
+                name='arrow-left'
+                size={28}
+                color={logoGreen}
+              />
+              <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
+              
+              <FontAwesomeIcon
+                name='close'
+                size={28}
+                color={'black'}
+                onPress={this.closePurchaseModal}
+              />
             </View>
-            <View style={deliveryOptionBody}>
+            <View style={[deliveryOptionBody, {alignItems: 'center', justifyContent: 'center', padding: 40}]}>
+              <Text style={[new avenirNextText('black', 24, "300"), {textAlign: 'center'}]}>{successfulTransactionText}</Text>
             </View>
 
           </View>  
@@ -1118,7 +1144,7 @@ class ProductDetails extends Component {
                         name="check-circle" 
                         size={30}  
                         color={'#0e4406'}
-                        onPress = {() => {console.log('setting product status to available for purchase'); this.setSaleTo(false, data.uid, data.key)}}
+                        onPress = {() => {console.log('setting product status to available for purchase'); this.setSaleTo(false, data.uid, data.key, false)}}
                     />
                 </View>
               :
@@ -1129,7 +1155,7 @@ class ProductDetails extends Component {
                     name="check-circle" 
                     size={30}  
                     color={'gray'}
-                    onPress = {() => {console.log('setting product status to sold'); this.setSaleTo(true, data.uid, data.key)}}
+                    onPress = {() => {console.log('setting product status to sold'); this.setSaleTo(true, data.uid, data.key, false)}}
                   />
                 </View> 
             :
