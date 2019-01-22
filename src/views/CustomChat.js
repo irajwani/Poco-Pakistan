@@ -9,7 +9,7 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 import Chatkit from "@pusher/chatkit-client";
 import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
-import { treeGreen, mantisGreen } from '../colors';
+import { treeGreen, mantisGreen, darkGreen, logoGreen } from '../colors';
 import { LoadingIndicator } from '../localFunctions/visualFunctions';
 
 
@@ -29,9 +29,23 @@ class CustomChat extends Component {
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
+    var username = firebase.auth().currentUser.uid;
+    setTimeout(() => {
+      this.getConversation(username);
+      this.conversationTimer = setInterval(() => {
+        this.getConversation(username);
+      }, 10000); //TODO: bad idea possibly?
+    }, 1000);
+  }
 
-    const CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
+  componentWillUnmount() {
+    clearInterval(this.conversationTimer);
+  }
+
+  getConversation(CHATKIT_USER_NAME) {
+
+    // const CHATKIT_USER_NAME; 
     const {params} = this.props.navigation.state;
     
     const id = params ? params.id : null;
@@ -81,9 +95,10 @@ class CustomChat extends Component {
       })
       .then( () => {
         console.log('successfully subscribed to room');
-        this.currentUser.fetchMessages({roomId: id})
+        this.currentUser.fetchMessages({roomId: id, direction: 'newer', limit: 60})
         .then((messages) => {
           console.log(messages);
+          messages = messages.reverse();
           messages = messages.map( (message) => {
             return {
               createdAt: new Date(message.createdAt),
@@ -167,6 +182,9 @@ class CustomChat extends Component {
       text: message.text,
       roomId: id,
     });
+    this.setState(previousState => ({
+      messages: GiftedChat.append(previousState.messages, message),
+    }));
     console.log(message);
     
   }
@@ -207,7 +225,7 @@ class CustomChat extends Component {
     if(this.state.isGetting) {
       return (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30}}>
-          <LoadingIndicator isVisible={this.state.isGetting} color={mantisGreen} type={'9CubeGrid'}/>
+          <LoadingIndicator isVisible={this.state.isGetting} color={logoGreen} type={'9CubeGrid'}/>
         </View>
       )
     }

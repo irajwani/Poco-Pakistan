@@ -50,6 +50,7 @@ const addressFields = [
 
 const paymentText = "Pay with PayPal";
 const successfulTransactionText = "Your transaction has been processed successfully.";
+const cancelTransactionText = "Transaction process has been terminated.";
 const chatButtonWidth = 210;
 const paymentButtonWidth = 200;
 
@@ -134,6 +135,10 @@ class ProductDetails extends Component {
       //get profile info of seller of product
       const profile = d.Users[data.uid].profile;
 
+      var chats = d.Users[uid].conversations ? d.Users[uid].conversations : false;
+      chats ? chats = Object.values(chats) : null;
+      var chat = chats ? chats.find( (chat) => {return chat.name == `${data.key}.${uid}`} ) : false;
+      // console.log(chat);
       //get keys of current user's products
       // var productKeys = d.Users[uid].products ? Object.keys(d.Users[uid].products) : [];
 
@@ -187,7 +192,8 @@ class ProductDetails extends Component {
       // console.log(addresses, typeof addresses);
       this.setState( {
         yourProfile, uid, otherUserUid, profile, productComments, addresses,
-        price: data.text.price, name: data.text.name, sku: data.key, description: data.text.description.replace(/ +/g, " ").substring(0,124)
+        price: data.text.price, name: data.text.name, sku: data.key, description: data.text.description.replace(/ +/g, " ").substring(0,124),
+        chat
       } )
     })
     .then( () => {
@@ -230,15 +236,16 @@ class ProductDetails extends Component {
     //if you posted this product yourself, then buying it is trivial,
     //and you should see a modal saying 'you own this product already'
     this.setState({navToChatLoading: true});
-    console.log(key);
+    const {productSellerId, id, buyer, seller, buyerAvatar, sellerAvatar, buyerIdentification, sellerIdentification} = this.state.chat;
+    // console.log(key);
     //create separate Chats branch
     const CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
 
     const tokenProvider = new Chatkit.TokenProvider({
       url: CHATKIT_TOKEN_PROVIDER_ENDPOINT,
-      query: {
-        user_id: CHATKIT_USER_NAME
-      }
+      // query: {
+      //   user_id: CHATKIT_USER_NAME
+      // }
     });
   
     // This will instantiate a `chatManager` object. This object can be used to subscribe to any number of rooms and users and corresponding messages.
@@ -253,7 +260,7 @@ class ProductDetails extends Component {
       
       this.currentUser = currentUser;
       this.currentUser.joinRoom({
-        roomId: 15868783 //Users
+        roomId: "15868783" //Users
       })
       .then(() => {
         console.log('Added user to room')
@@ -270,16 +277,19 @@ class ProductDetails extends Component {
       if(this.currentUser.rooms.length > 0 && roomExists.length > 0) {
         console.log('no need to create a brand new room');
         this.setState({navToChatLoading: false});
-        this.props.navigation.navigate( 'CustomChat', {id: this.findRoomId(this.currentUser.rooms, desiredRoomsName)} )
+        // this.props.navigation.navigate( 'CustomChat', {id: this.findRoomId(this.currentUser.rooms, desiredRoomsName)} )
+        this.props.navigation.navigate('CustomChat', {productSellerId, id, buyer, buyerAvatar, seller, sellerAvatar, buyerIdentification, sellerIdentification })
 
       }
       else {
+        //TODO: account for navigation transition
         this.currentUser.createRoom({
           //base the room name on the following pattern: product key + dot + buyers uid
           name: desiredRoomsName,
           private: false,
           addUserIds: [uid]
-        }).then(room => {
+        })
+        .then(room => {
           console.log(`Created room called ${room.name}`)
           this.setState({navToChatLoading: false});
           this.props.navigation.navigate( 'CustomChat', {id: this.findRoomId(this.currentUser.rooms, desiredRoomsName)} )
@@ -400,6 +410,7 @@ class ProductDetails extends Component {
 
   handleResponse = (data) => {
     if(data.title == "success") {
+        this.setSaleTo(true, this.state.otherUserUid, this.state.sku, true);
         this.setState({activeScreen: "afterPaymentScreen", paymentStatus: "success"});
     }
 
@@ -504,7 +515,7 @@ class ProductDetails extends Component {
   
                 
                   {this.state.deliveryOptions.map( (option, index) => (
-                    <View style={deliveryOptionContainer}>
+                    <View style={deliveryOptionContainer} key={index}>
   
                       <View style={styles.radioButtonContainer}>
                         <TouchableOpacity 
@@ -796,7 +807,7 @@ class ProductDetails extends Component {
 
     }
 
-    else if(activeScreen == "afterPaymentScreen") {
+    else if(activeScreen == "addDeliveryAddress") {
       var filledOutAddress = (this.state.fullName && this.state.addressOne && this.state.addressTwo && this.state.city);
       return (
       <Modal 
@@ -914,7 +925,7 @@ class ProductDetails extends Component {
       )
     }
 
-    else if(activeScreen == "addDeliveryAddress") {
+    else if(activeScreen == "afterPaymentScreen") {
       return (
         <Modal
         animationType={modalAnimationType}
@@ -940,7 +951,7 @@ class ProductDetails extends Component {
               />
             </View>
             <View style={[deliveryOptionBody, {alignItems: 'center', justifyContent: 'center', padding: 40}]}>
-              <Text style={[new avenirNextText('black', 24, "300"), {textAlign: 'center'}]}>{successfulTransactionText}</Text>
+              <Text style={[new avenirNextText('black', 24, "300"), {textAlign: 'center'}]}>{this.state.paymentStatus == "success" ? successfulTransactionText : cancelTransactionText}</Text>
             </View>
 
           </View>  
@@ -982,9 +993,9 @@ class ProductDetails extends Component {
       return(
         <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
 
-          <View style={{height: 200, justifyContent: 'center', alignContent: 'center', alignItems: 'center'}}>
-            <LoadingIndicator isVisible={navToChatLoading} color={aquaGreen} type={'Wordpress'}/>
-            <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: aquaGreen, textAlign: 'center'}}>
+          <View style={{height: 200, justifyContent: 'center', alignItems: 'center', padding: 10}}>
+            <LoadingIndicator isVisible={navToChatLoading} color={logoGreen} type={'Wordpress'}/>
+            <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: logoGreen, textAlign: 'center'}}>
               Navigating to Chat regarding purchase of {text.name}, by {text.brand}
             </Text>
           </View>  
@@ -1144,7 +1155,7 @@ class ProductDetails extends Component {
                         name="check-circle" 
                         size={30}  
                         color={'#0e4406'}
-                        onPress = {() => {console.log('setting product status to available for purchase'); this.setSaleTo(false, data.uid, data.key, false)}}
+                        onPress = {() => {this.setSaleTo(false, data.uid, data.key, false)}}
                     />
                 </View>
               :
@@ -1155,7 +1166,7 @@ class ProductDetails extends Component {
                     name="check-circle" 
                     size={30}  
                     color={'gray'}
-                    onPress = {() => {console.log('setting product status to sold'); this.setSaleTo(true, data.uid, data.key, false)}}
+                    onPress = {() => {this.setSaleTo(true, data.uid, data.key, false)}}
                   />
                 </View> 
             :
