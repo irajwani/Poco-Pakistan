@@ -11,11 +11,11 @@ import { CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_INSTANCE_LOCATOR } from '../cr
 import {material} from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
 
-import { lightGreen, coolBlack, highlightGreen, graphiteGray, treeGreen } from '../colors';
+import { lightGreen, coolBlack, highlightGreen, graphiteGray, treeGreen, profoundPink, rejectRed } from '../colors';
 import {avenirNextText} from '../constructors/avenirNextText'
 
 import NothingHereYet from '../components/NothingHereYet';
-import { LoadingIndicator } from '../localFunctions/visualFunctions';
+import { LoadingIndicator, CustomTouchableO } from '../localFunctions/visualFunctions';
 
 const noChatsText = "You have not initiated any chats 😳. Converse with a seller by choosing to 'Buy' a product from the Marketplace";
 const DaysOfTheWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -49,9 +49,9 @@ class Chats extends Component {
     firebase.database().ref().on('value', (snapshot) => {
       var d = snapshot.val();
       var chats = d.Users[your_uid].conversations ? d.Users[your_uid].conversations : false;
-      chats = Object.values(chats);
+      chats = chats ? Object.values(chats) : false;
       console.log(chats);
-      this.setState({chats, yourUid: your_uid, noChats: !chats ? true : false , isGetting: false});
+      this.setState({chats, yourUid: your_uid, noChats: chats ? true : false , isGetting: false});
     })
   }
 
@@ -314,6 +314,33 @@ class Chats extends Component {
     this.props.navigation.navigate('Notifications')
   }
 
+  handleLongPress = (key) => {
+    const state = {...this.state};
+    state.chats[key].selected = !state.chats[key].selected;
+    // console.log(state.chats[key].selected);
+    this.setState(state);
+    // const chat = state.chats.find( chat => chat.name == key);
+    // state.chats.selected = !state.
+
+    
+  }
+
+  deleteConversation = (chat) => {
+    const {id, buyerIdentification, sellerIdentification} = chat;
+    var buyerRef = '/Users/' + buyerIdentification + '/conversations/' + id + '/';
+    var sellerRef = '/Users/' + sellerIdentification + '/conversations/' + id + '/';
+    let promiseToDeleteBuyerRef = firebase.database().ref(buyerRef).remove();
+    let promiseToDeleteSellerRef = firebase.database().ref(sellerRef).remove();
+    Promise.all([promiseToDeleteBuyerRef, promiseToDeleteSellerRef])
+    .then( ()=>{
+      // console.log('Done deleting conversations for both buyer and seller');
+      setTimeout(() => {
+        this.getChats(this.state.yourUid);
+      }, 500);
+    })
+    .catch( err => console.log(err));
+  }
+
   renderUpperNavTab = () => {
     return (
       <View style={styles.upperNavTab}>
@@ -334,30 +361,47 @@ class Chats extends Component {
 
       return(chats.map( (chat, index) => 
         (
-          
-          <View key={chat.name} style={styles.specificChatContainer}>
+         <TouchableOpacity key={index} style={styles.specificChatExpandedContainer}
+         
+         >
 
-            <TouchableOpacity onPress={() => this.navToChat(chat)} style={styles.pictureContainer}>
+          <View  style={styles.specificChatContainer}>
+
+            <TouchableOpacity onLongPress={() => this.handleLongPress(index)} onPress={() => this.navToChat(chat)} style={styles.pictureContainer}>
               <Image 
               source={this.state.yourUid == chat.sellerIdentification ? chat.buyerAvatar ? {uri: chat.buyerAvatar } : require('../images/blank.jpg') : chat.sellerAvatar ? {uri: chat.sellerAvatar } : require('../images/blank.jpg')   } 
               style={[styles.picture, {borderRadius: 37}]} />
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => this.navToChat(chat)} style={styles.textContainer}>
+            <TouchableOpacity onLongPress={() => this.handleLongPress(index)} onPress={() => this.navToChat(chat)} style={styles.textContainer}>
               <Text style={styles.otherPersonName}>{this.state.yourUid == chat.sellerIdentification ? (chat.buyer.split(' '))[0] : (chat.seller.split(' '))[0] }</Text>
-              <Text style={styles.lastMessageText}>{this.state.yourUid == chat.sellerIdentification ? (chat.buyer.split(' '))[0] : (chat.seller.split(' '))[0]}: {chat.lastMessageText}</Text>
-              <Text style={styles.lastMessageDate}>{DaysOfTheWeek[chat.lastMessageDate]}</Text>
+              <Text style={styles.lastMessageText}>{chat.lastMessage.lastMessageText ? this.state.yourUid == chat.sellerIdentification ? `${(chat.buyer.split(' '))[0]}: ${chat.lastMessage.lastMessageText}` : `${(chat.seller.split(' '))[0]}: ${chat.lastMessage.lastMessageText}` : "Empty conversation"}</Text>
+              <Text style={styles.lastMessageDate}>{DaysOfTheWeek[chat.lastMessage.lastMessageDate]}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => this.navToChat(chat)} style={styles.pictureContainer}>
+            <TouchableOpacity onLongPress={() => this.handleLongPress(index)} onPress={() => this.navToChat(chat)} style={styles.pictureContainer}>
               <Image source={ {uri: chat.productImageURL }} 
               style={styles.picture} />
             </TouchableOpacity>
 
-
-
-
           </View>
+
+          {chat.selected ? 
+              
+            <CustomTouchableO extraStyles={styles.deleteConversationButton} color={rejectRed} text={"Delete Conversation"} textSize={22} textColor={'#fff'} 
+              onPress={() => this.deleteConversation(chat)} 
+              disabled={false} 
+            />
+            
+          :
+            null
+          }
+
+         </TouchableOpacity>
+
+          
+
+         
           
         )
       ))
@@ -410,32 +454,34 @@ class Chats extends Component {
       )
     }
 
-    if(this.state.noChats) {
+    if(this.state.chats == false) {
       return (
         <View style={styles.container}>
           {this.renderUpperNavTab()}
 
-          <View style={styles.screen}>
+          <View style={[styles.screen, {padding: 10, }]}>
             <NothingHereYet specificText={noChatsText} />
           </View>
         </View>
       )
     }
+    else {
+      return (
+        <View style={styles.container}>
+  
+          {this.renderUpperNavTab()}
+  
+          <ScrollView
+            style={styles.screen} 
+            contentContainerStyle={styles.cc}
+          >
+                
+            {this.renderChats(chats)}
+          </ScrollView>
+        </View>
+      )
+    }
     
-    return (
-      <View style={styles.container}>
-
-        {this.renderUpperNavTab()}
-
-        <ScrollView
-          style={styles.screen} 
-          contentContainerStyle={styles.cc}
-        >
-              
-          {this.renderChats(chats)}
-        </ScrollView>
-      </View>
-    )
   }
 }
 
@@ -476,9 +522,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6, alignItems: 'center'
   },
 
+  specificChatExpandedContainer: {
+    flexDirection: 'column',
+  },
+
   specificChatContainer: {
     flexDirection: 'row', paddingVertical: 6, paddingHorizontal: 0,
-    borderBottomColor: graphiteGray, borderBottomWidth: 0.6
+    borderBottomColor: graphiteGray, borderBottomWidth: 0.6,
+    width: width - 8,
+
   },
 
   pictureContainer: {
@@ -501,16 +553,30 @@ const styles = StyleSheet.create({
 
   lastMessageDate: new avenirNextText(treeGreen, 11, '300'),
 
-  rowContainer: {
+  deleteConversationButtonContainer: {
     flexDirection: 'row',
-    paddingTop: 10,
-    paddingBottom: 10,
-    paddingLeft: 5,
-    paddingRight: 5,
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    backgroundColor: '#fff'
+    borderBottomColor: graphiteGray,
+    borderBottomWidth: 0.5,
+
   },
+
+  deleteConversationButton: {
+    padding: 10,
+    alignItems: 'center'
+    // position: 'absolute'
+  },
+
+
+  // rowContainer: {
+  //   flexDirection: 'row',
+  //   paddingTop: 10,
+  //   paddingBottom: 10,
+  //   paddingLeft: 5,
+  //   paddingRight: 5,
+  //   justifyContent: 'space-evenly',
+  //   alignItems: 'center',
+  //   backgroundColor: '#fff'
+  // },
   membersRow: {
     flexDirection: 'row',
     justifyContent: 'flex-start',

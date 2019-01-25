@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
 
     commentContainer: {
         
-    flexDirection: 'column',
+        flexDirection: 'column',
     // backgroundColor: 'blue'
     },
 

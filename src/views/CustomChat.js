@@ -170,7 +170,7 @@ class CustomChat extends Component {
         avatar: avatarURL,
       }
     };
-    // this.updateLastMessageInCloud(incomingMessage, buyerIdentification, sellerIdentification);
+    this.updateLastMessageInCloud(incomingMessage, buyerIdentification, sellerIdentification, String(incomingMessage._id) );
     this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, incomingMessage),
     }));
@@ -184,17 +184,28 @@ class CustomChat extends Component {
     });
     this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, message),
-    }));
-    console.log(message);
+    }), () => {
+      const {params} = this.props.navigation.state;
+      const buyerIdentification = params.buyerIdentification;
+      const sellerIdentification = params.sellerIdentification;
+      
+      this.updateLastMessageInCloud(message, buyerIdentification, sellerIdentification, id);
+    });
+    // console.log(message);
     
   }
 
-  updateLastMessageInCloud = (msg, buyerIdentification, sellerIdentification) => {
-    //for both participants, update the cloud with most recent message
+  updateLastMessageInCloud = (msg, buyerIdentification, sellerIdentification, roomId) => {
+    //for both participants, update the cloud with most recent message for each roomId
+    var lastMessageObj = {
+      lastMessageText: msg.text,
+      lastMessageDate: msg.createdAt.getDay(),
+      lastMessageSenderIdentification: msg.user._id,
+    }
     var updates = {};
-    updates['Users/' + buyerIdentification + '/lastMessage/'] = msg;
+    updates['Users/' + buyerIdentification + '/conversations/' + roomId + '/lastMessage/'] = lastMessageObj;
     firebase.database().ref().update(updates);
-    updates['Users/' + sellerIdentification + '/lastMessage/' ] = msg;
+    updates['Users/' + sellerIdentification + '/conversations/' + roomId + '/lastMessage/' ] = lastMessageObj;
     firebase.database().ref().update(updates);
   }
 
@@ -219,8 +230,8 @@ class CustomChat extends Component {
     var chattingWithPersonIdentification = params.buyerIdentification && params.sellerIdentification ? sellerIdentification == CHATKIT_USER_NAME ? buyerIdentification : sellerIdentification : false
     var chattingWithPersonNamed = buyer && seller ? sellerIdentification == CHATKIT_USER_NAME ? buyer : seller : false
     var chattingWithPersonThatLooksLike = buyer && seller ? sellerIdentification == CHATKIT_USER_NAME ? buyerAvatar : sellerAvatar : false
-
-    console.log(this.state.messages);
+    console.log(chattingWithPersonNamed);
+    // console.log(this.state.messages);
 
     if(this.state.isGetting) {
       return (

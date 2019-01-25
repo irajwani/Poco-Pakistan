@@ -144,7 +144,7 @@ class CreateProfile extends Component {
 //   }
 
   updateFirebase(data, uri, mime = 'image/jpg', uid) {
-    
+    //TODO: size shouldn't be here
     var updates = {};
     var updateEmptyProducts = {};
     switch(data.size) {

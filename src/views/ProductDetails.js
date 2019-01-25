@@ -79,6 +79,7 @@ class ProductDetails extends Component {
     super(props);
     this.state = {
       isGetting: true,
+      cloudDatabaseUsers: false,
       profile: {
         name: '',
         email: '',
@@ -126,6 +127,8 @@ class ProductDetails extends Component {
   getUserAndProductAndOtherUserData(data) {
     firebase.database().ref().once("value", (snapshot) => {
       var d = snapshot.val();
+      var cloudDatabaseUsers = d.Users;
+
       const uid = firebase.auth().currentUser.uid;
       const otherUserUid = data.uid;
 
@@ -138,6 +141,9 @@ class ProductDetails extends Component {
       var chats = d.Users[uid].conversations ? d.Users[uid].conversations : false;
       chats ? chats = Object.values(chats) : null;
       var chat = chats ? chats.find( (chat) => {return chat.name == `${data.key}.${uid}`} ) : false;
+      //In case, the conversation for this particular product between these particular buyers and sellers
+      //has not begun yet, we move on.
+      chat = chat == undefined ? undefined : null
       // console.log(chat);
       //get keys of current user's products
       // var productKeys = d.Users[uid].products ? Object.keys(d.Users[uid].products) : [];
@@ -191,6 +197,7 @@ class ProductDetails extends Component {
       //   null
       // console.log(addresses, typeof addresses);
       this.setState( {
+        cloudDatabaseUsers,
         yourProfile, uid, otherUserUid, profile, productComments, addresses,
         price: data.text.price, name: data.text.name, sku: data.key, description: data.text.description.replace(/ +/g, " ").substring(0,124),
         chat
@@ -236,7 +243,12 @@ class ProductDetails extends Component {
     //if you posted this product yourself, then buying it is trivial,
     //and you should see a modal saying 'you own this product already'
     this.setState({navToChatLoading: true});
-    const {productSellerId, id, buyer, seller, buyerAvatar, sellerAvatar, buyerIdentification, sellerIdentification} = this.state.chat;
+    
+    if(this.state.chat) {
+      const {productSellerId, id, buyer, seller, buyerAvatar, sellerAvatar, buyerIdentification, sellerIdentification} = this.state;
+    }
+    
+    
     // console.log(key);
     //create separate Chats branch
     const CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
@@ -290,9 +302,37 @@ class ProductDetails extends Component {
           addUserIds: [uid]
         })
         .then(room => {
+
+          // var {cloudDatabaseUsers} = this.state;
+          var lastMessageText = false, lastMessageSenderIdentification = false, lastMessageDate = false;
+          // var buyerIdentification = CHATKIT_USER_NAME;
+          // var buyer = cloudDatabaseUsers[buyerIdentification].profile.name;
+          // var buyerAvatar = cloudDatabaseUsers[buyerIdentification].profile.uri;
+          // var sellerIdentification = uid;
+          // var seller = cloudDatabaseUsers[sellerIdentification].profile.name;
+          // var sellerAvatar = cloudDatabaseUsers[sellerIdentification].profile.uri;
+          // var productIdentification = room.name.split(".")[0];
+          // var productImageURL = cloudDatabaseUsers[sellerIdentification].products[productIdentification].uris[0]
+
+          var newConversationUpdate = {};
+          var newConversation = { 
+                  productSellerId: uid, productImageURL: this.props.navigation.state.params.data.uris[0], 
+                  createdByUserId: CHATKIT_USER_NAME, name: room.name, id: room.id, 
+                  buyerIdentification: CHATKIT_USER_NAME, sellerIdentification: uid,
+                  seller: this.state.profile.name, sellerAvatar: this.state.profile.uri, 
+                  buyer: this.state.yourProfile.name, buyerAvatar: this.state.yourProfile.uri,
+                  lastMessage: {lastMessageText, lastMessageDate, lastMessageSenderIdentification},
+                };
+          newConversationUpdate['/Users/' + CHATKIT_USER_NAME + '/conversations/' + room.id + '/'] = newConversation; 
+          firebase.database().ref().update(newConversationUpdate);
+          
+          newConversationUpdate['/Users/' + uid + '/conversations/' + room.id + '/'] = newConversation; 
+          firebase.database().ref().update(newConversationUpdate);
           console.log(`Created room called ${room.name}`)
           this.setState({navToChatLoading: false});
-          this.props.navigation.navigate( 'CustomChat', {id: this.findRoomId(this.currentUser.rooms, desiredRoomsName)} )
+          //TODO: next line is untested
+          this.props.navigation.navigate('CustomChat', {productSellerId: this.state.otherUserUid, id: room.id, buyer: this.state.yourProfile.name, buyerAvatar: this.state.yourProfile.uri, seller: this.state.profile.name, sellerAvatar: this.state.profile.uri, buyerIdentification: this.state.uid, sellerIdentification: this.state.otherUserUid })
+          // this.props.navigation.navigate( 'CustomChat', {id: this.findRoomId(this.currentUser.rooms, desiredRoomsName)} )
         })
         .catch(err => {
           console.log(`Error creating room ${err}`)

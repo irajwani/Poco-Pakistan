@@ -110,12 +110,147 @@ exports.updateOldUser = functions.database.ref('/Users/{uid}/{profile}/uri').onW
 // )
 
 //FUNCTION NUMBAH 4
-exports.populateConversations = functions.database.ref('Users/{uid}/lastMessage/').onWrite(
+//TODO: need to add another wildcard of room Id
+exports.populateConversations = functions.database.ref('Users/{uid}/lastMessage/{roomId}/').onWrite(
     (snapshot, context) => {
         var lastMessage = snapshot.after.val();
-        console.log(lastMessage);
-    }
+        var roomId = context.params.uid;
+        var uid = context.params.uid;
+        console.log(lastMessage, uid);
+        admin.database().ref().once("value", (snapshot) => {
+            var d = snapshot.val();
+            chatkit.getRoomMessages({
+                roomId: roomId,
+                direction: "newer",
+                limit: 1
+            })
+            .then( (roomMessages) => {
+                console.log(roomMessages);
+                // var lastMessageText = false, lastMessageSenderIdentification = false, lastMessageDate = false;
+                // if(roomMessages.length > 0) {
+                //   lastMessageText = (roomMessages['0'].text).substr(0,40);
+                //   lastMessageDate = new Date(roomMessages['0'].updated_at).getDay();
+                //   lastMessageSenderIdentification = roomMessages['0'].user_id;
+                // }
+                // var buyerIdentification = room.created_by_id;
+                // var buyer = d.Users[buyerIdentification].profile.name;
+                // var buyerAvatar = d.Users[buyerIdentification].profile.uri;
+                // var sellerIdentification = room.member_user_ids.filter( (id) => id !== buyerIdentification )[0];
+                // var seller = d.Users[sellerIdentification].profile.name;
+                // var sellerAvatar = d.Users[sellerIdentification].profile.uri;
+                // var productIdentification = room.name.split(".")[0];
+                // var productImageURL = d.Users[sellerIdentification].products[productIdentification].uris[0]
+                // var obj = { 
+                //   productSellerId: sellerIdentification, productImageURL: productImageURL, 
+                //   createdByUserId: buyerIdentification, name: room.name, id: room.id, 
+                //   buyerIdentification, sellerIdentification,
+                //   seller: seller, sellerAvatar: sellerAvatar, 
+                //   buyer: buyer, buyerAvatar: buyerAvatar,
+                //   lastMessageText, lastMessageDate, lastMessageSenderIdentification
+                // };
+                // var updates = {};
+                // updates['Users/' + buyerIdentification + '/conversations/' + room.id + '/' ] = obj
+                // admin.database().ref().update(updates);
+                // updates['Users/' + sellerIdentification + '/conversations/' + room.id + '/' ] = obj
+                // admin.database().ref().update(updates);
+                return null
+            })
+            .catch( (e) => console.log(e));
+            // return null
+         } )
+        
+        }
 )
+        
+
+
+
+        // admin.database().ref().once("value", (snapshot) => {
+        //     var d = snapshot.val();
+        //     var users = Object.keys(d.Users);
+        //     //TODO: remove the nested promises by getting all require properties with one chatkit.someMethod
+        //     users.forEach((user_id) => {
+        //         chatkit.getUserRooms({
+        //           userId: user_id,
+        //         })
+        //           .then((rooms) => {
+          
+        //             if(rooms.length < 1) {
+        //               console.log('user does not have rooms');
+        //             }
+          
+        //             else {
+        //               rooms.forEach( (room, index) => {
+        //                 if(!index) {
+        //                   console.log('skipping Users Room')
+        //                 }
+        //                 else {
+            
+        //                   chatkit.getRoomMessages({
+        //                     roomId: room.id,
+        //                     direction: "newer",
+        //                     limit: 1
+        //                   })
+        //                   .then( (roomMessages) => {
+        //                     var lastMessageText = false, lastMessageSenderIdentification = false, lastMessageDate = false;
+        //                     if(roomMessages.length > 0) {
+        //                       lastMessageText = (roomMessages['0'].text).substr(0,40);
+        //                       lastMessageDate = new Date(roomMessages['0'].updated_at).getDay();
+        //                       lastMessageSenderIdentification = roomMessages['0'].user_id;
+        //                     }
+        //                     var buyerIdentification = room.created_by_id;
+        //                     var buyer = d.Users[buyerIdentification].profile.name;
+        //                     var buyerAvatar = d.Users[buyerIdentification].profile.uri;
+        //                     var sellerIdentification = room.member_user_ids.filter( (id) => id !== buyerIdentification )[0];
+        //                     var seller = d.Users[sellerIdentification].profile.name;
+        //                     var sellerAvatar = d.Users[sellerIdentification].profile.uri;
+        //                     var productIdentification = room.name.split(".")[0];
+        //                     var productImageURL = d.Users[sellerIdentification].products[productIdentification].uris[0]
+        //                     var obj = { 
+        //                       productSellerId: sellerIdentification, productImageURL: productImageURL, 
+        //                       createdByUserId: buyerIdentification, name: room.name, id: room.id, 
+        //                       buyerIdentification, sellerIdentification,
+        //                       seller: seller, sellerAvatar: sellerAvatar, 
+        //                       buyer: buyer, buyerAvatar: buyerAvatar,
+        //                       lastMessageText, lastMessageDate, lastMessageSenderIdentification
+        //                     };
+        //                     var updates = {};
+        //                     updates['Users/' + buyerIdentification + '/conversations/' + room.id + '/' ] = obj
+        //                     admin.database().ref().update(updates);
+        //                     updates['Users/' + sellerIdentification + '/conversations/' + room.id + '/' ] = obj
+        //                     admin.database().ref().update(updates);
+        //                     return null;
+        //                   })
+        //                   .catch( err => {
+        //                       console.log(err);
+        //                       return null
+        //                   } )
+            
+                          
+            
+        //                 }
+                        
+                        
+        //               }
+            
+        //               )
+        //             }
+                    
+                    
+          
+          
+        //             return null;
+        //             // console.log(rooms);
+        //           })
+        //           .catch((err) => {
+        //             console.error(err);
+        //           });
+        //       } )
+        //     return null;
+        // })
+        // return null;
+
+
 
 //FUNCTION NUMBAH 5 ?
 exports.updateProducts = functions.database.ref('Users/{uid}/{products}').onWrite(

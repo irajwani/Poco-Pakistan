@@ -85,7 +85,7 @@ class Notifications extends Component {
       return (
         <View style={styles.container}>
           {this.renderUpperNavTab()}
-          <View style={{flex: 0.85}}>
+          <View style={{flex: 0.85, padding: 10}}>
             <NothingHereYet specificText={noNotificationsText}/>
           </View>
           
