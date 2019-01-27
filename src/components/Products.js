@@ -17,7 +17,7 @@ import * as Animatable from 'react-native-animatable';
 
 // import PushNotification from 'react-native-push-notification';
 // import { PacmanIndicator } from 'react-native-indicators';
-import { graphiteGray, lightGreen, rejectRed, treeGreen, avenirNext, optionLabelBlue, almostWhite, flashOrange, lightGray, highlightGreen, lightBlack } from '../colors.js';
+import { graphiteGray, lightGreen, rejectRed, treeGreen, avenirNext, optionLabelBlue, almostWhite, flashOrange, lightGray, highlightGreen, lightBlack, darkGreen } from '../colors.js';
 
 // import { splitArrayIntoArraysOfSuccessiveElements } from '../localFunctions/arrayFunctions';
 
@@ -30,10 +30,10 @@ const emptyMarketText = "Wow, such empty..."
 const noProductsOfYourOwnText = "So far, you have not uploaded any items on the marketplace.\nTo make some cash 🤑 and free up closet space, upload an article of clothing on the Market\nfrom the 'Sell' screen.";
 const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace 💔.";
 const noResultsFromSearchText = "Your search does not match the description of any product on the marketplace 🙁.";
-const emptyMarketDueToSearchCriteriaText = noResultsFromSearchText;
-const noResultsFromSearchForSpecificCategoryText = "Your search does not match the description of any product for this specific category 🙁.";
+// const emptyMarketDueToSearchCriteriaText = noResultsFromSearchText;
+// const noResultsFromSearchForSpecificCategoryText = "Your search does not match the description of any product for this specific category 🙁.";
 
-const timeToRefresh = 2000;
+const timeToRefresh = 500;
 var {height, width} = Dimensions.get('window');
 
 
@@ -77,14 +77,20 @@ function onlyUnique(value, index, self) {
   return self.indexOf(value) === index;
 }
 
-function extractValuesFrom(arr) {
-  var values = [];
-  arr.forEach( (obj, index, array) => {
-    values.push(obj.value)
-    console.log(values)
-  } )
-  return values;
+function removeDuplicates(myArr, prop) {
+  return myArr.filter((obj, pos, arr) => {
+      return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+  });
 }
+
+// function extractValuesFrom(arr) {
+//   var values = [];
+//   arr.forEach( (obj, index, array) => {
+//     values.push(obj.value)
+//     console.log(values)
+//   } )
+//   return values;
+// }
 const mensUpperWear = ["XS / 30-32", "S / 34-36", "M / 38-40", "L / 42-44", "XL / 46", "XXL / 48", "XXXL / 50", "4XL / 52", "5XL / 54", "6XL / 56", "7XL / 58", "8XL / 60"];
 const mensFootWear = ["5 / 6", "6 / 7", "6.5 / 7.5", "7 / 8", "7.5 / 8.5", "8 / 9", "8.5 / 9.5", "9 / 10", "9.5 / 10.5", "10 / 11", "10.5 / 11.5", "11 / 12", "12 / 13", "13 / 14", "14 / 15", "15 / 16"];
 const womenUpperWear = ["XXS / 2 / 00","2 / 00 petite", "XXS / 4 / 0", "4 / 0 petite", "XS / 6 / 2","6 / 2 petite", "S / 8 / 4", "8 / 4 petite", "S / 10 / 6", "10 / 6 petite", "M / 12 / 8", "12 / 8 petite", "M / 14 / 10", "14 / 10 petite", "L / 16 / 12", "16 / 12 petite", "L / 18 / 14", "18 / 14 petite", "1X / 20 / 16", "20 / 16 petite", "1X / 22 / 18", "22 / 18 petite", "2X / 24 / 20", "24 / 20 petite", "3X / 26 / 22", "26 / 22 petite", "3X / 28 / 24", "28 / 24 petite", "4X / 30 / 26", "30 / 26 petite", "One size"];
@@ -132,7 +138,8 @@ class Products extends Component {
   constructor(props) {
       super(props);
       this.state = {
-
+        uid: firebase.auth().currentUser.uid,
+        isGetting: true,
         //Products Stuff
         leftDS: new ListView.DataSource({
           rowHasChanged: (r1, r2) => r1 !== r2
@@ -141,14 +148,20 @@ class Products extends Component {
           rowHasChanged: (r1, r2) => r1 !== r2
         }),
 
-        leftProducts: undefined,
-        rightProducts: undefined,
-        noProducts: false,
-        emptyMarketDueToSearchCriteria: false,
+        leftProducts: false,
+        rightProducts: false,
+        
         emptyMarket: false,
+        noResultsFromFilter: false,
+
+        emptyMarketDueToSearchCriteria: false,
+        noProducts: false,
         emptyCollection: false,
         refreshing: false,
-        isGetting: true,
+
+
+
+        
 
         ////Filter Modal Stuff
         searchTerm: '',
@@ -174,16 +187,27 @@ class Products extends Component {
       //this.navToChat = this.navToChat.bind(this);
   }
 
-  componentWillMount() {
+
+  componentDidMount = ()=> {
+    
     setTimeout(() => {
-      // console.log('Mounting Products Component')
-      //TODO: Maybe this function is being called too many times which leads to way too many notifications?
-      // this.initializePushNotifications();
-    }, 1000);
-    setTimeout(() => {
-      this.getPageSpecificProducts([]);
+      this.getMarketPlace(this.state.uid)
     }, 100);
   }
+
+  // componentWillMount() {
+  //   // setTimeout(() => {
+  //   //   // console.log('Mounting Products Component')
+  //   //   //TODO: Maybe this function is being called too many times which leads to way too many notifications?
+  //   //   // this.initializePushNotifications();
+  //   // }, 1000);
+  //   setTimeout(() => {
+  //     this.getPageSpecificProducts();
+  //     // setInterval(() => {
+  //     //   this.getPageSpecificProducts();
+  //     // }, 5000);
+  //   }, 100);
+  // }
 
   // componentDidMount() {
   //   this.dataRetrievalTimerId = setInterval( 
@@ -268,12 +292,139 @@ class Products extends Component {
   //   }
   // }
 
+  getMarketPlace = (uid) => {
+    //here uid refers to currentUser UID
+    this.setState({isGetting: true});
+    firebase.database().ref().on('value', (snapshot) => {
+      var {Products, Users} = snapshot.val();
+      console.log(Products);
+      if(Products.length < 1) {
+        this.setState({isGetting: false, emptyMarket: true});
+      }
+      else {
+        const {showCollection, showYourProducts} = this.props;
+        var emptyMarket = false;
+        var productKeys = false, collectionKeys = false;
+
+        if(Users[uid].products) {
+          productKeys = Object.keys(Users[uid].products)
+        }
+
+        if(Users[uid].collection) {
+          var collectionKeys = removeKeysWithFalsyValuesFrom(Users[uid].collection);
+        }
+        
+        if(showYourProducts) {
+          Products = Products.filter((product) => productKeys.includes(product.key) );
+          Products.length > 0 ? null : emptyMarket = true;
+          // this.setState({isGetting: false, noProducts: true, productKeys})
+        }
+
+        else if(showCollection) {
+          Products = Products.filter((product) => collectionKeys.includes(product.key) );
+          Products.length > 0 ? null : emptyMarket = true;          
+        }
+        // else {
+        //     // console.log('do nothing')
+        // }
+        if(!emptyMarket) {
+          //Final Level is to sort the products in descending order of the number of likes & assign each index its boolean to handle collapsed or uncollapsed state
+          Products = Products.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
+          // console.log('after sort ' + all)
+          // var test;
+          // test = 
+          // console.log(test);
+          Products.forEach((product) => {
+            product['isActive'] = false  //boolean for rowData UI expansion
+          })
+          // console.log('before split: ' + all);
+          // var {leftProducts, rightProducts} = splitArrayIntoArraysOfSuccessiveElements(all);
+          var leftProducts = Products.filter( (e, index) => index % 2 == 0);
+          var rightProducts = Products.filter( (e, index) => index % 2 != 0);
+
+          //Second Level is to extract list of information to be displayed in the filterModal
+          //first extract the list of current brands:
+          var brands = [];
+          var typesForCategory = {Men: [], Women: [], Accessories: []};
+          var conditions = [{name: "New With Tags", selected: false}, {name: "New Without Tags", selected: false}, {name: "Slightly Used", selected: false}, {name: "Used", selected: false}]
+
+          //Now because there's a fixed number of values of SIZE for each TYPE, 
+          //just generate the sizes based on the type selected by the person when they tap the category
+          //and for CONDITION We're good because there's only 4 values that apply to any type of product
+          // var sizesForType = {}
+
+          // var types = ['Formal Shirts', 'Casual Shirts', 'Jackets', 'Suits', 'Trousers', 'Jeans', 'Shoes', 'Watches', 'Bracelets', 'Jewellery', 'Sunglasses', 'Handbags', 'Tops', 'Skirts', 'Dresses', 'Coats'];
+          // var sizes = ['Extra Small', 'Small', 'Medium', 'Large', 'Extra Large', 'Extra Extra Large'];
+
+          Products.forEach((product)=> {
+            brands.push({name: product.text.brand, selected: false});
+            switch(product.text.gender) {
+              case "Men":
+                typesForCategory.Men.push({name: product.text.type, selected: false});
+                break;
+              case "Women":
+                typesForCategory.Women.push({name: product.text.type, selected: false});
+                break;
+              case "Accessories":
+                typesForCategory.Accessories.push({name: product.text.type, selected: false});
+                break;  
+              default: 
+                break;
+            }
+
+          })
+          // console.log(typesForCategory)
+
+          // brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ) 
+          brands = removeDuplicates(brands, "name");
+          typesForCategory.Men = removeDuplicates(typesForCategory['Men'], "name");
+          typesForCategory.Women = removeDuplicates(typesForCategory['Women'], "name");
+          typesForCategory.Accessories = removeDuplicates(typesForCategory['Accessories'], "name");
+
+          console.log(brands, typesForCategory);
+
+          var name = Users[uid].profile.name;
+
+          this.setState({emptyMarket, collectionKeys, productKeys, leftProducts, rightProducts, typesForCategory, brands, conditions, name, isGetting: false, });
+
+        }
+
+        else {
+          this.setState({isGetting: false, emptyMarket: true});
+        }
+
+        
+        
+      }
+
+
+
+    })
+  }
+
+
+  filterMarketPlace = () => {
+    this.setState({isGetting: true});
+    const {...state} = this.state;
+    const {selectedBrands, selectedCategory, selectedType, selectedConditions} = state;
+
+    state.leftProducts = selectedBrands.length > 0 ? state.leftProducts.filter( (product) => selectedBrands.includes(product.text.brand)) : state.leftProducts;
+    state.leftProducts = selectedType ? state.leftProducts.filter( (product) => selectedType == product.text.type && selectedCategory == product.text.gender) : state.leftProducts;
+    state.leftProducts = selectedConditions.length > 0 ? state.leftProducts.filter( (product) => selectedConditions.includes(product.text.condition)) : state.leftProducts;
+
+    state.rightProducts = selectedBrands.length > 0 ? state.rightProducts.filter( (product) => selectedBrands.includes(product.text.brand)) : state.rightProducts;
+    state.rightProducts = selectedType ? state.rightProducts.filter( (product) => selectedType == product.text.type && selectedCategory == product.text.gender) : state.rightProducts;
+    state.rightProducts = selectedConditions.length > 0 ? state.rightProducts.filter( (product) => selectedConditions.includes(product.text.condition)) : state.rightProducts;
+
+    this.setState(state);
+  }
+
 
   getPageSpecificProducts = () => {
     this.setState({isGetting: true});
     var {selectedBrands, selectedCategory, selectedType, selectedConditions} = this.state;
     // const keys = [];
-    firebase.database().ref().on("value", (snapshot) => {
+    firebase.database().ref().once("value", (snapshot) => {
       var d = snapshot.val();
       // console.log('retrieving array of products')
       //Only pull the products that are in this user's collection for the WishList tab.
@@ -290,6 +441,7 @@ class Products extends Component {
       var collectionKeys = removeKeysWithFalsyValuesFrom(rawCollection);
       var emptyCollection = false;
       if(collectionKeys.length == 0) {emptyCollection = true}    
+      console.log('Empty Collection Status: ' + emptyCollection);
       var all = d.Products ? d.Products : [];
 
       // var emptyMarket = all.length > 0 ? false : true;
@@ -359,7 +511,7 @@ class Products extends Component {
 
           })
           // console.log(typesForCategory)
-          //TODO: problematic search? right now results are strings that include your searched for string
+          
           // brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ) 
           brands = brands.filter(onlyUnique);
           typesForCategory.Men = typesForCategory['Men'].filter(onlyUnique);
@@ -375,10 +527,7 @@ class Products extends Component {
           all = selectedConditions.length > 0 ? all.filter( (product) => selectedConditions.includes(product.text.condition)) : all;
           // all = selectedSizes.length > 0 ? all.filter( (product) => selectedSizes.includes(product.text.size)) : all;
 
-          //After all this filtering, it could be the case that no results match your criteria,
-          //TODO: Firstly, shouldnt this check occur multiple times throughout the code, so maybe a while loop, and secondly, shouldn't we break this function call before it starts trying to perform operations on an empty or undefined variable 
-          
-          
+          //TODO: After all this filtering, it could be the case that no results match your criteria
 
           //Final Level is to sort the products in descending order of the number of likes & assign each index its boolean to handle collapsed or uncollapsed state
           all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
@@ -417,6 +566,14 @@ class Products extends Component {
 
       else {
         this.setState({isGetting: false, emptyMarketDueToSearchCriteria: true})
+        // if(this.props.showCollection == true) {
+        //   this.setState({isGetting: false})
+        // }
+
+        // else {
+        //   this.setState({isGetting: false, emptyMarketDueToSearchCriteria: true})
+        // }
+        
       }
 
     }) 
@@ -430,6 +587,7 @@ class Products extends Component {
   }
    
   incrementLikes(likes, uid, key) {
+    //here uid refers to uid of seller so the number of likes for their product may be affected
     //func applies to scenario when heart icon is gray
     //add like to product, and add this product to user's collection; if already in collection, modal shows user
     //theyve already liked the product
@@ -442,7 +600,7 @@ class Products extends Component {
       } 
       else {
         var userCollectionUpdates = {};
-        userCollectionUpdates['/Users/' + firebase.auth().currentUser.uid + '/collection/' + key + '/'] = true;
+        userCollectionUpdates['/Users/' + this.state.uid + '/collection/' + key + '/'] = true;
         firebase.database().ref().update(userCollectionUpdates);
         //since we don't want the user to add another like to the product,
         //tack on his unique contribution to the seller's product's total number of likes
@@ -453,10 +611,11 @@ class Products extends Component {
         firebase.database().ref().update(updates);
         //locally reflect the updated number of likes and updated collection of the user,
         // by re-pulling data from the cloud
+        // setTimeout(() => {
+        //   this.getPageSpecificProducts();  
+        // }, timeToRefresh);
+        this.getMarketPlace(this.state.uid);
         alert("This product has been added to your WishList 💕.");
-        setTimeout(() => {
-          this.getPageSpecificProducts([]);  
-        }, timeToRefresh);
         
 
         ////
@@ -504,10 +663,12 @@ class Products extends Component {
     var postData = likes;
     updates['/Users/' + uid + '/products/' + key + '/likes/'] = postData;
     firebase.database().ref().update(updates);
+    this.getMarketPlace(this.state.uid);
+    // this.getPageSpecificProducts();
     alert("This product has been removed from your WishList 💔.");
-    setTimeout(() => {
-      this.getPageSpecificProducts([]);  
-    }, timeToRefresh);
+    // setTimeout(() => {
+    //   this.getPageSpecificProducts([]);  
+    // }, timeToRefresh);
     //locally reflect the updated number of likes and updated collection of the user,
 
     /////////
@@ -708,7 +869,7 @@ class Products extends Component {
 
   renderFilterModal = () => {
 
-    var {brands, typesForCategory, conditions, searchTerm, selectedBrands, selectedCategory, selectedConditions} = this.state
+    var {brands, typesForCategory, conditions, searchTerm, selectedBrands, selectedCategory, selectedConditions} = this.state;
     // console.log(brands, searchTerm, selectedBrands);
     brands = brands.filter( (brand) => brand.name.includes(searchTerm) ); 
     // console.log(brands);
@@ -744,7 +905,8 @@ class Products extends Component {
             // let brandsReset = this.state.brands;
             this.state.brands.forEach( (brand) => brand.selected = false);
             this.state.conditions.forEach( (condition) => condition.selected = false);
-            this.setState({brands: this.state.brands, conditions: this.state.conditions, selectedBrands: [], searchTerm: '', selectedCategory: 'Women', selectedType: '', selectedConditions: []})
+            this.setState({brands: this.state.brands, conditions: this.state.conditions, selectedBrands: [], searchTerm: '', selectedCategory: 'Women', selectedType: '', selectedConditions: []});
+            this.filterMarketPlace();
           }}
           style={styles.filterModalHeaderClearText}>
           Reset
@@ -923,7 +1085,7 @@ class Products extends Component {
         
         <View style={styles.filterModalFooter}>
           <Text
-          onPress={()=>{this.getPageSpecificProducts(selectedBrands); this.setState({showFilterModal: false})}}
+          onPress={()=>{this.filterMarketPlace(); this.setState({showFilterModal: false})}}
           style={new avenirNextText(false, 18, "400")}
           >
           APPLY
@@ -940,14 +1102,13 @@ class Products extends Component {
   }
 
   render() {
-    const {showYourProducts, showCollection} = this.props;
-    var {isGetting, noProducts, emptyMarket, emptyMarketDueToSearchCriteria, emptyCollection, rightProducts} = this.state;
-
+    var {showCollection, showYourProducts} = this.props;
+    var {isGetting, emptyMarket, noResultsFromFilter } = this.state;
     if(isGetting) {
       return ( 
         <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
             <View style={{height: 200, justifyContent: 'center', alignContent: 'center'}}>
-              <LoadingIndicator isVisible={isGetting} color={flashOrange} type={'Wordpress'}/>
+              <LoadingIndicator isVisible={isGetting} color={darkGreen} type={'Wordpress'}/>
                 <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: 'black', textAlign: 'center'}}>
                     {loadingStrings[randomIntFromInterval(0,3)]}
                 </Text>
@@ -959,132 +1120,91 @@ class Products extends Component {
 
     else if(emptyMarket) {
       return (
-        <View style={{marginTop: 22, backgroundColor: '#fff', padding: 5}}>
-          <NothingHereYet specificText={emptyMarketText} />
-        </View>
-    )
-    }
-
-    else if(emptyMarketDueToSearchCriteria) {
-      return (
-        <View style={{marginTop: 22, backgroundColor: '#fff', padding: 5}}>
-          <NothingHereYet specificText={emptyMarketDueToSearchCriteriaText} />
-        </View>
-    )
-    }
-
-    else if(emptyMarket && !emptyCollection) {
-      return (
-        <View style={{
-          flexDirection: 'column',
-          marginTop: 22,
-          height: height/2.2,
-          backgroundColor: lightGreen
-        }}
-        >
-            <NothingHereYet specificText={noResultsFromSearchText}/>
-            {/* {this.renderFilterModal()} */}
-            <View style={styles.filterButtonContainerNoMarket}>
-              <Button  
-                  buttonStyle={styles.filterButtonStyleNoMarket}
-                  icon={{name: 'filter', type: 'material-community'}}
-                  title='Filter'
-                  onPress={() => this.setState({ showFilterModal: true }) } 
-              />
-            </View>
+        <View style={{marginTop: 22, backgroundColor: '#fff', padding: 10}}>
+          <NothingHereYet specificText={showCollection ? emptyCollectionText : showYourProducts ? noProductsOfYourOwnText : emptyMarketText } />
         </View>
       )
     }
 
-    else if(showCollection && emptyCollection && emptyMarket) {
-        return (
-          <View style={{marginTop: 22, backgroundColor: '#fff', padding: 5}}>
-            <NothingHereYet specificText={emptyCollectionText} />
-          </View>
-      )
-      
-        
+    else if(!emptyMarket && noResultsFromFilter){
+      <View style={{marginTop: 22, backgroundColor: '#fff', padding: 5}}>
+        <NothingHereYet specificText={noResultsFromSearchText} />
+      </View>
     }
 
-    else if(showYourProducts && noProducts) {
-      return (
-        <View style={{marginTop: 22, backgroundColor: '#fff', padding: 5}}>
-          <NothingHereYet specificText={noProductsOfYourOwnText} />
-        </View>
-      )
-    }
-    
     else {
       return (
 
       
-          <View style={styles.container}>
-            <ScrollView
-                  style={{flex: 1}}
-                  contentContainerStyle={styles.contentContainerStyle}
-            >
+        <View style={styles.container}>
+          <ScrollView
+                style={{flex: 1}}
+                contentContainerStyle={styles.contentContainerStyle}
+          >
 
+              <ListView
+                  contentContainerStyle={styles.listOfProducts}
+                  dataSource={this.state.leftDS.cloneWithRows(this.state.leftProducts)}
+                  renderRow={(rowData) => this.renderRow(rowData, () => {
+                      // let photoArray;
+                      // section.isActive = !section.isActive;
+                      
+                      let index = this.state.leftProducts.indexOf(rowData);
+                      this.state.leftProducts[index].isActive = !this.state.leftProducts[index].isActive;
+                      this.setState({leftProducts: this.state.leftProducts});
+                      }
+                  )}
+                  enableEmptySections={true}
+              />
+
+              
+              { this.state.rightProducts?
                 <ListView
-                    contentContainerStyle={styles.listOfProducts}
-                    dataSource={this.state.leftDS.cloneWithRows(this.state.leftProducts)}
-                    renderRow={(rowData) => this.renderRow(rowData, () => {
-                        // let photoArray;
-                        // section.isActive = !section.isActive;
-                        
-                        let index = this.state.leftProducts.indexOf(rowData);
-                        this.state.leftProducts[index].isActive = !this.state.leftProducts[index].isActive;
-                        this.setState({leftProducts: this.state.leftProducts});
-                        }
-                    )}
-                    enableEmptySections={true}
-                />
+                  contentContainerStyle={styles.listOfProducts}
+                  dataSource={this.state.rightDS.cloneWithRows(this.state.rightProducts)}
+                  renderRow={(rowData) => this.renderRow(rowData, () => {
+                      // let photoArray;
+                      // section.isActive = !section.isActive;
+                      let index = this.state.rightProducts.indexOf(rowData);
+                      this.state.rightProducts[index].isActive = !this.state.rightProducts[index].isActive;
+                      this.setState({rightProducts: this.state.rightProducts});
+                  })}
+                  enableEmptySections={true}
+              />
+              :
+              null
+              }
+            {this.renderFilterModal()}
 
-                
-                { this.state.leftProducts?
-                  <ListView
-                    contentContainerStyle={styles.listOfProducts}
-                    dataSource={this.state.rightDS.cloneWithRows(this.state.rightProducts)}
-                    renderRow={(rowData) => this.renderRow(rowData, () => {
-                        // let photoArray;
-                        // section.isActive = !section.isActive;
-                        let index = this.state.rightProducts.indexOf(rowData);
-                        this.state.rightProducts[index].isActive = !this.state.rightProducts[index].isActive;
-                        this.setState({rightProducts: this.state.rightProducts});
-                    })}
-                    enableEmptySections={true}
-                />
-                :
-                null
-                }
-              {this.renderFilterModal()}
+          </ScrollView>
 
-            </ScrollView>
+          <View style={styles.filterButtonContainer}>
 
-            <View style={styles.filterButtonContainer}>
-
-              <TouchableOpacity 
-                onPress={() => this.setState({ showFilterModal: true }) } 
-                style={styles.filterButton}
-              >
-              
-                <Icon 
-                  name="filter-outline" 
-                  size={15} 
-                  color='#fff'
-                />
-              
-              </TouchableOpacity>
-            </View>
-
+            <TouchableOpacity 
+              onPress={() => this.setState({ showFilterModal: true }) } 
+              style={styles.filterButton}
+            >
+            
+              <Icon 
+                name="filter-outline" 
+                size={15} 
+                color='#fff'
+              />
+            
+            </TouchableOpacity>
           </View>
 
-        
+        </View>
+
       
-            
-    )
+    
+          
+      )
+    }
+
+    
   }
-  
-  }
+
 }
 
 
@@ -1575,6 +1695,164 @@ const styles = StyleSheet.create({
   
 
 });
+
+///////////
+///////////
+//OLD RENDER WITH MESSY LOGIC
+//////////
+//////////
+
+// render() {
+//   const {showYourProducts, showCollection} = this.props;
+//   var {isGetting, noProducts, emptyMarket, emptyMarketDueToSearchCriteria, emptyCollection, rightProducts} = this.state;
+
+//   if(isGetting) {
+//     return ( 
+//       <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
+//           <View style={{height: 200, justifyContent: 'center', alignContent: 'center'}}>
+//             <LoadingIndicator isVisible={isGetting} color={flashOrange} type={'Wordpress'}/>
+//               <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: 'black', textAlign: 'center'}}>
+//                   {loadingStrings[randomIntFromInterval(0,3)]}
+//               </Text>
+//           </View>
+          
+//       </View>
+//     )
+//   }
+
+//   else if(emptyMarket) {
+//     return (
+//       <View style={{marginTop: 22, backgroundColor: '#fff', padding: 5}}>
+//         <NothingHereYet specificText={emptyMarketText} />
+//       </View>
+//   )
+//   }
+
+//   else if(emptyMarket && !emptyCollection) {
+//     return (
+//       <View style={{
+//         flexDirection: 'column',
+//         marginTop: 22,
+//         height: height/2.2,
+//         backgroundColor: lightGreen
+//       }}
+//       >
+//           <NothingHereYet specificText={noResultsFromSearchText}/>
+//           {/* {this.renderFilterModal()} */}
+//           <View style={styles.filterButtonContainerNoMarket}>
+//             <Button  
+//                 buttonStyle={styles.filterButtonStyleNoMarket}
+//                 icon={{name: 'filter', type: 'material-community'}}
+//                 title='Filter'
+//                 onPress={() => this.setState({ showFilterModal: true }) } 
+//             />
+//           </View>
+//       </View>
+//     )
+//   }
+
+//   else if(showCollection && emptyCollection && emptyMarket) {
+//       return (
+//         <View style={{marginTop: 22, backgroundColor: '#fff', padding: 5}}>
+//           <NothingHereYet specificText={emptyCollectionText} />
+//         </View>
+//     )
+    
+      
+//   }
+
+//   else if(showYourProducts && noProducts) {
+//     return (
+//       <View style={{marginTop: 22, backgroundColor: '#fff', padding: 5}}>
+//         <NothingHereYet specificText={noProductsOfYourOwnText} />
+//       </View>
+//     )
+//   }
+
+//   // else if(emptyMarketDueToSearchCriteria) {
+//   //   console.log('HERE 2')
+//   //   return (
+//   //     <View style={{marginTop: 22, backgroundColor: '#fff', padding: 5}}>
+//   //       <NothingHereYet specificText={emptyMarketDueToSearchCriteriaText} />
+//   //     </View>
+//   // )
+//   // }
+  
+//   else {
+//     return (
+
+    
+//         <View style={styles.container}>
+//           <ScrollView
+//                 style={{flex: 1}}
+//                 contentContainerStyle={styles.contentContainerStyle}
+//           >
+
+//               <ListView
+//                   contentContainerStyle={styles.listOfProducts}
+//                   dataSource={this.state.leftDS.cloneWithRows(this.state.leftProducts)}
+//                   renderRow={(rowData) => this.renderRow(rowData, () => {
+//                       // let photoArray;
+//                       // section.isActive = !section.isActive;
+                      
+//                       let index = this.state.leftProducts.indexOf(rowData);
+//                       this.state.leftProducts[index].isActive = !this.state.leftProducts[index].isActive;
+//                       this.setState({leftProducts: this.state.leftProducts});
+//                       }
+//                   )}
+//                   enableEmptySections={true}
+//               />
+
+              
+//               { this.state.rightProducts?
+//                 <ListView
+//                   contentContainerStyle={styles.listOfProducts}
+//                   dataSource={this.state.rightDS.cloneWithRows(this.state.rightProducts)}
+//                   renderRow={(rowData) => this.renderRow(rowData, () => {
+//                       // let photoArray;
+//                       // section.isActive = !section.isActive;
+//                       let index = this.state.rightProducts.indexOf(rowData);
+//                       this.state.rightProducts[index].isActive = !this.state.rightProducts[index].isActive;
+//                       this.setState({rightProducts: this.state.rightProducts});
+//                   })}
+//                   enableEmptySections={true}
+//               />
+//               :
+//               null
+//               }
+//             {this.renderFilterModal()}
+
+//           </ScrollView>
+
+//           <View style={styles.filterButtonContainer}>
+
+//             <TouchableOpacity 
+//               onPress={() => this.setState({ showFilterModal: true }) } 
+//               style={styles.filterButton}
+//             >
+            
+//               <Icon 
+//                 name="filter-outline" 
+//                 size={15} 
+//                 color='#fff'
+//               />
+            
+//             </TouchableOpacity>
+//           </View>
+
+//         </View>
+
+      
+    
+          
+//   )
+// }
+
+// }
+
+////////////
+////////////
+///////////
 
 
 // return (

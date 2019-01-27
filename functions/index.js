@@ -26,6 +26,25 @@ function timeSince(date) {
 //  response.send("Hello from Firebase!");
 // });
 
+
+//FUNCTION NUMBAH 0:
+exports.deleteConversation = functions.database.ref('/Users/{uid}/conversations/{roomId}/').onDelete( 
+    (snapshot, context) => {
+    
+    var roomId = context.params.roomId;
+    
+    chatkit.deleteRoom({
+        id: roomId
+    })
+    .then(() => {
+
+        return null
+    })
+    .catch((err) => console.log(`failed to delete room: ${roomId} because of: ${err}`))
+
+    }
+)
+
 //FUNCTION NUMBAH 1 :
 exports.createNewUser = functions.database.ref('/Users/{uid}/profile/').onCreate( 
     (snapshot, context) => {

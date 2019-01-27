@@ -107,6 +107,7 @@ class ProductDetails extends Component {
       name: '',
       description: '',
       paymentStatus: "pending",
+      postOrNah: 'post'
     }
   }
 
@@ -200,7 +201,8 @@ class ProductDetails extends Component {
         cloudDatabaseUsers,
         yourProfile, uid, otherUserUid, profile, productComments, addresses,
         price: data.text.price, name: data.text.name, sku: data.key, description: data.text.description.replace(/ +/g, " ").substring(0,124),
-        chat
+        chat,
+        totalPrice: Number(data.text.price) + Number(data.text.post_price)
       } )
     })
     .then( () => {
@@ -444,8 +446,8 @@ class ProductDetails extends Component {
     // this.setState({isGetting: true});
   }
 
-  proceedToPayment = () => {
-    this.setState({activeScreen: 'paypalModal'});
+  proceedToPayment = (postOrNah) => {
+    this.setState({activeScreen: 'paypalModal', postOrNah: postOrNah});
   }
 
   handleResponse = (data) => {
@@ -676,7 +678,7 @@ class ProductDetails extends Component {
                                 index == 0 ? 
                                   this.navToChat(this.props.navigation.state.params.data.uid, this.props.navigation.state.params.data.key)
                                   : 
-                                  this.proceedToPayment()
+                                  this.proceedToPayment('noPost');
                                 } }
 
                           />
@@ -817,7 +819,7 @@ class ProductDetails extends Component {
           <View style={[styles.collectionInPersonContainer, {flex: 0.15}]}>
 
                 <TouchableOpacity 
-                onPress={this.proceedToPayment} 
+                onPress={() => this.proceedToPayment('post')} 
                 style={[styles.collectionInPersonButton, {width: paymentButtonWidth }]}>
 
                   <View style={styles.collectionInPersonOptionsContainer}>
@@ -950,6 +952,7 @@ class ProductDetails extends Component {
     }
 
     else if(activeScreen == "paypalModal") {
+      var finalPrice = this.state.postOrNah == 'post' ? this.state.totalPrice : this.state.price;
       return (
         <Modal
         animationType={modalAnimationType}
@@ -957,7 +960,7 @@ class ProductDetails extends Component {
         visible={this.state.showPurchaseModal}
         >
           <WebView 
-            source={{uri: paymentUri + `/?price=${this.state.price}&name=${this.state.name}&description=${this.state.description}&sku=${this.state.sku}`}} 
+            source={{uri: paymentUri + `/?price=${finalPrice}&name=${this.state.name}&description=${this.state.description}&sku=${this.state.sku}`}} 
             onNavigationStateChange={data => this.handleResponse(data)}
             injectedJavaScript={`document.f1.submit()`}
           />
@@ -1149,7 +1152,7 @@ class ProductDetails extends Component {
             <View style={styles.actionIconContainer}>
               <Icon
                 name='message-text-outline'
-                size={35}
+                size={38}
                 color={chatIcon.color}
                 onPress = { () => { 
                     // console.log('going to chat');
@@ -1163,7 +1166,7 @@ class ProductDetails extends Component {
                 style={styles.purchaseButton}
                 onPress={() => {this.setState({showPurchaseModal: true})}} 
               >
-                <Text style={new avenirNextText("#fff",15,"300")}>Buy</Text>
+                <Text style={new avenirNextText("#fff",16,"400")}>Buy</Text>
               </TouchableOpacity>
             </View>
           }
@@ -1485,9 +1488,9 @@ const styles = StyleSheet.create( {
 
   purchaseButton: {
     width: 60,
-    height: 30,
+    height: 40,
     backgroundColor: mantisGreen,
-    borderRadius: 15,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center'
     // borderWidth: 1,

@@ -8,7 +8,7 @@ class YourProducts extends Component {
   render() {
     return (
       
-        <Products showAllProducts={false} showYourProducts={true} showCollection={false}/>
+        <Products showYourProducts={true} showCollection={false}/>
       
     )
   }

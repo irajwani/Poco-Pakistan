@@ -17,7 +17,7 @@ import {avenirNextText} from '../constructors/avenirNextText'
 import NothingHereYet from '../components/NothingHereYet';
 import { LoadingIndicator, CustomTouchableO } from '../localFunctions/visualFunctions';
 
-const noChatsText = "You have not initiated any chats 😳. Converse with a seller by choosing to 'Buy' a product from the Marketplace";
+const noChatsText = "You have not initiated any chats 😳. Choose a product from the marketplace and then converse with the seller about your preferred method of payment (Cash or PayPal), and if whether you'd like the item posted to you or not.";
 const DaysOfTheWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const {width} = Dimensions.get('window');
 const navTabButtonWidth = 115;
@@ -475,7 +475,6 @@ class Chats extends Component {
             style={styles.screen} 
             contentContainerStyle={styles.cc}
           >
-                
             {this.renderChats(chats)}
           </ScrollView>
         </View>

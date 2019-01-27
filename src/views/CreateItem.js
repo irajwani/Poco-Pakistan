@@ -25,6 +25,7 @@ import { avenirNextText } from '../constructors/avenirNextText';
 // const darkGreen = '#0d4f10';
 // const limeGreen = '#2e770f';
 // const slimeGreen = '#53b73c';
+const priceAdjustmentReminder = "* NottMyStyle takes 15% of the selling price of your product to process payments through PayPal. Be sure to mark up your selling price accordingly.";
 const Bullet = '\u2022';
 const categories = ["Men", "Women", "Accessories"]
 const categoryColors = [darkBlue, profoundPink, treeGreen] //Men, Women, Accessories
@@ -195,7 +196,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
         comments: '',
         time: oldItemPostKey ? oldItemUploadDate : Date.now(), //for now, do ot override initial upload Date
         dateSold: '',
-        post_price: post_price ? post_price : false,
+        post_price: post_price ? post_price : 0,
       };
     
     var updates = {};  
@@ -668,6 +669,13 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
             </TouchableHighlight>
 
             <GrayLine/>
+            {/* Reminder for user that we take 15% of total sale for payment processing */}
+            <View style={styles.priceAdjustmentReminderContainer}>
+                <Text style={new avenirNextText(graphiteGray, 13, "300", "left")}>{priceAdjustmentReminder}</Text>
+            </View>
+
+            <GrayLine/>
+
                 
             {/* Brand */}
             <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
@@ -999,6 +1007,11 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: darkGray
 
+    },
+
+    priceAdjustmentReminderContainer: {
+        justifyContent: 'center',
+        padding: 10
     },
 
     displayedCondition: new avenirNextText('#800000', 16, "200"),
