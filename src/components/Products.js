@@ -99,7 +99,7 @@ const womenFootWear = ["2 / 4", "2.5 / 4.5", "3 / 5", "3.5 / 5.5", "4 / 6", "4.5
 const generateSizesBasedOn = (type, category) => {
     var sizes;
     switch(category) {
-        case 0:
+        case "Men":
             switch(type) {
                 case "Formal Shirts" || "Coats & Jackets" || "Casual Shirts" || "Suits" || "Trousers" || "Jeans":
                     sizes = mensUpperWear;
@@ -112,7 +112,7 @@ const generateSizesBasedOn = (type, category) => {
                     break;  
             }
         break;
-        case 1:
+        case "Women":
             switch(type) {
                 case "Shoes" || "Socks":
                     sizes = womenFootWear;
@@ -170,6 +170,7 @@ class Products extends Component {
         selectedCategory: 'Women',
         selectedType: '',
         selectedConditions: [],
+        selectedSize: '',
         // activeSectionL: false,
         // activeSectionR: false,
         // collapsed: true,
@@ -348,7 +349,7 @@ class Products extends Component {
           var brands = [];
           var typesForCategory = {Men: [], Women: [], Accessories: []};
           var conditions = [{name: "New With Tags", selected: false}, {name: "New Without Tags", selected: false}, {name: "Slightly Used", selected: false}, {name: "Used", selected: false}]
-
+          var sizes = womenUpperWear;
           //Now because there's a fixed number of values of SIZE for each TYPE, 
           //just generate the sizes based on the type selected by the person when they tap the category
           //and for CONDITION We're good because there's only 4 values that apply to any type of product
@@ -382,11 +383,13 @@ class Products extends Component {
           typesForCategory.Women = removeDuplicates(typesForCategory['Women'], "name");
           typesForCategory.Accessories = removeDuplicates(typesForCategory['Accessories'], "name");
 
-          console.log(brands, typesForCategory);
+          // console.log(brands, typesForCategory);
+
+          
 
           var name = Users[uid].profile.name;
 
-          this.setState({emptyMarket, collectionKeys, productKeys, leftProducts, rightProducts, typesForCategory, brands, conditions, name, isGetting: false, });
+          this.setState({emptyMarket, collectionKeys, productKeys, leftProducts, rightProducts, typesForCategory, brands, conditions, sizes, name, isGetting: false, noResultsFromFilter: false});
 
         }
 
@@ -405,21 +408,23 @@ class Products extends Component {
 
 
   filterMarketPlace = () => {
-    this.setState({isGetting: true});
+    // this.setState({isGetting: true});
     const {...state} = this.state;
-    const {selectedBrands, selectedCategory, selectedType, selectedConditions} = state;
+    const {selectedBrands, selectedCategory, selectedType, selectedConditions, selectedSize} = state;
 
     state.leftProducts = selectedBrands.length > 0 ? state.leftProducts.filter( (product) => selectedBrands.includes(product.text.brand)) : state.leftProducts;
     state.leftProducts = state.leftProducts.filter( (product) => selectedCategory == product.text.gender);
     state.leftProducts = selectedType ? state.leftProducts.filter( (product) => selectedType == product.text.type ) : state.leftProducts;
     state.leftProducts = selectedConditions.length > 0 ? state.leftProducts.filter( (product) => selectedConditions.includes(product.text.condition)) : state.leftProducts;
+    state.leftProducts = selectedSize ? state.leftProducts.filter( (product) => selectedSize == product.text.size ) : state.leftProducts;
 
     state.rightProducts = selectedBrands.length > 0 ? state.rightProducts.filter( (product) => selectedBrands.includes(product.text.brand)) : state.rightProducts;
     state.rightProducts = state.rightProducts.filter( (product) => selectedCategory == product.text.gender);
     state.rightProducts = selectedType ? state.rightProducts.filter( (product) => selectedType == product.text.type ) : state.rightProducts;
     state.rightProducts = selectedConditions.length > 0 ? state.rightProducts.filter( (product) => selectedConditions.includes(product.text.condition)) : state.rightProducts;
-
-    !state.leftProducts.length > 0 && !state.rightProducts.length > 0 ? state.noResultsFromFilter = true : null;
+    state.rightProducts = selectedSize ? state.rightProducts.filter( (product) => selectedSize == product.text.size ) : state.rightProducts;
+    console.log(state.leftProducts, state.rightProducts);
+    state.noResultsFromFilter = !state.leftProducts.length > 0 && !state.rightProducts.length > 0 ? true : false;
 
     this.setState(state);
   }
@@ -765,7 +770,7 @@ class Products extends Component {
                   <Icon 
                     name="heart" 
                     size={25} 
-                    color={this.state.productKeys.includes(section.key) ? mantisGreen : '#800000'}
+                    color={this.state.productKeys.includes(section.key) ? limeGreen : '#800000'}
                     onPress={this.state.productKeys.includes(section.key) ? null : decrementLikesFunction}
                             
 
@@ -774,12 +779,12 @@ class Products extends Component {
                   <Icon 
                     name="heart-outline" 
                     size={25} 
-                    color={this.state.productKeys.includes(section.key) ? mantisGreen : '#800000'}
+                    color={this.state.productKeys.includes(section.key) ? limeGreen : '#800000'}
                     onPress={this.state.productKeys.includes(section.key) ? null : incrementLikesFunction}
                   />
                 }
 
-                <Text style={[styles.likes, {color: this.state.productKeys.includes(section.key) ? mantisGreen : profoundPink }]}>{section.text.likes}</Text>
+                <Text style={[styles.likes, {color: this.state.productKeys.includes(section.key) ? limeGreen : profoundPink }]}>{section.text.likes}</Text>
               </View>
               {section.text.sold ? 
                 <View style={styles.soldTextContainer}>
@@ -911,9 +916,10 @@ class Products extends Component {
 
   renderFilterModal = () => {
 
-    var {brands, typesForCategory, conditions, searchTerm, selectedBrands, selectedCategory, selectedConditions} = this.state;
+    var {brands, typesForCategory, conditions, searchTerm, selectedBrands, selectedCategory, selectedConditions, selectedType} = this.state;
     // console.log(brands, searchTerm, selectedBrands);
-    brands = brands.filter( (brand) => brand.name.includes(searchTerm) ); 
+    brands = brands.filter( (brand) => brand.name.includes(searchTerm) );
+    var sizes = generateSizesBasedOn(selectedType, selectedCategory)
     // console.log(brands);
     // brands = brands.filter(onlyUnique);
     // types = types.filter( (type) => type.includes(brandSearchTerm) ); 
@@ -945,9 +951,17 @@ class Products extends Component {
           <Text
           onPress={()=>{
             // let brandsReset = this.state.brands;
-            this.state.brands.forEach( (brand) => brand.selected = false);
-            this.state.conditions.forEach( (condition) => condition.selected = false);
-            this.setState({brands: this.state.brands, conditions: this.state.conditions, selectedBrands: [], searchTerm: '', selectedCategory: 'Women', selectedType: '', selectedConditions: []});
+            const {...state} = this.state;
+            state.brands.forEach( (brand) => brand.selected = false);
+            state.conditions.forEach( (condition) => condition.selected = false);
+            state.selectedBrands = [];
+            state.searchTerm = '';
+            state.selectedType = '';
+            state.selectedCategory = 'Women';
+            state.selectedConditions = [];
+            state.selectedSize = '';
+
+            this.setState(state);
             this.getMarketPlace(this.state.uid)
           }}
           style={styles.filterModalHeaderClearText}>
@@ -987,25 +1001,27 @@ class Products extends Component {
               <View key={index} style={[styles.optionContainer, brands.length > 1 && index != brands.length - 1 ? {borderRightWidth: 0.3, borderRightColor: graphiteGray,} : null]}>
                 <Text 
                 onPress={()=>{
-                  if(selectedBrands.includes(brand.name)) {
-                    let INDEX = selectedBrands.indexOf(brand.name);
+                  const {...state} = this.state
+                  if(state.selectedBrands.includes(brand.name)) {
+                    let INDEX = state.selectedBrands.indexOf(brand.name);
                     if(INDEX == 0) {
-                       selectedBrands = selectedBrands.slice(INDEX + 1, selectedBrands.length)
+                       state.selectedBrands = state.selectedBrands.slice(INDEX + 1, state.selectedBrands.length)
                     }
-                    else if(INDEX == selectedBrands.length - 1) {
-                      selectedBrands = selectedBrands.slice(0,INDEX)
+                    else if(INDEX == state.selectedBrands.length - 1) {
+                      state.selectedBrands = state.selectedBrands.slice(0,INDEX)
                     }
                     else {
-                      var left = selectedBrands.slice(0,INDEX)
-                      var right = selectedBrands.slice(INDEX + 1, selectedBrands.length)
-                      selectedBrands = left.concat(right);
+                      var left = state.selectedBrands.slice(0,INDEX)
+                      var right = state.selectedBrands.slice(INDEX + 1, state.selectedBrands.length)
+                      state.selectedBrands = left.concat(right);
                     }
                   }
                   else {
-                    selectedBrands.push(brand.name)
+                    state.selectedBrands.push(brand.name)
                   }
-                  this.state.brands[index].selected = !this.state.brands[index].selected; 
-                  this.setState({brands: this.state.brands, selectedBrands});
+                  
+                  state.brands[index].selected = !state.brands[index].selected; 
+                  this.setState(state);
                 }}
                 style={[styles.option, {color: !brand.selected ? graphiteGray : highlightGreen}]}
                 >
@@ -1089,29 +1105,56 @@ class Products extends Component {
               <View key={index} style={[styles.optionContainer, conditions.length > 1 && index != conditions.length - 1 ? {borderRightWidth: 0.3, borderRightColor: graphiteGray,} : null]}>
                 <Text 
                 onPress={()=>{
-                  if(selectedConditions.includes(condition.name)) {
-                    let INDEX = selectedConditions.indexOf(condition.name);
+                  const {...state} = this.state
+                  if(state.selectedConditions.includes(condition.name)) {
+                    let INDEX = state.selectedConditions.indexOf(condition.name);
                     if(INDEX == 0) {
-                       selectedConditions = selectedConditions.slice(INDEX + 1, selectedConditions.length)
+                       state.selectedConditions = state.selectedConditions.slice(INDEX + 1, state.selectedConditions.length)
                     }
-                    else if(INDEX == selectedConditions.length - 1) {
-                      selectedConditions = selectedConditions.slice(0,INDEX)
+                    else if(INDEX == state.selectedConditions.length - 1) {
+                      state.selectedConditions = state.selectedConditions.slice(0,INDEX)
                     }
                     else {
-                      var leftConditions = selectedConditions.slice(0,INDEX)
-                      var rightConditions = selectedConditions.slice(INDEX + 1, selectedConditions.length)
-                      selectedConditions = leftConditions.concat(rightConditions);
+                      var leftConditions = state.selectedConditions.slice(0,INDEX)
+                      var rightConditions = state.selectedConditions.slice(INDEX + 1, state.selectedConditions.length)
+                      state.selectedConditions = leftConditions.concat(rightConditions);
                     }
                   }
                   else {
-                    selectedConditions.push(condition.name)
+                    state.selectedConditions.push(condition.name)
                   }
-                  this.state.conditions[index].selected = !this.state.conditions[index].selected; 
-                  this.setState({conditions: this.state.conditions, selectedConditions});
+                  state.conditions[index].selected = !state.conditions[index].selected; 
+                  this.setState(state);
                 }}
                 style={[styles.option, {color: !condition.selected ? graphiteGray : highlightGreen}]}
                 >
                 {condition.name}
+                </Text>
+              </View>
+            ))}
+            </ScrollView>
+
+
+          </View>
+
+          <View style={styles.filterBlock}>
+
+            <View style={styles.filterBlockHeadingContainer}>
+              <Text style={new avenirNextText('#fff', 25, "200")}>
+                Size
+              </Text>
+            </View>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator style={styles.optionsScroll} contentContainerStyle={styles.optionsScrollContentContainer}>
+            {sizes.map( (size, index) => (
+              <View key={index} style={[styles.optionContainer, sizes.length > 1 && index != sizes.length - 1 ? {borderRightWidth: 0.3, borderRightColor: graphiteGray,} : null]}>
+                <Text 
+                onPress={()=> {
+                  this.state.selectedSize == size ? null : this.setState({selectedSize: size});
+                }}
+                style={[styles.option, {color: this.state.selectedSize == size ? highlightGreen : graphiteGray}]}
+                >
+                {size}
                 </Text>
               </View>
             ))}
@@ -1129,7 +1172,7 @@ class Products extends Component {
           <Text
           onPress={
             ()=>{
-              this.state.selectedBrands.length > 0 || this.state.selectedType || this.state.selectedConditions.length > 0 ? 
+              this.state.selectedBrands.length > 0 || this.state.selectedType || this.state.selectedConditions.length > 0 || this.state.selectedSize ? 
                 this.filterMarketPlace() 
                 : 
                 this.getMarketPlace(this.state.uid); 
