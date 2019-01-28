@@ -16,7 +16,7 @@ import firebase from '../cloud/firebase.js';
 // import * as Animatable from 'react-native-animatable';
 import { iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
-import { lightGreen, confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, highlightYellow, profoundPink, tealBlue, graphiteGray, lightBlack } from '../colors';
+import { lightGreen, confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, highlightYellow, profoundPink, tealBlue, graphiteGray, lightBlack, fbBlue } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { DismissKeyboardView, WhiteSpace, GrayLine, LoadingIndicator } from '../localFunctions/visualFunctions';
 import { avenirNextText } from '../constructors/avenirNextText';
@@ -458,9 +458,9 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
         return (
             <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
                 <View style={{height: 200, justifyContent: 'center', alignContent: 'center', alignItems: 'center'}}>
-                    <LoadingIndicator isVisible={isUploading} color={'#800000'} type={'Bounce'}/>
+                    <LoadingIndicator isVisible={isUploading} color={fbBlue} type={'Bounce'}/>
                     <WhiteSpace height={20}/>
-                    <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: '#800000', textAlign: 'center'}}>
+                    <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: fbBlue, textAlign: 'center'}}>
                         Your product {this.state.name} is being uploaded to the market. Please do not resubmit the same product.
                     </Text>
                 </View>
@@ -865,7 +865,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                     <Button
                     small
                     buttonStyle={{
-                        backgroundColor: rejectRed,
+                        backgroundColor: '#fff',
                         width: 140,
                         height: 50,
                         borderColor: "transparent",

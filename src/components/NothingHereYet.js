@@ -5,7 +5,7 @@ export default class NothingHereYet extends Component {
   render() {
     return (
       <View>
-        <Text style={{fontFamily: 'Avenir Next'}}>{this.props.specificText}</Text>
+        <Text style={{fontFamily: 'Avenir Next', color: 'black'}}>{this.props.specificText}</Text>
       </View>
     )
   }

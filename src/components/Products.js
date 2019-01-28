@@ -17,7 +17,7 @@ import * as Animatable from 'react-native-animatable';
 
 // import PushNotification from 'react-native-push-notification';
 // import { PacmanIndicator } from 'react-native-indicators';
-import { graphiteGray, lightGreen, rejectRed, treeGreen, avenirNext, optionLabelBlue, almostWhite, flashOrange, lightGray, highlightGreen, lightBlack, darkGreen } from '../colors.js';
+import { graphiteGray, lightGreen, rejectRed, treeGreen, avenirNext, optionLabelBlue, almostWhite, flashOrange, lightGray, highlightGreen, lightBlack, darkGreen, mantisGreen } from '../colors.js';
 
 // import { splitArrayIntoArraysOfSuccessiveElements } from '../localFunctions/arrayFunctions';
 
@@ -33,7 +33,7 @@ const noResultsFromSearchText = "Your search does not match the description of a
 // const emptyMarketDueToSearchCriteriaText = noResultsFromSearchText;
 // const noResultsFromSearchForSpecificCategoryText = "Your search does not match the description of any product for this specific category 🙁.";
 
-const timeToRefresh = 500;
+const timeToRefreshAfterLikeOrUnlike = 500;
 var {height, width} = Dimensions.get('window');
 
 
@@ -154,10 +154,12 @@ class Products extends Component {
         emptyMarket: false,
         noResultsFromFilter: false,
 
+        //forget these:
         emptyMarketDueToSearchCriteria: false,
         noProducts: false,
         emptyCollection: false,
         refreshing: false,
+        ////////////
 
 
 
@@ -409,184 +411,188 @@ class Products extends Component {
     const {selectedBrands, selectedCategory, selectedType, selectedConditions} = state;
 
     state.leftProducts = selectedBrands.length > 0 ? state.leftProducts.filter( (product) => selectedBrands.includes(product.text.brand)) : state.leftProducts;
-    state.leftProducts = selectedType ? state.leftProducts.filter( (product) => selectedType == product.text.type && selectedCategory == product.text.gender) : state.leftProducts;
+    state.leftProducts = state.leftProducts.filter( (product) => selectedCategory == product.text.gender);
+    state.leftProducts = selectedType ? state.leftProducts.filter( (product) => selectedType == product.text.type ) : state.leftProducts;
     state.leftProducts = selectedConditions.length > 0 ? state.leftProducts.filter( (product) => selectedConditions.includes(product.text.condition)) : state.leftProducts;
 
     state.rightProducts = selectedBrands.length > 0 ? state.rightProducts.filter( (product) => selectedBrands.includes(product.text.brand)) : state.rightProducts;
-    state.rightProducts = selectedType ? state.rightProducts.filter( (product) => selectedType == product.text.type && selectedCategory == product.text.gender) : state.rightProducts;
+    state.rightProducts = state.rightProducts.filter( (product) => selectedCategory == product.text.gender);
+    state.rightProducts = selectedType ? state.rightProducts.filter( (product) => selectedType == product.text.type ) : state.rightProducts;
     state.rightProducts = selectedConditions.length > 0 ? state.rightProducts.filter( (product) => selectedConditions.includes(product.text.condition)) : state.rightProducts;
+
+    state.leftProducts || state.rightProducts ? null : state.noResultsFromFilter = true;
 
     this.setState(state);
   }
 
 
-  getPageSpecificProducts = () => {
-    this.setState({isGetting: true});
-    var {selectedBrands, selectedCategory, selectedType, selectedConditions} = this.state;
-    // const keys = [];
-    firebase.database().ref().once("value", (snapshot) => {
-      var d = snapshot.val();
-      // console.log('retrieving array of products')
-      //Only pull the products that are in this user's collection for the WishList tab.
-      const {showCollection, showYourProducts} = this.props;
-      const uid = firebase.auth().currentUser.uid;
+  // getPageSpecificProducts = () => {
+  //   this.setState({isGetting: true});
+  //   var {selectedBrands, selectedCategory, selectedType, selectedConditions} = this.state;
+  //   // const keys = [];
+  //   firebase.database().ref().once("value", (snapshot) => {
+  //     var d = snapshot.val();
+  //     // console.log('retrieving array of products')
+  //     //Only pull the products that are in this user's collection for the WishList tab.
+  //     const {showCollection, showYourProducts} = this.props;
+  //     const uid = firebase.auth().currentUser.uid;
 
-      var productKeys = d.Users[uid].products ? Object.keys(d.Users[uid].products) : [];
-      var noProducts = false;
-      if(productKeys.length == 0) {noProducts = true}
-      //need to filter d.Users.uid.collection for only those keys that have values of true
-      //get collection keys of current user
-      var collection = d.Users[uid].collection ? d.Users[uid].collection : null;
-      var rawCollection = collection ? collection : {}
-      var collectionKeys = removeKeysWithFalsyValuesFrom(rawCollection);
-      var emptyCollection = false;
-      if(collectionKeys.length == 0) {emptyCollection = true}    
-      console.log('Empty Collection Status: ' + emptyCollection);
-      var all = d.Products ? d.Products : [];
+  //     var productKeys = d.Users[uid].products ? Object.keys(d.Users[uid].products) : [];
+  //     var noProducts = false;
+  //     if(productKeys.length == 0) {noProducts = true}
+  //     //need to filter d.Users.uid.collection for only those keys that have values of true
+  //     //get collection keys of current user
+  //     var collection = d.Users[uid].collection ? d.Users[uid].collection : null;
+  //     var rawCollection = collection ? collection : {}
+  //     var collectionKeys = removeKeysWithFalsyValuesFrom(rawCollection);
+  //     var emptyCollection = false;
+  //     if(collectionKeys.length == 0) {emptyCollection = true}    
+  //     console.log('Empty Collection Status: ' + emptyCollection);
+  //     var all = d.Products ? d.Products : [];
 
-      // var emptyMarket = all.length > 0 ? false : true;
-      all.length < 1 ? this.setState({emptyMarket: true}) : null;
+  //     // var emptyMarket = all.length > 0 ? false : true;
+  //     all.length < 1 ? this.setState({emptyMarket: true}) : null;
 
 
-      //OF COURSE, the FIRST/TOP level of "filtering" that dictates what products are displayed is if whether:
-      //Viewing all products, only liked products, or your products
-      // var yourProducts = all.filter((product) => productKeys.includes(product.key) );
-      //console.log(all, showCollection, showYourProducts);
-      if(showCollection == true) {
-        all = all.filter((product) => collectionKeys.includes(product.key) );
-      }
+  //     //OF COURSE, the FIRST/TOP level of "filtering" that dictates what products are displayed is if whether:
+  //     //Viewing all products, only liked products, or your products
+  //     // var yourProducts = all.filter((product) => productKeys.includes(product.key) );
+  //     //console.log(all, showCollection, showYourProducts);
+  //     if(showCollection == true) {
+  //       all = all.filter((product) => collectionKeys.includes(product.key) );
+  //     }
 
-      if(showYourProducts == true) {
-        // setTimeout(() => {
-        //   this.initializePushNotifications();
-        // }, 200);
+  //     if(showYourProducts == true) {
+  //       // setTimeout(() => {
+  //       //   this.initializePushNotifications();
+  //       // }, 200);
 
-        // setTimeout(() => {
-        //   this.shouldSendNotifications(yourProducts, uid);
-        // }, 3000);
-        //we need to identify which products have a notification set to True for a price reduction
-        //loop over yourProducts and if you have a shouldReducePrice boolean of true, then schedule a notification for this individual for after thirty minutes
+  //       // setTimeout(() => {
+  //       //   this.shouldSendNotifications(yourProducts, uid);
+  //       // }, 3000);
+  //       //we need to identify which products have a notification set to True for a price reduction
+  //       //loop over yourProducts and if you have a shouldReducePrice boolean of true, then schedule a notification for this individual for after thirty minutes
         
-        all = all.filter((product) => productKeys.includes(product.key) );
-      }
+  //       all = all.filter((product) => productKeys.includes(product.key) );
+  //     }
 
-      if(all.length > 0) {
+  //     if(all.length > 0) {
           
             
 
-          //var filters = [{header: "Brand", values: []}, {header: "Type", values: []}, {header: "Size", values: []},];
+  //         //var filters = [{header: "Brand", values: []}, {header: "Type", values: []}, {header: "Size", values: []},];
           
-          // all = selectedBrand == '' ? all : all.filter( (product) => product.text.brand == selectedBrand );
+  //         // all = selectedBrand == '' ? all : all.filter( (product) => product.text.brand == selectedBrand );
 
 
-          //Second Level is to extract list of information to be displayed in the filterModal
-          //first extract the list of current brands:
-          var brands = [];
-          var typesForCategory = {Men: [], Women: [], Accessories: []};
-          var conditions = [{name: "New With Tags", selected: false}, {name: "New Without Tags", selected: false}, {name: "Slightly Used", selected: false}, {name: "Used", selected: false}]
+  //         //Second Level is to extract list of information to be displayed in the filterModal
+  //         //first extract the list of current brands:
+  //         var brands = [];
+  //         var typesForCategory = {Men: [], Women: [], Accessories: []};
+  //         var conditions = [{name: "New With Tags", selected: false}, {name: "New Without Tags", selected: false}, {name: "Slightly Used", selected: false}, {name: "Used", selected: false}]
 
-          //Now because there's a fixed number of values of SIZE for each TYPE, 
-          //just generate the sizes based on the type selected by the person when they tap the category
-          //and for CONDITION We're good because there's only 4 values that apply to any type of product
-          // var sizesForType = {}
+  //         //Now because there's a fixed number of values of SIZE for each TYPE, 
+  //         //just generate the sizes based on the type selected by the person when they tap the category
+  //         //and for CONDITION We're good because there's only 4 values that apply to any type of product
+  //         // var sizesForType = {}
           
-          // var types = ['Formal Shirts', 'Casual Shirts', 'Jackets', 'Suits', 'Trousers', 'Jeans', 'Shoes', 'Watches', 'Bracelets', 'Jewellery', 'Sunglasses', 'Handbags', 'Tops', 'Skirts', 'Dresses', 'Coats'];
-          // var sizes = ['Extra Small', 'Small', 'Medium', 'Large', 'Extra Large', 'Extra Extra Large'];
+  //         // var types = ['Formal Shirts', 'Casual Shirts', 'Jackets', 'Suits', 'Trousers', 'Jeans', 'Shoes', 'Watches', 'Bracelets', 'Jewellery', 'Sunglasses', 'Handbags', 'Tops', 'Skirts', 'Dresses', 'Coats'];
+  //         // var sizes = ['Extra Small', 'Small', 'Medium', 'Large', 'Extra Large', 'Extra Extra Large'];
       
-          all.forEach((product)=> {
-            brands.push({name: product.text.brand, selected: false});
-            switch(product.text.gender) {
-              case "Men":
-                typesForCategory.Men.push({name: product.text.type, selected: false});
-                break;
-              case "Women":
-                typesForCategory.Women.push({name: product.text.type, selected: false});
-                break;
-              case "Accessories":
-                typesForCategory.Accessories.push({name: product.text.type, selected: false});
-                break;  
-              default: 
-                break;
-            }
+  //         all.forEach((product)=> {
+  //           brands.push({name: product.text.brand, selected: false});
+  //           switch(product.text.gender) {
+  //             case "Men":
+  //               typesForCategory.Men.push({name: product.text.type, selected: false});
+  //               break;
+  //             case "Women":
+  //               typesForCategory.Women.push({name: product.text.type, selected: false});
+  //               break;
+  //             case "Accessories":
+  //               typesForCategory.Accessories.push({name: product.text.type, selected: false});
+  //               break;  
+  //             default: 
+  //               break;
+  //           }
 
-          })
-          // console.log(typesForCategory)
+  //         })
+  //         // console.log(typesForCategory)
           
-          // brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ) 
-          brands = brands.filter(onlyUnique);
-          typesForCategory.Men = typesForCategory['Men'].filter(onlyUnique);
-          typesForCategory.Women = typesForCategory['Women'].filter(onlyUnique);
-          typesForCategory.Accessories = typesForCategory['Accessories'].filter(onlyUnique);
+  //         // brands = brands.filter( (brand) => brand.includes(brandSearchTerm) ) 
+  //         brands = brands.filter(onlyUnique);
+  //         typesForCategory.Men = typesForCategory['Men'].filter(onlyUnique);
+  //         typesForCategory.Women = typesForCategory['Women'].filter(onlyUnique);
+  //         typesForCategory.Accessories = typesForCategory['Accessories'].filter(onlyUnique);
 
-          //second extract types of clothing for each category:
+  //         //second extract types of clothing for each category:
           
 
-          //Third Level is optional and will be enforced when user has a selectedValue(s) to filter products
-          all = selectedBrands.length > 0 ? all.filter( (product) => selectedBrands.includes(product.text.brand)) : all;
-          all = selectedType ? all.filter( (product) => selectedType == product.text.type && selectedCategory == product.text.gender) : all;
-          all = selectedConditions.length > 0 ? all.filter( (product) => selectedConditions.includes(product.text.condition)) : all;
-          // all = selectedSizes.length > 0 ? all.filter( (product) => selectedSizes.includes(product.text.size)) : all;
+  //         //Third Level is optional and will be enforced when user has a selectedValue(s) to filter products
+  //         all = selectedBrands.length > 0 ? all.filter( (product) => selectedBrands.includes(product.text.brand)) : all;
+  //         all = selectedType ? all.filter( (product) => selectedType == product.text.type && selectedCategory == product.text.gender) : all;
+  //         all = selectedConditions.length > 0 ? all.filter( (product) => selectedConditions.includes(product.text.condition)) : all;
+  //         // all = selectedSizes.length > 0 ? all.filter( (product) => selectedSizes.includes(product.text.size)) : all;
 
-          //TODO: After all this filtering, it could be the case that no results match your criteria
+  //         //TODO: After all this filtering, it could be the case that no results match your criteria
 
-          //Final Level is to sort the products in descending order of the number of likes & assign each index its boolean to handle collapsed or uncollapsed state
-          all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
-          // console.log('after sort ' + all)
-          // var test;
-          // test = 
-          // console.log(test);
-          all.forEach((product) => {
-            product['isActive'] = false  //boolean for rowData UI expansion
-          })
-          console.log('before split: ' + all);
-          // var {leftProducts, rightProducts} = splitArrayIntoArraysOfSuccessiveElements(all);
-          var leftProducts = all.filter( (e, index) => index % 2 == 0);
-          var rightProducts = all.filter( (e, index) => index % 2 != 0);
-          // var leftProducts = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 );
-          // var rightProducts = all.slice( Math.round(all.length/2) , all.length + 1);
-          //TODO:
-          console.log('after split :' + all);
-          // console.log(leftProducts, rightProducts);
+  //         //Final Level is to sort the products in descending order of the number of likes & assign each index its boolean to handle collapsed or uncollapsed state
+  //         all = all.sort( (a,b) => { return a.text.likes - b.text.likes } ).reverse();
+  //         // console.log('after sort ' + all)
+  //         // var test;
+  //         // test = 
+  //         // console.log(test);
+  //         all.forEach((product) => {
+  //           product['isActive'] = false  //boolean for rowData UI expansion
+  //         })
+  //         console.log('before split: ' + all);
+  //         // var {leftProducts, rightProducts} = splitArrayIntoArraysOfSuccessiveElements(all);
+  //         var leftProducts = all.filter( (e, index) => index % 2 == 0);
+  //         var rightProducts = all.filter( (e, index) => index % 2 != 0);
+  //         // var leftProducts = all.slice(0, (all.length % 2 == 0) ? all.length/2  : Math.floor(all.length/2) + 1 );
+  //         // var rightProducts = all.slice( Math.round(all.length/2) , all.length + 1);
+  //         //TODO:
+  //         console.log('after split :' + all);
+  //         // console.log(leftProducts, rightProducts);
 
-          // leftProducts.forEach((product) => {
-          //   product['isActive'] = false  
-          // })
-          // rightProducts.forEach((product) => {
-          //   product['isActive'] = false  
-          // })
+  //         // leftProducts.forEach((product) => {
+  //         //   product['isActive'] = false  
+  //         // })
+  //         // rightProducts.forEach((product) => {
+  //         //   product['isActive'] = false  
+  //         // })
 
 
           
-          var name = d.Users[uid].profile.name;
+  //         var name = d.Users[uid].profile.name;
 
-          //emptyMarket and emptyMarketDueToSearchCriteria remain false in this.state;
-          this.setState({ noProducts, emptyCollection, collectionKeys, productKeys, leftProducts, rightProducts, typesForCategory, brands, conditions, name, isGetting: false, });
+  //         //emptyMarket and emptyMarketDueToSearchCriteria remain false in this.state;
+  //         this.setState({ noProducts, emptyCollection, collectionKeys, productKeys, leftProducts, rightProducts, typesForCategory, brands, conditions, name, isGetting: false, });
         
-      }
+  //     }
 
-      else {
-        this.setState({isGetting: false, emptyMarketDueToSearchCriteria: true})
-        // if(this.props.showCollection == true) {
-        //   this.setState({isGetting: false})
-        // }
+  //     else {
+  //       this.setState({isGetting: false, emptyMarketDueToSearchCriteria: true})
+  //       // if(this.props.showCollection == true) {
+  //       //   this.setState({isGetting: false})
+  //       // }
 
-        // else {
-        //   this.setState({isGetting: false, emptyMarketDueToSearchCriteria: true})
-        // }
+  //       // else {
+  //       //   this.setState({isGetting: false, emptyMarketDueToSearchCriteria: true})
+  //       // }
         
-      }
+  //     }
 
-    }) 
+  //   }) 
     
     
     
     
-    // .then( () => { console.log('finished loading');this.setState( {isGetting: false} );  } )
-    // .catch( (err) => {console.log(err) })
+  //   // .then( () => { console.log('finished loading');this.setState( {isGetting: false} );  } )
+  //   // .catch( (err) => {console.log(err) })
     
-  }
+  // }
    
-  incrementLikes(likes, uid, key) {
+  incrementLikes(likes, uid, key, index, specificArrayOfProducts) {
     //here uid refers to uid of seller so the number of likes for their product may be affected
     //func applies to scenario when heart icon is gray
     //add like to product, and add this product to user's collection; if already in collection, modal shows user
@@ -596,26 +602,41 @@ class Products extends Component {
       //unless users already liked this product, in which case, dont do anything
       if(this.state.collectionKeys.includes(key) == true) {
         // console.log('show modal that users already liked this product')
-        alert("This product is already in your collection.")
+        alert("This product is already in your Wish List.")
       } 
       else {
+        // this.setState({isGetting: true});
         var userCollectionUpdates = {};
         userCollectionUpdates['/Users/' + this.state.uid + '/collection/' + key + '/'] = true;
-        firebase.database().ref().update(userCollectionUpdates);
+        let promiseToUpdateCollection = firebase.database().ref().update(userCollectionUpdates);
         //since we don't want the user to add another like to the product,
         //tack on his unique contribution to the seller's product's total number of likes
         var updates = {};
         likes += 1;
         var postData = likes;
         updates['/Users/' + uid + '/products/' + key + '/likes/'] = postData;
-        firebase.database().ref().update(updates);
+        let promiseToUpdateProductLikes = firebase.database().ref().update(updates);
+        Promise.all([promiseToUpdateCollection, promiseToUpdateProductLikes])
+        .then( () => {
+          const {...state} = this.state;
+          
+          //for a little time simulate the goal of this function having been achieved,
+          //by locally changing the state to reflect as such
+          state[specificArrayOfProducts][index].text.likes += 1;
+          state.collectionKeys.push(key);
+          this.setState(state);
+          setTimeout(() => {
+            this.getMarketPlace(this.state.uid);  
+          }, timeToRefreshAfterLikeOrUnlike);
+          
+          // alert("This product has been added to your WishList 💕.");
+        })
         //locally reflect the updated number of likes and updated collection of the user,
         // by re-pulling data from the cloud
         // setTimeout(() => {
         //   this.getPageSpecificProducts();  
         // }, timeToRefresh);
-        this.getMarketPlace(this.state.uid);
-        alert("This product has been added to your WishList 💕.");
+        
         
 
         ////
@@ -646,26 +667,46 @@ class Products extends Component {
     
   }
 
-  decrementLikes(likes, uid, key) {
+  decrementLikes(likes, uid, key, index, specificArrayOfProducts) {
     //this func applies when heart icon is red
     // console.log('decrement number of likes');
-    var userCollectionUpdates = {};
-    userCollectionUpdates['/Users/' + firebase.auth().currentUser.uid + '/collection/' + key + '/'] = false;
-    firebase.database().ref().update(userCollectionUpdates);
-  //   firebase.database().ref('/Users/' + firebase.auth().currentUser.uid + '/collection/' + key)
-  //   .remove( 
-  //     ()=>{
-  //     console.log('product has been deleted from collection Keys');
-  // });
-    //ask user to confirm if they'd like to unlike this product
-    var updates = {};
-    likes -= 1;
-    var postData = likes;
-    updates['/Users/' + uid + '/products/' + key + '/likes/'] = postData;
-    firebase.database().ref().update(updates);
-    this.getMarketPlace(this.state.uid);
+    if(this.state.collectionKeys.includes(key) == true) {
+      var userCollectionUpdates = {};
+      let promiseToUpdateCollection = firebase.database().ref().update(userCollectionUpdates);
+      userCollectionUpdates['/Users/' + firebase.auth().currentUser.uid + '/collection/' + key + '/'] = false;
+      firebase.database().ref().update(userCollectionUpdates);
+      //ask user to confirm if they'd like to unlike this product
+      var updates = {};
+      likes -= 1;
+      var postData = likes;
+      updates['/Users/' + uid + '/products/' + key + '/likes/'] = postData;
+      let promiseToUpdateProductLikes = firebase.database().ref().update(updates);
+      Promise.all([promiseToUpdateCollection, promiseToUpdateProductLikes])
+          .then( () => {
+            const {...state} = this.state;
+            
+            //for a little time simulate the goal of this function having been achieved,
+            //by locally changing the state to reflect as such
+            state[specificArrayOfProducts][index].text.likes -= 1;
+            state.collectionKeys = state.collectionKeys.filter( collectionKey => collectionKey != key );
+            this.setState(state);
+            setTimeout(() => {
+              this.getMarketPlace(this.state.uid);  
+            }, timeToRefreshAfterLikeOrUnlike);
+            
+            // alert("This product has been added to your WishList 💕.");
+          })
+    }
+
+    else {
+      alert('One sec, the marketplace is probably refreshing\n. Like, basically you cannot unlike a product you have not liked yet, you know.' );
+    }
+
+  }
+
+    
     // this.getPageSpecificProducts();
-    alert("This product has been removed from your WishList 💔.");
+    // alert("This product has been removed from your WishList 💔.");
     // setTimeout(() => {
     //   this.getPageSpecificProducts([]);  
     // }, timeToRefresh);
@@ -693,13 +734,13 @@ class Products extends Component {
 
     // this.setState({ productsl, productsr } );
     //////////
-  }
+  
 
   navToProductDetails(data, collectionKeys, productKeys) {
       this.props.navigation.navigate('ProductDetails', {data: data, collectionKeys: collectionKeys, productKeys: productKeys})
   }
 
-  renderRow = (section, expandFunction) => {
+  renderRow = (section, expandFunction, incrementLikesFunction, decrementLikesFunction) => {
     return (
       
       <View
@@ -717,27 +758,29 @@ class Products extends Component {
         
           <View style={styles.productImageContainer}>
               <View style={styles.likesRow}>
-                {/* if this product is already in your collection, you have the option to dislike the product,
+                {/* onPress={() => {this.incrementLikes(section.text.likes, section.uid, section.key)}} 
+                if this product is already in your collection, you have the option to dislike the product,
                     reducing its total number of likes by 1,
                     and remove it from your collection. If not already in your collection, you may do the opposite. */}
                 {this.state.collectionKeys.includes(section.key) ? 
-                  <Icon name="heart" 
-                            size={25} 
-                            color='#800000'
-                            onPress={() => {this.decrementLikes(section.text.likes, section.uid, section.key)}}
+                  <Icon 
+                    name="heart" 
+                    size={25} 
+                    color={this.state.productKeys.includes(section.key) ? mantisGreen : '#800000'}
+                    onPress={this.state.productKeys.includes(section.key) ? null : decrementLikesFunction}
                             
 
                   /> 
                 :  
-                  <Icon name="heart-outline" 
-                            size={25} 
-                            color='#800000'
-                            onPress={() => {this.incrementLikes(section.text.likes, section.uid, section.key)}}
-
+                  <Icon 
+                    name="heart-outline" 
+                    size={25} 
+                    color={this.state.productKeys.includes(section.key) ? mantisGreen : '#800000'}
+                    onPress={this.state.productKeys.includes(section.key) ? null : incrementLikesFunction}
                   />
                 }
 
-                <Text style={styles.likes}>{section.text.likes}</Text>
+                <Text style={[styles.likes, {color: this.state.productKeys.includes(section.key) ? mantisGreen : profoundPink }]}>{section.text.likes}</Text>
               </View>
               {section.text.sold ? 
                 <View style={styles.soldTextContainer}>
@@ -906,7 +949,7 @@ class Products extends Component {
             this.state.brands.forEach( (brand) => brand.selected = false);
             this.state.conditions.forEach( (condition) => condition.selected = false);
             this.setState({brands: this.state.brands, conditions: this.state.conditions, selectedBrands: [], searchTerm: '', selectedCategory: 'Women', selectedType: '', selectedConditions: []});
-            this.filterMarketPlace();
+            this.getMarketPlace(this.state.uid)
           }}
           style={styles.filterModalHeaderClearText}>
           Reset
@@ -1085,7 +1128,7 @@ class Products extends Component {
         
         <View style={styles.filterModalFooter}>
           <Text
-          onPress={()=>{this.filterMarketPlace(); this.setState({showFilterModal: false})}}
+          onPress={()=>{this.state.selectedBrands.length > 0 || this.state.selectedType || this.state.selectedConditions.length > 0 ? this.filterMarketPlace() : this.getMarketPlace(this.state.uid); this.setState({showFilterModal: false})}}
           style={new avenirNextText(false, 18, "400")}
           >
           APPLY
@@ -1127,9 +1170,23 @@ class Products extends Component {
     }
 
     else if(!emptyMarket && noResultsFromFilter){
-      <View style={{marginTop: 22, backgroundColor: '#fff', padding: 5}}>
-        <NothingHereYet specificText={noResultsFromSearchText} />
-      </View>
+
+      return(
+        <View style={{marginTop: 22, backgroundColor: 'blue', padding: 5}}>
+
+          <NothingHereYet specificText={noResultsFromSearchText} />
+
+          <View style={styles.filterButtonContainerNoMarket}>
+            <Button  
+              buttonStyle={styles.filterButtonStyleNoMarket}
+              icon={{name: 'filter', type: 'material-community'}}
+              title='Filter'
+              onPress={() => this.setState({ showFilterModal: true }) } 
+            />
+          </View>
+
+        </View>
+      )
     }
 
     else {
@@ -1145,16 +1202,26 @@ class Products extends Component {
               <ListView
                   contentContainerStyle={styles.listOfProducts}
                   dataSource={this.state.leftDS.cloneWithRows(this.state.leftProducts)}
-                  renderRow={(rowData) => this.renderRow(rowData, () => {
-                      // let photoArray;
-                      // section.isActive = !section.isActive;
+                  renderRow={(rowData) => this.renderRow(
+                    rowData, 
+                    () => {
+                        // let photoArray;
+                        // section.isActive = !section.isActive;
+                        
+                        let index = this.state.leftProducts.indexOf(rowData);
+                        this.state.leftProducts[index].isActive = !this.state.leftProducts[index].isActive;
+                        this.setState({leftProducts: this.state.leftProducts});
+                        },
+                    () => {
+                        this.incrementLikes(rowData.text.likes, rowData.uid, rowData.key, this.state.leftProducts.indexOf(rowData), 'leftProducts')
+                    },
+                    () => {
+                        this.decrementLikes(rowData.text.likes, rowData.uid, rowData.key, this.state.leftProducts.indexOf(rowData), 'leftProducts')
+                    }
                       
-                      let index = this.state.leftProducts.indexOf(rowData);
-                      this.state.leftProducts[index].isActive = !this.state.leftProducts[index].isActive;
-                      this.setState({leftProducts: this.state.leftProducts});
-                      }
                   )}
                   enableEmptySections={true}
+                  removeClippedSubviews={false}
               />
 
               
@@ -1162,14 +1229,24 @@ class Products extends Component {
                 <ListView
                   contentContainerStyle={styles.listOfProducts}
                   dataSource={this.state.rightDS.cloneWithRows(this.state.rightProducts)}
-                  renderRow={(rowData) => this.renderRow(rowData, () => {
+                  renderRow={(rowData) => this.renderRow(
+                    rowData, 
+                    () => {
                       // let photoArray;
                       // section.isActive = !section.isActive;
                       let index = this.state.rightProducts.indexOf(rowData);
                       this.state.rightProducts[index].isActive = !this.state.rightProducts[index].isActive;
                       this.setState({rightProducts: this.state.rightProducts});
-                  })}
+                    },
+                    () => {
+                      this.incrementLikes(rowData.text.likes, rowData.uid, rowData.key, this.state.rightProducts.indexOf(rowData), 'rightProducts')
+                    },
+                    () => {
+                      this.decrementLikes(rowData.text.likes, rowData.uid, rowData.key, this.state.rightProducts.indexOf(rowData), 'rightProducts')
+                    },
+                  )}
                   enableEmptySections={true}
+                  removeClippedSubviews={false}
               />
               :
               null
@@ -1333,7 +1410,7 @@ const styles = StyleSheet.create({
   
   likes: {
     fontFamily: 'Avenir Next',
-    color: profoundPink,
+    
     padding: 2,
     marginLeft: 4,
   },
