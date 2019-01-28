@@ -153,7 +153,6 @@ class Products extends Component {
         
         emptyMarket: false,
         noResultsFromFilter: false,
-
         //forget these:
         emptyMarketDueToSearchCriteria: false,
         noProducts: false,
@@ -420,7 +419,7 @@ class Products extends Component {
     state.rightProducts = selectedType ? state.rightProducts.filter( (product) => selectedType == product.text.type ) : state.rightProducts;
     state.rightProducts = selectedConditions.length > 0 ? state.rightProducts.filter( (product) => selectedConditions.includes(product.text.condition)) : state.rightProducts;
 
-    state.leftProducts || state.rightProducts ? null : state.noResultsFromFilter = true;
+    !state.leftProducts.length > 0 && !state.rightProducts.length > 0 ? state.noResultsFromFilter = true : null;
 
     this.setState(state);
   }
@@ -682,20 +681,20 @@ class Products extends Component {
       updates['/Users/' + uid + '/products/' + key + '/likes/'] = postData;
       let promiseToUpdateProductLikes = firebase.database().ref().update(updates);
       Promise.all([promiseToUpdateCollection, promiseToUpdateProductLikes])
-          .then( () => {
-            const {...state} = this.state;
-            
-            //for a little time simulate the goal of this function having been achieved,
-            //by locally changing the state to reflect as such
-            state[specificArrayOfProducts][index].text.likes -= 1;
-            state.collectionKeys = state.collectionKeys.filter( collectionKey => collectionKey != key );
-            this.setState(state);
-            setTimeout(() => {
-              this.getMarketPlace(this.state.uid);  
-            }, timeToRefreshAfterLikeOrUnlike);
-            
-            // alert("This product has been added to your WishList 💕.");
-          })
+      .then( () => {
+        const {...state} = this.state;
+        
+        //for a little time simulate the goal of this function having been achieved,
+        //by locally changing the state to reflect as such
+        state[specificArrayOfProducts][index].text.likes -= 1;
+        state.collectionKeys = state.collectionKeys.filter( collectionKey => collectionKey != key );
+        this.setState(state);
+        setTimeout(() => {
+          this.getMarketPlace(this.state.uid);  
+        }, timeToRefreshAfterLikeOrUnlike);
+        
+        // alert("This product has been added to your WishList 💕.");
+      })
     }
 
     else {
@@ -1128,7 +1127,13 @@ class Products extends Component {
         
         <View style={styles.filterModalFooter}>
           <Text
-          onPress={()=>{this.state.selectedBrands.length > 0 || this.state.selectedType || this.state.selectedConditions.length > 0 ? this.filterMarketPlace() : this.getMarketPlace(this.state.uid); this.setState({showFilterModal: false})}}
+          onPress={
+            ()=>{
+              this.state.selectedBrands.length > 0 || this.state.selectedType || this.state.selectedConditions.length > 0 ? 
+                this.filterMarketPlace() 
+                : 
+                this.getMarketPlace(this.state.uid); 
+              this.setState({showFilterModal: false})}}
           style={new avenirNextText(false, 18, "400")}
           >
           APPLY
@@ -1169,14 +1174,16 @@ class Products extends Component {
       )
     }
 
-    else if(!emptyMarket && noResultsFromFilter){
+    else if(noResultsFromFilter){
 
       return(
-        <View style={{marginTop: 22, backgroundColor: 'blue', padding: 5}}>
+        <View style={{flex: 1, marginTop: 22, backgroundColor: '#fff', padding: 5, alignItems: 'center'}}>
 
-          <NothingHereYet specificText={noResultsFromSearchText} />
+          <View style={{flex: 0.2, }}>
+            <NothingHereYet specificText={noResultsFromSearchText} />
+          </View>
 
-          <View style={styles.filterButtonContainerNoMarket}>
+          <View style={{flex: 0.8, alignItems: 'center', justifyContent: 'center'}}>
             <Button  
               buttonStyle={styles.filterButtonStyleNoMarket}
               icon={{name: 'filter', type: 'material-community'}}
@@ -1184,6 +1191,7 @@ class Products extends Component {
               onPress={() => this.setState({ showFilterModal: true }) } 
             />
           </View>
+          {this.renderFilterModal()}
 
         </View>
       )
