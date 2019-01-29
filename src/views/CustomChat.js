@@ -94,10 +94,10 @@ class CustomChat extends Component {
         }
       })
       .then( () => {
-        console.log('successfully subscribed to room');
+        // console.log('successfully subscribed to room');
         this.currentUser.fetchMessages({roomId: id, direction: 'newer', limit: 60})
         .then((messages) => {
-          console.log(messages);
+          // console.log(messages);
           messages = messages.reverse();
           messages = messages.map( (message) => {
             return {
@@ -110,7 +110,7 @@ class CustomChat extends Component {
               _id: String(message.id)
             }
           })
-          console.log(messages);
+          // console.log(messages);
           this.setState({messages, isGetting: false})
         })
       })
@@ -156,7 +156,7 @@ class CustomChat extends Component {
   //onReceive function not supposed to be here?
   //Think he's using renderMessage to produce the UI which receives the messages as props
   onReceive(data, buyerIdentification, sellerIdentification) {
-    console.log(data);
+    // console.log(data);
     //...
     const { id, senderId, text, createdAt, sender } = data;
     const {avatarURL, name} = sender;
@@ -230,7 +230,7 @@ class CustomChat extends Component {
     var chattingWithPersonIdentification = params.buyerIdentification && params.sellerIdentification ? sellerIdentification == CHATKIT_USER_NAME ? buyerIdentification : sellerIdentification : false
     var chattingWithPersonNamed = buyer && seller ? sellerIdentification == CHATKIT_USER_NAME ? buyer : seller : false
     var chattingWithPersonThatLooksLike = buyer && seller ? sellerIdentification == CHATKIT_USER_NAME ? buyerAvatar : sellerAvatar : false
-    console.log(chattingWithPersonNamed);
+    // console.log(chattingWithPersonNamed);
     // console.log(this.state.messages);
 
     if(this.state.isGetting) {

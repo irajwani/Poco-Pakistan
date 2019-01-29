@@ -340,11 +340,19 @@ class OtherUserProfilePage extends Component {
             <Text style={styles.modalText}>If you believe this user has breached the Terms and Conditions for usage of NottMyStyle (for example, through proliferation of malicious content, or improper language), then please explain this to the NottMyStyle Team through email by selecting Report User.</Text>
             <View style={styles.documentOpenerContainer}>
                 {usersBlocked.includes(otherUserUid) ?
-                    <Text style={styles.blockUser} onPress={() => {this.unblockUser(otherUserUid)}}>
+                    <Text style={styles.blockUser} 
+                    onPress={() => {
+                      this.unblockUser(otherUserUid); 
+                      //this.setState({showBlockOrReportModal: false});
+                      }}>
                         Unblock User
                     </Text>
                 :
-                    <Text style={styles.blockUser} onPress={() => {this.blockUser(otherUserUid)}}>
+                    <Text style={styles.blockUser} 
+                    onPress={() => {
+                      this.blockUser(otherUserUid);
+                      //this.setState({showBlockOrReportModal: false});
+                      }}>
                         Block User
                     </Text>
                 }

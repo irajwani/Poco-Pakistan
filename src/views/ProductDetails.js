@@ -107,7 +107,10 @@ class ProductDetails extends Component {
       name: '',
       description: '',
       paymentStatus: "pending",
-      postOrNah: 'post'
+      postOrNah: 'post',
+
+      //Ability to chat with individual selling this product
+      canChatWithOtherUser: false
     }
   }
 
@@ -144,15 +147,16 @@ class ProductDetails extends Component {
       var chat = chats ? chats.find( (chat) => {return chat.name == `${data.key}.${uid}`} ) : false;
       //In case, the conversation for this particular product between these particular buyers and sellers
       //has not begun yet, we move on.
-      chat = chat == undefined ? undefined : null
+      chat = chat == undefined ? false : chat
       // console.log(chat);
       //get keys of current user's products
       // var productKeys = d.Users[uid].products ? Object.keys(d.Users[uid].products) : [];
 
       /////BELIEVE THESE TO BE UNNECESSARY AS OTHER_USER_PROFILE_PAGE LOADS THEM INDEPENDENTLY A PARTICULAR UID.
       //get usersBlocked for current user
-      // var rawUsersBlocked = d.Users[uid].usersBlocked ? d.Users[uid].usersBlocked : {};
-      // var yourUsersBlocked = removeFalsyValuesFrom(rawUsersBlocked);
+      var rawUsersBlocked = d.Users[uid].usersBlocked ? d.Users[uid].usersBlocked : false;
+      var usersBlocked = rawUsersBlocked ? removeFalsyValuesFrom(rawUsersBlocked) : [];
+      var canChatWithOtherUser = usersBlocked.includes(data.uid) ? false : true;
       // console.log(yourUsersBlocked);
 
       //get collection keys of current user
@@ -202,7 +206,8 @@ class ProductDetails extends Component {
         yourProfile, uid, otherUserUid, profile, productComments, addresses,
         price: data.text.price, name: data.text.name, sku: data.key, description: data.text.description.replace(/ +/g, " ").substring(0,124),
         chat,
-        totalPrice: Number(data.text.price) + Number(data.text.post_price)
+        totalPrice: Number(data.text.price) + Number(data.text.post_price),
+        canChatWithOtherUser
       } )
     })
     .then( () => {
@@ -241,14 +246,14 @@ class ProductDetails extends Component {
   }
 
   navToChat(uid, key) {
-
+    console.log('ATTEMPTING TO NAVIGATE TO CHAT')
     //if you posted this product yourself, then buying it is trivial,
     //and you should see a modal saying 'you own this product already'
     this.setState({navToChatLoading: true});
     
-    if(this.state.chat) {
-      const {productSellerId, id, buyer, seller, buyerAvatar, sellerAvatar, buyerIdentification, sellerIdentification} = this.state;
-    }
+    
+    const {productSellerId, id, buyer, seller, buyerAvatar, sellerAvatar, buyerIdentification, sellerIdentification} = this.state.chat;
+    
     
     
     // console.log(key);
@@ -282,14 +287,18 @@ class ProductDetails extends Component {
       .catch(err => {
         console.log(`Couldn't join room because: ${err}`)
       })
-      console.log(this.currentUser.rooms);
+
+      // if(!this.state.chat) {
+
+      // }
+      // console.log(this.currentUser.rooms);
       var desiredRoomsName = key + '.' + CHATKIT_USER_NAME
       var roomExists = this.currentUser.rooms.filter(room => (room.name == desiredRoomsName));
       //create a new room for specifically for this buyer, seller and product & navigate to the chat room
       //unless the room already exists, in which case, just navigate to it
 
       if(this.currentUser.rooms.length > 0 && roomExists.length > 0) {
-        console.log('no need to create a brand new room');
+        // console.log('no need to create a brand new room');
         this.setState({navToChatLoading: false});
         // this.props.navigation.navigate( 'CustomChat', {id: this.findRoomId(this.currentUser.rooms, desiredRoomsName)} )
         this.props.navigation.navigate('CustomChat', {productSellerId, id, buyer, buyerAvatar, seller, sellerAvatar, buyerIdentification, sellerIdentification })
@@ -330,7 +339,7 @@ class ProductDetails extends Component {
           
           newConversationUpdate['/Users/' + uid + '/conversations/' + room.id + '/'] = newConversation; 
           firebase.database().ref().update(newConversationUpdate);
-          console.log(`Created room called ${room.name}`)
+          // console.log(`Created room called ${room.name}`)
           this.setState({navToChatLoading: false});
           //TODO: next line is untested
           this.props.navigation.navigate('CustomChat', {productSellerId: this.state.otherUserUid, id: room.id, buyer: this.state.yourProfile.name, buyerAvatar: this.state.yourProfile.uri, seller: this.state.profile.name, sellerAvatar: this.state.profile.uri, buyerIdentification: this.state.uid, sellerIdentification: this.state.otherUserUid })
@@ -664,7 +673,20 @@ class ProductDetails extends Component {
                     index != 1 ?
                     <View style={styles.collectionInPersonContainer}>
 
-                      <TouchableOpacity style={[styles.collectionInPersonButton, {width: index == 0 ? chatButtonWidth : paymentButtonWidth}]}>
+                      <TouchableOpacity 
+                      style={[styles.collectionInPersonButton, {width: index == 0 ? chatButtonWidth : paymentButtonWidth}]}
+                      onPress = { () => { 
+                                // console.log('going to chat');
+                                //subscribe to room key
+                                index == 0 ? 
+                                  this.state.canChatWithOtherUser ? 
+                                    this.navToChat(this.props.navigation.state.params.data.uid, this.props.navigation.state.params.data.key)
+                                    :
+                                    alert('You cannot create a chat with an individual that you have blocked.\n Please unblock them to proceed. ')
+                                  : 
+                                  this.proceedToPayment('noPost')
+                                } }
+                      >
 
                         <View style={styles.collectionInPersonOptionsContainer}>
 
@@ -672,14 +694,7 @@ class ProductDetails extends Component {
                             name={index == 0 ? 'message-text-outline' : "credit-card"}
                             size={paymentScreensIconSize}
                             color={chatIcon.color}
-                            onPress = { () => { 
-                                // console.log('going to chat');
-                                //subscribe to room key
-                                index == 0 ? 
-                                  this.navToChat(this.props.navigation.state.params.data.uid, this.props.navigation.state.params.data.key)
-                                  : 
-                                  this.proceedToPayment('noPost');
-                                } }
+                            
 
                           />
                           <Text style={new avenirNextText('black', 20, "300")}>
@@ -1154,11 +1169,18 @@ class ProductDetails extends Component {
                 name='message-text-outline'
                 size={38}
                 color={chatIcon.color}
-                onPress = { () => { 
-                    // console.log('going to chat');
-                    //subscribe to room key
-                    this.navToChat(data.uid, data.key);
-                    } }
+                onPress = {
+                  this.state.canChatWithOtherUser ? 
+                    () => { 
+                        // console.log('going to chat');
+                        //subscribe to room key
+                        this.navToChat(data.uid, data.key);
+                        } 
+                    :
+                    () => {
+                      alert('You cannot create a chat with an individual that you have blocked.\n Please unblock them to proceed. ');
+                    }    
+                  }
 
               />
               <TouchableOpacity

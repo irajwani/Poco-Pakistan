@@ -34,18 +34,29 @@ function removeFalsyValuesFrom(object) {
 // });
 
 
+// function getAllMethodNames(obj) {
+//     let methods = new Set();
+//     //Imad used incorrect equals signs here though,
+//     while (obj = Reflect.getPrototypeOf(obj)) {
+//       let keys = Reflect.ownKeys(obj)
+//       keys.forEach((k) => methods.add(k));
+//     }
+//     return methods;
+//   }
+
+// console.log(getAllMethodNames(chatkit))
+// console.log(Object.keys(chatkit), chatkit, Chatkit);
 //FUNCTION NUMBAH 0:
 exports.deleteConversation = functions.database.ref('/Users/{uid}/conversations/{roomId}').onDelete( 
     (snapshot, context) => {
     
     var roomId = context.params.roomId;
+    // console.log(chatkit);
     //TODO: Assuming that this function will quietly fail if this room has already been deleted. 
-    chatkit.deleteRoom({
-        id: roomId
-    })
+    chatkit.deleteRoom({id: roomId})
     .then(() => {
-
-        return null
+        console.log(`deleted room ${roomId} forever.`);
+        return null;
     })
     .catch((err) => console.log(`failed to delete room: ${roomId} because of: ${err}`))
 
