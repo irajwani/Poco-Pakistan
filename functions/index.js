@@ -19,6 +19,13 @@ function timeSince(date) {
     
 }
 
+function removeFalsyValuesFrom(object) {
+    const newObject = {};
+    Object.keys(object).forEach((property) => {
+      if (object[property]) {newObject[property] = object[property]}
+    })
+    return Object.keys(newObject);
+}
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 //
@@ -28,11 +35,11 @@ function timeSince(date) {
 
 
 //FUNCTION NUMBAH 0:
-exports.deleteConversation = functions.database.ref('/Users/{uid}/conversations/{roomId}/').onDelete( 
+exports.deleteConversation = functions.database.ref('/Users/{uid}/conversations/{roomId}').onDelete( 
     (snapshot, context) => {
     
     var roomId = context.params.roomId;
-    
+    //TODO: Assuming that this function will quietly fail if this room has already been deleted. 
     chatkit.deleteRoom({
         id: roomId
     })
@@ -44,6 +51,21 @@ exports.deleteConversation = functions.database.ref('/Users/{uid}/conversations/
 
     }
 )
+
+// exports.leaveYourRooms = functions.https.onRequest( (req, res) => {
+
+// })
+
+// exports.leaveYourRooms = functions.database.ref('/users/{uid}/usersBlocked/').onWrite( 
+//     (snapshot, context) => {
+//         var rawUsersBlocked = snapshot.val();
+//         var usersBlocked = removeFalsyValuesFrom(rawUsersBlocked);
+//         var uid = context.params.uid;
+//         //if you block any user, then remove:
+//         //1. cloud db reference from conversations
+//         //2. pusher chatkit room
+
+// })
 
 //FUNCTION NUMBAH 1 :
 exports.createNewUser = functions.database.ref('/Users/{uid}/profile/').onCreate( 
@@ -345,3 +367,15 @@ exports.updateProducts = functions.database.ref('Users/{uid}/{products}').onWrit
         return null;
     }
 )
+
+
+// exports.dbWrite = functions.database.ref('/path/with/{id}').onWrite((data, context) => {
+//     const authVar = context.auth; // Auth information for the user.
+//     const authType = context.authType; // Permissions level for the user.
+//     const pathId = context.params.id; // The ID in the Path.
+//     const eventId = context.eventId; // A unique event ID.
+//     const timestamp = context.timestamp; // The timestamp at which the event happened.
+//     const eventType = context.eventType; // The type of the event that triggered this function.
+//     const resource = context.resource; // The resource which triggered the event.
+//     // ...
+//   });

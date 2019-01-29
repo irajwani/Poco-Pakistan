@@ -306,7 +306,7 @@ class Products extends Component {
       else {
         const {showCollection, showYourProducts} = this.props;
         var emptyMarket = false;
-        var productKeys = false, collectionKeys = false;
+        var productKeys = [], collectionKeys = [];
 
         if(Users[uid].products) {
           productKeys = Object.keys(Users[uid].products)
@@ -424,7 +424,21 @@ class Products extends Component {
     state.rightProducts = selectedConditions.length > 0 ? state.rightProducts.filter( (product) => selectedConditions.includes(product.text.condition)) : state.rightProducts;
     state.rightProducts = selectedSize ? state.rightProducts.filter( (product) => selectedSize == product.text.size ) : state.rightProducts;
     console.log(state.leftProducts, state.rightProducts);
-    state.noResultsFromFilter = !state.leftProducts.length > 0 && !state.rightProducts.length > 0 ? true : false;
+    state.noResultsFromFilter = state.leftProducts.length > 0 ? false : true;
+
+    this.setState(state);
+  }
+
+  clearFilters = () => {
+    const {...state} = this.state;
+    state.brands.forEach( (brand) => brand.selected = false);
+    state.conditions.forEach( (condition) => condition.selected = false);
+    state.selectedBrands = [];
+    state.searchTerm = '';
+    state.selectedType = '';
+    state.selectedCategory = 'Women';
+    state.selectedConditions = [];
+    state.selectedSize = '';
 
     this.setState(state);
   }
@@ -951,18 +965,8 @@ class Products extends Component {
           <Text
           onPress={()=>{
             // let brandsReset = this.state.brands;
-            const {...state} = this.state;
-            state.brands.forEach( (brand) => brand.selected = false);
-            state.conditions.forEach( (condition) => condition.selected = false);
-            state.selectedBrands = [];
-            state.searchTerm = '';
-            state.selectedType = '';
-            state.selectedCategory = 'Women';
-            state.selectedConditions = [];
-            state.selectedSize = '';
-
-            this.setState(state);
-            this.getMarketPlace(this.state.uid)
+            this.clearFilters();
+            this.getMarketPlace(this.state.uid);
           }}
           style={styles.filterModalHeaderClearText}>
           Reset
@@ -1170,13 +1174,20 @@ class Products extends Component {
         
         <View style={styles.filterModalFooter}>
           <Text
-          onPress={
-            ()=>{
-              this.state.selectedBrands.length > 0 || this.state.selectedType || this.state.selectedConditions.length > 0 || this.state.selectedSize ? 
-                this.filterMarketPlace() 
-                : 
-                this.getMarketPlace(this.state.uid); 
-              this.setState({showFilterModal: false})}}
+          onPress={this.state.selectedBrands.length > 0 || this.state.selectedType || this.state.selectedConditions.length > 0 || this.state.selectedSize ?
+            () => {
+              this.getMarketPlace(this.state.uid); 
+              this.filterMarketPlace();
+              this.setState({showFilterModal: false});
+            }
+            :
+            () => {
+              this.getMarketPlace(this.state.uid); 
+              this.setState({showFilterModal: false});
+            }
+            
+            
+           }
           style={new avenirNextText(false, 18, "400")}
           >
           APPLY
