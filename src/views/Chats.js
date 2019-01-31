@@ -394,7 +394,9 @@ class Chats extends Component {
 
             <TouchableOpacity onLongPress={() => this.handleLongPress(index)} onPress={() => this.navToChat(chat)} style={styles.textContainer}>
               <Text style={styles.otherPersonName}>{this.state.yourUid == chat.sellerIdentification ? (chat.buyer.split(' '))[0] : (chat.seller.split(' '))[0] }</Text>
-              <Text style={styles.lastMessageText}>{chat.lastMessage.lastMessageText ? this.state.yourUid == chat.sellerIdentification ? `${(chat.buyer.split(' '))[0]}: ${chat.lastMessage.lastMessageText}` : `${(chat.seller.split(' '))[0]}: ${chat.lastMessage.lastMessageText}` : "Empty conversation"}</Text>
+              <Text style={styles.lastMessageText}>
+              {chat.lastMessage.lastMessageText ? this.state.yourUid == chat.sellerIdentification ? `${(chat.buyer.split(' '))[0]}: ${chat.lastMessage.lastMessageText.substring(0,60)}` : `${(chat.seller.split(' '))[0]}: ${chat.lastMessage.lastMessageText.substring(0,60)}` : "Empty conversation"}
+              </Text>
               <Text style={styles.lastMessageDate}>{DaysOfTheWeek[chat.lastMessage.lastMessageDate]}</Text>
             </TouchableOpacity>
 

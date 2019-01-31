@@ -35,7 +35,7 @@ class CustomChat extends Component {
       this.getConversation(username);
       this.conversationTimer = setInterval(() => {
         this.getConversation(username);
-      }, 10000); //TODO: bad idea possibly?
+      }, 20000); //TODO: bad idea possibly?
     }, 1000);
   }
 

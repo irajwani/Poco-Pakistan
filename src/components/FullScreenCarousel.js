@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import {TouchableOpacity} from 'react-native';
 import styled from "styled-components/native"; // 3.1.6
 import Carousel, {Pagination} from 'react-native-snap-carousel'; // 3.6.0
-import { graphiteGray, treeGreen, optionLabelBlue } from '../colors';
+import { graphiteGray, mantisGreen, lightGray } from '../colors';
 // import { iOSColors } from 'react-native-typography';
 
-class CustomCarousel extends Component {
+class FullScreenCarousel extends Component {
 
   constructor(props){
     super();
@@ -61,10 +60,10 @@ class CustomCarousel extends Component {
               // height: 10,
               // borderRadius: 5,
               // marginHorizontal: 8,
-              backgroundColor: optionLabelBlue
+              backgroundColor: mantisGreen
           }}
           inactiveDotStyle={{
-              backgroundColor: graphiteGray
+              backgroundColor: lightGray
               // Define styles for inactive dots here
           }}
           inactiveDotOpacity={0.4}
@@ -81,9 +80,8 @@ class CustomCarousel extends Component {
 
     return (
 
-      <TouchableBackground onPress={this.props.onPress}>
+      <CarouselBackgroundView>
         <Carousel
-          
           ref={ (c) => { this._carousel = c; } }
           data={this.props.data}
           renderItem={this._renderItem.bind(this)}
@@ -94,13 +92,13 @@ class CustomCarousel extends Component {
           firstItem={0}
         />
         { this.pagination }
-      </TouchableBackground>
+      </CarouselBackgroundView>
 
     );
   }
 }
 
-export default CustomCarousel;
+export default FullScreenCarousel;
 
 
 const VideoTitleText = styled.Text`
@@ -111,28 +109,22 @@ const VideoTitleText = styled.Text`
 const CurrentVideoImage = styled.Image`
   ${'' /* top: 5; */}
   ${'' /* box-shadow: 5px 10px; */}
-  width: 256;
-  height: 190;
+  width: 275;
+  height: 400;
   border-radius: 0;
-  border-width: 2;
+  border-width: 0;
   border-color: gray
 `;
 
 const ThumbnailBackgroundView = styled.View`
   justify-content: center;
   align-items: center;
-  width: 256; 
+  width: 275; 
 `;
 
 const CurrentVideoTO = styled.TouchableOpacity`
 `
 const CarouselBackgroundView = styled.View`
-  background-color: #fff;
-  ${'' /* height: 200; */}
-  width: 100%;
-`
-
-const TouchableBackground = styled.TouchableOpacity`
   background-color: #fff;
   ${'' /* height: 200; */}
   width: 100%;

@@ -9,7 +9,7 @@ import firebase from '../cloud/firebase.js';
 import MultipleAddButton from '../components/MultipleAddButton.js';
 import { iOSColors } from 'react-native-typography';
 import { EulaTop, EulaBottom, TsAndCs, PrivacyPolicy, EulaLink } from '../legal/Documents.js';
-import { confirmBlue, rejectRed, treeGreen, bobbyBlue, highlightGreen, profoundPink, darkBlue, tealBlue, lightGreen, coolBlack, darkGray } from '../colors.js';
+import { confirmBlue, rejectRed, treeGreen, bobbyBlue, highlightGreen, profoundPink, darkBlue, tealBlue, lightGreen, coolBlack, darkGray, logoGreen, fbBlue } from '../colors.js';
 import { PacmanIndicator } from 'react-native-indicators';
 import {WhiteSpace} from '../localFunctions/visualFunctions';
 
@@ -40,7 +40,7 @@ class CreateProfile extends Component {
           firstName: params.googleUserBoolean || params.facebookUserBoolean ? params.user.displayName.split(" ")[0] : '',
           lastName: params.googleUserBoolean || params.facebookUserBoolean ? params.user.displayName.split(" ")[1] : '',    
           country: '',
-          size: 1,
+        //   size: 1,
           uri: undefined,
           insta: '',
           fabActive: true,
@@ -147,34 +147,34 @@ class CreateProfile extends Component {
     //TODO: size shouldn't be here
     var updates = {};
     var updateEmptyProducts = {};
-    switch(data.size) {
-        case 0:
-            data.size = 'Extra Small'
-            break; 
-        case 1:
-            data.size = 'Small'
-            break;
-        case 2:
-            data.size = 'Medium'
-            break;
-        case 3:
-            data.size = 'Large'
-            break;
-        case 4:
-            data.size = 'Extra Large'
-            break;
-        case 5:
-            data.size = 'Extra Extra Large'
-            break;
-        default:
-            data.size = 'Medium'
-            console.log('no gender was specified')
-    }
+    // switch(data.size) {
+    //     case 0:
+    //         data.size = 'Extra Small'
+    //         break; 
+    //     case 1:
+    //         data.size = 'Small'
+    //         break;
+    //     case 2:
+    //         data.size = 'Medium'
+    //         break;
+    //     case 3:
+    //         data.size = 'Large'
+    //         break;
+    //     case 4:
+    //         data.size = 'Extra Large'
+    //         break;
+    //     case 5:
+    //         data.size = 'Extra Extra Large'
+    //         break;
+    //     default:
+    //         data.size = 'Medium'
+    //         console.log('no gender was specified')
+    // }
 
     var postData = {
         name: data.firstName + " " + data.lastName, //data.firstName.concat(" ", data.lastName)
         country: data.country,
-        size: data.size,
+        // size: data.size,
         insta: data.insta ? data.insta : '',
         //TODO: Add user uid here to make navigation to their profile page easier. 
         //Occam's razor affirms the notion: To have it available to append to any branch later, it must exist for the first time at the source.
@@ -419,7 +419,9 @@ class CreateProfile extends Component {
     // googleUser && googlePhotoURL ? pictureuris = [googlePhotoURL] : 'nothing here';
 
     var pictureuris = navigation.getParam('pictureuris', "nothing here");
-    this.state.previousUri ? pictureuris = [this.state.previousUri] : null;
+    // console.log(pictureuris);
+    (this.state.previousUri && pictureuris == "nothing here") ? pictureuris = [this.state.previousUri] : null;
+    console.log(pictureuris);
     // console.log(pictureuris[0].includes('googleusercontent'))
     // console.log(googleUser, googleUserBoolean, pictureuris);
     var conditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1) && (this.state.pass == this.state.pass2) && (this.state.pass.length >= 6);
@@ -442,33 +444,34 @@ class CreateProfile extends Component {
 
     return (
         <ScrollView style={styles.mainContainer} contentContainerStyle={styles.container}>
-            <View style={ {flexDirection: 'row', backgroundColor: '#fff', justifyContent: 'space-between', padding: 5 } }>
-                <Button  
-                    buttonStyle={ {
-                        backgroundColor: 'black',
-                        // width: width/3 +20,
-                        // height: height/15,
-                        borderRadius: 5,
-                    }}
-                    icon={{name: 'chevron-left', type: 'material-community'}}
-                    title='Back'
-                    onPress={() => this.props.navigation.goBack() } 
-                />
-                <Button  
-                    buttonStyle={ {
-                        backgroundColor: treeGreen,
-                        // width: width/3 +20,
-                        // height: height/15,
-                        borderRadius: 5,
-                    }}
-                    icon={{name: 'help', type: 'material-community'}}
-                    title='Help'
-                    onPress={() => this.setState({infoModalVisible: true}) } 
-                />
-            </View>
+            
             <Text style={{fontFamily: 'Avenir Next', fontWeight: '300', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text>
             
-            <MultipleAddButton navToComponent = {'CreateProfile'} pictureuris={pictureuris} />
+            <View style={styles.backIconAndMABAndHelpContainer}>
+                <View style={{flex: 0.06, justifyContent: 'flex-start',}}>
+                    <FontAwesomeIcon
+                    name='chevron-left'
+                    size={28}
+                    color={'black'}
+                    onPress = { () => { 
+                        this.props.navigation.goBack();
+                        } }
+
+                    />
+                </View>
+                <View style={{flex: 0.88, justifyContent: 'flex-start', alignItems: 'center',  }}>
+                    <MultipleAddButton navToComponent = {'CreateProfile'} pictureuris={pictureuris} />
+                </View>
+                <View style={{flex: 0.06, justifyContent: 'flex-start', alignItems: 'center'}}>
+                    <Icon
+                    name='help'
+                    size={22}
+                    color={bobbyBlue}
+                    onPress={() => this.setState({infoModalVisible: true}) } 
+
+                    />
+                </View>    
+            </View>
     
             
             {
@@ -580,7 +583,7 @@ class CreateProfile extends Component {
             
             <Sae
                 labelStyle={{color: profoundPink}}
-                label={'@instagram handle'}
+                label={'Instagram Handle (w/o @)'}
                 iconClass={FontAwesomeIcon}
                 iconName={'instagram'}
                 iconColor={profoundPink}
@@ -590,21 +593,11 @@ class CreateProfile extends Component {
                 inputStyle={{ color: profoundPink }}
             />
 
-            <WhiteSpace height={50}/>
+            <WhiteSpace height={110}/>
             
     
             
-            <Text style={{fontFamily: 'Avenir Next', fontWeight: '400', fontSize: 20, textAlign: 'center', marginTop: 10}}>What size clothes do you wear?</Text>
-            <ButtonGroup
-                onPress={ (index) => {this.setState({size: index})}}
-                selectedIndex={this.state.size}
-                buttons={ ['XS', 'S', 'M', 'L', 'XL', 'XXL'] }
-                containerStyle={styles.buttonGroupContainer}
-                buttonStyle={styles.buttonGroup}
-                textStyle={styles.buttonGroupText}
-                selectedTextStyle={styles.buttonGroupSelectedText}
-                selectedButtonStyle={styles.buttonGroupSelectedContainer}
-            />
+            
     
             {/* Modal to show legal docs and agree to them before one can create Profile */}
             <Modal
@@ -768,8 +761,9 @@ export default CreateProfile;
 const styles = StyleSheet.create({
     mainContainer: {
         marginTop: 22,
-        borderTopWidth: 1,
-        borderTopColor: treeGreen
+        // borderTopWidth: 1,
+        // borderTopColor: treeGreen,
+        paddingTop: 5,
     },
     container: {
         flexGrow: 1, 
@@ -782,6 +776,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
 
     },
+
+    backIconAndMABAndHelpContainer: {marginTop: 5, flexDirection: 'row', paddingVertical: 5, paddingRight: 2, paddingLeft: 1 },
     modal: {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', padding: 10, marginTop: 22},
     modalHeader: {
         textAlign: 'center',
@@ -877,6 +873,31 @@ const styles = StyleSheet.create({
         letterSpacing: 1.5
     }
 })
+
+{/* <View style={ {flexDirection: 'row', backgroundColor: '#fff', justifyContent: 'space-between', padding: 5 } }>
+                <Button  
+                    buttonStyle={ {
+                        backgroundColor: 'black',
+                        // width: width/3 +20,
+                        // height: height/15,
+                        borderRadius: 5,
+                    }}
+                    icon={{name: 'chevron-left', type: 'material-community'}}
+                    title='Back'
+                    onPress={() => this.props.navigation.goBack() } 
+                />
+                <Button  
+                    buttonStyle={ {
+                        backgroundColor: treeGreen,
+                        // width: width/3 +20,
+                        // height: height/15,
+                        borderRadius: 5,
+                    }}
+                    icon={{name: 'help', type: 'material-community'}}
+                    title='Help'
+                    onPress={() => this.setState({infoModalVisible: true}) } 
+                />
+            </View> */}
 
 // if(googleUserBoolean) {
 //     return (

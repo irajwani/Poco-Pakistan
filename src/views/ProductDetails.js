@@ -7,6 +7,7 @@ import { withNavigation } from 'react-navigation';
 import firebase from '../cloud/firebase';
 
 import CustomCarousel from '../components/CustomCarousel';
+import FullScreenCarousel from '../components/FullScreenCarousel';
 // import CustomComments from '../components/CustomComments';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 // import styles from '../styles.js'
@@ -25,6 +26,7 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import { avenirNextText, delOpt, deliveryOptions } from '../constructors/avenirNextText';
 import { WhiteSpace, LoadingIndicator, CustomTouchableO } from '../localFunctions/visualFunctions';
 import NottLogo from '../../nottLogo/ios/NottLogo.js';
+
 
 var {height, width} = Dimensions.get('window');
 
@@ -87,6 +89,7 @@ class ProductDetails extends Component {
       collectionKeys: [3],
       showFullDescription: false,
       productComments: '',
+      showPictureModal: false,
       showReportUserModal: false,
       report: '',
       //Purchase Modal Stuff
@@ -246,16 +249,12 @@ class ProductDetails extends Component {
   }
 
   navToChat(uid, key) {
-    console.log('ATTEMPTING TO NAVIGATE TO CHAT')
-    //if you posted this product yourself, then buying it is trivial,
-    //and you should see a modal saying 'you own this product already'
+    
     this.setState({navToChatLoading: true});
-    
-    
-    const {productSellerId, id, buyer, seller, buyerAvatar, sellerAvatar, buyerIdentification, sellerIdentification} = this.state.chat;
-    
-    
-    
+    console.log('ATTEMPTING TO NAVIGATE TO CHAT');
+
+    const {chat} = this.state;
+
     // console.log(key);
     //create separate Chats branch
     const CHATKIT_USER_NAME = firebase.auth().currentUser.uid;
@@ -292,13 +291,17 @@ class ProductDetails extends Component {
 
       // }
       // console.log(this.currentUser.rooms);
-      var desiredRoomsName = key + '.' + CHATKIT_USER_NAME
-      var roomExists = this.currentUser.rooms.filter(room => (room.name == desiredRoomsName));
+      
       //create a new room for specifically for this buyer, seller and product & navigate to the chat room
       //unless the room already exists, in which case, just navigate to it
 
-      if(this.currentUser.rooms.length > 0 && roomExists.length > 0) {
+      //old condition: this.currentUser.rooms.length > 0 && roomExists.length > 0
+      
+      // var roomExists = this.currentUser.rooms.filter(room => (room.name == desiredRoomsName));
+
+      if(this.state.chat) {
         // console.log('no need to create a brand new room');
+        const {productSellerId, id, buyer, seller, buyerAvatar, sellerAvatar, buyerIdentification, sellerIdentification} = this.state.chat;
         this.setState({navToChatLoading: false});
         // this.props.navigation.navigate( 'CustomChat', {id: this.findRoomId(this.currentUser.rooms, desiredRoomsName)} )
         this.props.navigation.navigate('CustomChat', {productSellerId, id, buyer, buyerAvatar, seller, sellerAvatar, buyerIdentification, sellerIdentification })
@@ -306,6 +309,7 @@ class ProductDetails extends Component {
       }
       else {
         //TODO: account for navigation transition
+        var desiredRoomsName = key + '.' + CHATKIT_USER_NAME
         this.currentUser.createRoom({
           //base the room name on the following pattern: product key + dot + buyers uid
           name: desiredRoomsName,
@@ -510,6 +514,36 @@ class ProductDetails extends Component {
     this.setState({showPurchaseModal: false });
   }
 
+  renderPictureModal = () => {
+    return (
+      <Modal 
+      animationType="slide"
+      transparent={false}
+      visible={this.state.showPictureModal}
+      
+      >
+      <View style={styles.pictureModal}>
+
+        <View style={styles.pictureModalHeader}>
+          <FontAwesomeIcon
+          name='close'
+          size={28}
+          color={'black'}
+          onPress = { () => { 
+              this.setState({showPictureModal: false })
+              } }
+          />
+        </View>
+
+        <View style={styles.pictureModalBody}>
+          <FullScreenCarousel data={this.props.navigation.state.params.data.uris}/>
+        </View>
+
+      </View>
+      </Modal>
+    )
+  }
+
   renderPurchaseModal = () => {
     const {deliveryOptionModal, deliveryOptionHeader, backIconContainer, logoContainer, logo, deliveryOptionBody, deliveryOptionContainer, radioButton } = styles;
     const {activeScreen} = this.state;
@@ -678,13 +712,25 @@ class ProductDetails extends Component {
                       onPress = { () => { 
                                 // console.log('going to chat');
                                 //subscribe to room key
-                                index == 0 ? 
-                                  this.state.canChatWithOtherUser ? 
-                                    this.navToChat(this.props.navigation.state.params.data.uid, this.props.navigation.state.params.data.key)
-                                    :
-                                    alert('You cannot create a chat with an individual that you have blocked.\n Please unblock them to proceed. ')
-                                  : 
+                                if(index == 0) {
+                                  if(this.state.canChatWithOtherUser) {
+                                    this.setState({showPurchaseModal: false});
+                                    this.navToChat(this.props.navigation.state.params.data.uid, this.props.navigation.state.params.data.key);
+                                  }
+                                  else {
+                                    alert('You cannot create a chat with an individual that you have blocked.\n Please unblock them to proceed. ');
+                                  }
+                                } 
+                                else {
                                   this.proceedToPayment('noPost')
+                                }
+                                  
+                                  
+                                    
+                                    
+                                    
+                                  
+                                  
                                 } }
                       >
 
@@ -1080,7 +1126,7 @@ class ProductDetails extends Component {
               />
           </View>
           <View style={{flex: 0.965, justifyContent: 'flex-start', alignItems: 'center',  }}>        
-            <CustomCarousel data={params.data.uris} />
+            <CustomCarousel onPress={() => this.setState({showPictureModal: true})} data={params.data.uris} />
           </View>
         </View>
           {/* Product Name (Not Brand) and Price Row */}
@@ -1339,6 +1385,7 @@ class ProductDetails extends Component {
                       
               )}
           
+        {this.renderPictureModal()}
 
         {this.renderReportUserModal()}
 
@@ -1581,41 +1628,41 @@ const styles = StyleSheet.create( {
     fontWeight: 'bold'
   },
 
-  dalmationContainer: {
-    flexDirection: 'row',
-    padding: 5,
-    justifyContent: 'space-evenly'
-},
+//   dalmationContainer: {
+//     flexDirection: 'row',
+//     padding: 5,
+//     justifyContent: 'space-evenly'
+// },
 
-keyContainer: {
-    width: (width/2) - 30,
-    height: 40,
-    padding: 5,
-    justifyContent: 'center',
-},
+// keyContainer: {
+//     width: (width/2) - 30,
+//     height: 40,
+//     padding: 5,
+//     justifyContent: 'center',
+// },
 
-valueContainer: {
-    width: (width/2),
-    height: 40,
-    padding: 5,
-    justifyContent: 'center',
-},
+// valueContainer: {
+//     width: (width/2),
+//     height: 40,
+//     padding: 5,
+//     justifyContent: 'center',
+// },
 
-keyText: {
-    color: iOSColors.black,
-    fontFamily: 'TrebuchetMS-Bold',
-    fontSize: 15,
-    fontWeight: '400'
+// keyText: {
+//     color: iOSColors.black,
+//     fontFamily: 'TrebuchetMS-Bold',
+//     fontSize: 15,
+//     fontWeight: '400'
 
-},
+// },
 
-valueText: {
-    color: iOSColors.white,
-    fontFamily: 'Al Nile',
-    fontSize: 18,
-    fontWeight: '300'
+// valueText: {
+//     color: iOSColors.white,
+//     fontFamily: 'Al Nile',
+//     fontSize: 18,
+//     fontWeight: '300'
 
-},
+// },
 
 reportModal: {flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', padding: 25, marginTop: 22},
 reportModalHeader: {
@@ -1732,6 +1779,29 @@ descriptionContainer: {
 },
 
 description: {textAlign: 'justify', ...new avenirNextText(graphiteGray, 18, "300") },
+
+
+////Picture Modal Stuff
+
+pictureModal: {
+  marginTop: 18,
+  backgroundColor: '#fff',
+  flexDirection: 'column'
+},
+
+pictureModalHeader: {
+  // flex: 0.15,
+  flexDirection: 'row',
+  justifyContent: 'flex-start',
+  padding: 10,
+
+},
+
+pictureModalBody: {
+  // flex: 0.85,
+  // justifyContent: 'center',
+  // alignItems: 'center',
+},
 
 ////Purchase Modal Stuff
 
