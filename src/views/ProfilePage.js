@@ -186,7 +186,11 @@ class ProfilePage extends Component {
   render() {
     var {isGetting, comments, gradient} = this.state;
     console.log(comments, 'the user has no comments, perfectly harmless');
-    const gradientColors = [limeGreen,lightGreen, treeGreen];
+    // const gradientColors = ["#a2f76c", "#1c3a09"]
+    //kinda like this one
+    const gradientColors = ["#c8f966", "#307206", "#1c3a09"] 
+    
+    // const gradientColors = [limeGreen,lightGreen, treeGreen];
     // const gradientColors2 = ['#0a968f','#6ee5df', ];
 
     if(isGetting){
