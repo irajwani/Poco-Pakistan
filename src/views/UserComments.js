@@ -37,10 +37,10 @@ class UserComments extends Component {
 
         const {params} = this.props.navigation.state;
         const {comments} = params;
-        var noComments = false;
+        // var noComments = false;
         // console.log(typeof comments, comments)
         // comments.a.text.includes('No Reviews') ? noComments = true : null;
-        this.setState({comments});
+        this.setState({comments: comments ? comments : {}});
 
     }
 
@@ -108,9 +108,9 @@ class UserComments extends Component {
         const {name, uri} = yourProfile; //To upload a comment, attach the current Users profile details, in this case their name and profile pic uri
         
         var {comments, showDeleteRow} = this.state;
-        var emptyReviews = Object.keys(comments).length == 1 && Object.keys(comments).includes('a') ? true : false
-        var {a, ...restOfTheComments} = comments;
-        comments = emptyReviews ? {a} : restOfTheComments;
+        // var emptyReviews = Object.keys(comments).length == 1 && Object.keys(comments).includes('a') ? true : false
+        // var {a, ...restOfTheComments} = comments;
+        // comments = emptyReviews ? {a} : restOfTheComments;
 
         return (
             <View style={styles.mainContainer} >
@@ -119,9 +119,9 @@ class UserComments extends Component {
             <View style={styles.backAndSellerRow}>
                 <View style={styles.backIconContainer}>
                     <FontAwesomeIcon
-                    name='chevron-circle-left'
+                    name='arrow-left'
                     size={40}
-                    color={'#76ce1e'}
+                    color={'black'}
                     onPress = { () => { 
                         this.props.navigation.goBack();
                         } }
@@ -151,61 +151,66 @@ class UserComments extends Component {
              {/* Reviews for this user */}
 
              <ScrollView style={styles.contentContainerStyle} contentContainerStyle={styles.contentContainer}>
-             {Object.keys(comments).map(
-                  (comment) => (
-                  <TouchableOpacity 
-                  key={comment} style={[styles.commentContainer, {color: showDeleteRow ? almostWhite : '#fff'}]} 
-                  onLongPress={()=>this.setState({showDeleteRow: true})}
-                  >  
-                    {
-                    showDeleteRow && comments[comment].uri == uri ?
-                        <View style={styles.deleteCommentRow}>
-                            <Icon name="close" 
-                            size={22} 
-                            color={'black'}
-                            onPress={ () => {this.setState({showDeleteRow: false}) }}
-                            />
-                            <Text
-                            onPress={() => this.deleteComment(comment, uid)} 
-                            style={styles.deleteComment}>
-                                Delete
-                            </Text>
-                        </View>
-                    :
-                        null
-                    }
-                        {/* Ensure individual commenter's comment sends current user to their profile page. TODO: Blocked Users Later */}
-                      <View style={styles.commentPicAndTextRow}>
-
-                        {comments[comment].uri ?
-                        <TouchableHighlight 
-                        onPress={() => yourUid == comments[comment].uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(comments[comment].uid)} 
-                        style={styles.commentPic}
-                        >
-                          <Image style= {styles.commentPic} source={ {uri: comments[comment].uri} }/>
-                        </TouchableHighlight>  
+             {
+             comments ? 
+                Object.keys(comments).map(
+                    (comment) => (
+                    <TouchableOpacity 
+                    key={comment} style={[styles.commentContainer, {color: showDeleteRow ? almostWhite : '#fff'}]} 
+                    onLongPress={()=>this.setState({showDeleteRow: true})}
+                    >  
+                        {
+                        showDeleteRow && comments[comment].uri == uri ?
+                            <View style={styles.deleteCommentRow}>
+                                <Icon name="close" 
+                                size={22} 
+                                color={'black'}
+                                onPress={ () => {this.setState({showDeleteRow: false}) }}
+                                />
+                                <Text
+                                onPress={() => this.deleteComment(comment, uid)} 
+                                style={styles.deleteComment}>
+                                    Delete
+                                </Text>
+                            </View>
                         :
-                          <Image style= {styles.commentPic} source={ require('../images/companyLogo2.jpg') }/>
+                            null
                         }
-                          
-                        <View style={styles.textContainer}>
-                            <Text style={ styles.commentName }> {comments[comment].name} </Text>
-                            <Text style={styles.comment}> {comments[comment].text}  </Text>
+                            {/* Ensure individual commenter's comment sends current user to their profile page. TODO: Blocked Users Later */}
+                        <View style={styles.commentPicAndTextRow}>
+
+                            {comments[comment].uri ?
+                            <TouchableHighlight 
+                            onPress={() => yourUid == comments[comment].uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(comments[comment].uid)} 
+                            style={styles.commentPic}
+                            >
+                            <Image style= {styles.commentPic} source={ {uri: comments[comment].uri} }/>
+                            </TouchableHighlight>  
+                            :
+                            <Image style= {styles.commentPic} source={ require('../images/companyLogo2.jpg') }/>
+                            }
+                            
+                            <View style={styles.textContainer}>
+                                <Text style={ styles.commentName }> {comments[comment].name} </Text>
+                                <Text style={styles.comment}> {comments[comment].text}  </Text>
+                            </View>
+
                         </View>
 
-                      </View>
+                        <View style={styles.commentTimeRow}>
 
-                      <View style={styles.commentTimeRow}>
+                            <Text style={ styles.commentTime }> {comments[comment].time} </Text>
 
-                        <Text style={ styles.commentTime }> {comments[comment].time} </Text>
-
-                      </View>
-                      
-                  </TouchableOpacity>
-                  
-              )
-                      
-              )}
+                        </View>
+                        
+                    </TouchableOpacity>
+                    
+                )
+                        
+                )
+              :
+                null
+              }
             </ScrollView>
               
             <View style={{ flexDirection : 'row', bottom : this.height - this.state.visibleHeight}} >

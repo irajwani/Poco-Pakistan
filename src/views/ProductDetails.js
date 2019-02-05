@@ -193,7 +193,8 @@ class ProductDetails extends Component {
 
       //  = d.Users[data.uid].comments ? d.Users[data.uid].comments : {a: {text: 'No Reviews have been left for this seller.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
       
-      var productComments = d.Users[data.uid].products[data.key].comments ? d.Users[data.uid].products[data.key].comments : {a: {text: 'No Reviews have been left for this product yet.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
+      // var productComments = d.Users[data.uid].products[data.key].comments ? d.Users[data.uid].products[data.key].comments : {a: {text: 'No Reviews have been left for this product yet.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
+      var productComments = d.Users[data.uid].products[data.key].comments ? d.Users[data.uid].products[data.key].comments : {a: "nothing"};
       
       //When this component launches for the first time, we want to retrieve the person's addresses from the cloud (if they have any)
       //When this function is run everytime after
@@ -364,7 +365,11 @@ class ProductDetails extends Component {
 
   navToProductComments = (productInformation) => {
     const {yourProfile, profile, productComments, otherUserUid} = this.state;
-    this.props.navigation.navigate('ProductComments', {productInformation: productInformation, key: productInformation.key, comments: productComments, yourProfile: yourProfile, theirProfile: profile, uid: productInformation.uid });
+    this.props.navigation.navigate('ProductComments', {
+      productInformation: productInformation, key: productInformation.key, 
+      comments: productComments['a'] ? false : productComments, 
+      yourProfile: yourProfile, theirProfile: profile, uid: productInformation.uid 
+    });
   }
 
 
@@ -842,11 +847,18 @@ class ProductDetails extends Component {
                     style={[styles.addressContainerButton, {backgroundColor: this.state.addresses[key].selected ? lightGray : '#fff' }]}
                     >
                       <View style={styles.addressContainer}>
-                        <View style={styles.radioButton}>
-                          {this.state.addresses[key].selected ? <SelectedOptionBullet/> : null}
+
+                        <View style={{flex: 0.2, padding: 3}}>
+                          <View style={styles.radioButton}>
+                            {this.state.addresses[key].selected ? <SelectedOptionBullet/> : null}
+                          </View>
                         </View>
-                        <Text style={styles.addressText}>{this.state.addresses[key].addressOne + ", " + this.state.addresses[key].addressTwo + ", " + this.state.addresses[key].city + ","}</Text>
-                        <Text style={styles.addressText}>{this.state.addresses[key].postCode}</Text>
+
+                        <View style={{flex: 0.8, padding: 5}}>
+                          <Text style={styles.addressText}>{this.state.addresses[key].addressOne + ", " + this.state.addresses[key].addressTwo + ", " + this.state.addresses[key].city + ", " + this.state.addresses[key].postCode}</Text>
+                        </View>
+
+                        {/* <Text style={styles.addressText}>{this.state.addresses[key].postCode}</Text> */}
                       </View>
                     </TouchableOpacity>
                     <WhiteSpace height={10}/>
@@ -1099,9 +1111,9 @@ class ProductDetails extends Component {
 
           <View style={{height: 200, justifyContent: 'center', alignItems: 'center', padding: 10}}>
             <LoadingIndicator isVisible={navToChatLoading} color={logoGreen} type={'Wordpress'}/>
-            <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: logoGreen, textAlign: 'center'}}>
+            {/* <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: logoGreen, textAlign: 'center'}}>
               Navigating to Chat regarding purchase of {text.name}, by {text.brand}
-            </Text>
+            </Text> */}
           </View>  
 
         </View>
@@ -1132,7 +1144,7 @@ class ProductDetails extends Component {
           {/* Product Name (Not Brand) and Price Row */}
         <View style={styles.nameAndPriceRow}>
           <View style={styles.nameContainer}>
-            <Text style={new avenirNextText('black', 18, "300")}>{text.name.toUpperCase()}</Text>
+            <Text style={new avenirNextText('black', 15, "300")}>{text.name.toUpperCase().replace(/ +/g, " ")}</Text>
           </View>
 
           <View style={styles.likesContainer}>
@@ -1183,14 +1195,14 @@ class ProductDetails extends Component {
           <View style={styles.profileTextContainer}>
             <Text onPress={() => 
             {this.state.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(data.uid)}}
-            style={profileRowStyles.name}>
+            style={styles.profileText}>
               {profile.name}
             </Text>
-            <Text style={profileRowStyles.email}>
+            <Text style={styles.profileText}>
               {profile.country}
             </Text>
             {profile.insta ? 
-              <Text onPress={()=>Linking.openURL(`https://instagram.com/${profile.insta}`)} style={profileRowStyles.insta}>@{profile.insta}</Text>
+              <Text onPress={()=>Linking.openURL(`https://instagram.com/${profile.insta}`)} style={[styles.profileText, {color: "#800000"}]}>@{profile.insta}</Text>
              : 
               null
             }
@@ -1231,10 +1243,10 @@ class ProductDetails extends Component {
               />
               <TouchableOpacity
                 disabled={data.text.sold ? true : false} 
-                style={styles.purchaseButton}
+                style={[styles.purchaseButton, {backgroundColor: data.text.sold ? graphiteGray : mantisGreen}]}
                 onPress={() => {this.setState({showPurchaseModal: true})}} 
               >
-                <Text style={new avenirNextText("#fff",16,"400")}>Buy</Text>
+                <Text style={new avenirNextText("#fff",16,"400")}>{data.text.sold ? "Sold":"Buy"}</Text>
               </TouchableOpacity>
             </View>
           }
@@ -1248,12 +1260,26 @@ class ProductDetails extends Component {
         <View style={styles.detailsAndReportItemRow}>
 
             <View style={styles.detailsColumn}>
-              <Text style={[styles.detailsText, {fontSize: 20, color: 'black', fontWeight: '500'}]}>DETAILS</Text>
+              <Text style={[styles.detailsText, {fontSize: 20, color: 'black', fontWeight: '300'}]}>DETAILS</Text>
+              {/* Specific Details */}
               { Object.keys(details).map( (key, index) => ( 
-                <Text style={styles.detailsText} key={index}>
+                <Text style={[styles.detailsText, index == 4 && text.condition.length>10 ? {fontSize: 14} : null]} key={index}>
                 {key === 'original_price' ? 'Retail Price' : key.replace(key.charAt(0), key.charAt(0).toUpperCase())}: {key === 'original_price' ? `£${details[key]}` : details[key]}
                 </Text>
               ) ) }
+              {/* Optional Product Description Row */}
+              {text.description !== "Seller did not specify a description" ?
+
+                text.description.replace(/ +/g, " ").length >= 131 ?
+                    <Text 
+                    onPress={()=>{this.setState({showFullDescription: !this.state.showFullDescription})}} 
+                    style={styles.detailsText}>
+                    Description: {this.state.showFullDescription ? text.description : text.description.replace(/ +/g, " ").substring(0,124) + "...." + "  " +  "(Show More?)"}
+                    </Text>
+                  :
+                    <Text style={styles.detailsText}>Description: {text.description}</Text>
+              :
+                null}
             </View>
 
             <View style={styles.secondaryActionsColumn}>
@@ -1311,11 +1337,11 @@ class ProductDetails extends Component {
                     <Text style={styles.descriptionHeader}>Description</Text>
                 </View>
                 <View style={styles.descriptionContainer}>
-                  {text.description.length >= 131 ?
+                  {text.description.replace(/ +/g, " ").length >= 131 ?
                     <Text 
                     onPress={()=>{this.setState({showFullDescription: !this.state.showFullDescription})}} 
                     style={styles.description}>
-                    {this.state.showFullDescription ? text.description : text.description.replace(/ +/g, " ").substring(0,124) + "...." + "  " +  "(Show More?)"}
+                    {this.state.showFullDescription ? text.description.replace(/ +/g, " ") : text.description.replace(/ +/g, " ").substring(0,124) + "...." + "  " +  "(Show More?)"}
                     </Text>
                   :
                     <Text style={styles.description}>{text.description}</Text>
@@ -1347,7 +1373,7 @@ class ProductDetails extends Component {
             /> 
           </View>
           
-          {productComments['a'] ? null : Object.keys(productComments).map(
+          {productComments['a'] ? <WhiteSpace height={20}/> : Object.keys(productComments).map(
                   (comment) => (
                   <View key={comment} style={styles.commentContainer}>
 
@@ -1434,7 +1460,7 @@ const styles = StyleSheet.create( {
   nameContainer: {
     justifyContent: 'center',
     // align
-    flex: 0.7,
+    flex: 0.6,
   },
 
   likesContainer: {flex: 0.15, justifyContent: 'center', alignItems: 'center', 
@@ -1442,8 +1468,8 @@ const styles = StyleSheet.create( {
 },
 
   priceContainer: {
-    flexDirection: 'column',
-    flex: 0.15,
+    flexDirection: 'row',
+    flex: 0.25,
     alignItems: 'center',
     justifyContent: 'center',
     // backgroundColor: 'blue'
@@ -1482,14 +1508,16 @@ const styles = StyleSheet.create( {
     // backgroundColor: 'red'
   },
 
+  profileText: new avenirNextText("black", 14, "300"),
+
   likeIconContainer: {
     padding: 5
   },
 
   original_price: {
     fontFamily: 'Avenir Next',
-    fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '400',
+    fontSize: 17
   },
 
   price: {
@@ -1558,7 +1586,6 @@ const styles = StyleSheet.create( {
   purchaseButton: {
     width: 60,
     height: 40,
-    backgroundColor: mantisGreen,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center'
@@ -1702,7 +1729,7 @@ users: {
 },
 
 reviewsHeader: {
-  fontFamily: 'Iowan Old Style',
+  fontFamily: 'Avenir Next',
   fontSize: 24,
   fontWeight: "normal",
   paddingLeft: 10
@@ -1935,16 +1962,16 @@ addressesContainer: {
 },
 
 addressContainerButton: {
-  width: 260,
-  height: 50,
+  width: 270,
+  // height: 50,
   borderRadius: 5,
 },
 
 addressContainer: {
   flexDirection: 'row',
   alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: 10,
+  // justifyContent: 'space-evenly',
+  padding: 3,
 },
 
 addressText: new avenirNextText("black", 18, "300"),
@@ -1979,59 +2006,59 @@ addressField: {
 
 /////////////////
 
-const profileRowStyles = StyleSheet.create( {
-  rowContainer: {
-    flexDirection: 'row',
-    padding: 20,
-    justifyContent: 'center'
-  },
+// const profileRowStyles = StyleSheet.create( {
+//   rowContainer: {
+//     flexDirection: 'row',
+//     padding: 20,
+//     justifyContent: 'center'
+//   },
 
 
-  profilepic: {
-    borderWidth:0,
-    // borderColor:'#207011',
-    // alignItems:'center',
-    // justifyContent:'center',
-    // width:70,
-    height:80,
-    backgroundColor:'#fff',
-    borderRadius:80/2,
+//   profilepic: {
+//     borderWidth:0,
+//     // borderColor:'#207011',
+//     // alignItems:'center',
+//     // justifyContent:'center',
+//     // width:70,
+//     height:80,
+//     backgroundColor:'#fff',
+//     borderRadius:80/2,
 
-},
+// },
 
-textContainer: {
-  flex: 1,
-  flexDirection: 'column',
-  alignContent: 'center',
-  padding: 5,
-},
+// textContainer: {
+//   flex: 1,
+//   flexDirection: 'column',
+//   alignContent: 'center',
+//   padding: 5,
+// },
 
-name: {
-  fontSize: 14,
-  fontFamily: 'Avenir Next',
-  fontWeight: '400'
-},
+// name: {
+//   fontSize: 14,
+//   fontFamily: 'Avenir Next',
+//   fontWeight: '400'
+// },
 
-email: {
-  //actually this is for your country location value
-    fontSize: 14,
-    fontFamily: 'Avenir Next',
-    fontWeight: '200',
-    fontStyle: 'italic'
-  },
+// email: {
+//   //actually this is for your country location value
+//     fontSize: 14,
+//     fontFamily: 'Avenir Next',
+//     fontWeight: '200',
+//     fontStyle: 'italic'
+//   },
   
-insta: {
-    fontSize: 12,
-    fontFamily: 'Avenir Next',
-    color: '#800000',
-    fontWeight: '600',
-    fontStyle: 'normal'
-  },  
+// insta: {
+//     fontSize: 12,
+//     fontFamily: 'Avenir Next',
+//     color: '#800000',
+//     fontWeight: '600',
+//     fontStyle: 'normal'
+//   },  
 
-separator: {
-  height: 1,
-  backgroundColor: 'black',
-  padding: 2,
-},
+// separator: {
+//   height: 1,
+//   backgroundColor: 'black',
+//   padding: 2,
+// },
 
-} )
+// } )

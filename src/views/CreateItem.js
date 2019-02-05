@@ -185,7 +185,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
         name: name,
         brand: brand,
         price: price,
-        original_price: original_price ? original_price : 'Seller did not list original price',
+        original_price: original_price ? original_price : "",
         type: type,
         size: size,
         description: description ? description : 'Seller did not specify a description',
@@ -453,12 +453,13 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
     //this.setState(incrementPrice);
     //const picturebase64 = params.base64;
     //console.log(pictureuri);
+    // categoryColors[this.state.gender] color selectedType based on gender
 
     if(isUploading) {
         return (
             <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
                 <View style={{height: 200, justifyContent: 'center', alignContent: 'center', alignItems: 'center'}}>
-                    <LoadingIndicator isVisible={isUploading} color={fbBlue} type={'Bounce'}/>
+                    <LoadingIndicator isVisible={isUploading} color={fbBlue} type={'Wordpress'}/>
                     <WhiteSpace height={20}/>
                     <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: fbBlue, textAlign: 'center'}}>
                         Your product {this.state.name} is being uploaded to the market. Please do not resubmit the same product.
@@ -487,7 +488,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
             <WhiteSpace height={10}/>
             
         {/* 0. Gender */}
-            <ProductLabel size={15} color={'black'} title='Category'/>
+            <Text style={[styles.detailHeader, {fontSize: 18, textAlign: 'center'}]}>Category</Text>
             <ButtonGroup
                 onPress={ (index) => {
                     if(index != this.state.gender) {
@@ -522,7 +523,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
 
                 {type?
                 <View style={[styles.displayedPriceContainer, {flex: 0.55}]}>
-                    <Text style={[styles.displayedCondition, {color: categoryColors[this.state.gender], fontSize: 15, fontWeight: "300"}]}>{type}</Text>
+                    <Text style={[styles.displayedCondition, {color: 'black', fontSize: 15, fontWeight: "300"}]}>{type}</Text>
                 </View>
                 :
                 null
@@ -716,7 +717,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
 
                         
                         <View style={[styles.displayedPriceContainer, {flex: 0.45}]}>
-                            <Text style={[styles.displayedCondition, { color: size ? tealBlue : 'gray', fontWeight: "400"}]}>{size ? size : "Select a size"}</Text>
+                            <Text style={[styles.displayedCondition, { color: size ? 'black' : 'gray', fontWeight: "400"}]}>{size ? size : "Select a size"}</Text>
                         </View>
                         
                         
@@ -750,7 +751,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
 
                 {condition?
                 <View style={[styles.displayedPriceContainer, {flex: 0.45}]}>
-                    <Text style={[styles.displayedCondition, { fontWeight: "200"}]}>{condition}</Text>
+                    <Text style={styles.displayedCondition}>{condition}</Text>
                 </View>
                 :
                 null
@@ -774,7 +775,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
             <View style={styles.navToFillDetailRow}>
 
                 <View style={[styles.detailHeaderContainer, {paddingHorizontal: 6,flex: 0.8}]}>
-                    <Text style={[styles.detailHeader, {fontSize: 17}]}>Can you snail mail this item?</Text>
+                    <Text style={[styles.detailHeader, {fontSize: 17}]}>Can you post this item?</Text>
                 </View>
 
                 <View style={[styles.checkBoxContainer, {flex: 0.2}]}>
@@ -804,12 +805,12 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                 <View style={styles.navToFillDetailRow}>
                 
                     <View style={[styles.detailHeaderContainer, {flex: post_price > 0 ? 0.5 : 0.8}]}>
-                        <Text style={styles.detailHeader}>Estimated cost of shipping</Text>
+                        <Text style={styles.detailHeader}>Cost of post</Text>
                     </View>
 
                     {post_price > 0 ?
                     <View style={[styles.displayedPriceContainer, {flex: 0.3}]}>
-                        <Text style={[styles.displayedPrice, {color: darkBlue}]}>£{post_price}</Text>
+                        <Text style={styles.displayedPrice}>£{post_price}</Text>
                     </View>
                     :
                     null
@@ -859,7 +860,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                 />
             </View>
 
-            {userChangedAtLeastOneField ?
+            {/* {userChangedAtLeastOneField ?
             
                 <View style={styles.actionButtonContainer}>
                     <Button
@@ -882,7 +883,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
             
             :
             null
-            }
+            } */}
 
             {this.state.editItemBoolean ?
             <View style={styles.actionButtonContainer}>
@@ -963,7 +964,7 @@ const styles = StyleSheet.create({
 
     descriptionHeaderContainer: {flex: 0.2,justifyContent: 'center', alignItems: 'flex-start', paddingHorizontal: 6},
 
-    descriptionHeader: {fontFamily: 'Avenir Next', fontSize: 18, color: darkGray},
+    descriptionHeader: {fontFamily: 'Avenir Next', fontSize: 19, fontWeight: "400"},
 
     descriptionInputContainer: {flex: 0.8, justifyContent: 'center', alignItems: 'flex-start', paddingVertical: 2, paddingHorizontal: 6,},
 
@@ -1014,7 +1015,7 @@ const styles = StyleSheet.create({
         padding: 10
     },
 
-    displayedCondition: new avenirNextText('#800000', 16, "200"),
+    displayedCondition: new avenirNextText('black', 16, "300"),
 
     imageadder: {
         flexDirection: 'row'

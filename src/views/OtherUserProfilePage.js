@@ -13,6 +13,8 @@ import { PacmanIndicator } from 'react-native-indicators';
 import { bobbyBlue, lightGreen, highlightGreen, graphiteGray, flashOrange, avenirNext, coolBlack } from '../colors.js';
 
 import {removeFalsyValuesFrom} from '../localFunctions/arrayFunctions.js'
+import { LoadingIndicator } from '../localFunctions/visualFunctions.js';
+import { avenirNextText } from '../constructors/avenirNextText.js';
 // import { Hoshi, Sae } from 'react-native-textinput-effects';
 // import { TextField } from 'react-native-material-textfield';
 const {width, height} = Dimensions.get('window');
@@ -73,9 +75,13 @@ class OtherUserProfilePage extends Component {
 
   componentDidMount() {
 
-    setInterval(() => {
+    this.timerId = setInterval(() => {
       this.loadRelevantData(this.state.uid, this.props.navigation.state.params.uid)  
-    }, 30000);
+    }, 12000);
+  }
+
+  componentWillUnmount() {
+   clearInterval(this.timerId); 
   }
 
   loadRelevantData = (yourUid, otherUserUid) => {
@@ -87,7 +93,7 @@ class OtherUserProfilePage extends Component {
 
       var rawUsersBlocked = d.Users[yourUid].usersBlocked ? d.Users[yourUid].usersBlocked : {};
       var yourUsersBlocked = removeFalsyValuesFrom(rawUsersBlocked);
-      console.log(yourUsersBlocked);
+      // console.log(yourUsersBlocked);
 
       const profile = d.Users[otherUserUid].profile;
       const {name, country, insta, uri} = profile;
@@ -117,7 +123,8 @@ class OtherUserProfilePage extends Component {
         comments = d.Users[otherUserUid].comments;
       }
       else {
-        comments = {a: {text: 'Write a review for this seller using the comment field below.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
+        comments = {a: 'nothing'}
+        // comments = {a: {text: 'Write a review for this seller using the comment field below.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
       }
 
       this.setState({yourProfile, usersBlocked: yourUsersBlocked, yourUid: yourUid, otherUserUid: otherUserUid, profile, name, country, insta, uri, soldProducts, numberProducts, comments, isGetting: false})
@@ -167,7 +174,7 @@ class OtherUserProfilePage extends Component {
   navToUserComments = () => {
     // const {params} = this.props.navigation.state;
     const {otherUserUid, comments, profile, yourProfile} = this.state;
-    this.props.navigation.navigate('UserComments', {yourProfile: yourProfile, profile: profile, comments: comments, uid: otherUserUid})
+    this.props.navigation.navigate('UserComments', {yourProfile: yourProfile, profile: profile, comments: comments['a'] ? false : comments, uid: otherUserUid})
   }
 
   render() {
@@ -177,15 +184,15 @@ class OtherUserProfilePage extends Component {
     // const {uid} = params; //otherUserUid
     // console.log(usersBlocked, uid, usersBlocked.includes(uid));
 
-    
-    const gradientColors = ['#7de853','#0baa26', '#064711'];
+    const gradientColors = ["#c8f966", "#307206", "#1c3a09"]; 
+    // const gradientColors = ['#7de853','#0baa26', '#064711'];
     // const gradientColors2 = ['#0a968f','#6ee5df', ];
 
     if(this.state.isGetting) {
       return (
         <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
-            <View style={{height: 200, justifyContent: 'center', alignContent: 'center'}}>
-                <PacmanIndicator color={coolBlack} />
+            <View style={{height: 200, justifyContent: 'space-evenly', alignItems: 'center'}}>
+                <LoadingIndicator isVisible={this.state.isGetting} color={'black'} type={'Wordpress'}/>
                 <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: coolBlack, textAlign: 'center'}}>
                     Loading Profile...
                 </Text>
@@ -230,10 +237,10 @@ class OtherUserProfilePage extends Component {
           </View>  
 
           <View style={styles.profileTextColumn}>
-            <Text style={styles.name}>{name}</Text>
-            <Text style={styles.pos}>{country}</Text>
+            <Text style={[styles.profileText, {fontStyle: 'normal', fontSize: 24}]}>{name}</Text>
+            <Text style={styles.profileText}>{country}</Text>
             {insta ? 
-              <Text style={styles.insta}>@{insta}</Text>
+              <Text style={styles.profileText}>@{insta}</Text>
              : 
               null
             }
@@ -501,6 +508,8 @@ const styles = StyleSheet.create({
     // backgroundColor: 'red'
 
   },
+
+  profileText: new avenirNextText("#fff", 18, "300"),
 
   midContainer: {
     flex: 1,

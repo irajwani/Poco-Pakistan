@@ -15,6 +15,7 @@ import BackButton from '../components/BackButton';
 // import { avenirNext } from '../colors.js';
 import { avenirNextText } from '../constructors/avenirNextText.js';
 import { WhiteSpace } from '../localFunctions/visualFunctions.js';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 const {width} = Dimensions.get('window');
 
@@ -133,17 +134,33 @@ class Settings extends Component {
     return (
       <View style={styles.container}>
 
-        <BackButton action={()=>this.props.navigation.goBack()} />
+        {/* <BackButton action={()=>this.props.navigation.goBack()} /> */}
 
-        <Accordion
-          activeSection={activeSection}
-          sections={settings}
-          touchableComponent={TouchableOpacity}
-          renderHeader={this.renderHeader}
-          renderContent={this.renderContent}
-          duration={100}
-          onChange={this.setSection}
-        />
+        <View style={styles.header}>
+          <FontAwesomeIcon
+          name='arrow-left'
+          size={30}
+          color={'black'}
+          onPress = { () => { 
+              this.props.navigation.goBack();
+              } }
+
+          />
+        </View>
+
+        <View style={styles.body}>
+
+          <Accordion
+            activeSection={activeSection}
+            sections={settings}
+            touchableComponent={TouchableOpacity}
+            renderHeader={this.renderHeader}
+            renderContent={this.renderContent}
+            duration={100}
+            onChange={this.setSection}
+          />
+
+        </View>
 
         <Modal
           animationType="slide"
@@ -177,10 +194,26 @@ const styles = StyleSheet.create({
     container: {
       backgroundColor: 'white',
       flexDirection: 'column',
-      justifyContent: 'flex-start',
-      padding: 10,
+      // justifyContent: 'flex-start',
+      // padding: 10,
       marginTop: 20,
       flex: 1,
+    },
+
+    header: {
+      flex: 0.1,
+      flexDirection: 'row',
+      borderBottomColor: 'black',
+      borderBottomWidth: 2,
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+      paddingLeft: 10
+    },
+
+    body: {
+      flex: 0.9,
+      marginTop: 10,     
+      padding: 10
     },
 
     licenseContainer: {
@@ -227,7 +260,7 @@ const styles = StyleSheet.create({
     },
     contentText: {
       fontFamily: 'Avenir Next',
-      color: limeGreen,
+      // color: limeGreen,
       fontSize: 20
     },
     active: {

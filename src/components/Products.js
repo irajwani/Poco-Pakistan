@@ -39,7 +39,7 @@ var {height, width} = Dimensions.get('window');
 
 const cardWidth = width/2 - 10;
 const cardHeaderHeight = 200;
-const cardContentHeight = 70
+const cardContentHeight = 50
 const cardFull = cardHeaderHeight + cardContentHeight;
 
 const loadingStrings = ['Acquiring Catalogue of Products...', 'Fetching Marketplace...', 'Loading...', 'Almost there...']
@@ -299,7 +299,7 @@ class Products extends Component {
     this.setState({isGetting: true});
     firebase.database().ref().on('value', (snapshot) => {
       var {Products, Users} = snapshot.val();
-      console.log(Products);
+      // console.log(Products);
       if(Products.length < 1) {
         this.setState({isGetting: false, emptyMarket: true});
       }
@@ -339,6 +339,7 @@ class Products extends Component {
           Products.forEach((product) => {
             product['isActive'] = false  //boolean for rowData UI expansion
           })
+          // console.log("OVER HERE"+Products)
           // console.log('before split: ' + all);
           // var {leftProducts, rightProducts} = splitArrayIntoArraysOfSuccessiveElements(all);
           var leftProducts = Products.filter( (e, index) => index % 2 == 0);
@@ -852,7 +853,7 @@ class Products extends Component {
                 </Text>
               </View>
 
-              {isActive? 
+              {section.isActive? 
                 <Icon name="chevron-up" 
                       size={30} 
                       color='black'
@@ -886,27 +887,30 @@ class Products extends Component {
             >
               <Animatable.View
                 duration={400}
-                style={section.isActive ? styles.active : styles.inactive}
+                style={[section.isActive ? styles.active : styles.inactive, {flexDirection: 'row',flex: 1}]}
                 transition="backgroundColor"
               >
                   
                 
-                <Animatable.View style={styles.priceMagnifyingGlassRow} transition='backgroundColor'>
-                  <Animatable.Text style={styles.brand} animation={section.isActive ? 'bounceInRight' : undefined}>
+                <Animatable.View style={styles.brandAndSizeCol} transition='backgroundColor'>
+                  <Animatable.Text style={styles.contentCardText} animation={section.isActive ? 'bounceInRight' : undefined}>
                     {section.text.brand}
                   </Animatable.Text>
-                  <Icon name="magnify" 
-                        size={30} 
-                        color={limeGreen}
-                        onPress={ () => { 
-                            this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys); 
-                            }}  
+                  <Animatable.Text style={[styles.contentCardText]} animation={section.isActive ? 'bounceInLeft' : undefined}>
+                    {section.text.gender == "Accessories" ? "Accessory" : `Size: ${section.text.size.length > 8 ? section.text.size.substring(0,7) + ".." : section.text.size}`}
+                  </Animatable.Text>
+                </Animatable.View>
+
+                <Animatable.View style={styles.magnifyingGlassCol} transition='backgroundColor'>
+                  <Icon 
+                  name="magnify" 
+                  size={30} 
+                  color={limeGreen}
+                  onPress={ () => { 
+                      this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys); 
+                      }}  
                   />
                 </Animatable.View>  
-                
-                <Animatable.Text style={styles.size} animation={section.isActive ? 'bounceInLeft' : undefined}>
-                 {section.text.gender == "Accessories" ? "Accessory" : `Size: ${section.text.size}`}
-                </Animatable.Text>
                 
               </Animatable.View>
             </View>   
@@ -1446,6 +1450,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'space-between', padding: 5 
   },    
 
+  brandAndSizeCol: {
+    flex: 0.7,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    padding: 5
+  },
+
+  magnifyingGlassCol: {
+    flex: 0.3,
+    alignItems: 'center'
+  },
+
   likesRow: {
     flexDirection: 'row',
     //backgroundColor: iOSColors.lightGray2,
@@ -1528,6 +1545,8 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
   },
+
+  contentCardText: new avenirNextText('black', 14, "300"),
 
   //header Card
   card: {

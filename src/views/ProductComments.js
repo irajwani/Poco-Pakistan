@@ -8,6 +8,7 @@ import firebase from '../cloud/firebase';
 import { material, human, iOSUIKit, iOSColors, systemWeights } from 'react-native-typography'
 import { almostWhite, highlightGreen, treeGreen, avenirNext, graphiteGray, darkGray, optionLabelBlue, rejectRed } from '../colors';
 import FontAwesomeIcon  from 'react-native-vector-icons/FontAwesome';
+import { avenirNextText } from '../constructors/avenirNextText';
 //for each comment, use their time of post as the key
 
 const {width, height} = Dimensions.get('window')
@@ -35,7 +36,8 @@ class ProductComments extends Component {
 
         const {params} = this.props.navigation.state;
         const {comments} = params;
-        this.setState({comments});
+        console.log(comments);
+        this.setState({comments: comments ? comments : {} });
 
     }
 
@@ -101,9 +103,9 @@ class ProductComments extends Component {
         const {name, uri} = yourProfile; //To upload a comment, attach the current Users profile details, in this case their name and profile pic uri
         
         var {comments, showDeleteRow} = this.state;
-        var emptyReviews = Object.keys(comments).length == 1 && Object.keys(comments).includes('a') ? true : false
-        var {a, ...restOfTheComments} = comments;
-        comments = emptyReviews ? {a} : restOfTheComments;
+        // var emptyReviews = Object.keys(comments).length == 1 && Object.keys(comments).includes('a') ? true : false
+        // var {a, ...restOfTheComments} = comments;
+        // comments = emptyReviews ? {a} : restOfTheComments;
 
         return (
             <View style={styles.mainContainer} >
@@ -111,13 +113,12 @@ class ProductComments extends Component {
             <View style={styles.backAndSellerRow}>
                 <View style={styles.backIconContainer}>
                     <FontAwesomeIcon
-                    name='chevron-circle-left'
+                    name='arrow-left'
                     size={40}
-                    color={'#76ce1e'}
+                    color={'black'}
                     onPress = { () => { 
                         this.props.navigation.goBack();
                         } }
-
                     />
                 </View>
 
@@ -159,7 +160,8 @@ class ProductComments extends Component {
             <View style={{backgroundColor: 'black', height: 1.5}}/>
              {/* Product Reviews by other users */}
              <ScrollView style={styles.contentContainerStyle} contentContainerStyle={styles.contentContainer}>
-             {Object.keys(comments).map(
+             {comments?
+                 Object.keys(comments).map(
                   (comment) => (
                   <TouchableOpacity key={comment} style={[styles.commentContainer, {color: showDeleteRow ? almostWhite : '#fff'}]} onLongPress={()=>this.setState({showDeleteRow: true})}>
                     
@@ -211,7 +213,10 @@ class ProductComments extends Component {
                   
               )
                       
-              )}
+              )
+              :
+              null
+              }
             </ScrollView>
              
             <View style={{ flexDirection : 'row', bottom : this.height - this.state.visibleHeight}} >
@@ -321,11 +326,7 @@ const styles = StyleSheet.create({
         // backgroundColor: 'red',
     },
 
-    name: {
-        fontSize: 22,
-        fontFamily: avenirNext,
-        fontWeight: '500',
-    },
+    name: new avenirNextText('black', 20, "400", 'center', false),
 
 
 
