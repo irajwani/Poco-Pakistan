@@ -359,15 +359,28 @@ class Chats extends Component {
     .catch( err => console.log(err));
   }
 
+  // r = () => {
+  //   return (
+  //     <View style={{flexDirection: 'row', flex: 0.15, }}>
+  //       <View style={{flex: 0.5, alignItems: 'center', justifyContent: 'center'}}>
+  //         <Text style={styles.upperNavTabText}>Chats</Text>
+  //       </View>
+  //       <View style={{}}>
+
+  //       </View>
+  //     </View>
+  //   )
+  // }
+
   renderUpperNavTab = () => {
     return (
       <View style={styles.upperNavTab}>
 
-        <View style={[styles.upperNavTabButton, {backgroundColor: highlightGreen}]}>
-          <Text style={styles.upperNavTabText}>Chats</Text>
+        <View style={[styles.upperNavTabButton, {borderBottomColor: highlightGreen, borderBottomWidth: 1}]}>
+          <Text style={[styles.upperNavTabText, {color: highlightGreen}]}>Chats</Text>
         </View>
         
-        <TouchableOpacity style={[styles.upperNavTabButton, {borderColor: '#fff', }]} onPress={()=>this.navToNotifications()}>
+        <TouchableOpacity style={styles.upperNavTabButton} onPress={()=>this.navToNotifications()}>
           <Text style={styles.upperNavTabText}>Notifications</Text>
         </TouchableOpacity>
         
@@ -481,7 +494,7 @@ class Chats extends Component {
           {this.renderUpperNavTab()}
 
           <View style={[styles.screen, {padding: 10, }]}>
-            <NothingHereYet specificText={noChatsText} />
+            {/* <NothingHereYet specificText={noChatsText} /> */}
           </View>
         </View>
       )
@@ -516,25 +529,25 @@ const styles = StyleSheet.create({
   upperNavTab: {
     flex: 0.15,
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    backgroundColor: coolBlack,
+    // justifyContent: 'space-evenly',
+    // alignItems: 'center',
+    backgroundColor: '#fff',
   },
   upperNavTabButton: {
     // backgroundColor: ,
-    width: navTabButtonWidth,
-    height: 50,
+    // width: navTabButtonWidth,
+    // height: 50,
     
-    borderWidth: 1.3,
-    borderRadius: 30,
-    borderColor: "#fff",
-
+    // borderWidth: 1.3,
+    // borderRadius: 30,
+    // borderColor: "#fff",
+    flex: 0.5,
     padding: 10,
     justifyContent: 'center',
     alignItems: 'center'
   },
 
-  upperNavTabText: new avenirNextText('#fff', 16, "400"),
+  upperNavTabText: new avenirNextText('black', 18, "300"),
   ////////////////
   screen: { flex: 0.85, backgroundColor: '#fff' },
 

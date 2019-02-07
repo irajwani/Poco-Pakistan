@@ -58,12 +58,12 @@ class Notifications extends Component {
     return (
       <View style={styles.upperNavTab}>
 
-        <TouchableOpacity onPress={()=>this.navToChats()} style={[styles.upperNavTabButton, {borderColor: '#fff', }]}>
+        <TouchableOpacity onPress={()=>this.navToChats()} style={styles.upperNavTabButton}>
           <Text style={styles.upperNavTabText}>Chats</Text>
         </TouchableOpacity>
         
-        <View style={[styles.upperNavTabButton, {backgroundColor: highlightGreen}]} >
-          <Text style={styles.upperNavTabText}>Notifications</Text>
+        <View style={[styles.upperNavTabButton, {borderBottomColor: highlightGreen, borderBottomWidth: 1.5}]} >
+          <Text style={[styles.upperNavTabText, {color: highlightGreen}]}>Notifications</Text>
         </View>
         
       </View>
@@ -76,7 +76,7 @@ class Notifications extends Component {
     if(isGetting) {
         return (
           <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30}}>
-            <LoadingIndicator isVisible={isGetting} color={'black'} type={'Bounce'}/>
+            <LoadingIndicator isVisible={isGetting} color={'black'} type={'Wordpress'}/>
           </View>
         )
     }
@@ -99,11 +99,11 @@ class Notifications extends Component {
         {this.renderUpperNavTab()}
       
         <ScrollView style={{flex: 0.85}} contentContainerStyle={styles.cc}>
-          {Object.keys(notifications).map( (productKey) => (
-              <View key={productKey} style={{flexDirection: 'column', padding: 5}}>
-                <View style={styles.separator}/>
+          {Object.keys(notifications).map( (productKey, index) => (
+              <View key={productKey} style={{flexDirection: 'column', padding: index ? 2 : 0}}>
+                {index ? <View style={styles.separator}/> : null}
                 <View style={styles.rowContainer}>
-                  <View syle={styles.daysElapsedColumn}>
+                  <View style={styles.daysElapsedColumn}>
                       <Text style={styles.daysOnMarket}>Days on market:</Text>
                       <Text style={styles.daysElapsed}>{notifications[productKey].daysElapsed}</Text>
                       <Text>Suggested Price Reduction:</Text>
@@ -153,25 +153,25 @@ const styles = StyleSheet.create({
   upperNavTab: {
     flex: 0.15,
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    backgroundColor: coolBlack,
+    // justifyContent: 'space-evenly',
+    // alignItems: 'center',
+    backgroundColor: '#fff',
   },
   upperNavTabButton: {
     // backgroundColor: ,
-    width: navTabButtonWidth,
-    height: 50,
+    // width: navTabButtonWidth,
+    // height: 50,
     
-    borderWidth: 1.3,
-    borderRadius: 30,
-    borderColor: "#fff",
-
+    // borderWidth: 1.3,
+    // borderRadius: 30,
+    // borderColor: "#fff",
+    flex: 0.5,
     padding: 10,
     justifyContent: 'center',
     alignItems: 'center'
   },
 
-  upperNavTabText: new avenirNextText('#fff', 16, "400"),
+  upperNavTabText: new avenirNextText('black', 18, "300"),
 
   ////////
 

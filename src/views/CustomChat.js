@@ -232,11 +232,12 @@ class CustomChat extends Component {
     var chattingWithPersonThatLooksLike = buyer && seller ? sellerIdentification == CHATKIT_USER_NAME ? buyerAvatar : sellerAvatar : false
     // console.log(chattingWithPersonNamed);
     // console.log(this.state.messages);
+    //9CubeGrid
 
     if(this.state.isGetting) {
       return (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30}}>
-          <LoadingIndicator isVisible={this.state.isGetting} color={logoGreen} type={'9CubeGrid'}/>
+          <LoadingIndicator isVisible={this.state.isGetting} color={logoGreen} type={'Wordpress'}/>
         </View>
       )
     }
@@ -249,9 +250,9 @@ class CustomChat extends Component {
 
           <View style={styles.backIconContainer}>
             <FontAwesomeIcon
-              name='chevron-circle-left'
+              name='arrow-left'
               size={30}
-              color={'#76ce1e'}
+              color={'black'}
               onPress = { () => { 
                 this.props.navigation.goBack();
                   } }
