@@ -8,15 +8,16 @@ import { PacmanIndicator } from 'react-native-indicators';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 // import { Button } from 'react-native-elements';
 
-import { lightGreen, coolBlack, highlightGreen, mantisGreen } from '../colors';
+import { lightGreen, coolBlack, highlightGreen, mantisGreen, graphiteGray, treeGreen } from '../colors';
 import NothingHereYet from '../components/NothingHereYet';
 import { avenirNextText } from '../constructors/avenirNextText';
 import { LoadingIndicator } from '../localFunctions/visualFunctions';
 
 const noNotificationsText = "The NottMyStyle team believes your products don't warrant any stats yet 👌, thus you have no notifications."
-
+const notificationHeaderText = "NottMyStyle"
 const {width} = Dimensions.get('window');
-const navTabButtonWidth = 115;
+// const navTabButtonWidth = 115;
+const pictureWidth = 70, pictureHeight = 70;
 
 class Notifications extends Component {
   constructor(props) {
@@ -71,13 +72,48 @@ class Notifications extends Component {
   }
 
   renderNotifications = () => {
+    var {notifications} = this.state;
+    //function executed if you have at least one notification of any variety
+    //for each variety, similar UI but callbacks are different
     return (
-      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.cc}>
-        {this.renderPriceReductionRows()}
-        {this.renderPurchaseReceiptRows()}
-        {this.renderItemSoldRows()}
+      <ScrollView style={{flex: 0.85}} contentContainerStyle={styles.cc}>
+        {notifications.priceReductions ? this.r(notifications.priceReductions, 'Price Reduction Alert') : null}
+        {notifications.purchaseReceipts ? this.r(notifications.purchaseReceipts, 'Purchase Receipt') : null}
+        {notifications.itemsSold ? this.r(notifications.itemsSold, 'Item Sold!') : null}
       </ScrollView>
+      
     )
+  }
+
+  r = (notifs, notificationType) => {
+    return Object.keys(notifs).map((notification, index) => (
+
+          <View key={index} style={styles.specificChatContainer}>
+
+            <TouchableOpacity  onPress={() => this.showDetails()} style={styles.pictureContainer}>
+              <Image 
+              source={require("../images/nottmystyleLogo.png")} 
+              style={[styles.picture, {borderRadius: 35}]} />
+            </TouchableOpacity>
+
+            <TouchableOpacity  style={styles.textContainer}>
+              <Text style={styles.otherPersonName}>{notificationHeaderText}</Text>
+              <Text style={styles.lastMessageText}>{notificationType}</Text>
+              
+            </TouchableOpacity>
+
+            <TouchableOpacity  onPress={() => this.showDetails()} style={styles.pictureContainer}>
+              <Image source={{uri: notification.uri }} 
+              style={styles.picture} />
+            </TouchableOpacity>
+
+          </View>
+          ))
+
+  }
+
+  showDetails = () => {
+    console.log('')
   }
 
   render() {
@@ -107,9 +143,9 @@ class Notifications extends Component {
       <View style={styles.container}>
 
         {this.renderUpperNavTab()}
-      
-        <ScrollView style={{flex: 0.85}} contentContainerStyle={styles.cc}>
-          {Object.keys(notifications).map( (productKey, index) => (
+        {this.renderNotifications()}
+
+          {/* {Object.keys(notifications).map( (productKey, index) => (
               <View key={productKey} style={{flexDirection: 'column', padding: index ? 2 : 0}}>
                 {index ? <View style={styles.separator}/> : null}
                 <View style={styles.rowContainer}>
@@ -135,9 +171,9 @@ class Notifications extends Component {
                 <View style={styles.separator}/>
               </View>
           ))
-          }
+          } */}
             
-        </ScrollView>
+        
       </View>
     )
   }
@@ -150,6 +186,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     marginTop: 22,
+    backgroundColor: "#fff"
   },
 
   cc: {
@@ -183,43 +220,48 @@ const styles = StyleSheet.create({
 
   upperNavTabText: new avenirNextText('black', 18, "300"),
 
-  ////////
+  /////////
+//////////
+
+specificChatContainer: {
+  flexDirection: 'row', paddingVertical: 6, paddingHorizontal: 0,
+  borderBottomColor: graphiteGray, borderBottomWidth: 0.6,
+  width: width - 8,
+
+},
+
+pictureContainer: {
+  flex: 0.25,
+  alignItems: 'center'
+},
+
+picture: {
+  width: pictureWidth,
+  height: pictureHeight,
+},
+
+textContainer: {
+  flex: 0.5,
+},
+
+otherPersonName: new avenirNextText(false, 15, '500', 'left'),
+
+lastMessageText: new avenirNextText(graphiteGray, 13, '400'),
+
+lastMessageDate: new avenirNextText(treeGreen, 11, '300'),
 
 
 
-  chatsbutton: {
-    backgroundColor: lightGreen,
-    width: width/2 - 30,
-    height: 50,
-    borderWidth: 0,
-    borderRadius: 0,
-    borderColor: "#0c5911"
-  },
-  notifsbutton: {
-    backgroundColor: "#fff",
-    width: width/2 - 30,
-    height: 50,
-    borderWidth: 1,
-    borderRadius: 0,
-    borderColor: "#0c5911"
-  },
-    daysElapsedColumn: {
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 5
-    },
-    daysOnMarket: {
-        ...material.display1,
-        fontFamily: 'Verdana',
-        fontSize: 10,
-        color: 'black'
-    },
-    daysElapsed: {
-        ...material.display2,
-        fontSize: 16,
-        color: '#0d7259',
-    },
+
+  //////////
+  /////////
+
+//////////////
+////OLD
+//////////////
+
+  
+    
     priceReduction: {
         flexDirection: 'row',
         padding: 5
