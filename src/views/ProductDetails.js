@@ -104,6 +104,7 @@ class ProductDetails extends Component {
       addressTwo: "",
       postCode: "",
       city: "",
+      selectedAddress: "",
       //PayPal Modal stuff
       sku: '',
       price: '',
@@ -129,6 +130,15 @@ class ProductDetails extends Component {
     }, 10000);
 
   }
+
+  // componentDidUpdate = () => {
+  //   const {...state} = this.state;
+  //   if(state.paymentStatus == "success") {
+  //     const {params} = this.props.navigation.state;
+  //     this.getUsersAndProductAndOtherUserData(params.data);
+  //   }
+      
+  // }
 
 
   getUserAndProductAndOtherUserData(data) {
@@ -208,10 +218,11 @@ class ProductDetails extends Component {
       this.setState( {
         cloudDatabaseUsers,
         yourProfile, uid, otherUserUid, profile, productComments, addresses,
+        sold: data.text.sold,
         price: data.text.price, name: data.text.name, sku: data.key, description: data.text.description.replace(/ +/g, " ").substring(0,124),
         chat,
         totalPrice: Number(data.text.price) + Number(data.text.post_price),
-        canChatWithOtherUser
+        canChatWithOtherUser,
       } )
     })
     .then( () => {
@@ -470,8 +481,31 @@ class ProductDetails extends Component {
 
   handleResponse = (data) => {
     if(data.title == "success") {
+      let productAcquisitionPostData = {
+        name: this.state.name, uri: this.props.navigation.state.params.data.uris[0],
+        // price:
+        sellerName: this.state.profile.name,
+        buyerName: this.state.yourProfile.name,
+        address: this.state.selectedAddress,
+        //the message should be different for buyer and seller, so we handle that in SignIn.js
+      };
+      let productAcquisitionNotificationUpdate = {};
+      let buyerRef = `/Users/${this.state.uid}/notifications/purchaseReceipts/${this.state.sku}/`;
+      let sellerRef = `/Users/${this.state.otherUserUid}/notifications/itemsSold/${this.state.sku}/`;
+      productAcquisitionNotificationUpdate[buyerRef] = productAcquisitionPostData;
+      let promiseToUpdateBuyer = firebase.database().ref().update(productAcquisitionNotificationUpdate);
+      productAcquisitionNotificationUpdate[sellerRef] = productAcquisitionPostData;
+      let promiseToUpdateSeller = firebase.database().ref().update(productAcquisitionNotificationUpdate);
+      Promise.all([promiseToUpdateBuyer, promiseToUpdateSeller])
+      .then( () => {
         this.setSaleTo(true, this.state.otherUserUid, this.state.sku, true);
-        this.setState({activeScreen: "afterPaymentScreen", paymentStatus: "success"});
+        const {params} = this.props.navigation.state;
+        this.setState({activeScreen: "afterPaymentScreen", paymentStatus: "success"}, () => this.getUsersAndProductAndOtherUserData(params.data));
+      })
+      .catch( (e) => {
+        console.log('failed to update references because' + e);
+      })
+        
     }
 
     else if(data.title == "cancel") {
@@ -838,11 +872,15 @@ class ProductDetails extends Component {
                     <View>
                     <TouchableOpacity 
                     onPress={ () => {
-                      Object.keys(this.state.addresses).forEach( (k) => {
-                        this.state.addresses[k].selected = false
-                      })
-                      this.state.addresses[key].selected = !this.state.addresses[key].selected
-                      this.setState(this.state); 
+                      // console.log(this.state.addresses)
+                      const {...state} = this.state;
+
+                      Object.keys(state.addresses).forEach( (k) => {
+                        state.addresses[k].selected = false
+                      });
+                      state.addresses[key].selected = !state.addresses[key].selected;
+                      state.selectedAddress = state.addresses[key];
+                      this.setState(state); 
                     }}
                     style={[styles.addressContainerButton, {backgroundColor: this.state.addresses[key].selected ? lightGray : '#fff' }]}
                     >
@@ -892,9 +930,11 @@ class ProductDetails extends Component {
           <View style={[styles.collectionInPersonContainer, {flex: 0.15}]}>
 
                 <TouchableOpacity 
+                disabled={this.state.selectedAddress ? false : true}
                 onPress={() => this.proceedToPayment('post')} 
-                style={[styles.collectionInPersonButton, {width: paymentButtonWidth }]}>
-
+                style={[styles.collectionInPersonButton, {width: paymentButtonWidth }]}
+                >
+                
                   <View style={styles.collectionInPersonOptionsContainer}>
 
                     <Icon
@@ -1066,9 +1106,30 @@ class ProductDetails extends Component {
                 onPress={this.closePurchaseModal}
               />
             </View>
-            <View style={[deliveryOptionBody, {alignItems: 'center', justifyContent: 'center', padding: 40}]}>
-              <Text style={[new avenirNextText('black', 24, "300"), {textAlign: 'center'}]}>{this.state.paymentStatus == "success" ? successfulTransactionText : cancelTransactionText}</Text>
-            </View>
+
+            
+
+            
+              {this.state.paymentStatus == "success" ? 
+              <View style={[deliveryOptionBody, {padding: 10}]}>
+                <Image source={this.props.navigation.state.params.data.uris[0]} style={styles.successProductImage} />
+                <Text style={new avenirNextText('black', 18, "300", "left")}>
+                Congratulations! You have successfully bought {this.state.name} for £{this.state.postOrNah == 'post' ? this.state.totalPrice : this.state.price}.
+
+                Your item will be delivered to:
+                {this.state.selectedAddress.addressOne + ", " + this.state.selectedAddress.addressTwo + ", " + this.state.selectedAddress.city + ", " + this.state.selectedAddress.postCode}
+
+                Please note that it may take up to 2 weeks for the item to arrive via postal delivery. In case your item doesn't arrive, send us an email at nottmystyle.help@gmail.com.
+                </Text>
+
+              </View>    
+              :
+              <View style={[deliveryOptionBody, {alignItems: 'center', justifyContent: 'center', padding: 40}]}>
+                <Text style={[new avenirNextText('black', 24, "300"), {textAlign: 'center'}]}>{cancelTransactionText}</Text>
+              </View>
+              }
+              
+            
 
           </View>  
         </Modal>
@@ -1100,7 +1161,7 @@ class ProductDetails extends Component {
     if (isGetting) {
       return (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          <LoadingIndicator isVisible={isGetting} color={profoundPink} type={'Wordpress'}/>
+          <LoadingIndicator isVisible={isGetting} color={treeGreen} type={'Wordpress'}/>
         </View>
       )
     }
@@ -1122,25 +1183,29 @@ class ProductDetails extends Component {
 
     return (
 
-      <ScrollView style={styles.mainContainer} contentContainerStyle={styles.contentContainer}>
+      <View style={styles.mainContainer}>
+
+      <View style={styles.headerBar}>
+        <FontAwesomeIcon
+        name='arrow-left'
+        size={30}
+        color={'black'}
+        onPress = { () => { 
+            this.props.navigation.goBack();
+            } }
+
+        />
+      </View>
+
+      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.contentContainer}>
         
         {/* image carousel in center with back button on its left */}
-        <View style={styles.backIconAndCarouselContainer}>
-          <View style={{flex: 0.035, justifyContent: 'flex-start',}}>
-              <FontAwesomeIcon
-              name='chevron-left'
-              size={18}
-              color={'#800000'}
-              onPress = { () => { 
-                  this.props.navigation.goBack();
-                  } }
-
-              />
-          </View>
-          <View style={{flex: 0.965, justifyContent: 'flex-start', alignItems: 'center',  }}>        
-            <CustomCarousel onPress={() => this.setState({showPictureModal: true})} data={params.data.uris} />
-          </View>
-        </View>
+        
+          
+        <TouchableOpacity onPress={() => this.setState({showPictureModal: true})} style={styles.carouselContainer}>        
+          <CustomCarousel onPress={() => this.setState({showPictureModal: true})} data={params.data.uris} />
+        </TouchableOpacity>
+        
           {/* Product Name (Not Brand) and Price Row */}
         <View style={styles.nameAndPriceRow}>
           <View style={styles.nameContainer}>
@@ -1242,11 +1307,11 @@ class ProductDetails extends Component {
 
               />
               <TouchableOpacity
-                disabled={data.text.sold ? true : false} 
-                style={[styles.purchaseButton, {backgroundColor: data.text.sold ? graphiteGray : mantisGreen}]}
+                disabled={this.state.sold ? true : false} 
+                style={[styles.purchaseButton, {backgroundColor: this.state.sold ? graphiteGray : mantisGreen}]}
                 onPress={() => {this.setState({showPurchaseModal: true})}} 
               >
-                <Text style={new avenirNextText("#fff",16,"400")}>{data.text.sold ? "Sold":"Buy"}</Text>
+                <Text style={new avenirNextText("#fff",16,"400")}>{this.state.sold ? "Sold":"Buy"}</Text>
               </TouchableOpacity>
             </View>
           }
@@ -1284,7 +1349,7 @@ class ProductDetails extends Component {
 
             <View style={styles.secondaryActionsColumn}>
             {productKeys.includes(data.key) ?
-              data.text.sold ?
+              this.state.sold ?
                 <View style={styles.confirmSaleActionContainer}>
                     <Text style={styles.confirmSaleText}>Reset</Text>
                     <Text style={styles.confirmSaleText}>Sale</Text>
@@ -1421,6 +1486,8 @@ class ProductDetails extends Component {
 
 
       </ScrollView> 
+
+      </View>
     );
   }
 }
@@ -1434,8 +1501,25 @@ export default withNavigation(ProductDetails);
 
 const styles = StyleSheet.create( {
   mainContainer: {
+    flex: 1,
+    // flexDirection: 'column',
     marginTop: 20,
-    marginBottom: 3
+    marginBottom: 3,
+    backgroundColor: '#fff'
+  },
+
+  headerBar: {
+    flex: 0.1,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    backgroundColor: logoGreen,
+    paddingHorizontal: 5,
+  },
+
+  scrollContainer: {
+    flex: 0.9,
+    marginTop: 10
   },
   contentContainer: {
     
@@ -1446,6 +1530,12 @@ const styles = StyleSheet.create( {
     paddingHorizontal: 5,
     // marginTop: 5,
     // marginBottom: 5
+  },
+
+  carouselContainer: {
+    flex: 2,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
 
   backIconAndCarouselContainer: {marginTop: 5, flex: 2, flexDirection: 'row', paddingVertical: 5, paddingRight: 2, paddingLeft: 1 },
@@ -1993,12 +2083,26 @@ addressForm: {
 addressField: {
   alignItems: 'flex-start',
 },
-////////////
-////////////
-///////////
-///////////
-///////////
 
+////////////
+////////////
+///////////
+///////////
+/////////// afterPaymentScreen
+//////////
+/////////
+
+successProductImage: {
+  width: 60,
+  height: 60,
+},
+
+
+
+////////////
+////////////
+////////////
+///////////
 
 
 } )

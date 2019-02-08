@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {TouchableOpacity} from 'react-native';
+import {Text, TouchableOpacity, View} from 'react-native';
 import styled from "styled-components/native"; // 3.1.6
 import Carousel, {Pagination} from 'react-native-snap-carousel'; // 3.6.0
 import { graphiteGray, treeGreen, optionLabelBlue } from '../colors';
@@ -18,12 +18,12 @@ class CustomCarousel extends Component {
   }
 
   handleSnapToItem(index){
-    console.log("snapped to ", index);
+    // console.log("snapped to ", index);
     this.setState({ activeSlide: index });
   }
 
   _renderItem = ( {item, index} ) => {
-    console.log("rendering,", index, item)
+    // console.log("rendering,", index, item)
     return (
       
 
@@ -73,15 +73,17 @@ class CustomCarousel extends Component {
     );
 }
 
+// <TouchableBackground onPress={this.props.onPress}>
+
   render = () => {
     //const { params } = this.props.navigation.state;
     
 
-    console.log("videos: updating")
+    // console.log("videos: updating")
 
     return (
 
-      <TouchableBackground onPress={this.props.onPress}>
+      <View style={{width: "100%", backgroundColor: "#fff"}}>
         <Carousel
           
           ref={ (c) => { this._carousel = c; } }
@@ -92,9 +94,12 @@ class CustomCarousel extends Component {
           itemWidth={256}
           layout={'default'}
           firstItem={0}
+          
         />
-        { this.pagination }
-      </TouchableBackground>
+        {/* { this.pagination } */}
+      </View>
+        
+      
 
     );
   }

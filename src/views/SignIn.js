@@ -165,7 +165,11 @@ class SignIn extends Component {
                     var productKeys = d.Users[user.uid].products ? Object.keys(d.Users[user.uid].products) : [];
                     var yourProducts = all.filter((product) => productKeys.includes(product.key) );
                     // console.log(yourProducts)
-                    this.shouldSendNotifications(yourProducts,user.uid)
+                    const notifications = d.Users[user.uid].notifications ? d.Users[user.uid].notifications : false
+                    if(notifications) {
+                        this.shouldSendNotifications(user.uid, notifications);
+                    }
+                    
                 }
                 
                 this.setState({loading: false}, () => {console.log('signed in')});
@@ -321,10 +325,10 @@ class SignIn extends Component {
           onNotification: function(notification) {
               const {userInteraction} = notification;
               console.log( 'NOTIFICATION:', notification, userInteraction );
-              if(userInteraction) {
-                //this.props.navigation.navigate('YourProducts');
-                alert("To edit a particular product's details, magnify to show full product details \n Select Edit Item. \n (Be warned, you will have to take new pictures)");
-              }
+            //   if(userInteraction) {
+            //     //this.props.navigation.navigate('YourProducts');
+            //     alert("To edit a particular product's details, magnify to show full product details \n Select Edit Item. \n (Be warned, you will have to take new pictures)");
+            //   }
               
               //userInteraction ? this.navToEditItem() : console.log('user hasnt pressed notification, so do nothing');
           },
@@ -354,47 +358,113 @@ class SignIn extends Component {
     
       }
 
-    shouldSendNotifications(arrayOfProducts, your_uid) {
-        for(var product of arrayOfProducts) {
-            if(product.shouldReducePrice) {
-                console.log('should reduce price');
-
+    shouldSendNotifications(your_uid, notificationsObj) {
+        // var tasks = Object.keys(notificationsObj)
+        // tasks.forEach
+        var message;
+        var notificationData;
+        if(notificationsObj.priceReductions) {
+            for(var specificNotification of Object.values(notificationsObj.priceReductions)) {
                 var month = new Date().getMonth() + 1;
                 var date= new Date().getDate();
                 var year = new Date().getFullYear();
                 
                 //send notification four days after NottMyStyle recognizes this product warrants a price reduction.
-                var notificationDate = new Date( `${date + 4 > 31 ? month + 1 > 12 ? 1 : month + 1 : month}/${date + 4 > 31 ? 1 : date + 4}/${date + 4 > 31 && month + 1 > 12 ? year + 1 : year}`)
+                notificationDate = new Date( `${date + 4 > 31 ? month + 1 > 12 ? 1 : month + 1 : month}/${date + 4 > 31 ? 1 : date + 4}/${date + 4 > 31 && month + 1 > 12 ? year + 1 : year}`)
                 
-                console.log(month, date)
+                // console.log(month, date)
 
-                // in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
-                var message = `Nobody has initiated a chat about, ${product.text.name} from ${product.text.brand} yet, since its submission on the market ${product.daysElapsed} days ago 🤔. Consider a price reduction from £${product.text.price} \u2192 £${Math.floor(0.80*product.text.price)}?`;
-                console.log(message);
+                //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
+                // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
+                // console.log(message);
+                PushNotification.localNotificationSchedule({
+                    message: specificNotification.message,// (required)
+                    date: notificationDate,
+                    vibrate: false,
+                });
+            }
+        }
+
+        if(notificationsObj.purchaseReceipts) {
+            for(var specificNotification of Object.values(notificationsObj.purchaseReceipts)) {
+                
+                
+                //send notification 1 hour later
+                notificationDate = new Date();
+                notificationDate.setHours(notificationDate.getHours() + 1); 
+                
+                // console.log(month, date)
+
+                //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
+                // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
+                // console.log(message);
+                message = `Your product: ${specificNotification.name} is being posted over by ${specificNotification.sellerName}. Please contact us at nottmystyle.help@gmail.com if it does not arrive in 2 weeks.`
                 PushNotification.localNotificationSchedule({
                     message: message,// (required)
                     date: notificationDate,
                     vibrate: false,
                 });
-
-                var postData = {
-                    name: product.text.name,
-                    price: product.text.price,
-                    uri: product.uris[0],
-                    daysElapsed: product.daysElapsed,
-                    message: message,
-                    date: notificationDate,
-                }
-                var notificationUpdates = {};
-                notificationUpdates['/Users/' + your_uid + '/notifications/' + product.key + '/'] = postData;
-                firebase.database().ref().update(notificationUpdates);
             }
         }
+
+        if(notificationsObj.itemsSold) {
+            for(var specificNotification of Object.values(notificationsObj.itemsSold)) {
+                notificationDate = new Date();
+                notificationDate.setHours(notificationDate.getHours() + 1); 
+                
+                // console.log(month, date)
+
+                //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
+                // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
+                // console.log(message);
+                message = `Please deliver ${specificNotification.name} to ${specificNotification.buyerName} so we may transfer funds to your PayPal account.`
+                PushNotification.localNotificationSchedule({
+                    message: message,// (required)
+                    date: notificationDate,
+                    vibrate: false,
+                });
+            }
+        }
+
+        // for(var product of arrayOfProducts) {
+        //     if(product.shouldReducePrice) {
+        //         console.log('should reduce price');
+
+        //         var month = new Date().getMonth() + 1;
+        //         var date= new Date().getDate();
+        //         var year = new Date().getFullYear();
+                
+        //         //send notification four days after NottMyStyle recognizes this product warrants a price reduction.
+        //         var notificationDate = new Date( `${date + 4 > 31 ? month + 1 > 12 ? 1 : month + 1 : month}/${date + 4 > 31 ? 1 : date + 4}/${date + 4 > 31 && month + 1 > 12 ? year + 1 : year}`)
+                
+        //         // console.log(month, date)
+
+        //         //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
+        //         var message = `Nobody has initiated a chat about, ${product.text.name} from ${product.text.brand} yet, since its submission on the market ${product.daysElapsed} days ago 🤔. Consider a price reduction from £${product.text.price} \u2192 £${Math.floor(0.80*product.text.price)}?`;
+        //         // console.log(message);
+        //         PushNotification.localNotificationSchedule({
+        //             message: message,// (required)
+        //             date: notificationDate,
+        //             vibrate: false,
+        //         });
+
+        //         // var postData = {
+        //         //     name: product.text.name,
+        //         //     price: product.text.price,
+        //         //     uri: product.uris[0],
+        //         //     daysElapsed: product.daysElapsed,
+        //         //     message: message,
+        //         //     date: notificationDate,
+        //         // }
+        //         // var notificationUpdates = {};
+        //         // notificationUpdates['/Users/' + your_uid + '/notifications/' + product.key + '/'] = postData;
+        //         // firebase.database().ref().update(notificationUpdates);
+        //     }
+        // }
+
+
     }
-    /////////
-    ///////// Hello world for Login/Signup Email Authentication
-        ///////////////////
-    //////////////////
+
 
     render() {
 

@@ -1145,31 +1145,37 @@ class Products extends Component {
 
           </View>
 
-          <View style={styles.filterBlock}>
 
-            <View style={styles.filterBlockHeadingContainer}>
-              <Text style={new avenirNextText('#fff', 25, "200")}>
-                Size
-              </Text>
-            </View>
+              {/* One should be able to select a size if selectedCategory == Men || Women */}
+          { this.state.selectedCategory == "Accessories" ?
+            null
+            :
+            <View style={styles.filterBlock}>
 
-            <ScrollView horizontal showsHorizontalScrollIndicator style={styles.optionsScroll} contentContainerStyle={styles.optionsScrollContentContainer}>
-            {sizes.map( (size, index) => (
-              <View key={index} style={[styles.optionContainer, sizes.length > 1 && index != sizes.length - 1 ? {borderRightWidth: 0.3, borderRightColor: graphiteGray,} : null]}>
-                <Text 
-                onPress={()=> {
-                  this.state.selectedSize == size ? null : this.setState({selectedSize: size});
-                }}
-                style={[styles.option, {color: this.state.selectedSize == size ? highlightGreen : graphiteGray}]}
-                >
-                {size}
+              <View style={styles.filterBlockHeadingContainer}>
+                <Text style={new avenirNextText('#fff', 25, "200")}>
+                  Size
                 </Text>
               </View>
-            ))}
-            </ScrollView>
+
+              <ScrollView horizontal showsHorizontalScrollIndicator style={styles.optionsScroll} contentContainerStyle={styles.optionsScrollContentContainer}>
+              {sizes.map( (size, index) => (
+                <View key={index} style={[styles.optionContainer, sizes.length > 1 && index != sizes.length - 1 ? {borderRightWidth: 0.3, borderRightColor: graphiteGray,} : null]}>
+                  <Text 
+                  onPress={()=> {
+                    this.state.selectedSize == size ? null : this.setState({selectedSize: size});
+                  }}
+                  style={[styles.option, {color: this.state.selectedSize == size ? highlightGreen : graphiteGray}]}
+                  >
+                  {size}
+                  </Text>
+                </View>
+              ))}
+              </ScrollView>
 
 
-          </View>
+            </View>
+          }
 
             
 

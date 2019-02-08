@@ -70,6 +70,16 @@ class Notifications extends Component {
     )
   }
 
+  renderNotifications = () => {
+    return (
+      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.cc}>
+        {this.renderPriceReductionRows()}
+        {this.renderPurchaseReceiptRows()}
+        {this.renderItemSoldRows()}
+      </ScrollView>
+    )
+  }
+
   render() {
     const {isGetting, noNotifications, notifications} = this.state;
     console.log(notifications);

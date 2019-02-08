@@ -322,11 +322,11 @@ exports.updateProducts = functions.database.ref('Users/{uid}/{products}').onWrit
                 }
             }
             // console.log(keys.length);
-            var products = [];
-            var updates;
-            var chatUpdates = {};
-            var postData;
-            var i = 0;
+            var 
+            products = [], updates,
+            chatUpdates = {},
+            postData,
+            i = 0;
             //go through all products in each user's branch and update the Products section of the database
             for(const uid of uids) {
                 for(const key of keys) {
@@ -341,11 +341,31 @@ exports.updateProducts = functions.database.ref('Users/{uid}/{products}').onWrit
                     var currentProduct = d.Users[uid].products[key];
 
                     daysElapsed = timeSince(d.Users[uid].products[key].time);
+
+                    var shouldReducePrice = (daysElapsed >= 10) && (currentProduct.sold === false) ? true : false;
+
+                    if(shouldReducePrice) {
+                        var priceReductionNotificationUpdate = {};
+                        var notificationPostData = {
+                            name: currentProduct.name,
+                            brand: currentProduct.brand,
+                            price: currentProduct.price, //the selling price the user agreed to post this item for
+                            uri: currentProduct.uris[0],
+                            daysElapsed: daysElapsed,
+                            message: `Nobody has initiated a chat about, ${currentProduct.name} from ${currentProduct.brand} yet, since its submission on the market ${currentProduct.daysElapsed} days ago 🤔. Consider a price reduction from £${currentProduct.price} \u2192 £${Math.floor(0.80*currentProduct.price)}?`,
+                            
+                        }
+                        priceReductionNotificationUpdate[`/Users/${uid}/notifications/priceReductions/${key}`] = notificationPostData;
+                        admin.database().ref().update(priceReductionNotificationUpdate)
+
+                    }
                         
                     postData = {
-                        key: key, uid: uid, uris: d.Users[uid].products[key].uris, 
-                        text: d.Users[uid].products[key], daysElapsed: daysElapsed, 
-                        shouldReducePrice: (daysElapsed >= 10) && (d.Users[uid].products[key].sold === false) ? true : false,
+                        key: key, uid: uid, uris: currentProduct.uris, 
+                        //TODO: below is why uris gets tacked on as extra property
+                        text: currentProduct, daysElapsed: daysElapsed, 
+                        //set property right now to easen burden on notification scheduling chain
+                        shouldReducePrice: shouldReducePrice ? true : false,
                     }
                         
                         
@@ -378,6 +398,8 @@ exports.updateProducts = functions.database.ref('Users/{uid}/{products}').onWrit
         return null;
     }
 )
+
+
 
 
 // exports.dbWrite = functions.database.ref('/path/with/{id}').onWrite((data, context) => {
