@@ -1267,7 +1267,7 @@ class ProductDetails extends Component {
               {profile.country}
             </Text>
             {profile.insta ? 
-              <Text onPress={()=>Linking.openURL(`https://instagram.com/${profile.insta}`)} style={[styles.profileText, {color: "#800000"}]}>@{profile.insta}</Text>
+              <Text onPress={()=>Linking.openURL(`https://instagram.com/${profile.insta}`)} style={[styles.profileText, {color: "black"}]}>@{profile.insta}</Text>
              : 
               null
             }

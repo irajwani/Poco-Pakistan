@@ -42,6 +42,9 @@ const cardHeaderHeight = 200;
 const cardContentHeight = 50
 const cardFull = cardHeaderHeight + cardContentHeight;
 
+const popUpMenuHeight = 55;
+const popUpMenuWidth = 55;
+
 const loadingStrings = ['Acquiring Catalogue of Products...', 'Fetching Marketplace...', 'Loading...', 'Almost there...']
 
 const splitArrayIntoArraysOfSuccessiveElements = (array) => {
@@ -453,14 +456,22 @@ class Products extends Component {
     this.setState(state);
   }
 
-  HideMenusView = ({children}) => (
-    <TouchableWithoutFeedback onPress={()=>this.hideMenus()}>
-      {children}
-    </TouchableWithoutFeedback>
-  )
+  // HideMenusView = ({children}) => (
+  //   <TouchableWithoutFeedback onPress={()=>this.hideMenus()}>
+  //     {children}
+  //   </TouchableWithoutFeedback>
+  // )
 
   hideMenus = () => {
-    console.log('pressed')
+    const {...state} = this.state;
+    state.leftProducts.forEach( (product) => {
+      product['isMenuActive'] = false
+    })
+    state.rightProducts.forEach( (product) => {
+      product['isMenuActive'] = false
+    })
+    this.setState(state);
+    // console.log('YOYOYOYOYOYO');
   }
 
 
@@ -747,6 +758,21 @@ class Products extends Component {
     // alert('Please take brand new pictures');
   }
 
+  deleteProduct(uid, key) {
+    firebase.database().ref('/Users/' + uid + '/products/' + key)
+    .remove()
+    .then( () => {
+        // console.log('product has been successfully removed')
+        this.getMarketPlace(this.state.uid);
+        alert("Your product has successfully been deleted");
+
+    })
+    .catch( (err)=> {
+        console.log(err);
+    });
+
+  }
+
     
     // this.getPageSpecificProducts();
     // alert("This product has been removed from your WishList 💔.");
@@ -828,17 +854,33 @@ class Products extends Component {
                   <Text style={[styles.likes, {color: this.state.productKeys.includes(section.key) ? limeGreen : profoundPink }]}>{section.text.likes}</Text>
                 </View>
 
-                {this.state.productKeys.includes(section.key) ?
+                {this.props.showYourProducts ?
                   section.isMenuActive?
-                  <View style={styles.menuContainer}>
-                    <View style={styles.editOrDeleteMenu}/>
+                  <View style={[styles.menuContainer, {paddingHorizontal: 5}]}>
+                    <View style={styles.editOrDeleteMenu}>
+                      <Text
+                      onPress={() => {
+                        this.navToEditItem(section)
+                        }}   
+                      style={new avenirNextText('black', 13, "300")}>
+                      Edit
+                      </Text>
+                      <View style={{width: "100%",height: 1, backgroundColor: 'black'}}/>
+                      <Text 
+                      onPress={() => {
+                        this.deleteProduct(section.uid, section.key)
+                        }} 
+                      style={new avenirNextText('black', 13, "300")}>
+                      Delete
+                      </Text>
+                    </View>
                   </View>
                   :
-                  <View style={[styles.menuContainer, {justifyContent: 'flex-end', alignItems: 'center'}]}>
+                  <View style={[styles.menuContainer, {justifyContent: 'flex-end', alignItems: 'flex-start'}]}>
                     <Icon
                       name="dots-vertical"
                       size={25} 
-                      color={graphiteGray}
+                      color={"#fff"}
                       onPress={menuExpandFunction}
                     /> 
                   </View>
@@ -1312,13 +1354,14 @@ class Products extends Component {
     else {
       return (
 
-      
+        // <TouchableWithoutFeedback onPress={()=>this.hideMenus()}>
         <View style={styles.container}>
+          
           <ScrollView
                 style={{flex: 1}}
                 contentContainerStyle={styles.contentContainerStyle}
           >
-            <HideMenusView>
+            
               <ListView
                   contentContainerStyle={styles.listOfProducts}
                   dataSource={this.state.leftDS.cloneWithRows(this.state.leftProducts)}
@@ -1327,7 +1370,9 @@ class Products extends Component {
                     () => {
                         // let photoArray;
                         // section.isActive = !section.isActive;
-                        
+
+                        this.props.showYourProducts ? this.hideMenus() : null;
+
                         let index = this.state.leftProducts.indexOf(rowData);
                         this.state.leftProducts[index].isActive = !this.state.leftProducts[index].isActive;
                         this.setState({leftProducts: this.state.leftProducts});
@@ -1359,6 +1404,9 @@ class Products extends Component {
                     () => {
                       // let photoArray;
                       // section.isActive = !section.isActive;
+
+                      this.props.showYourProducts ? this.hideMenus() : null;
+
                       let index = this.state.rightProducts.indexOf(rowData);
                       this.state.rightProducts[index].isActive = !this.state.rightProducts[index].isActive;
                       this.setState({rightProducts: this.state.rightProducts});
@@ -1381,11 +1429,12 @@ class Products extends Component {
               :
               null
               }
-            </HideMenusView>
+            
 
             {this.renderFilterModal()}
 
           </ScrollView>
+          
 
           <View style={styles.filterButtonContainer}>
 
@@ -1404,6 +1453,7 @@ class Products extends Component {
           </View>
 
         </View>
+        
 
       
     
@@ -1531,9 +1581,11 @@ const styles = StyleSheet.create({
 
   interactionButtonsRow: {
     flexDirection: 'row',
-    height: 50,
+    // width: popUpMenuWidth + 5,
+    height: popUpMenuHeight + 5,
+    marginTop: 5
     // width: ,
-    backgroundColor: 'blue',
+    // backgroundColor: 'blue',
     // justifyContent: 'center',
     // alignItems: 'center'
     //backgroundColor: iOSColors.lightGray2,
@@ -1541,26 +1593,31 @@ const styles = StyleSheet.create({
   },
 
   likesContainer: {
-    height: 20,
+    height: 0.45*popUpMenuHeight,
     flex: 0.5,
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    backgroundColor: 'red'
+    paddingHorizontal: 5
+    // backgroundColor: 'red'
   },
 
   menuContainer: {
     flex: 0.5,
     flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center'
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    // backgroundColor: 'green'
   },
 
   editOrDeleteMenu: {
-    width: 50,
-    height: 50,
-    borderRadius: 10,
-    backgroundColor: 'gray'
+    width: popUpMenuWidth,
+    height: popUpMenuHeight,
+    borderRadius: 8,
+    borderWidth: 0.3,
+    backgroundColor: "white",
+    justifyContent: 'space-evenly',
+    alignItems: 'center'
   },
 
   // interactionContainer: {
