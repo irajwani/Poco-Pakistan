@@ -324,7 +324,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
         isUploading: false,
                  });
 
-    oldItemPostKey ? this.props.navigation.popToTop() : this.props.navigation.navigate('Profile'); 
+    this.state.oldItemPostKey ? this.props.navigation.popToTop() : this.props.navigation.navigate('Profile'); 
   }
 
   deleteProduct(uid, key) {

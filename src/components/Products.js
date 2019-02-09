@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dimensions, View, Text, TextInput, Image, StyleSheet, ScrollView, ListView, TouchableHighlight, Modal, TouchableOpacity } from 'react-native';
+import { Dimensions, View, Text, TextInput, Image, StyleSheet, ScrollView, ListView, TouchableHighlight, Modal, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import { Button } from 'react-native-elements';
 import {withNavigation} from 'react-navigation'; // Version can be specified in package.json
 // import { Text,  } from 'native-base';
@@ -133,6 +133,14 @@ const generateSizesBasedOn = (type, category) => {
 
 const limeGreen = '#2e770f';
 const profoundPink = '#c64f5f';
+
+// const HideMenusView = ({children}) => (
+//   <TouchableWithoutFeedback onPress={()=>Products.hideMenus()}>
+//     {children}
+//   </TouchableWithoutFeedback>
+
+
+// )
 
 class Products extends Component {
   constructor(props) {
@@ -337,7 +345,8 @@ class Products extends Component {
           // test = 
           // console.log(test);
           Products.forEach((product) => {
-            product['isActive'] = false  //boolean for rowData UI expansion
+            product['isActive'] = false;  //boolean for rowData UI expansion
+            product['isMenuActive'] = false;
           })
           // console.log("OVER HERE"+Products)
           // console.log('before split: ' + all);
@@ -442,6 +451,16 @@ class Products extends Component {
     state.selectedSize = '';
 
     this.setState(state);
+  }
+
+  HideMenusView = ({children}) => (
+    <TouchableWithoutFeedback onPress={()=>this.hideMenus()}>
+      {children}
+    </TouchableWithoutFeedback>
+  )
+
+  hideMenus = () => {
+    console.log('pressed')
   }
 
 
@@ -723,6 +742,11 @@ class Products extends Component {
 
   }
 
+  navToEditItem(item) {
+    this.props.navigation.navigate('CreateItem', {data: item, pictureuris: item.uris, editItemBoolean: true});
+    // alert('Please take brand new pictures');
+  }
+
     
     // this.getPageSpecificProducts();
     // alert("This product has been removed from your WishList 💔.");
@@ -759,7 +783,7 @@ class Products extends Component {
       this.props.navigation.navigate('ProductDetails', {data: data, collectionKeys: collectionKeys, productKeys: productKeys})
   }
 
-  renderRow = (section, expandFunction, incrementLikesFunction, decrementLikesFunction) => {
+  renderRow = (section, expandFunction, incrementLikesFunction, decrementLikesFunction, menuExpandFunction) => {
     return (
       
       <View
@@ -776,30 +800,54 @@ class Products extends Component {
         >
         
           <View style={styles.productImageContainer}>
-              <View style={styles.likesRow}>
+              <View style={styles.interactionButtonsRow}>
                 {/* onPress={() => {this.incrementLikes(section.text.likes, section.uid, section.key)}} 
                 if this product is already in your collection, you have the option to dislike the product,
                     reducing its total number of likes by 1,
                     and remove it from your collection. If not already in your collection, you may do the opposite. */}
-                {this.state.collectionKeys.includes(section.key) ? 
-                  <Icon 
-                    name="heart" 
-                    size={25} 
-                    color={this.state.productKeys.includes(section.key) ? limeGreen : '#800000'}
-                    onPress={this.state.productKeys.includes(section.key) ? null : decrementLikesFunction}
-                            
+                <View style={styles.likesContainer}>
+                  {this.state.collectionKeys.includes(section.key) ? 
+                    <Icon 
+                      name="heart" 
+                      size={25} 
+                      color={this.state.productKeys.includes(section.key) ? limeGreen : '#800000'}
+                      onPress={this.state.productKeys.includes(section.key) ? null : decrementLikesFunction}
+                              
 
-                  /> 
-                :  
-                  <Icon 
-                    name="heart-outline" 
-                    size={25} 
-                    color={this.state.productKeys.includes(section.key) ? limeGreen : '#800000'}
-                    onPress={this.state.productKeys.includes(section.key) ? null : incrementLikesFunction}
-                  />
+                    /> 
+                  :  
+                    <Icon 
+                      name="heart-outline" 
+                      size={25} 
+                      color={this.state.productKeys.includes(section.key) ? limeGreen : '#800000'}
+                      onPress={this.state.productKeys.includes(section.key) ? null : incrementLikesFunction}
+                    />
+                  }
+                
+
+                  <Text style={[styles.likes, {color: this.state.productKeys.includes(section.key) ? limeGreen : profoundPink }]}>{section.text.likes}</Text>
+                </View>
+
+                {this.state.productKeys.includes(section.key) ?
+                  section.isMenuActive?
+                  <View style={styles.menuContainer}>
+                    <View style={styles.editOrDeleteMenu}/>
+                  </View>
+                  :
+                  <View style={[styles.menuContainer, {justifyContent: 'flex-end', alignItems: 'center'}]}>
+                    <Icon
+                      name="dots-vertical"
+                      size={25} 
+                      color={graphiteGray}
+                      onPress={menuExpandFunction}
+                    /> 
+                  </View>
+                :
+                  null
                 }
 
-                <Text style={[styles.likes, {color: this.state.productKeys.includes(section.key) ? limeGreen : profoundPink }]}>{section.text.likes}</Text>
+
+
               </View>
               {section.text.sold ? 
                 <View style={styles.soldTextContainer}>
@@ -1218,13 +1266,13 @@ class Products extends Component {
     var {isGetting, emptyMarket, noResultsFromFilter } = this.state;
     if(isGetting) {
       return ( 
-        <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
-            <View style={{height: 200, justifyContent: 'center', alignContent: 'center'}}>
-              <LoadingIndicator isVisible={isGetting} color={darkGreen} type={'Wordpress'}/>
-                <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: 'black', textAlign: 'center'}}>
+        <View style={{marginTop: 22, flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff'}}>
+            
+            <LoadingIndicator isVisible={isGetting} color={darkGreen} type={'Wordpress'}/>
+                {/* <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: 'black', textAlign: 'center'}}>
                     {loadingStrings[randomIntFromInterval(0,3)]}
-                </Text>
-            </View>
+                </Text> */}
+            
             
         </View>
       )
@@ -1270,7 +1318,7 @@ class Products extends Component {
                 style={{flex: 1}}
                 contentContainerStyle={styles.contentContainerStyle}
           >
-
+            <HideMenusView>
               <ListView
                   contentContainerStyle={styles.listOfProducts}
                   dataSource={this.state.leftDS.cloneWithRows(this.state.leftProducts)}
@@ -1289,6 +1337,11 @@ class Products extends Component {
                     },
                     () => {
                         this.decrementLikes(rowData.text.likes, rowData.uid, rowData.key, this.state.leftProducts.indexOf(rowData), 'leftProducts')
+                    },
+                    () => {
+                      let index = this.state.leftProducts.indexOf(rowData);
+                      this.state.leftProducts[index].isMenuActive = !this.state.leftProducts[index].isMenuActive;
+                      this.setState({leftProducts: this.state.leftProducts});
                     }
                       
                   )}
@@ -1316,6 +1369,11 @@ class Products extends Component {
                     () => {
                       this.decrementLikes(rowData.text.likes, rowData.uid, rowData.key, this.state.rightProducts.indexOf(rowData), 'rightProducts')
                     },
+                    () => {
+                      let index = this.state.rightProducts.indexOf(rowData);
+                      this.state.rightProducts[index].isMenuActive = !this.state.rightProducts[index].isMenuActive;
+                      this.setState({rightProducts: this.state.rightProducts});
+                    }
                   )}
                   enableEmptySections={true}
                   removeClippedSubviews={false}
@@ -1323,6 +1381,8 @@ class Products extends Component {
               :
               null
               }
+            </HideMenusView>
+
             {this.renderFilterModal()}
 
           </ScrollView>
@@ -1469,12 +1529,47 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
 
-  likesRow: {
+  interactionButtonsRow: {
     flexDirection: 'row',
+    height: 50,
+    // width: ,
+    backgroundColor: 'blue',
+    // justifyContent: 'center',
+    // alignItems: 'center'
     //backgroundColor: iOSColors.lightGray2,
-    marginRight: 95,
+    // marginRight: 95,
   },
-  
+
+  likesContainer: {
+    height: 20,
+    flex: 0.5,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    backgroundColor: 'red'
+  },
+
+  menuContainer: {
+    flex: 0.5,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center'
+  },
+
+  editOrDeleteMenu: {
+    width: 50,
+    height: 50,
+    borderRadius: 10,
+    backgroundColor: 'gray'
+  },
+
+  // interactionContainer: {
+  //   flex: 0.5,
+  //   flexDirection: 'row',
+  //   justifyContent: 'flex-start',
+  //   alignItems: 'center'
+  // },
+
   buyReviewRow: {
     flexDirection: 'row', justifyContent: 'space-between', padding: 5, marginRight: 30
   },
