@@ -1,21 +1,23 @@
 import { createStackNavigator } from 'react-navigation';
 import { Animated, Easing } from 'react-native';
-import Chats from '../views/Chats';
+// import Chats from '../views/Chats';
 import CustomChat from '../views/CustomChat';
-import Notifications from '../views/Notifications';
+// import Notifications from '../views/Notifications';
 import OtherUserProfilePage from '../views/OtherUserProfilePage';
 // import ProductComments from '../views/ProductComments';
 import UserComments from '../views/UserComments';
+import NotificationsAndChats from '../views/NotificationsAndChats';
 
 export const ChatsToCustomChatStack = createStackNavigator({
-    Notifications: Notifications,
-    Chats: Chats,
+    // Notifications: Notifications,
+    // Chats: Chats,
+    NotificationsAndChats: NotificationsAndChats,
     CustomChat: CustomChat,
     OtherUserProfilePage: OtherUserProfilePage,
     UserComments: UserComments
 
 },{
-    initialRouteName: 'Chats',
+    initialRouteName: 'NotificationsAndChats',
     headerMode: 'none',
     mode: 'modal',
     navigationOptions: {
