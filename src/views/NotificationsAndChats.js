@@ -1,17 +1,11 @@
 import React, { Component } from 'react'
-import { Text, Dimensions, StyleSheet, ScrollView, View, Image, TouchableOpacity, TouchableHighlight } from 'react-native'
-// import {Text} from 'native-base'
-import {Button} from 'react-native-elements';
-
-// import {database} from '../cloud/database'
+import { Text, Dimensions, StyleSheet, ScrollView, View, Image, TouchableOpacity, Modal } from 'react-native'
 import firebase from '../cloud/firebase';
-import { withNavigation } from 'react-navigation';
-import Chatkit from '@pusher/chatkit-client';
-import { CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_INSTANCE_LOCATOR } from '../credentials/keys';
-import {material} from 'react-native-typography';
-import { PacmanIndicator } from 'react-native-indicators';
 
-import { lightGreen, coolBlack, highlightGreen, graphiteGray, treeGreen, profoundPink, rejectRed } from '../colors';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import {material} from 'react-native-typography';
+
+import { lightGreen, coolBlack, highlightGreen, graphiteGray, treeGreen, profoundPink, rejectRed, logoGreen } from '../colors';
 import {avenirNextText} from '../constructors/avenirNextText'
 
 import NothingHereYet from '../components/NothingHereYet';
@@ -22,7 +16,7 @@ const express_app_uri = "https://calm-coast-12842.herokuapp.com/leaveYourRooms"
 const noChatsText = "You have not initiated any chats 😳. Choose a product from the marketplace and then converse with the seller about your preferred method of payment (Cash or PayPal), and if whether you'd like the item posted to you or not.";
 const DaysOfTheWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const {width} = Dimensions.get('window');
-const navTabButtonWidth = 115;
+
 const pictureWidth = 70, pictureHeight = 70;
 
 const notificationHeaderText = "NottMyStyle";
@@ -55,7 +49,7 @@ class Chats extends Component {
       var d = snapshot.val();
       var chats = d.Users[your_uid].conversations ? d.Users[your_uid].conversations : false;
       chats = chats ? Object.values(chats) : false;
-      console.log(chats);
+      // console.log(chats);
       this.leaveYourRooms(your_uid);
       this.setState({chats, yourUid: your_uid, noChats: chats ? true : false , isGetting: false});
     })
@@ -506,7 +500,7 @@ class Chats extends Component {
 class Notifications extends Component {
     constructor(props) {
         super(props);
-        this.state={isGetting:true, noNotifications: false};
+        this.state={isGetting:true, noNotifications: false, showDetails: false, details: false, notificationType: false};
     }
   
     componentWillMount() {
@@ -548,31 +542,32 @@ class Notifications extends Component {
           {notifications.priceReductions ? this.r(notifications.priceReductions, 'Price Reduction Alert') : null}
           {notifications.purchaseReceipts ? this.r(notifications.purchaseReceipts, 'Purchase Receipt') : null}
           {notifications.itemsSold ? this.r(notifications.itemsSold, 'Item Sold!') : null}
+          {this.renderDetailsModal()}
         </ScrollView>
         
       )
     }
   
     r = (notifs, notificationType) => {
-        console.log(notifs);
+        // console.log(notifs);
     //   console.log("OVER HEYAAAA" + notifs[0].uri);
       return Object.keys(notifs).map((notification, index) => (
             
             <View key={index} style={styles.specificChatContainer}>
   
-              <TouchableOpacity  onPress={() => this.showDetails()} style={styles.pictureContainer}>
+              <TouchableOpacity onPress={() => this.showDetails(notifs[notification],notificationType)} style={styles.pictureContainer}>
                 <Image 
                 source={require("../images/nottmystyleLogo.png")} 
                 style={[styles.picture, {borderRadius: 35}]} />
               </TouchableOpacity>
   
-              <TouchableOpacity  style={styles.textContainer}>
+              <TouchableOpacity onPress={() => this.showDetails(notifs[notification],notificationType)} style={styles.textContainer}>
                 <Text style={styles.otherPersonName}>{notificationHeaderText}</Text>
                 <Text style={styles.lastMessageText}>{notificationType}</Text>
                 
               </TouchableOpacity>
   
-              <TouchableOpacity onPress={() => this.showDetails()} style={styles.pictureContainer}>
+              <TouchableOpacity style={styles.pictureContainer}>
                 <Image source={{uri: notifs[notification].uri }} 
                 style={styles.picture} />
               </TouchableOpacity>
@@ -582,8 +577,82 @@ class Notifications extends Component {
   
     }
   
-    showDetails = () => {
-      console.log('')
+    showDetails = (details, notificationType) => {
+      //when one selects a specific notification, use the notificationType to determine what structure of details
+      //to expect and use the details themselves of course, so set these 2 values in state
+      console.log('show notification details');
+      this.setState({showDetails: true, details, notificationType, })
+    }
+
+    renderDetailsModal = () => {
+
+      const {notificationType, details} = this.state;
+      const {deliveryOptionBody} = styles
+      
+      return (
+        <Modal
+        animationType="slide"
+        transparent={false}
+        visible={this.state.showDetails}
+        >
+        <View style={styles.deliveryOptionModal}>
+
+          <View style={styles.deliveryOptionHeader}>
+                
+            <FontAwesomeIcon
+              name='arrow-left'
+              size={1}
+              color={logoGreen}
+              />
+
+            <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
+            
+
+            <FontAwesomeIcon
+              name='close'
+              size={28}
+              color={'black'}
+              onPress = { () => { 
+                  this.setState({showDetails: false })
+                  } }
+              />
+
+          </View>
+
+          
+
+            {notificationType == "Item Sold!" ?
+              <View style={[deliveryOptionBody, {padding: 10}]}>
+
+              </View>
+              :
+              notificationType == "Price Reduction Alert" ?
+                  <View style={[deliveryOptionBody, {padding: 10}]}>
+
+                  </View>
+                  :
+                  <View style={[deliveryOptionBody, {padding: 10}]}>
+                    {/* <Image source={details.uri} style={styles.detailsImage} />
+                    <Text style={new avenirNextText('black', 18, "300", "left")}>
+                    Congratulations! Your item, {details.name} has been sold successfully for £{details.price} to {details.buyerName}.
+
+                    The buyer's address is:
+                    {details.address.addressOne + ", " + details.address.addressTwo + ", " + details.address.city + ", " + details.address.postCode}
+
+                    We recommend you send the item over ASAP. after which your payment will be transferred via PayPal.
+                    </Text> */}
+                  </View>
+              }
+
+          
+
+        </View>
+        </Modal>
+      )
+      
+
+
+
     }
   
     render() {
@@ -602,12 +671,10 @@ class Notifications extends Component {
       if(noNotifications) {
         return (
         
-            
             <View style={{flex: 0.85, padding: 10}}>
               <NothingHereYet specificText={noNotificationsText}/>
             </View>
-            
-          
+              
         )
       }
   
@@ -645,9 +712,9 @@ export default class NotificationsAndChats extends Component {
             <View style={styles.container}>
                 {this.renderUpperNavTab()}
                 {this.state.showChats ?
-                    <Chats/>
+                  <Chats/>
                 :
-                    <Notifications/>
+                  <Notifications/>
                 }
             </View>
         )
@@ -733,6 +800,38 @@ const styles = StyleSheet.create({
     alignItems: 'center'
     // position: 'absolute'
   },
+
+  ////////
+  ////Notification Details Modal
+  deliveryOptionModal: {
+    backgroundColor: "#fff",
+    flex: 1,
+    marginTop: 22
+  },
+  
+  deliveryOptionHeader: {
+    flex: 0.1,
+    //TODO: find nottGreen hex code
+    backgroundColor: logoGreen,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexDirection: 'row',
+    paddingHorizontal: 12,
+  },
+
+  logo: {
+    width: 45,
+    height: 45,
+  },
+
+  detailsImage: {
+    width: 60,
+    height: 60,
+  },
+
+
+
+  ///////
 
 
   LoadingIndicatorContainer: {flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30, backgroundColor: '#fff'},

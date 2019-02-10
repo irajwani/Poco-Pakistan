@@ -353,6 +353,9 @@ exports.updateProducts = functions.database.ref('Users/{uid}/{products}').onWrit
                             uri: currentProduct.uris[0],
                             daysElapsed: daysElapsed,
                             message: `Nobody has initiated a chat about, ${currentProduct.name} from ${currentProduct.brand} yet, since its submission on the market ${currentProduct.daysElapsed} days ago 🤔. Consider a price reduction from £${currentProduct.price} \u2192 £${Math.floor(0.80*currentProduct.price)}?`,
+
+                            /// Should we just force empty address properties here?
+                            // address: 
                             
                         }
                         priceReductionNotificationUpdate[`/Users/${uid}/notifications/priceReductions/${key}`] = notificationPostData;

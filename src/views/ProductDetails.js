@@ -483,7 +483,7 @@ class ProductDetails extends Component {
     if(data.title == "success") {
       let productAcquisitionPostData = {
         name: this.state.name, uri: this.props.navigation.state.params.data.uris[0],
-        // price:
+        price: this.state.postOrNah == 'post' ? this.state.totalPrice : this.state.price,
         sellerName: this.state.profile.name,
         buyerName: this.state.yourProfile.name,
         address: this.state.selectedAddress,
