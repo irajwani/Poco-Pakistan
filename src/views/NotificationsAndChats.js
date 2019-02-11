@@ -9,7 +9,7 @@ import { lightGreen, coolBlack, highlightGreen, graphiteGray, treeGreen, profoun
 import {avenirNextText} from '../constructors/avenirNextText'
 
 import NothingHereYet from '../components/NothingHereYet';
-import { LoadingIndicator, CustomTouchableO } from '../localFunctions/visualFunctions';
+import { LoadingIndicator, CustomTouchableO, WhiteSpace } from '../localFunctions/visualFunctions';
 
 // const express_app_uri = "http://localhost:5000/leaveYourRooms";
 const express_app_uri = "https://calm-coast-12842.herokuapp.com/leaveYourRooms"
@@ -589,7 +589,8 @@ class Notifications extends Component {
       const {notificationType, details} = this.state;
       const {deliveryOptionBody} = styles
       
-      return (
+      if(notificationType=="Item Sold!"){
+        return (
         <Modal
         animationType="slide"
         transparent={false}
@@ -619,36 +620,128 @@ class Notifications extends Component {
 
           </View>
 
-          
-
-            {notificationType == "Item Sold!" ?
-              <View style={[deliveryOptionBody, {padding: 10}]}>
-
-              </View>
-              :
-              notificationType == "Price Reduction Alert" ?
-                  <View style={[deliveryOptionBody, {padding: 10}]}>
-
-                  </View>
-                  :
-                  <View style={[deliveryOptionBody, {padding: 10}]}>
-                    {/* <Image source={details.uri} style={styles.detailsImage} />
-                    <Text style={new avenirNextText('black', 18, "300", "left")}>
-                    Congratulations! Your item, {details.name} has been sold successfully for £{details.price} to {details.buyerName}.
-
-                    The buyer's address is:
-                    {details.address.addressOne + ", " + details.address.addressTwo + ", " + details.address.city + ", " + details.address.postCode}
-
-                    We recommend you send the item over ASAP. after which your payment will be transferred via PayPal.
-                    </Text> */}
-                  </View>
-              }
+          <View style={[deliveryOptionBody, {padding: 10}]}>
+            <Image source={{uri: details.uri}} style={styles.detailsImage} />
+            <Text style={new avenirNextText('black', 18, "300", "left")}>
+            Congratulations! Your item, {details.name} has been sold successfully for £{details.price} to {details.buyerName}.
+            </Text>
+            <WhiteSpace height={10}/>
+            <Text>
+            The buyer's address is:
+            {details.address.addressOne + ", " + details.address.addressTwo + ", " + details.address.city + ", " + details.address.postCode}
+            </Text>
+            <WhiteSpace height={10}/>
+            <Text>
+            We recommend you send the item over ASAP. after which your payment will be transferred via PayPal.
+            </Text>
+          </View>
+              
 
           
 
         </View>
         </Modal>
       )
+    }
+
+      else if(notificationType=="Purchase Receipt") {
+        
+        return (
+          <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.showDetails}
+          >
+          <View style={styles.deliveryOptionModal}>
+  
+            <View style={styles.deliveryOptionHeader}>
+                  
+              <FontAwesomeIcon
+                name='arrow-left'
+                size={1}
+                color={logoGreen}
+                />
+  
+              <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
+              
+  
+              <FontAwesomeIcon
+                name='close'
+                size={28}
+                color={'black'}
+                onPress = { () => { 
+                    this.setState({showDetails: false })
+                    } }
+                />
+  
+            </View>
+  
+            <View style={[deliveryOptionBody, {padding: 10}]}>
+              <Image source={{uri: details.uri}} style={styles.detailsImage} />
+              <Text style={styles.detailsText}>
+              Congratulations! You have successfully bought {details.name} for £{details.price}.
+              </Text>
+              <WhiteSpace height={10}/>
+              <Text style={styles.detailsText}>
+              Your item will be delivered to:
+              {details.address.addressOne + ", " + details.address.addressTwo + ", " + details.address.city + ", " + details.address.postCode}.
+              </Text>
+              <WhiteSpace height={10}/>
+              <Text style={styles.detailsText}>
+              Please note that it may take up to 2 weeks for the item to arrive via postal delivery. In case your item doesn't arrive, send us an email at nottmystyle.help@gmail.com.
+              </Text>
+            </View>
+                
+  
+            
+  
+          </View>
+          </Modal>
+        )
+      }
+
+      else {
+        return (
+          <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.showDetails}
+          >
+          <View style={styles.deliveryOptionModal}>
+  
+            <View style={styles.deliveryOptionHeader}>
+                  
+              <FontAwesomeIcon
+                name='arrow-left'
+                size={1}
+                color={logoGreen}
+                />
+  
+              <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
+              
+  
+              <FontAwesomeIcon
+                name='close'
+                size={28}
+                color={'black'}
+                onPress = { () => { 
+                    this.setState({showDetails: false })
+                    } }
+                />
+  
+            </View>
+  
+            <View style={[deliveryOptionBody, {padding: 10}]}>
+              
+            </View>
+                
+  
+            
+  
+          </View>
+          </Modal>
+        )
+      }
       
 
 
@@ -819,15 +912,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
 
+  deliveryOptionBody: {
+    flex: 0.75,
+    padding: 10,
+    alignItems: 'center'
+    // backgroundColor: ''
+  },
+
   logo: {
     width: 45,
     height: 45,
   },
 
   detailsImage: {
-    width: 60,
-    height: 60,
+    width: 120,
+    height: 120,
   },
+
+  detailsText: new avenirNextText("black", 18, "300", "left"),
 
 
 

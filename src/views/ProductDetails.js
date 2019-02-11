@@ -481,6 +481,7 @@ class ProductDetails extends Component {
 
   handleResponse = (data) => {
     if(data.title == "success") {
+      // console.log("Payment successfully went through");
       let productAcquisitionPostData = {
         name: this.state.name, uri: this.props.navigation.state.params.data.uris[0],
         price: this.state.postOrNah == 'post' ? this.state.totalPrice : this.state.price,
@@ -498,9 +499,10 @@ class ProductDetails extends Component {
       let promiseToUpdateSeller = firebase.database().ref().update(productAcquisitionNotificationUpdate);
       Promise.all([promiseToUpdateBuyer, promiseToUpdateSeller])
       .then( () => {
+        // console.log("Notifications updated for buyer and seller")
         this.setSaleTo(true, this.state.otherUserUid, this.state.sku, true);
         const {params} = this.props.navigation.state;
-        this.setState({activeScreen: "afterPaymentScreen", paymentStatus: "success"}, () => this.getUsersAndProductAndOtherUserData(params.data));
+        this.setState({activeScreen: "afterPaymentScreen", paymentStatus: "success"}, () => this.getUserAndProductAndOtherUserData(params.data));
       })
       .catch( (e) => {
         console.log('failed to update references because' + e);
@@ -749,28 +751,22 @@ class ProductDetails extends Component {
                       <TouchableOpacity 
                       style={[styles.collectionInPersonButton, {width: index == 0 ? chatButtonWidth : paymentButtonWidth}]}
                       onPress = { () => { 
-                                // console.log('going to chat');
-                                //subscribe to room key
-                                if(index == 0) {
-                                  if(this.state.canChatWithOtherUser) {
-                                    this.setState({showPurchaseModal: false});
-                                    this.navToChat(this.props.navigation.state.params.data.uid, this.props.navigation.state.params.data.key);
-                                  }
-                                  else {
-                                    alert('You cannot create a chat with an individual that you have blocked.\n Please unblock them to proceed. ');
-                                  }
-                                } 
-                                else {
-                                  this.proceedToPayment('noPost')
-                                }
-                                  
-                                  
-                                    
-                                    
-                                    
-                                  
-                                  
-                                } }
+                        // console.log('going to chat');
+                        //subscribe to room key
+                        if(index == 0) {
+                          if(this.state.canChatWithOtherUser) {
+                            this.setState({showPurchaseModal: false});
+                            this.navToChat(this.props.navigation.state.params.data.uid, this.props.navigation.state.params.data.key);
+                          }
+                          else {
+                            alert('You cannot create a chat with an individual that you have blocked.\n Please unblock them to proceed. ');
+                          }
+                        } 
+                        else {
+                          this.proceedToPayment('noPost')
+                        }
+                          
+                      } }
                       >
 
                         <View style={styles.collectionInPersonOptionsContainer}>
@@ -1111,14 +1107,19 @@ class ProductDetails extends Component {
 
             
               {this.state.paymentStatus == "success" ? 
-              <View style={[deliveryOptionBody, {padding: 10}]}>
+              <View style={[deliveryOptionBody, {padding: 10, alignItems: 'center'}]}>
+                
                 <Image source={this.props.navigation.state.params.data.uris[0]} style={styles.successProductImage} />
-                <Text style={new avenirNextText('black', 18, "300", "left")}>
+                <Text style={styles.successText}>
                 Congratulations! You have successfully bought {this.state.name} for £{this.state.postOrNah == 'post' ? this.state.totalPrice : this.state.price}.
-
+                </Text>
+                <WhiteSpace height={10}/>
+                <Text style={styles.successText}>
                 Your item will be delivered to:
-                {this.state.selectedAddress.addressOne + ", " + this.state.selectedAddress.addressTwo + ", " + this.state.selectedAddress.city + ", " + this.state.selectedAddress.postCode}
-
+                {this.state.selectedAddress.addressOne + ", " + this.state.selectedAddress.addressTwo + ", " + this.state.selectedAddress.city + ", " + this.state.selectedAddress.postCode}.
+                </Text>
+                <WhiteSpace height={10}/>
+                <Text style={styles.successText}>
                 Please note that it may take up to 2 weeks for the item to arrive via postal delivery. In case your item doesn't arrive, send us an email at nottmystyle.help@gmail.com.
                 </Text>
 
@@ -2096,6 +2097,8 @@ successProductImage: {
   width: 60,
   height: 60,
 },
+
+successText: new avenirNextText('black', 18, "300", "left"),
 
 
 

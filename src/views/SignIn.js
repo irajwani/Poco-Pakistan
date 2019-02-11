@@ -91,7 +91,7 @@ class SignIn extends Component {
         this.colorRefreshId = setInterval( () => {
             // i = Math.random() > 0.5 ? Math.random() > 0.5 ? Math.random() > 0.5 ? 1 : 2 : 4 : 3
             i++
-            console.log(googleIconColors[i % 4])
+            // console.log(googleIconColors[i % 4])
             this.setState({googleIconColor: googleIconColors[i % 4]})
         }, 3500)
         // .then( () => {console.log('google sign in is now possible')})
