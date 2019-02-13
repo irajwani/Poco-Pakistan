@@ -5,7 +5,8 @@ import {withNavigation} from 'react-navigation';
 // import NumericInput from 'react-native-numeric-input' 
 import {Button, ButtonGroup, Divider} from 'react-native-elements';
 import Dialog, { DialogTitle, DialogContent, DialogButton, SlideAnimation } from 'react-native-popup-dialog';
-import RNFetchBlob from 'react-native-fetch-blob';
+// import RNFetchBlob from 'react-native-fetch-blob';
+import RNFetchBlob from 'rn-fetch-blob';
 import MultipleAddButton from '../components/MultipleAddButton';
 // import CustomModalPicker from '../components/CustomModalPicker';
 import ProductLabel from '../components/ProductLabel.js';

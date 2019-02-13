@@ -3,10 +3,19 @@
 buildscript {
     repositories {
         jcenter()
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+    ext {
+        googlePlayServicesVersion = "15.0.1"
+        supportVectorDrawableVersion = "27.0.2"
+    }
 
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath 'com.google.gms:google-services:4.0.1'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -16,9 +25,30 @@ allprojects {
     repositories {
         mavenLocal()
         jcenter()
+        maven { url "https://jitpack.io" }
+        maven { url "https://maven.google.com" }
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
             url "$rootDir/../node_modules/react-native/android"
+        }
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
+        configurations.all {
+            resolutionStrategy {
+                force "com.android.support:support-v4:26.1.0"
+                force "com.google.android.gms:play-services-base:$googlePlayServicesVersion"
+                force "com.google.android.gms:play-services-basement:$googlePlayServicesVersion"
+                force "com.google.android.gms:play-services-tasks:$googlePlayServicesVersion"
+                force "com.android.support:support-vector-drawable:$supportVectorDrawableVersion"
+                force "com.android.support:animated-vector-drawable:$supportVectorDrawableVersion"
+                force "com.android.support:support-core-utils:$supportVectorDrawableVersion"
+                force "com.android.support:support-compat:$supportVectorDrawableVersion"
+                force "com.android.support:support-core-ui:$supportVectorDrawableVersion"
+                force "com.android.support:appcompat-v7:$supportVectorDrawableVersion"
+                force "android.arch.lifecycle:runtime:1.0.3"
+            }
         }
     }
 }
