@@ -11,7 +11,7 @@ import com.facebook.soloader.SoLoader;
 
 import co.apptailor.googlesignin.RNGoogleSigninPackage;
 import com.facebook.reactnative.androidsdk.FBSDKPackage;
-//import com.oblador.vectoricons.VectorIconsPackage;
+//import com.oblador.vectoricons.VectorIconsPackage; dont need to manually link because we use gradle to accomplish this
 import com.BV.LinearGradient.LinearGradientPackage;
 import org.reactnative.camera.RNCameraPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;

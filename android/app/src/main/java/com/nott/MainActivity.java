@@ -3,6 +3,7 @@ package com.nott;
 import com.facebook.react.ReactActivity;
 
 import android.content.Intent;
+import android.os.Bundle;
 
 public class MainActivity extends ReactActivity {
 
