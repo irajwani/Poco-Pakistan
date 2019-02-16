@@ -24,6 +24,8 @@ import com.horcrux.svg.SvgPackage;
 
 import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;
 
+import com.react.rnspinkit.RNSpinkitPackage;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,7 +53,8 @@ public class MainApplication extends Application implements ReactApplication {
           new RNCameraPackage(),
           new RNFetchBlobPackage(),
           new SvgPackage(),
-          new ReactNativePushNotificationPackage()
+          new ReactNativePushNotificationPackage(),
+          new RNSpinkitPackage()
       );
     }
 

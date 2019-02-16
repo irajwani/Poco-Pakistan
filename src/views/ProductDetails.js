@@ -218,6 +218,7 @@ class ProductDetails extends Component {
       this.setState( {
         cloudDatabaseUsers,
         yourProfile, uid, otherUserUid, profile, productComments, addresses,
+        productPictureURLs: d.Users[data.uid].products[data.key].uris,
         sold: data.text.sold,
         price: data.text.price, name: data.text.name, sku: data.key, description: data.text.description.replace(/ +/g, " ").substring(0,124),
         chat,
@@ -511,7 +512,7 @@ class ProductDetails extends Component {
     }
 
     else if(data.title == "cancel") {
-        this.setState({showModal: "afterPaymentScreen", paymentStatus: "canceled"});
+        this.setState({showModal: "afterPaymentScreen", paymentStatus: "canceled"}, () => this.getUserAndProductAndOtherUserData(params.data));
     }
     else {
         return;
@@ -1109,7 +1110,7 @@ class ProductDetails extends Component {
               {this.state.paymentStatus == "success" ? 
               <View style={[deliveryOptionBody, {padding: 10, alignItems: 'center'}]}>
                 
-                <Image source={this.props.navigation.state.params.data.uris[0]} style={styles.successProductImage} />
+                <Image source={this.state.productPictureURLs[0]} style={styles.successProductImage} />
                 <Text style={styles.successText}>
                 Congratulations! You have successfully bought {this.state.name} for £{this.state.postOrNah == 'post' ? this.state.totalPrice : this.state.price}.
                 </Text>

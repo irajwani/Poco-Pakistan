@@ -497,7 +497,7 @@ class SignIn extends Component {
                                 borderColor={'#122021'}
                                 // this is used to set backgroundColor of label mask.
                                 // please pass the backgroundColor of your TextInput container.
-                                maskColor={"#120221"}
+                                // maskColor={"#120221"}
                                 inputStyle={new avenirNextText(lightGreen, 19, "300")}
                             />
                         </View>    
@@ -512,7 +512,7 @@ class SignIn extends Component {
                                 // this is used as active border color
                                 borderColor={'#122021'}
                                 // this is used to set backgroundColor of label mask.
-                                maskColor={"#120221"}
+                                // maskColor={"#120221"}
                                 // please pass the backgroundColor of your TextInput container.
                                 inputStyle={new avenirNextText('#fff', 19, "300")}
                             />
