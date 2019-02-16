@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AsyncStorage, Dimensions, View, Image, } from 'react-native';
+import { AsyncStorage, Dimensions, View, Image,Platform } from 'react-native';
 
 import PushNotification from 'react-native-push-notification';
 
@@ -81,9 +81,12 @@ class SignIn extends Component {
     }
 
     componentDidMount() {
-        GoogleSignin.configure({
-            iosClientId: '791527199565-tcd1e6eak6n5fcis247mg06t37bfig63.apps.googleusercontent.com',
-        })
+        Platform.OS === "ios" ?
+            GoogleSignin.configure({
+                iosClientId: '791527199565-tcd1e6eak6n5fcis247mg06t37bfig63.apps.googleusercontent.com',
+            })
+            :
+            GoogleSignin.configure()
         
 
         let i = 0;
@@ -469,6 +472,7 @@ class SignIn extends Component {
     render() {
 
         const {loading} = this.state;
+        console.log("Hello Sign In Page");
         // AsyncStorage.getItem('previousEmail').then((d)=>console.log(d + 'getItem'))
         
         
@@ -493,7 +497,7 @@ class SignIn extends Component {
                                 borderColor={'#122021'}
                                 // this is used to set backgroundColor of label mask.
                                 // please pass the backgroundColor of your TextInput container.
-                                backgroundColor={'#122021'}
+                                maskColor={"#120221"}
                                 inputStyle={new avenirNextText(lightGreen, 19, "300")}
                             />
                         </View>    
@@ -508,7 +512,7 @@ class SignIn extends Component {
                                 // this is used as active border color
                                 borderColor={'#122021'}
                                 // this is used to set backgroundColor of label mask.
-                                backgroundColor={'#122021'}
+                                maskColor={"#120221"}
                                 // please pass the backgroundColor of your TextInput container.
                                 inputStyle={new avenirNextText('#fff', 19, "300")}
                             />
