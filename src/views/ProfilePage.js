@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
     padding: 0
   },
   headerContainer: {
-    flex: 4,
+    flex: 4, //4/7
     flexDirection: 'column',
     justifyContent: 'space-evenly',
     // backgroundColor: 'pink'
@@ -388,13 +388,13 @@ const styles = StyleSheet.create({
   },
 
   gearAndPicColumn: {
-    flex: 3,
+    flex: 0.6818,
     flexDirection: 'column',
     // flex: 1.0,
     // flexDirection: 'row',
     // justifyContent: 'space-evenly',
     // alignItems: 'center',
-    marginTop:10,
+    marginTop: 20,
     // width: width - 40,
     // paddingRight: 0,
     // backgroundColor: 'blue',
@@ -402,16 +402,16 @@ const styles = StyleSheet.create({
   },
 
   gearRow: {
-    // flex: 1,
+    flex: 0.2,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignContent: 'flex-start',
+    // alignContent: 'flex-start',
     // backgroundColor: 'white'
   },
 
   picRow: {
     width: 250,
-    // flex: 3.5,
+    flex: 0.8,
     // flexDirection: 'row',
     justifyContent: 'center',
     // alignContent: 'flex-start',
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
   },
 
   profileTextColumn: {
-    flex: 1.4,
+    flex: 0.318,
     flexDirection: 'column',
     alignItems: 'center',
     // paddingTop: 15,

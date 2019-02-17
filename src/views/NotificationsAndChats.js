@@ -11,6 +11,8 @@ import {avenirNextText} from '../constructors/avenirNextText'
 import NothingHereYet from '../components/NothingHereYet';
 import { LoadingIndicator, CustomTouchableO, WhiteSpace } from '../localFunctions/visualFunctions';
 
+import { withNavigation } from 'react-navigation';
+
 // const express_app_uri = "http://localhost:5000/leaveYourRooms";
 const express_app_uri = "https://calm-coast-12842.herokuapp.com/leaveYourRooms"
 const noChatsText = "You have not initiated any chats 😳. Choose a product from the marketplace and then converse with the seller about your preferred method of payment (Cash or PayPal), and if whether you'd like the item posted to you or not.";
@@ -322,7 +324,7 @@ class Chats extends Component {
 
   navToChat(chat) {
     const {productSellerId, id, buyer, seller, buyerAvatar, sellerAvatar, buyerIdentification, sellerIdentification} = chat;
-    this.props.navigation.navigate('CustomChat', {productSellerId, id, buyer, buyerAvatar, seller, sellerAvatar, buyerIdentification, sellerIdentification })
+    this.props.navigationProperty.navigate('CustomChat', {productSellerId, id, buyer, buyerAvatar, seller, sellerAvatar, buyerIdentification, sellerIdentification })
   }
 
 //   navToNotifications() {
@@ -776,7 +778,7 @@ class Notifications extends Component {
     }
   }
 
-export default class NotificationsAndChats extends Component {
+class NotificationsAndChats extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -805,7 +807,7 @@ export default class NotificationsAndChats extends Component {
             <View style={styles.container}>
                 {this.renderUpperNavTab()}
                 {this.state.showChats ?
-                  <Chats/>
+                  <Chats navigationProperty={this.props.navigation}/>
                 :
                   <Notifications/>
                 }
@@ -813,6 +815,8 @@ export default class NotificationsAndChats extends Component {
         )
     }
 }
+
+export default withNavigation(NotificationsAndChats);
 
 
 const styles = StyleSheet.create({

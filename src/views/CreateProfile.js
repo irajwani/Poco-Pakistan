@@ -1,20 +1,21 @@
 import React, { Component } from 'react'
-import { Linking, Dimensions, Text, StyleSheet, View, ScrollView, Platform, Modal, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
+import { Keyboard, Animated, UIManager, Linking, Dimensions, Text, StyleSheet, View, ScrollView, Platform, Modal, TouchableOpacity, KeyboardAvoidingView, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ButtonGroup, Button} from 'react-native-elements';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 // import RNFetchBlob from 'react-native-fetch-blob';
 import RNFetchBlob from 'rn-fetch-blob';
-import { Sae } from 'react-native-textinput-effects';
+// import { Sae } from 'react-native-textinput-effects';
 import firebase from '../cloud/firebase.js';
 import MultipleAddButton from '../components/MultipleAddButton.js';
 import { iOSColors } from 'react-native-typography';
 import { EulaTop, EulaBottom, TsAndCs, PrivacyPolicy, EulaLink } from '../legal/Documents.js';
-import { confirmBlue, rejectRed, treeGreen, bobbyBlue, highlightGreen, profoundPink, darkBlue, tealBlue, lightGreen, coolBlack, darkGray, logoGreen, fbBlue } from '../colors.js';
+import { confirmBlue, rejectRed, treeGreen, bobbyBlue, highlightGreen, profoundPink, darkBlue, tealBlue, lightGreen, coolBlack, darkGray, logoGreen, fbBlue, lightGray } from '../colors.js';
 import { PacmanIndicator } from 'react-native-indicators';
-import {WhiteSpace} from '../localFunctions/visualFunctions';
+import {WhiteSpace, GrayLine} from '../localFunctions/visualFunctions';
 
 const {width} = Dimensions.get('window');
+const inputHeightBoost = 4;
 const info = "In order to sign up, ensure that the values you input meet the following conditions:\n1. Take a profile picture of yourself. If you wish to keep your image a secret, just take a picture of your finger pressed against your camera lens to simulate a dark blank photo.\n2. Use a legitimate email address as other buyers and sellers need a way to contact you if the functionality in NottMyStyle is erroneous for some reason.\n3. Your Password's length must be greater than or equal to 6 characters. To add some security, consider using at least one upper case letter and one symbol like !.\n4. Please limit the length of your name to 40 characters.\n5. An Example answer to the 'city, country abbreviation' field is: 'Nottingham, UK' "
 const limeGreen = '#2e770f';
 
@@ -22,6 +23,25 @@ const Blob = RNFetchBlob.polyfill.Blob;
 const fs = RNFetchBlob.fs;
 window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest;
 window.Blob = Blob;
+
+const { State: TextInputState } = TextInput;
+
+const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize}) => (
+    <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
+        <TextInput
+        style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
+        placeholder={placeholder}
+        placeholderTextColor={lightGray}
+        onChangeText={onChangeText}
+        value={value}
+        multiline={false}
+        maxLength={16}
+        autoCorrect={false}
+        autoCapitalize={autoCapitalize ? autoCapitalize : 'none'}
+        clearButtonMode={'while-editing'}
+        />         
+    </View>
+)
 
 class CreateProfile extends Component {
   constructor(props) {
@@ -52,8 +72,16 @@ class CreateProfile extends Component {
           createProfileLoading: false,
           ////EDIT PROFILE STUFF
           editProfileBoolean: false,
-          previousUri: false
+          previousUri: false,
+
+          //Keyboard Aware View Stuff
+          shift: new Animated.Value(0),
       }
+  }
+
+  componentWillMount = () => {
+    this.keyboardDidShowSubscription = Keyboard.addListener('keyboardDidShow', this.handleKeyboardDidShow);
+    this.keyboardDidHideSubscription = Keyboard.addListener('keyboardDidHide', this.handleKeyboardDidHide);
   }
 
   componentDidMount() {
@@ -64,6 +92,44 @@ class CreateProfile extends Component {
         this.getProfile(this.state.uid);
     }
     
+  }
+
+  componentWillUnmount = () => {
+    this.keyboardDidShowSub.remove();
+    this.keyboardDidHideSub.remove();
+  }
+
+  handleKeyboardDidShow = (event) => {
+    const { height: windowHeight } = Dimensions.get('window');
+    const keyboardHeight = event.endCoordinates.height;
+    const currentlyFocusedField = TextInputState.currentlyFocusedField();
+    UIManager.measure(currentlyFocusedField, (originX, originY, width, height, pageX, pageY) => {
+      const fieldHeight = height;
+      const fieldTop = pageY;
+      const gap = (windowHeight - keyboardHeight) - (fieldTop + fieldHeight);
+      if (gap >= 0) {
+        return;
+      }
+      Animated.timing(
+        this.state.shift,
+        {
+          toValue: gap,
+          duration: 1000,
+          useNativeDriver: true,
+        }
+      ).start();
+    });
+  }
+
+  handleKeyboardDidHide = () => {
+    Animated.timing(
+      this.state.shift,
+      {
+        toValue: 0,
+        duration: 1000,
+        useNativeDriver: true,
+      }
+    ).start();
   }
 
   setModalVisible = (visible) => {
@@ -437,14 +503,14 @@ class CreateProfile extends Component {
 
     if(this.state.createProfileLoading) {
         return (
-            <View style={{flex: 1}}>
-                <PacmanIndicator color={profoundPink} />
+            <View style={styles.loadingIndicatorContainer}>
+                <LoadingIndicator isVisible={this.state.createProfileLoading} color={profoundPink} type={'Wordpress'}/>
             </View>
         )
     }
 
     return (
-        <ScrollView style={styles.mainContainer} contentContainerStyle={styles.container}>
+        <Animated.ScrollView style={[styles.mainContainer, { transform: [{translateY: this.state.shift}] }]} contentContainerStyle={styles.container}>
             
             <Text style={{fontFamily: 'Avenir Next', fontWeight: '300', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text>
             
@@ -465,8 +531,8 @@ class CreateProfile extends Component {
                 </View>
                 <View style={{flex: 0.06, justifyContent: 'flex-start', alignItems: 'center'}}>
                     <Icon
-                    name='help'
-                    size={22}
+                    name='information-variant'
+                    size={28}
                     color={bobbyBlue}
                     onPress={() => this.setState({infoModalVisible: true}) } 
 
@@ -479,7 +545,37 @@ class CreateProfile extends Component {
                 !this.state.editProfileBoolean ?
 
                 <View>
-                    <Sae
+
+                    
+
+                    <CustomTextInput placeholder={"Email Address"} value={this.state.email} onChangeText={email => this.setState({ email })}/>
+
+                    <WhiteSpace height={inputHeightBoost}/>
+
+                    <GrayLine/>
+
+                    <CustomTextInput 
+                    placeholder={"Password"} 
+                    value={this.state.pass} 
+                    onChangeText={pass => this.setState({ pass })}
+
+                    />
+
+                    <WhiteSpace height={inputHeightBoost}/>
+
+                    <GrayLine/>
+
+                    <CustomTextInput 
+                    placeholder={"Retype Password"} 
+                    value={this.state.pass2} 
+                    onChangeText={pass2 => this.setState({ pass2 })}
+
+                    />
+
+                    <WhiteSpace height={inputHeightBoost}/>
+
+                    <GrayLine/>
+                    {/* <Sae
                         labelStyle={{color: 'black'}}
                         label={'Email Address'}
                         iconClass={FontAwesomeIcon}
@@ -516,7 +612,7 @@ class CreateProfile extends Component {
                         autoCorrect={false}
                         secureTextEntry
                         inputStyle={{ color: treeGreen }}
-                    />
+                    /> */}
             
                     {passwordConditionMet ?
                     <View style={styles.passwordStatusRow}>
@@ -541,9 +637,53 @@ class CreateProfile extends Component {
                 </View>
                 :
                 null
-            }    
+            }   
+
+            <CustomTextInput 
+            placeholder={"First Name"} 
+            value={this.state.firstName} 
+            onChangeText={firstName => this.setState({ firstName })}
+
+            />
+
+            <WhiteSpace height={inputHeightBoost}/>
+
+            <GrayLine/> 
+
+            <CustomTextInput 
+            placeholder={"Last Name"} 
+            value={this.state.lastName} 
+            onChangeText={lastName => this.setState({ lastName })}
+
+            />
+
+            <WhiteSpace height={inputHeightBoost}/>
+
+            <GrayLine/>
+
+            <CustomTextInput 
+            placeholder={"Country"} 
+            value={this.state.country} 
+            onChangeText={country => this.setState({ country })}
+
+            />
+
+            <WhiteSpace height={inputHeightBoost}/>
+
+            <GrayLine/>
+
+            <CustomTextInput 
+            placeholder={"Instagram Handle (w/o @)"} 
+            value={this.state.insta} 
+            onChangeText={insta => this.setState({ insta })}
+
+            />
+
+            <WhiteSpace height={inputHeightBoost}/>
+
+            <GrayLine/>
             
-            <Sae
+            {/* <Sae
                 labelStyle={{color: 'black'}}
                 style={styles.nameInput}
                 label={'First Name'}
@@ -566,10 +706,10 @@ class CreateProfile extends Component {
                 onChangeText={lastName => this.setState({ lastName })}
                 autoCorrect={false}
                 inputStyle={{ color: 'black' }}
-            />
+            /> */}
             
     
-            <Sae
+            {/* <Sae
                 labelStyle={{color: highlightGreen}}
                 label={'City, Country Abbreviation'}
                 iconClass={FontAwesomeIcon}
@@ -592,7 +732,7 @@ class CreateProfile extends Component {
                 onChangeText={insta => this.setState({ insta })}
                 autoCorrect={false}
                 inputStyle={{ color: profoundPink }}
-            />
+            /> */}
 
             <WhiteSpace height={110}/>
             
@@ -749,7 +889,7 @@ class CreateProfile extends Component {
                 />
             </TouchableOpacity>
             
-        </ScrollView>
+        </Animated.ScrollView>
         )
       
     
@@ -760,12 +900,26 @@ class CreateProfile extends Component {
 export default CreateProfile;
 
 const styles = StyleSheet.create({
+
+    LoadingIndicatorContainer: {flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30, backgroundColor: '#fff'},
+
     mainContainer: {
         marginTop: 22,
-        // borderTopWidth: 1,
-        // borderTopColor: treeGreen,
-        paddingTop: 5,
+        backgroundColor: "#fff",
+        flex: 1,
+        height: '100%',
+        // justifyContent: 'space-around',
+        left: 0,
+        position: 'absolute',
+        top: 0,
+        width: '100%'
     },
+    // mainContainer: {
+    //     marginTop: 22,
+    //     // borderTopWidth: 1,
+    //     // borderTopColor: treeGreen,
+    //     paddingTop: 5,
+    // },
     container: {
         flexGrow: 1, 
         flexDirection: 'column',
@@ -835,7 +989,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         width: width - 30,
         height: 40,
-        marginTop: 30,
+        marginTop: 7,
         paddingHorizontal: 10,
         justifyContent: 'space-between',
         alignItems: 'center'

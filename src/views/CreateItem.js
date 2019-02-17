@@ -49,8 +49,6 @@ const TextForMissingDetail = ({detail}) => {
 }
     
 
-    
-
 class CreateItem extends Component {
   constructor(props) {
       super(props);
