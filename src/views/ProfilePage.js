@@ -260,7 +260,7 @@ class ProfilePage extends Component {
       </LinearGradient>
       </View>
 
-      {/* Number of Products on Market and Sold Cards */}
+      
       <View style={styles.midContainer}>
         
           <View style={styles.numberCard}>
@@ -277,7 +277,7 @@ class ProfilePage extends Component {
         
       </View>
       
-      {/* User Reviews */}
+      
       <View style={styles.footerContainer} >
 
         <ScrollView contentContainerStyle={styles.halfPageScroll}>

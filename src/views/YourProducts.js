@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
 import Products from '../components/Products';
 import { withNavigation } from 'react-navigation'; 
-import { View } from 'react-native';
-import { Button } from 'react-native-elements';
 
 class YourProducts extends Component {
   render() {

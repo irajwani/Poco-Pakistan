@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import Products from '../components/Products';
 import {withNavigation} from 'react-navigation';
+import { View } from 'react-native';
 
 
 class MarketPlace extends Component {

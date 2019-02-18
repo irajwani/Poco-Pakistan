@@ -9,8 +9,6 @@ import UserComments from '../views/UserComments';
 import NotificationsAndChats from '../views/NotificationsAndChats';
 
 export const ChatsToCustomChatStack = createStackNavigator({
-    // Notifications: Notifications,
-    // Chats: Chats,
     NotificationsAndChats: NotificationsAndChats,
     CustomChat: CustomChat,
     OtherUserProfilePage: OtherUserProfilePage,

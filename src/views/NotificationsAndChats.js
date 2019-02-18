@@ -478,7 +478,7 @@ class Chats extends Component {
       return (
         
           <View style={[styles.screen, {padding: 10, }]}>
-            {/* <NothingHereYet specificText={noChatsText} /> */}
+            
           </View>
         
       )
