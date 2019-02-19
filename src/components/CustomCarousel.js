@@ -28,14 +28,15 @@ class CustomCarousel extends Component {
       
 
         <ThumbnailBackgroundView>
-          <CurrentVideoTO
+          <CurrentVideoImage source={{ uri: item }} />
+          {/* <CurrentVideoTO
              onPress={ () => { 
                 console.log("clicked to index", index)
                 this._carousel.snapToItem(index);
               }}
-          >
-            <CurrentVideoImage source={{ uri: item }} />
-          </CurrentVideoTO>
+          > */}
+            
+          
             {/*<NextVideoImage source={{ uri: this.state.currentVideo.nextVideoId }}/>*/}
             
         </ThumbnailBackgroundView>
@@ -48,30 +49,30 @@ class CustomCarousel extends Component {
     );
   }
 
-  get pagination () {
-    const { activeSlide } = this.state;
-    const {data} = this.props;
-    return (
-        <Pagination
-          dotsLength={data.length}
-          activeDotIndex={activeSlide}
-          containerStyle={{ backgroundColor: '#fff' }}
-          dotStyle={{
-              // width: 10,
-              // height: 10,
-              // borderRadius: 5,
-              // marginHorizontal: 8,
-              backgroundColor: optionLabelBlue
-          }}
-          inactiveDotStyle={{
-              backgroundColor: graphiteGray
-              // Define styles for inactive dots here
-          }}
-          inactiveDotOpacity={0.4}
-          inactiveDotScale={0.6}
-        />
-    );
-}
+//   get pagination () {
+//     const { activeSlide } = this.state;
+//     const {data} = this.props;
+//     return (
+//         <Pagination
+//           dotsLength={data.length}
+//           activeDotIndex={activeSlide}
+//           containerStyle={{ backgroundColor: '#fff' }}
+//           dotStyle={{
+//               // width: 10,
+//               // height: 10,
+//               // borderRadius: 5,
+//               // marginHorizontal: 8,
+//               backgroundColor: optionLabelBlue
+//           }}
+//           inactiveDotStyle={{
+//               backgroundColor: graphiteGray
+//               // Define styles for inactive dots here
+//           }}
+//           inactiveDotOpacity={0.4}
+//           inactiveDotScale={0.6}
+//         />
+//     );
+// }
 
 // <TouchableBackground onPress={this.props.onPress}>
 
@@ -113,27 +114,30 @@ const VideoTitleText = styled.Text`
   top: 28;
   justify-content: center;
 `
-const CurrentVideoImage = styled.Image`
-  ${'' /* top: 5; */}
-  ${'' /* box-shadow: 5px 10px; */}
-  width: 256;
-  height: 190;
-  border-radius: 0;
-  border-width: 2;
-  border-color: gray
-`;
+
 
 const ThumbnailBackgroundView = styled.View`
   justify-content: center;
   align-items: center;
-  width: 256; 
+  width: 90%; 
 `;
 
 const CurrentVideoTO = styled.TouchableOpacity`
 `
+
+const CurrentVideoImage = styled.Image`
+  ${'' /* top: 5; */}
+  ${'' /* box-shadow: 5px 10px; */}
+  width: 100%;
+  height: 190;
+  border-radius: 0;
+  border-width: 2;
+  border-color: #2c2d2d;
+`;
+
 const CarouselBackgroundView = styled.View`
   background-color: #fff;
-  ${'' /* height: 200; */}
+  height: 200;
   width: 100%;
 `
 

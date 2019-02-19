@@ -813,31 +813,28 @@ class Products extends Component {
     return (
       
       <View
-      style={{height: section.isActive ? cardFull : cardHeaderHeight}}>
-      >
+      style={{height: section.isActive == true ? cardFull : cardHeaderHeight}}>
+      
         <TouchableHighlight 
           onPress={expandFunction} 
           style={styles.card}
           underlayColor={almostWhite}
         >
-        {/* Header Card */}
+        
         <View 
-        style={[styles.card, section.isActive ? styles.active : styles.inactive]}
+        style={[styles.card, section.isActive == true ? styles.active : styles.inactive]}
         >
         
           <View style={styles.productImageContainer}>
               <View style={styles.interactionButtonsRow}>
-                {/* onPress={() => {this.incrementLikes(section.text.likes, section.uid, section.key)}} 
-                if this product is already in your collection, you have the option to dislike the product,
-                    reducing its total number of likes by 1,
-                    and remove it from your collection. If not already in your collection, you may do the opposite. */}
+                
                 <View style={styles.likesContainer}>
-                  {this.state.collectionKeys.includes(section.key) ? 
+                  {this.state.collectionKeys.includes(section.key) == true ? 
                     <Icon 
                       name="heart" 
                       size={25} 
-                      color={this.state.productKeys.includes(section.key) ? limeGreen : '#800000'}
-                      onPress={this.state.productKeys.includes(section.key) ? null : decrementLikesFunction}
+                      color={this.state.productKeys.includes(section.key) == true ? limeGreen : '#800000'}
+                      onPress={this.state.productKeys.includes(section.key) == true ? null : decrementLikesFunction}
                               
 
                     /> 
@@ -845,34 +842,30 @@ class Products extends Component {
                     <Icon 
                       name="heart-outline" 
                       size={25} 
-                      color={this.state.productKeys.includes(section.key) ? limeGreen : '#800000'}
-                      onPress={this.state.productKeys.includes(section.key) ? null : incrementLikesFunction}
+                      color={this.state.productKeys.includes(section.key) == true ? limeGreen : '#800000'}
+                      onPress={this.state.productKeys.includes(section.key) == true ? null : incrementLikesFunction}
                     />
                   }
                 
 
-                  <Text style={[styles.likes, {color: this.state.productKeys.includes(section.key) ? limeGreen : profoundPink }]}>{section.text.likes}</Text>
+                  <Text style={[styles.likes, {color: this.state.productKeys.includes(section.key) == true ? limeGreen : profoundPink }]}>{section.text.likes}</Text>
                 </View>
 
-                {this.props.showYourProducts ?
-                  section.isMenuActive?
+                {this.props.showYourProducts == true ?
+                  section.isMenuActive == true?
                   <View style={[styles.menuContainer, {paddingHorizontal: 5}]}>
                     <View style={styles.editOrDeleteMenu}>
                       <Text
                       onPress={() => {
                         this.navToEditItem(section)
                         }}   
-                      style={new avenirNextText('black', 13, "300")}>
-                      Edit
-                      </Text>
+                      style={new avenirNextText('black', 13, "300")}>Edit</Text>
                       <View style={{width: "100%",height: 1, backgroundColor: 'black'}}/>
                       <Text 
                       onPress={() => {
                         this.deleteProduct(section.uid, section.key)
                         }} 
-                      style={new avenirNextText('black', 13, "300")}>
-                      Delete
-                      </Text>
+                      style={new avenirNextText('black', 13, "300")}>Delete</Text>
                     </View>
                   </View>
                   :
@@ -891,7 +884,7 @@ class Products extends Component {
 
 
               </View>
-              {section.text.sold ? 
+              {section.text.sold == true ? 
                 <View style={styles.soldTextContainer}>
                   <Text style={styles.soldText}>SOLD</Text>
                   <Image 
@@ -908,19 +901,15 @@ class Products extends Component {
               }  
           </View>
 
-          {section.text.original_price > 0 ?
+          {(section.text.original_price > 0) == true?
             <View style= { styles.headerPriceMagnifyingGlassRow }>
               
               <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-                <Text style={[styles.original_price, {textDecorationLine: 'line-through',}]} >
-                  £{section.text.original_price}
-                </Text>
-                <Text style={styles.price} >
-                  £{section.text.price}
-                </Text>
+                <Text style={[styles.original_price, {textDecorationLine: 'line-through',}]}>£{section.text.original_price}</Text>
+                <Text style={styles.price}>£{section.text.price}</Text>
               </View>
 
-              {section.isActive? 
+              {section.isActive == true? 
                 <Icon name="chevron-up" 
                       size={30} 
                       color='black'
@@ -938,12 +927,10 @@ class Products extends Component {
             <View style= { styles.headerPriceMagnifyingGlassRow }>
               
               <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-                <Text style={styles.price} >
-                  £{section.text.price}
-                </Text>
+                <Text style={styles.price}>£{section.text.price}</Text>
               </View>
 
-              {section.isActive? 
+              {section.isActive == true? 
                 <Icon name="chevron-up" 
                       size={30} 
                       color='black'
@@ -961,7 +948,6 @@ class Products extends Component {
 
         </View>  
         </TouchableHighlight>
-        {/* Header Card Ends Here */}
 
 
 
@@ -970,25 +956,17 @@ class Products extends Component {
 
           
 
-          {/* Content Card */}
-          {section.isActive ?
-            <View 
-              style={styles.contentCard}
-            >
+          {section.isActive == true ?
+            <View style={styles.contentCard}>
               <Animatable.View
                 duration={400}
                 style={[section.isActive ? styles.active : styles.inactive, {flexDirection: 'row',flex: 1}]}
-                transition="backgroundColor"
-              >
+                transition="backgroundColor">
                   
                 
                 <Animatable.View style={styles.brandAndSizeCol} transition='backgroundColor'>
-                  <Animatable.Text style={styles.contentCardText} animation={section.isActive ? 'bounceInRight' : undefined}>
-                    {section.text.brand}
-                  </Animatable.Text>
-                  <Animatable.Text style={[styles.contentCardText]} animation={section.isActive ? 'bounceInLeft' : undefined}>
-                    {section.text.gender == "Accessories" ? "Accessory" : `Size: ${section.text.size.length > 8 ? section.text.size.substring(0,7) + ".." : section.text.size}`}
-                  </Animatable.Text>
+                  <Animatable.Text style={styles.contentCardText} animation={section.isActive ? 'bounceInRight' : undefined}>{section.text.brand}</Animatable.Text>
+                  <Animatable.Text style={[styles.contentCardText]} animation={section.isActive ? 'bounceInLeft' : undefined}>{section.text.gender == "Accessories" ? "Accessory" : `Size: ${section.text.size.length > 8 ? section.text.size.substring(0,7) + ".." : section.text.size}`}</Animatable.Text>
                 </Animatable.View>
 
                 <Animatable.View style={styles.magnifyingGlassCol} transition='backgroundColor'>
@@ -1025,13 +1003,10 @@ class Products extends Component {
   renderFilterModal = () => {
 
     var {brands, typesForCategory, conditions, searchTerm, selectedBrands, selectedCategory, selectedConditions, selectedType} = this.state;
-    // console.log(brands, searchTerm, selectedBrands);
+    
     brands = brands.filter( (brand) => brand.name.includes(searchTerm) );
     var sizes = generateSizesBasedOn(selectedType, selectedCategory)
-    // console.log(brands);
-    // brands = brands.filter(onlyUnique);
-    // types = types.filter( (type) => type.includes(brandSearchTerm) ); 
-    // sizes = sizes.filter( (size) => size.includes(brandSearchTerm) );
+    
 
 
     return (
@@ -1058,13 +1033,11 @@ class Products extends Component {
           <Text style={styles.filterModalHeaderText}>FILTERS</Text>
           <Text
           onPress={()=>{
-            // let brandsReset = this.state.brands;
+            
             this.clearFilters();
             this.getMarketPlace(this.state.uid);
           }}
-          style={styles.filterModalHeaderClearText}>
-          Reset
-          </Text>
+          style={styles.filterModalHeaderClearText}>Reset</Text>
         </View>
 
         <ScrollView style={{flex: 0.8}} contentContainerStyle={styles.filterModalContainer}>
@@ -1088,19 +1061,17 @@ class Products extends Component {
           <View style={styles.filterBlock}>
             
             <View style={styles.filterBlockHeadingContainer}>
-              <Text style={new avenirNextText('#fff', 25, "200")}>
-                Brands
-              </Text>
+              <Text style={new avenirNextText('#fff', 25, "200")}>Brands</Text>
             </View>
 
             <ScrollView horizontal showsHorizontalScrollIndicator style={styles.optionsScroll} contentContainerStyle={styles.optionsScrollContentContainer}>
             {brands.map( (brand, index) => (
               
-              <View key={index} style={[styles.optionContainer, brands.length > 1 && index != brands.length - 1 ? {borderRightWidth: 0.3, borderRightColor: graphiteGray,} : null]}>
+              <View key={index} style={[styles.optionContainer, (brands.length > 1 && index != brands.length - 1) == true ? {borderRightWidth: 0.3, borderRightColor: graphiteGray,} : null]}>
                 <Text 
                 onPress={()=>{
                   const {...state} = this.state
-                  if(state.selectedBrands.includes(brand.name)) {
+                  if(state.selectedBrands.includes(brand.name) == true) {
                     let INDEX = state.selectedBrands.indexOf(brand.name);
                     if(INDEX == 0) {
                        state.selectedBrands = state.selectedBrands.slice(INDEX + 1, state.selectedBrands.length)
@@ -1121,10 +1092,7 @@ class Products extends Component {
                   state.brands[index].selected = !state.brands[index].selected; 
                   this.setState(state);
                 }}
-                style={[styles.option, {color: !brand.selected ? graphiteGray : highlightGreen}]}
-                >
-                {brand.name}
-                </Text>
+                style={[styles.option, {color: !brand.selected == true ? graphiteGray : highlightGreen}]}>{brand.name}</Text>
               </View>
               
             ))}
@@ -1138,9 +1106,7 @@ class Products extends Component {
           <View style={styles.filterBlock}>
 
             <View style={styles.filterBlockHeadingContainer}>
-              <Text style={new avenirNextText('#fff', 25, "200")}>
-                Category
-              </Text>
+              <Text style={new avenirNextText('#fff', 25, "200")}>Category</Text>
             </View>
 
             <View style={styles.categoriesContainer}>
@@ -1150,9 +1116,7 @@ class Products extends Component {
                   style={[styles.option, {fontSize: 22, textAlign: 'center'}, {color: this.state.selectedCategory == category ? highlightGreen : graphiteGray}]} 
                   onPress={()=>{
                     this.setState({selectedCategory: category})
-                  }}>
-                    {category}
-                  </Text>
+                  }}>{category}</Text>
                 </View>
               ))}
             </View>
@@ -1164,23 +1128,19 @@ class Products extends Component {
           <View style={styles.filterBlock}>
 
             <View style={[styles.filterBlockHeadingContainer, {flex: 0.4}]}>
-              <Text style={new avenirNextText('#fff', 25, "200")}>
-                Type
-              </Text>
+              <Text style={new avenirNextText('#fff', 25, "200")}>Type</Text>
             </View>
 
             <ScrollView horizontal showsHorizontalScrollIndicator style={[styles.optionsScroll, {flex: 0.6}]} contentContainerStyle={styles.optionsScrollContentContainer}>
               {typesForCategory[selectedCategory].map((type, index)=>(
-                <View key={index} style={[styles.optionContainer, typesForCategory[selectedCategory].length > 1 && index != typesForCategory[selectedCategory].length - 1 ? {borderRightWidth: 0.3, borderRightColor: graphiteGray,} : null]}>
+                <View key={index} style={[styles.optionContainer, (typesForCategory[selectedCategory].length > 1 && index != typesForCategory[selectedCategory].length - 1) == true ? {borderRightWidth: 0.3, borderRightColor: graphiteGray,} : null]}>
                   <Text
                    onPress={()=>{
                     this.state.selectedType == type.name ? null : this.setState({selectedType: type.name});
                     // this.state.typesForCategory[selectedCategory][index].selected = !this.state.typesForCategory[selectedCategory][index].selected;
                     // this.setState({typesForCategory: this.state.typesForCategory});
                    }}
-                   style={[styles.option, {color: this.state.selectedType == type.name ? highlightGreen : graphiteGray }]}>
-                   {type.name}
-                   </Text>
+                   style={[styles.option, {color: this.state.selectedType == type.name ? highlightGreen : graphiteGray }]}>{type.name}</Text>
                 </View>
                 
               ))}
@@ -1193,9 +1153,7 @@ class Products extends Component {
           <View style={styles.filterBlock}>
 
             <View style={styles.filterBlockHeadingContainer}>
-              <Text style={new avenirNextText('#fff', 25, "200")}>
-                Condition
-              </Text>
+              <Text style={new avenirNextText('#fff', 25, "200")}>Condition</Text>
             </View>
 
             <ScrollView horizontal showsHorizontalScrollIndicator style={styles.optionsScroll} contentContainerStyle={styles.optionsScrollContentContainer}>
@@ -1204,7 +1162,7 @@ class Products extends Component {
                 <Text 
                 onPress={()=>{
                   const {...state} = this.state
-                  if(state.selectedConditions.includes(condition.name)) {
+                  if(state.selectedConditions.includes(condition.name) == true) {
                     let INDEX = state.selectedConditions.indexOf(condition.name);
                     if(INDEX == 0) {
                        state.selectedConditions = state.selectedConditions.slice(INDEX + 1, state.selectedConditions.length)
@@ -1224,10 +1182,7 @@ class Products extends Component {
                   state.conditions[index].selected = !state.conditions[index].selected; 
                   this.setState(state);
                 }}
-                style={[styles.option, {color: !condition.selected ? graphiteGray : highlightGreen}]}
-                >
-                {condition.name}
-                </Text>
+                style={[styles.option, {color: !condition.selected ? graphiteGray : highlightGreen}]}>{condition.name}</Text>
               </View>
             ))}
             </ScrollView>
@@ -1236,29 +1191,24 @@ class Products extends Component {
           </View>
 
 
-              {/* One should be able to select a size if selectedCategory == Men || Women */}
+              
           { this.state.selectedCategory == "Accessories" ?
             null
             :
             <View style={styles.filterBlock}>
 
               <View style={styles.filterBlockHeadingContainer}>
-                <Text style={new avenirNextText('#fff', 25, "200")}>
-                  Size
-                </Text>
+                <Text style={new avenirNextText('#fff', 25, "200")}>Size</Text>
               </View>
 
               <ScrollView horizontal showsHorizontalScrollIndicator style={styles.optionsScroll} contentContainerStyle={styles.optionsScrollContentContainer}>
               {sizes.map( (size, index) => (
-                <View key={index} style={[styles.optionContainer, sizes.length > 1 && index != sizes.length - 1 ? {borderRightWidth: 0.3, borderRightColor: graphiteGray,} : null]}>
+                <View key={index} style={[styles.optionContainer, (sizes.length > 1 && index != sizes.length - 1) == true ? {borderRightWidth: 0.3, borderRightColor: graphiteGray,} : null]}>
                   <Text 
                   onPress={()=> {
                     this.state.selectedSize == size ? null : this.setState({selectedSize: size});
                   }}
-                  style={[styles.option, {color: this.state.selectedSize == size ? highlightGreen : graphiteGray}]}
-                  >
-                  {size}
-                  </Text>
+                  style={[styles.option, {color: this.state.selectedSize == size ? highlightGreen : graphiteGray}]}>{size}</Text>
                 </View>
               ))}
               </ScrollView>
@@ -1274,7 +1224,7 @@ class Products extends Component {
         
         <View style={styles.filterModalFooter}>
           <Text
-          onPress={this.state.selectedBrands.length > 0 || this.state.selectedType || this.state.selectedConditions.length > 0 || this.state.selectedSize ?
+          onPress={(this.state.selectedBrands.length > 0 || this.state.selectedType || this.state.selectedConditions.length > 0 || this.state.selectedSize) == true ?
             () => {
               this.getMarketPlace(this.state.uid); 
               this.filterMarketPlace();
@@ -1288,10 +1238,7 @@ class Products extends Component {
             
             
            }
-          style={new avenirNextText(false, 18, "400")}
-          >
-          APPLY
-          </Text>
+          style={new avenirNextText(false, 18, "400")}>APPLY</Text>
         </View>
         
 
@@ -1305,30 +1252,32 @@ class Products extends Component {
 
   render() {
     var {showCollection, showYourProducts} = this.props;
-    var {isGetting, emptyMarket, noResultsFromFilter } = this.state;
-    if(isGetting) {
+    var {isGetting, emptyMarket, noResultsFromFilter} = this.state;
+    if(isGetting == true) {
+    return ( 
+      <View style={{marginTop: 22, flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff'}}>
+          <LoadingIndicator isVisible={isGetting} color={darkGreen} type={'Wordpress'}/>            
+      </View>
+      )
+    }
+
+    if(isGetting == true) {
       return ( 
         <View style={{marginTop: 22, flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff'}}>
-            
-            <LoadingIndicator isVisible={isGetting} color={darkGreen} type={'Wordpress'}/>
-                {/* <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: 'black', textAlign: 'center'}}>
-                    {loadingStrings[randomIntFromInterval(0,3)]}
-                </Text> */}
-            
-            
+            <LoadingIndicator isVisible={isGetting} color={darkGreen} type={'Wordpress'}/>            
         </View>
       )
     }
 
-    else if(emptyMarket) {
+    else if(emptyMarket == true) {
       return (
         <View style={{marginTop: 22, backgroundColor: '#fff', padding: 10}}>
-          <NothingHereYet specificText={showCollection ? emptyCollectionText : showYourProducts ? noProductsOfYourOwnText : emptyMarketText } />
+          <NothingHereYet specificText={showCollection == true ? emptyCollectionText : showYourProducts == true ? noProductsOfYourOwnText : emptyMarketText } />
         </View>
       )
     }
 
-    else if(noResultsFromFilter){
+    else if(noResultsFromFilter == true){
 
       return(
         <View style={{flex: 1, marginTop: 22, backgroundColor: '#fff', padding: 5, alignItems: 'center'}}>
@@ -1352,15 +1301,17 @@ class Products extends Component {
     }
 
     else {
-      return (
+    console.log('Entered MarketPlace render')
+    return (
 
-        // <TouchableWithoutFeedback onPress={()=>this.hideMenus()}>
-        <View style={styles.container}>
-          
-          <ScrollView
-                style={{flex: 1}}
-                contentContainerStyle={styles.contentContainerStyle}
-          >
+      
+      <View style={styles.container}>
+
+      <ScrollView
+          style={{flex: 1}}
+          contentContainerStyle={styles.contentContainerStyle}>
+
+            
             
               <ListView
                   contentContainerStyle={styles.listOfProducts}
@@ -1368,9 +1319,7 @@ class Products extends Component {
                   renderRow={(rowData) => this.renderRow(
                     rowData, 
                     () => {
-                        // let photoArray;
-                        // section.isActive = !section.isActive;
-
+                        
                         this.props.showYourProducts ? this.hideMenus() : null;
 
                         let index = this.state.leftProducts.indexOf(rowData);
@@ -1395,16 +1344,14 @@ class Products extends Component {
               />
 
               
-              { this.state.rightProducts?
+              { this.state.rightProducts ?
                 <ListView
                   contentContainerStyle={styles.listOfProducts}
                   dataSource={this.state.rightDS.cloneWithRows(this.state.rightProducts)}
                   renderRow={(rowData) => this.renderRow(
                     rowData, 
                     () => {
-                      // let photoArray;
-                      // section.isActive = !section.isActive;
-
+                      
                       this.props.showYourProducts ? this.hideMenus() : null;
 
                       let index = this.state.rightProducts.indexOf(rowData);
@@ -1434,14 +1381,12 @@ class Products extends Component {
             {this.renderFilterModal()}
 
           </ScrollView>
-          
 
-          <View style={styles.filterButtonContainer}>
+        <View style={styles.filterButtonContainer}>
 
             <TouchableOpacity 
-              onPress={() => this.setState({ showFilterModal: true }) } 
-              style={styles.filterButton}
-            >
+            onPress={() => this.setState({ showFilterModal: true }) } 
+            style={styles.filterButton}>
             
               <Icon 
                 name="filter-outline" 
@@ -1451,20 +1396,174 @@ class Products extends Component {
             
             </TouchableOpacity>
           </View>
-
-        </View>
-        
-
+      </View>
       
+
     
-          
-      )
+  
+        
+    )
     }
 
     
   }
 
 }
+
+
+
+//////////
+
+
+  //if(isGetting == true) {
+  //   return ( 
+  //     <View style={{marginTop: 22, flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff'}}>
+  //         <LoadingIndicator isVisible={isGetting} color={darkGreen} type={'Wordpress'}/>            
+  //     </View>
+  //   )
+  // }
+
+  // else if(emptyMarket == true) {
+  //   return (
+  //     <View style={{marginTop: 22, backgroundColor: '#fff', padding: 10}}>
+  //       <NothingHereYet specificText={showCollection == true ? emptyCollectionText : showYourProducts == true ? noProductsOfYourOwnText : emptyMarketText } />
+  //     </View>
+  //   )
+  // }
+
+  // else if(noResultsFromFilter == true){
+
+  //   return(
+  //     <View style={{flex: 1, marginTop: 22, backgroundColor: '#fff', padding: 5, alignItems: 'center'}}>
+
+  //       <View style={{flex: 0.2, }}>
+  //         <NothingHereYet specificText={noResultsFromSearchText} />
+  //       </View>
+
+  //       <View style={{flex: 0.8, alignItems: 'center', justifyContent: 'center'}}>
+  //         <Button  
+  //           buttonStyle={styles.filterButtonStyleNoMarket}
+  //           icon={{name: 'filter', type: 'material-community'}}
+  //           title='Filter'
+  //           onPress={() => this.setState({ showFilterModal: true }) } 
+  //         />
+  //       </View>
+  //       {this.renderFilterModal()}
+
+  //     </View>
+  //   )
+  // }
+
+  // else {
+  //   console.log('Entered MarketPlace render')
+  //   return (
+
+      
+  //     <View style={styles.container}>
+        
+  //     </View>
+      
+
+    
+  
+        
+  //   )
+  // }
+
+//////////
+
+{/* <ScrollView
+          style={{flex: 1}}
+          contentContainerStyle={styles.contentContainerStyle}>
+
+            
+            
+              <ListView
+                  contentContainerStyle={styles.listOfProducts}
+                  dataSource={this.state.leftDS.cloneWithRows(this.state.leftProducts)}
+                  renderRow={(rowData) => this.renderRow(
+                    rowData, 
+                    () => {
+                        
+                        this.props.showYourProducts ? this.hideMenus() : null;
+
+                        let index = this.state.leftProducts.indexOf(rowData);
+                        this.state.leftProducts[index].isActive = !this.state.leftProducts[index].isActive;
+                        this.setState({leftProducts: this.state.leftProducts});
+                        },
+                    () => {
+                        this.incrementLikes(rowData.text.likes, rowData.uid, rowData.key, this.state.leftProducts.indexOf(rowData), 'leftProducts')
+                    },
+                    () => {
+                        this.decrementLikes(rowData.text.likes, rowData.uid, rowData.key, this.state.leftProducts.indexOf(rowData), 'leftProducts')
+                    },
+                    () => {
+                      let index = this.state.leftProducts.indexOf(rowData);
+                      this.state.leftProducts[index].isMenuActive = !this.state.leftProducts[index].isMenuActive;
+                      this.setState({leftProducts: this.state.leftProducts});
+                    }
+                      
+                  )}
+                  enableEmptySections={true}
+                  removeClippedSubviews={false}
+              />
+
+              
+              { this.state.rightProducts ?
+                <ListView
+                  contentContainerStyle={styles.listOfProducts}
+                  dataSource={this.state.rightDS.cloneWithRows(this.state.rightProducts)}
+                  renderRow={(rowData) => this.renderRow(
+                    rowData, 
+                    () => {
+                      
+                      this.props.showYourProducts ? this.hideMenus() : null;
+
+                      let index = this.state.rightProducts.indexOf(rowData);
+                      this.state.rightProducts[index].isActive = !this.state.rightProducts[index].isActive;
+                      this.setState({rightProducts: this.state.rightProducts});
+                    },
+                    () => {
+                      this.incrementLikes(rowData.text.likes, rowData.uid, rowData.key, this.state.rightProducts.indexOf(rowData), 'rightProducts')
+                    },
+                    () => {
+                      this.decrementLikes(rowData.text.likes, rowData.uid, rowData.key, this.state.rightProducts.indexOf(rowData), 'rightProducts')
+                    },
+                    () => {
+                      let index = this.state.rightProducts.indexOf(rowData);
+                      this.state.rightProducts[index].isMenuActive = !this.state.rightProducts[index].isMenuActive;
+                      this.setState({rightProducts: this.state.rightProducts});
+                    }
+                  )}
+                  enableEmptySections={true}
+                  removeClippedSubviews={false}
+              />
+              :
+              null
+              }
+            
+
+            {this.renderFilterModal()} 
+
+          </ScrollView> */}
+          
+
+          {/* <View style={styles.filterButtonContainer}>
+
+            <TouchableOpacity 
+            onPress={() => this.setState({ showFilterModal: true }) } 
+            style={styles.filterButton}>
+            
+              <Icon 
+                name="filter-outline" 
+                size={15} 
+                color='#fff'
+              />
+            
+            </TouchableOpacity>
+          </View> */}
+
+          /////////////
 
 
 
@@ -1750,13 +1849,13 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 
-  original_price: new avenirNextText(false, 17, "500"),
+  original_price: new avenirNextText('black', 17, "500"),
 
   price: new avenirNextText(limeGreen,17,"500"),
 
-  brand: new avenirNextText(false,15,"200"),
+  brand: new avenirNextText('black',15,"200"),
 
-  size: new avenirNextText(false,15,"400"),
+  size: new avenirNextText('black',15,"400"),
 
 
   filterButton: {

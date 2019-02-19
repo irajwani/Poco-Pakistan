@@ -1123,7 +1123,6 @@ class ProductDetails extends Component {
                 <Text style={styles.successText}>
                 Please note that it may take up to 2 weeks for the item to arrive via postal delivery. In case your item doesn't arrive, send us an email at nottmystyle.help@gmail.com.
                 </Text>
-
               </View>    
               :
               <View style={[deliveryOptionBody, {alignItems: 'center', justifyContent: 'center', padding: 40}]}>
@@ -1132,7 +1131,6 @@ class ProductDetails extends Component {
               }
               
             
-
           </View>  
         </Modal>
       )
@@ -1140,11 +1138,8 @@ class ProductDetails extends Component {
     
     
   }
-
   render() {
-    const { params } = this.props.navigation.state,
-    { data, collectionKeys, productKeys } = params,
-    
+    const { params } = this.props.navigation.state, { data, collectionKeys, productKeys } = params, 
     { isGetting, profile, navToChatLoading, productComments, uid } = this.state,
     {text} = data,
     details = {
@@ -1154,13 +1149,10 @@ class ProductDetails extends Component {
       type: text.type,
       condition: text.condition,
       original_price: text.original_price
-    },
-    description = text.description;
-    // const {comments} = text;
-
-    // console.log(firebase.auth().currentUser.uid == data.uid, firebase.auth().currentUser.uid, data.uid);
-
-    if (isGetting) {
+    };
+    
+    
+    if(isGetting) {
       return (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <LoadingIndicator isVisible={isGetting} color={treeGreen} type={'Wordpress'}/>
@@ -1171,22 +1163,15 @@ class ProductDetails extends Component {
     if(navToChatLoading) {
       return(
         <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
-
           <View style={{height: 200, justifyContent: 'center', alignItems: 'center', padding: 10}}>
             <LoadingIndicator isVisible={navToChatLoading} color={logoGreen} type={'Wordpress'}/>
-            {/* <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: logoGreen, textAlign: 'center'}}>
-              Navigating to Chat regarding purchase of {text.name}, by {text.brand}
-            </Text> */}
           </View>  
-
         </View>
       )
     }
 
     return (
-
       <View style={styles.mainContainer}>
-
       <View style={styles.headerBar}>
         <FontAwesomeIcon
         name='arrow-left'
@@ -1195,10 +1180,8 @@ class ProductDetails extends Component {
         onPress = { () => { 
             this.props.navigation.goBack();
             } }
-
         />
       </View>
-
       <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.contentContainer}>
         
         {/* image carousel in center with back button on its left */}
@@ -1213,7 +1196,6 @@ class ProductDetails extends Component {
           <View style={styles.nameContainer}>
             <Text style={new avenirNextText('black', 15, "300")}>{text.name.toUpperCase().replace(/ +/g, " ")}</Text>
           </View>
-
           <View style={styles.likesContainer}>
             
             <Icon name={collectionKeys.includes(params.data.key) ? "heart" : "heart-outline" }
@@ -1225,7 +1207,6 @@ class ProductDetails extends Component {
             alert('You may like this product directly from the Market')}
             }
             />
-
             <View style={{justifyContent: 'center', position: 'absolute', paddingBottom: 5}}>
               <Text style={[styles.likes, {color: collectionKeys.includes(params.data.key) ? 'black' : rejectRed} ]}>{params.data.text.likes}</Text>
             </View>
@@ -1250,7 +1231,6 @@ class ProductDetails extends Component {
             }
           
         </View>
-
         <View style={{backgroundColor: 'black', height: 1.5}} />
             {/* Profile And Actions Row */}
         <View style={styles.sellerProfileAndActionsRow}>
@@ -1258,7 +1238,6 @@ class ProductDetails extends Component {
           <TouchableOpacity style={styles.profilePictureContainer} onPress={() => {firebase.auth().currentUser.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(data.uid)}}>
             <Image source={profile.uri ? {uri: profile.uri} : require('../images/blank.jpg')} style={styles.profilePicture} />
           </TouchableOpacity>
-
           <View style={styles.profileTextContainer}>
             <Text onPress={() => 
             {this.state.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(data.uid)}}
@@ -1274,7 +1253,6 @@ class ProductDetails extends Component {
               null
             }
           </View>
-
           {productKeys.includes(data.key) ?
             <View style={styles.actionIconContainer}>
               <Icon
@@ -1306,7 +1284,6 @@ class ProductDetails extends Component {
                       alert('You cannot create a chat with an individual that you have blocked.\n Please unblock them to proceed. ');
                     }    
                   }
-
               />
               <TouchableOpacity
                 disabled={this.state.sold ? true : false} 
@@ -1317,15 +1294,10 @@ class ProductDetails extends Component {
               </TouchableOpacity>
             </View>
           }
-
         </View>
-
         <View style={{backgroundColor: 'black', height: 1.5}} />
-
         {/* Details and Report Item Row */}
-
         <View style={styles.detailsAndReportItemRow}>
-
             <View style={styles.detailsColumn}>
               <Text style={[styles.detailsText, {fontSize: 20, color: 'black', fontWeight: '300'}]}>DETAILS</Text>
               {/* Specific Details */}
@@ -1336,7 +1308,6 @@ class ProductDetails extends Component {
               ) ) }
               {/* Optional Product Description Row */}
               {text.description !== "Seller did not specify a description" ?
-
                 text.description.replace(/ +/g, " ").length >= 131 ?
                     <Text 
                     onPress={()=>{this.setState({showFullDescription: !this.state.showFullDescription})}} 
@@ -1348,7 +1319,6 @@ class ProductDetails extends Component {
               :
                 null}
             </View>
-
             <View style={styles.secondaryActionsColumn}>
             {productKeys.includes(data.key) ?
               this.state.sold ?
@@ -1384,19 +1354,14 @@ class ProductDetails extends Component {
                   } }
                 />
               </View>
-
               
             
-
             }
               
             </View>
         </View>
-
         <View style={{backgroundColor: 'black', height: 1.5}} />
-
         {/* Optional Product Description Row */}
-
         { text.description !== "Seller did not specify a description" ?
             <View>
             <View style={styles.optionalDescriptionRow}>
@@ -1422,12 +1387,9 @@ class ProductDetails extends Component {
           :
           null
         }
-
         
-
         {/* comments */}
         
-
           
           <View style={styles.reviewsHeaderContainer}>
             <Text style={styles.reviewsHeader}>REVIEWS</Text>
@@ -1443,9 +1405,7 @@ class ProductDetails extends Component {
           {productComments['a'] ? <WhiteSpace height={20}/> : Object.keys(productComments).map(
                   (comment) => (
                   <View key={comment} style={styles.commentContainer}>
-
                       <View style={styles.commentPicAndTextRow}>
-
                         {productComments[comment].uri ?
                           <TouchableHighlight 
                             onPress={() => this.state.uid == productComments[comment].uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(productComments[comment].uid)} 
@@ -1461,15 +1421,10 @@ class ProductDetails extends Component {
                             <Text style={ styles.commentName }> {productComments[comment].name} </Text>
                             <Text style={styles.comment}> {productComments[comment].text}  </Text>
                         </View>
-
                       </View>
-
                       <View style={styles.commentTimeRow}>
-
                         <Text style={ styles.commentTime }> {productComments[comment].time} </Text>
-
                       </View>
-
                       {productComments[comment].uri ? <View style={styles.separator}/> : null}
                       
                   </View>
@@ -1479,28 +1434,18 @@ class ProductDetails extends Component {
               )}
           
         {this.renderPictureModal()}
-
         {this.renderReportUserModal()}
-
         {this.renderPurchaseModal()}
-
         {/* {this.r()} */}
-
-
       </ScrollView> 
-
       </View>
     );
   }
 }
-
 export default withNavigation(ProductDetails);
-
-
 {/* <View style={{flex: 2, alignItems: 'center'}}>
           <CustomCarousel data={params.data.uris} />
         </View> */}
-
 const styles = StyleSheet.create( {
   mainContainer: {
     flex: 1,
@@ -1509,7 +1454,6 @@ const styles = StyleSheet.create( {
     marginBottom: 3,
     backgroundColor: '#fff'
   },
-
   headerBar: {
     flex: 0.1,
     flexDirection: 'row',
@@ -1518,7 +1462,6 @@ const styles = StyleSheet.create( {
     backgroundColor: logoGreen,
     paddingHorizontal: 5,
   },
-
   scrollContainer: {
     flex: 0.9,
     marginTop: 10
@@ -1533,32 +1476,27 @@ const styles = StyleSheet.create( {
     // marginTop: 5,
     // marginBottom: 5
   },
-
   carouselContainer: {
     flex: 2,
-    justifyContent: 'center',
-    alignItems: 'center'
+    // justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: "blue",
   },
-
   backIconAndCarouselContainer: {marginTop: 5, flex: 2, flexDirection: 'row', paddingVertical: 5, paddingRight: 2, paddingLeft: 1 },
-
   nameAndPriceRow: {
     flexDirection: 'row',
     // backgroundColor: 'red',
     padding: 5,
     // margin: 5
   },
-
   nameContainer: {
     justifyContent: 'center',
     // align
     flex: 0.6,
   },
-
   likesContainer: {flex: 0.15, justifyContent: 'center', alignItems: 'center', 
     // backgroundColor: 'red'
 },
-
   priceContainer: {
     flexDirection: 'row',
     flex: 0.25,
@@ -1566,14 +1504,12 @@ const styles = StyleSheet.create( {
     justifyContent: 'center',
     // backgroundColor: 'blue'
   },
-
   sellerProfileAndActionsRow: {
     height: 90,
     flexDirection: 'row',
     paddingVertical: 10,
     paddingHorizontal: 5
   },
-
   profilePicture: {
     width: 60,
     height: 60,
@@ -1581,7 +1517,6 @@ const styles = StyleSheet.create( {
     borderColor: 'black',
     borderWidth: 1,
   },
-
   profilePictureContainer: {
     flex: 0.2,
     padding: 0,
@@ -1590,7 +1525,6 @@ const styles = StyleSheet.create( {
     justifyContent: 'center',
     // backgroundColor: 'yellow'
   },
-
   profileTextContainer: {
     flex: 0.4,
     flexDirection: 'column',
@@ -1599,25 +1533,20 @@ const styles = StyleSheet.create( {
     alignItems: 'center',
     // backgroundColor: 'red'
   },
-
   profileText: new avenirNextText("black", 14, "300"),
-
   likeIconContainer: {
     padding: 5
   },
-
   original_price: {
     fontFamily: 'Avenir Next',
     fontWeight: '400',
     fontSize: 17
   },
-
   price: {
     fontFamily: 'Avenir Next',
     fontSize: 16,
     
   },
-
   actionIconContainer: {
     flex: 0.4,
     flexDirection: 'row',
@@ -1626,13 +1555,11 @@ const styles = StyleSheet.create( {
     alignItems: 'center',
     padding: 0
   },
-
   detailsAndReportItemRow: {
     flexDirection: 'row',
     paddingVertical: 10,
     paddingHorizontal: 5,
   },
-
   detailsColumn: {
     flex: 4,
     flexDirection: 'column',
@@ -1640,7 +1567,6 @@ const styles = StyleSheet.create( {
     paddingTop: 1,
     paddingHorizontal: 0
   },
-
   detailsText: {
     textAlign: 'left',
     fontSize: 17,
@@ -1648,7 +1574,6 @@ const styles = StyleSheet.create( {
     fontWeight: '300',
     color: graphiteGray
   },
-
   secondaryActionsColumn: {
     justifyContent: 'flex-start',
     alignItems: 'flex-end',
@@ -1656,25 +1581,20 @@ const styles = StyleSheet.create( {
     flex: 2,
     // backgroundColor: 'green'
   },
-
   confirmSaleActionContainer: {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center'
   },
-
   confirmSaleText: {color: '#0e4406', fontSize: 10, textAlign: 'center' },
-
   infoAndButtonsColumn: {
     flex: 1,
     flexDirection: 'column',
   },
-
   buyOrReportActionContainer: {
     // justifyContent: 'space-between',
     alignItems: 'flex-end',
   },
-
   purchaseButton: {
     width: 60,
     height: 40,
@@ -1683,14 +1603,11 @@ const styles = StyleSheet.create( {
     justifyContent: 'center'
     // borderWidth: 1,
     // borderColor: '#fff',
-
   },
-
   brandText: {
     fontFamily: 'Avenir Next',
     fontSize: 22,
   },
-
   headerPriceMagnifyingGlassRow: {
     flex: 1.5,
     flexDirection: 'row', justifyContent: 'space-between', 
@@ -1699,14 +1616,11 @@ const styles = StyleSheet.create( {
     paddingRight: 5,
     paddingBottom: 0,
   },
-
   
-
   nameAndLikeRow: {
     flex: 1,
     flexDirection: 'row'
   },
-
   nameText: {
     flex: 2,
     fontStyle: 'normal',
@@ -1715,7 +1629,6 @@ const styles = StyleSheet.create( {
     padding: 10,
     // backgroundColor: 'red'
   },
-
   likesRow: {
     flex: 2,
     flexDirection: 'row',
@@ -1725,15 +1638,11 @@ const styles = StyleSheet.create( {
     marginLeft: 0,
     // backgroundColor: 'blue'
   },
-
   likes: {
     fontSize: 14,
   },
-
   priceRow: { flex: 1, flexDirection: 'row', justifyContent: 'flex-start', },
-
   buttonsRow: {flex: 4, flexDirection: 'row', paddingRight: 10, justifyContent: 'flex-end', },
-
   numberProducts: {
     flex: 5,
     fontSize: 16,
@@ -1746,43 +1655,35 @@ const styles = StyleSheet.create( {
     color: 'black',
     fontWeight: 'bold'
   },
-
 //   dalmationContainer: {
 //     flexDirection: 'row',
 //     padding: 5,
 //     justifyContent: 'space-evenly'
 // },
-
 // keyContainer: {
 //     width: (width/2) - 30,
 //     height: 40,
 //     padding: 5,
 //     justifyContent: 'center',
 // },
-
 // valueContainer: {
 //     width: (width/2),
 //     height: 40,
 //     padding: 5,
 //     justifyContent: 'center',
 // },
-
 // keyText: {
 //     color: iOSColors.black,
 //     fontFamily: 'TrebuchetMS-Bold',
 //     fontSize: 15,
 //     fontWeight: '400'
-
 // },
-
 // valueText: {
 //     color: iOSColors.white,
 //     fontFamily: 'Al Nile',
 //     fontSize: 18,
 //     fontWeight: '300'
-
 // },
-
 reportModal: {flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', padding: 25, marginTop: 22},
 reportModalHeader: {
     textAlign: 'center',
@@ -1791,52 +1692,42 @@ reportModalHeader: {
     fontWeight: "bold",
     paddingBottom: 20,
 },
-
 hideModal: {
   paddingTop: 40,
   fontSize: 20,
   color: 'green',
   fontWeight:'bold'
 },
-
 reportInput: {width: 200, height: 160, marginBottom: 50, borderColor: darkBlue, borderWidth: 2},
-
-
 halfPageScroll: {
     
 },
-
 reviewsHeaderContainer: {
   flexDirection: 'row',
   paddingTop: 5,
   width: width-15,
   justifyContent: 'space-between'
 },
-
 users: {
   flex: 0,
   paddingLeft: 60,
   paddingRight: 0,
   marginLeft: 0
 },
-
 reviewsHeader: {
   fontFamily: 'Avenir Next',
   fontSize: 24,
   fontWeight: "normal",
   paddingLeft: 10
 },
-
 commentContainer: {
   flexDirection: 'column',
 },
-
 commentPicAndTextRow: {
   flexDirection: 'row',
   width: width - 20,
   padding: 10
 },
-
 commentPic: {
   //flex: 1,
   width: 70,
@@ -1846,103 +1737,79 @@ commentPic: {
   borderColor: '#fff',
   borderWidth: 0
 },
-
 textContainer: {
   flex: 1,
   flexDirection: 'column',
   padding: 5,
   },
-
 commentName: {
   color: highlightGreen,
   fontSize: 16,
   fontWeight: "500",
   textAlign: "left"
 },
-
 comment: {
   fontSize: 16,
   color: 'black',
   textAlign: "center",
 },  
-
 commentTimeRow: {
   justifyContent: 'flex-end',
   alignContent: 'flex-end',
   alignItems: 'flex-end',
 },
-
 commentTime: {
   textAlign: "right",
   fontSize: 16,
   color: iOSColors.black
 },
-
 numberOfProductsSoldRow: {
   flex: 1,
   flexDirection: 'row'
 },
-
 optionalDescriptionRow: {
   // alignItems: 'center'
   paddingVertical: 5,
   paddingHorizontal: 5
 },
-
 descriptionHeaderContainer: {flex: 0.2,justifyContent: 'center', alignItems: 'flex-start', paddingHorizontal: 0},
-
 descriptionHeader: new avenirNextText('black', 24, "500") ,
-
 descriptionContainer: {
   justifyContent: 'flex-start'
 },
-
 description: {textAlign: 'justify', ...new avenirNextText(graphiteGray, 18, "300") },
-
-
 ////Picture Modal Stuff
-
 pictureModal: {
   marginTop: 18,
   backgroundColor: '#fff',
   flexDirection: 'column'
 },
-
 pictureModalHeader: {
   // flex: 0.15,
   flexDirection: 'row',
   justifyContent: 'flex-start',
   padding: 10,
-
 },
-
 pictureModalBody: {
   // flex: 0.85,
   // justifyContent: 'center',
   // alignItems: 'center',
 },
-
 ////Purchase Modal Stuff
-
-
 ///////////////////////////
 ///////////////////////////
 ///////////////////////////
 //Initial Screen
-
-
 ////////////
 ////////////
 ///////////
 ///////////
 ///////////
-
 deliveryOptionModal: {
   backgroundColor: "#fff",
   flex: 1,
   marginTop: 22
 },
-
 deliveryOptionHeader: {
   flex: 0.1,
   //TODO: find nottGreen hex code
@@ -1952,13 +1819,11 @@ deliveryOptionHeader: {
   flexDirection: 'row',
   paddingHorizontal: 12,
 },
-
 backIconContainer: {
   flex: 0.4,
   // justifyContent: 'flex-start',
   // alignItems: 'center'
 },
-
 logoContainer: {
   flex: 0.6,
   // justifyContent: 'flex-start',
@@ -1967,31 +1832,26 @@ logoContainer: {
   // width: 40,
   // height: 40
 },
-
 logo: {
   width: 45,
   height: 45,
 },
-
 deliveryOptionBody: {
   flex: 0.75,
   padding: 10,
   // alignItems: 'center'
   // backgroundColor: ''
 },
-
 deliveryOptionContainer: {
   flexDirection: 'row',
   
   padding: 10
 },
-
 radioButtonContainer: {
   paddingHorizontal: 10,
   // justifyContent: 'space',
   alignItems: 'center',
 },
-
 radioButton: {
   width: 30,
   height: 30,
@@ -2002,36 +1862,28 @@ radioButton: {
   justifyContent: 'center',
   alignItems: 'center'
 },
-
 deliveryOptionTextContainer: {
   paddingHorizontal: 10,
   alignItems: 'flex-start'
 },
-
-
 ///////////////////////////
 ///////////////////////////
 ///////////////////////////
 //collectionInPerson Screen
-
-
 ////////////
 ////////////
 ///////////
 ///////////
 ///////////
-
 ///////////////////////////
 ///////////////////////////
 ///////////////////////////
 //postalDeliveryScreen
-
 collectionInPersonContainer: {
   justifyContent: 'center',
   alignItems: 'center',
   paddingVertical: 10
 },
-
 collectionInPersonButton: {
   // width: 230,
   height: 60,
@@ -2040,52 +1892,42 @@ collectionInPersonButton: {
   justifyContent: 'center',
   alignItems: 'center'
 },
-
 collectionInPersonOptionsContainer: {
   flexDirection: 'row',
   padding: 5,
   justifyContent: 'space-evenly',
   alignItems: 'center'
 },
-
 addressesContainer: {
   paddingHorizontal: 10,
   justifyContent: 'space-evenly',
 },
-
 addressContainerButton: {
   width: 270,
   // height: 50,
   borderRadius: 5,
 },
-
 addressContainer: {
   flexDirection: 'row',
   alignItems: 'center',
   // justifyContent: 'space-evenly',
   padding: 3,
 },
-
 addressText: new avenirNextText("black", 18, "300"),
-
 addDeliveryAddressButton: {
   width: 270,
   height: 40,
   borderRadius: 15,
   backgroundColor: '#fff',
 },
-
 addressForm: {
   paddingHorizontal: 10,
   // justifyContent: '',
   
-
 },
-
 addressField: {
   alignItems: 'flex-start',
 },
-
 ////////////
 ////////////
 ///////////
@@ -2093,35 +1935,23 @@ addressField: {
 /////////// afterPaymentScreen
 //////////
 /////////
-
 successProductImage: {
   width: 60,
   height: 60,
 },
-
 successText: new avenirNextText('black', 18, "300", "left"),
-
-
-
 ////////////
 ////////////
 ////////////
 ///////////
-
-
 } )
-
-
 /////////////////
-
 // const profileRowStyles = StyleSheet.create( {
 //   rowContainer: {
 //     flexDirection: 'row',
 //     padding: 20,
 //     justifyContent: 'center'
 //   },
-
-
 //   profilepic: {
 //     borderWidth:0,
 //     // borderColor:'#207011',
@@ -2131,22 +1961,18 @@ successText: new avenirNextText('black', 18, "300", "left"),
 //     height:80,
 //     backgroundColor:'#fff',
 //     borderRadius:80/2,
-
 // },
-
 // textContainer: {
 //   flex: 1,
 //   flexDirection: 'column',
 //   alignContent: 'center',
 //   padding: 5,
 // },
-
 // name: {
 //   fontSize: 14,
 //   fontFamily: 'Avenir Next',
 //   fontWeight: '400'
 // },
-
 // email: {
 //   //actually this is for your country location value
 //     fontSize: 14,
@@ -2162,11 +1988,9 @@ successText: new avenirNextText('black', 18, "300", "left"),
 //     fontWeight: '600',
 //     fontStyle: 'normal'
 //   },  
-
 // separator: {
 //   height: 1,
 //   backgroundColor: 'black',
 //   padding: 2,
 // },
-
 // } )

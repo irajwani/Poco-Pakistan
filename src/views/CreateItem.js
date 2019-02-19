@@ -478,7 +478,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
         >
 
             <Divider style={{  backgroundColor: '#fff', height: 12 }} />
-        {/* 1. Product Pictures */}
+        
             <Text style={{fontFamily: avenirNext, textAlign: 'center', color: optionLabelBlue}}>Picture(s) of Product:</Text>
             <Divider style={{  backgroundColor: '#fff', height: 8 }} />
 
@@ -486,7 +486,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
 
             <WhiteSpace height={10}/>
             
-        {/* 0. Gender */}
+        
             <Text style={[styles.detailHeader, {fontSize: 18, textAlign: 'center'}]}>Category</Text>
             <ButtonGroup
                 onPress={ (index) => {
@@ -505,9 +505,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                 selectedTextStyle={styles.buttonGroupSelectedText}
                 selectedButtonStyle={styles.buttonGroupSelectedContainer}
             />
-            {/* Type of clothing */}
             
-
             <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} 
                 onPress={() => {
                     navigation.setParams({size: false});
@@ -542,17 +540,6 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
             <GrayLine/>
 
             
-        
-        
-            {/* <Image
-            style={{width: '25%', height: '25%', opacity: 1.0}} 
-            source={ {uri: pictureuri} } />
-            <Image
-            style={{width: '25%', height: '25%', opacity: 0.7}} 
-            source={ require('../images/blank.jpg') } /> */}
-        {/* 2. Product Name */}
-
-        {/* TODO: Somehow prevent the user from having to scroll lower to see their input */}
             <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
                 <TextInput
                 style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20}}
@@ -565,12 +552,13 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                 autoCorrect={false}
                 autoCapitalize={'words'}
                 clearButtonMode={'while-editing'}
+                underlineColorAndroid={"transparent"}
                 />         
             </View>
 
             <WhiteSpace height={4}/>
 
-            {/* Product Description/Material */}
+            
             
             <GrayLine/>
 
@@ -596,6 +584,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                         multiline={true}
                         numberOfLines={4}
                         scrollEnabled={true}
+                        underlineColorAndroid={"transparent"}
                     />
 
                 </View>
@@ -610,7 +599,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
 
             <GrayLine/>
 
-            {/* Original Price */}
+            
             <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice("retailPrice")}>
             <View style={styles.navToFillDetailRow}>
                 
@@ -626,7 +615,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                 null
                 }
 
-                <View style={[styles.navToFillDetailIcon, {flex: original_price > 0 ? 0.2 : 0.2 }]}>
+                <View style={[styles.navToFillDetailIcon, {flex: 0.2 }]}>
                     <Icon 
                     name="chevron-right"
                     size={40}
@@ -639,7 +628,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
 
             <GrayLine/>
 
-        {/* Product Price.  */}
+       
 
 
             <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice("sellingPrice")}>
@@ -669,7 +658,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
             </TouchableHighlight>
 
             <GrayLine/>
-            {/* Reminder for user that we take 15% of total sale for payment processing */}
+            
             <View style={styles.priceAdjustmentReminderContainer}>
                 <Text style={new avenirNextText(graphiteGray, 13, "300", "left")}>{priceAdjustmentReminder}</Text>
             </View>
@@ -677,7 +666,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
             <GrayLine/>
 
                 
-            {/* Brand */}
+            
             <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
                 <TextInput
                 style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
@@ -690,6 +679,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                 autoCorrect={false}
                 autoCapitalize={'words'}
                 clearButtonMode={'while-editing'}
+                underlineColorAndroid={"transparent"}
                 />         
             </View>
 
@@ -699,7 +689,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
 
             
 
-            {/* Size */}
+            
 
             
 
@@ -768,9 +758,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
             </TouchableHighlight>
 
             <GrayLine/>
-            {/* Check if person can send by post. If they can, 
-            another row shows up which lets them input an estimated postal price, 
-            which gets tacked on as a property of this product */}
+           
             <View style={styles.navToFillDetailRow}>
 
                 <View style={[styles.detailHeaderContainer, {paddingHorizontal: 6,flex: 0.8}]}>
@@ -833,7 +821,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
 
             <WhiteSpace height={15} />       
             
-            <View style={ {alignItems: 'center'} }>
+            <View style={{alignItems: 'center'}}>
                 <Button
                 large
                 disabled = { partialConditionMet ? false : true}
@@ -859,30 +847,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
                 />
             </View>
 
-            {/* {userChangedAtLeastOneField ?
             
-                <View style={styles.actionButtonContainer}>
-                    <Button
-                    small
-                    buttonStyle={{
-                        backgroundColor: '#fff',
-                        width: 140,
-                        height: 50,
-                        borderColor: "transparent",
-                        borderWidth: 0,
-                        borderRadius: 0,
-                    }}
-                    icon={{name: 'delete', type: 'material-community', size: 20, color: graphiteGray}}
-                    title='START OVER'
-                    onPress={() => {
-                        this.startOver();
-                                    } } 
-                    />
-                </View>
-            
-            :
-            null
-            } */}
 
             {this.state.editItemBoolean ?
             <View style={styles.actionButtonContainer}>
@@ -946,6 +911,31 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
     )
   }
 }
+
+{/* {userChangedAtLeastOneField ?
+            
+                <View style={styles.actionButtonContainer}>
+                    <Button
+                    small
+                    buttonStyle={{
+                        backgroundColor: '#fff',
+                        width: 140,
+                        height: 50,
+                        borderColor: "transparent",
+                        borderWidth: 0,
+                        borderRadius: 0,
+                    }}
+                    icon={{name: 'delete', type: 'material-community', size: 20, color: graphiteGray}}
+                    title='START OVER'
+                    onPress={() => {
+                        this.startOver();
+                                    } } 
+                    />
+                </View>
+            
+            :
+            null
+            } */}
 
 const styles = StyleSheet.create({
     contentContainer: {

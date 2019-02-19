@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, ScrollView, View, Image, StyleSheet, TouchableHighlight, CameraRoll } from 'react-native'
+import { Text, ScrollView, View, Image, StyleSheet, TouchableHighlight, CameraRoll, PermissionsAndroid } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import ActionSheet from 'react-native-actionsheet'
 import { withNavigation } from 'react-navigation';
@@ -29,7 +29,7 @@ class MultipleAddButton extends Component {
     }
 
     if (index == 1) {
-      this.launchGallery(navToComponent)
+      Platform.OS == "android" ? this.requestPhotosPermission(navToComponent) : this.launchGallery(navToComponent);
     }
     
     // if (index == 0) {
@@ -58,6 +58,19 @@ class MultipleAddButton extends Component {
     })
     
     
+  }
+
+  requestPhotosPermission = async (navToComponent) => {
+    try {
+      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE)
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          this.launchGallery(navToComponent);
+        } else {
+          alert('NottMyStyle cannot select a picture(s) from your gallery without your permission to access your gallery.');
+        }
+    } catch (err) {
+      console.warn(err)
+    }
   }
 
   renderMainPictureRow = (pictureuris) => {

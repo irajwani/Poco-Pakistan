@@ -150,7 +150,7 @@ export default class ConditionSelection extends Component {
                         {
                             sizes.map( (s, index) => 
                                 <View key={index} style={styles.conditionRow}>
-                                    index == 0 ? <GrayLine/> : null
+                                    {index == 0 ? <GrayLine/> : null}
                                     <TouchableHighlight underlayColor={'#fff'} onPress={()=>this.navToCreateItem('size', s)}>
                                         <Text style={styles.condition}>{s}</Text>
                                     </TouchableHighlight>
@@ -165,7 +165,7 @@ export default class ConditionSelection extends Component {
                         {conditions.map( (c, index) => 
                             
                             <View key={index} style={styles.conditionRow}>
-                                index == 0 ? <GrayLine/> : null
+                                {index == 0 ? <GrayLine/> : null}
                                 <TouchableHighlight underlayColor={'#fff'} onPress={()=>this.navToCreateItem('condition', c)}>
                                     <Text style={styles.condition}>{c}</Text>
                                 </TouchableHighlight>

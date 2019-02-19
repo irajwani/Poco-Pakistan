@@ -13,15 +13,15 @@ import { highlightGreen } from '../colors';
 const HomeScreen = TabNavigator(
             {
 
-              //Profile: { screen: ProfilePage },
+              
               Profile: profileToEditProfileStack,
-              //Market: {screen: MarketPlace},
+              
               Market: marketToProductDetailsOrChatOrCommentsStack,
-              //Sell: {screen: CreateItem},
+              
               Sell: multipleAddButtonToMultiplePictureCameraToCreateItemStack,
-              //Chats: {screen: Chats},
+              
               Chats: ChatsToCustomChatStack,
-              //WishList: {screen: Collection},
+              
               WishList: wishListToProductDetailsOrChatOrCommentsStack,
               
             },

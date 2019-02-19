@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Keyboard, Animated, UIManager, Linking, Dimensions, Text, StyleSheet, View, ScrollView, Platform, Modal, TouchableOpacity, KeyboardAvoidingView, TextInput } from 'react-native';
+import { Linking, Dimensions, Text, StyleSheet, View, ScrollView, Platform, Modal, TouchableOpacity, KeyboardAvoidingView, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ButtonGroup, Button} from 'react-native-elements';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
@@ -39,6 +39,7 @@ const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize}) => 
         autoCorrect={false}
         autoCapitalize={autoCapitalize ? autoCapitalize : 'none'}
         clearButtonMode={'while-editing'}
+        underlineColorAndroid={"transparent"}
         />         
     </View>
 )
@@ -75,14 +76,14 @@ class CreateProfile extends Component {
           previousUri: false,
 
           //Keyboard Aware View Stuff
-          shift: new Animated.Value(0),
+        //   shift: new Animated.Value(0),
       }
   }
 
-  componentWillMount = () => {
-    this.keyboardDidShowSubscription = Keyboard.addListener('keyboardDidShow', this.handleKeyboardDidShow);
-    this.keyboardDidHideSubscription = Keyboard.addListener('keyboardDidHide', this.handleKeyboardDidHide);
-  }
+//   componentWillMount = () => {
+//     this.keyboardDidShowSubscription = Keyboard.addListener('keyboardDidShow', this.handleKeyboardDidShow);
+//     this.keyboardDidHideSubscription = Keyboard.addListener('keyboardDidHide', this.handleKeyboardDidHide);
+//   }
 
   componentDidMount() {
       //If you navigate here for the purpose of editing your profile, 
@@ -94,43 +95,43 @@ class CreateProfile extends Component {
     
   }
 
-  componentWillUnmount = () => {
-    this.keyboardDidShowSub.remove();
-    this.keyboardDidHideSub.remove();
-  }
+//   componentWillUnmount = () => {
+//     this.keyboardDidShowSub.remove();
+//     this.keyboardDidHideSub.remove();
+//   }
 
-  handleKeyboardDidShow = (event) => {
-    const { height: windowHeight } = Dimensions.get('window');
-    const keyboardHeight = event.endCoordinates.height;
-    const currentlyFocusedField = TextInputState.currentlyFocusedField();
-    UIManager.measure(currentlyFocusedField, (originX, originY, width, height, pageX, pageY) => {
-      const fieldHeight = height;
-      const fieldTop = pageY;
-      const gap = (windowHeight - keyboardHeight) - (fieldTop + fieldHeight);
-      if (gap >= 0) {
-        return;
-      }
-      Animated.timing(
-        this.state.shift,
-        {
-          toValue: gap,
-          duration: 1000,
-          useNativeDriver: true,
-        }
-      ).start();
-    });
-  }
+//   handleKeyboardDidShow = (event) => {
+//     const { height: windowHeight } = Dimensions.get('window');
+//     const keyboardHeight = event.endCoordinates.height;
+//     const currentlyFocusedField = TextInputState.currentlyFocusedField();
+//     UIManager.measure(currentlyFocusedField, (originX, originY, width, height, pageX, pageY) => {
+//       const fieldHeight = height;
+//       const fieldTop = pageY;
+//       const gap = (windowHeight - keyboardHeight) - (fieldTop + fieldHeight);
+//       if (gap >= 0) {
+//         return;
+//       }
+//       Animated.timing(
+//         this.state.shift,
+//         {
+//           toValue: gap,
+//           duration: 1000,
+//           useNativeDriver: true,
+//         }
+//       ).start();
+//     });
+//   }
 
-  handleKeyboardDidHide = () => {
-    Animated.timing(
-      this.state.shift,
-      {
-        toValue: 0,
-        duration: 1000,
-        useNativeDriver: true,
-      }
-    ).start();
-  }
+//   handleKeyboardDidHide = () => {
+//     Animated.timing(
+//       this.state.shift,
+//       {
+//         toValue: 0,
+//         duration: 1000,
+//         useNativeDriver: true,
+//       }
+//     ).start();
+//   }
 
   setModalVisible = (visible) => {
     this.setState({modalVisible: visible});
@@ -157,20 +158,19 @@ class CreateProfile extends Component {
       this.setState({createProfileLoading: true});
       firebase.auth().createUserWithEmailAndPassword(email, pass)
         .then(() => {
-                        
-                        var unsubscribe = firebase.auth().onAuthStateChanged( ( user ) => {
-                            unsubscribe();
-                            if(user) {
-                            const {uid} = user;
-                            this.updateFirebase(this.state, pictureuri, mime = 'image/jpg', uid );
-                            // alert('Your account has been created.\nPlease use your credentials to Sign In.');
-                            // this.props.navigation.navigate('SignIn'); 
-                            }
-                            else {
-                            alert('Oops, there was an error with account registration!');
-                            }
-                        })
-                        }
+            var unsubscribe = firebase.auth().onAuthStateChanged( ( user ) => {
+                unsubscribe();
+                if(user) {
+                const {uid} = user;
+                this.updateFirebase(this.state, pictureuri, mime = 'image/jpg', uid );
+                // alert('Your account has been created.\nPlease use your credentials to Sign In.');
+                // this.props.navigation.navigate('SignIn'); 
+                }
+                else {
+                alert('Oops, there was an error with account registration!');
+                }
+            })
+            }
                             )
         .catch(() => {
             this.setState({ error: 'You already have a NottMyStyle account. Please use your credentials to Sign In', createProfileLoading: false, email: '', pass: '', pass2: '' });
@@ -268,7 +268,7 @@ class CreateProfile extends Component {
         
     //     }
     // )
-
+    
     let promiseToUploadPhoto = new Promise((resolve, reject) => {
 
         if(uri.includes('googleusercontent') || uri.includes('facebook')) {
@@ -510,7 +510,7 @@ class CreateProfile extends Component {
     }
 
     return (
-        <Animated.ScrollView style={[styles.mainContainer, { transform: [{translateY: this.state.shift}] }]} contentContainerStyle={styles.container}>
+        <ScrollView style={styles.mainContainer} contentContainerStyle={styles.container}>
             
             <Text style={{fontFamily: 'Avenir Next', fontWeight: '300', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text>
             
@@ -734,7 +734,7 @@ class CreateProfile extends Component {
                 inputStyle={{ color: profoundPink }}
             /> */}
 
-            <WhiteSpace height={110}/>
+            <WhiteSpace height={15}/>
             
     
             
@@ -866,13 +866,14 @@ class CreateProfile extends Component {
                 <Button
                     disabled = { this.state.editProfileBoolean ? editProfileConditionMet ? false : true : conditionMet ? false: true}
                     containerViewStyle={{paddingVertical: 20, alignItems: 'center', justifyContent: 'center'}}
+                    large
                     buttonStyle={{
                         backgroundColor: treeGreen,
-                        width: 150,
-                        height: 45,
+                        width: 280,
+                        height: 80,
                         borderColor: "transparent",
                         borderWidth: 0,
-                        borderRadius: 25
+                        borderRadius: 5,
                     }}
                     icon={{name: 'save', type: 'font-awesome'}}
                     title='Save'
@@ -889,7 +890,7 @@ class CreateProfile extends Component {
                 />
             </TouchableOpacity>
             
-        </Animated.ScrollView>
+        </ScrollView>
         )
       
     

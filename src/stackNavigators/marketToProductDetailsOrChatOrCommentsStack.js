@@ -14,7 +14,7 @@ import ConditionSelection from '../views/ConditionSelection';
 export const marketToProductDetailsOrChatOrCommentsStack = createStackNavigator({
     MarketPlace: MarketPlace,
     YourProducts: YourProducts,
-    ProductDetails: ProductDetails,
+    // ProductDetails: ProductDetails,
     CreateItem: CreateItem,
     PriceSelection: PriceSelection,
     ConditionSelection: ConditionSelection,
