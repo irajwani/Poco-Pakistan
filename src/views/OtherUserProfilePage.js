@@ -103,16 +103,18 @@ class OtherUserProfilePage extends Component {
       // var rawCollection = collection ? collection : {}
       // var collectionKeys = removeFalsyValuesFrom(rawCollection);  
 
-      var soldProducts = 0;
-
+      var soldProducts = 0, numberProducts = 0;
       //get profile data of seller of product
-      for(var p of Object.values(d.Users[otherUserUid].products)) {
-        if(p.sold) {
-          soldProducts++
+      if(typeof d.Users[otherUserUid].products === 'object') {
+        for(var p of Object.values(d.Users[otherUserUid].products)) {
+          if(p.sold) {
+            soldProducts++
+          }
         }
+        
+        var numberProducts = Object.keys(d.Users[otherUserUid].products).length;
       }
       
-      var numberProducts = Object.keys(d.Users[otherUserUid].products).length
 
       var date = (new Date()).getDate();
       var month = (new Date()).getMonth();
@@ -190,14 +192,8 @@ class OtherUserProfilePage extends Component {
 
     if(this.state.isGetting) {
       return (
-        <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
-            <View style={{height: 200, justifyContent: 'space-evenly', alignItems: 'center'}}>
-                <LoadingIndicator isVisible={this.state.isGetting} color={'black'} type={'Wordpress'}/>
-                <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: coolBlack, textAlign: 'center'}}>
-                    Loading Profile...
-                </Text>
-            </View>
-            
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30, marginTop: 22}}>
+          <LoadingIndicator isVisible={this.state.isGetting} color={'#1c3a09'} type={'Wordpress'}/>
         </View>
       )
     }

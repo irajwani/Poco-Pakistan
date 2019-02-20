@@ -1472,15 +1472,15 @@ const styles = StyleSheet.create( {
     backgroundColor: '#fff',
     flexDirection: 'column',
     justifyContent: 'space-evenly',
-    paddingHorizontal: 5,
+    paddingHorizontal: 2,
     // marginTop: 5,
     // marginBottom: 5
   },
   carouselContainer: {
     flex: 2,
-    // justifyContent: 'center',
+    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: "blue",
+    // backgroundColor: 'blue',
   },
   backIconAndCarouselContainer: {marginTop: 5, flex: 2, flexDirection: 'row', paddingVertical: 5, paddingRight: 2, paddingLeft: 1 },
   nameAndPriceRow: {
@@ -1780,18 +1780,19 @@ descriptionContainer: {
 description: {textAlign: 'justify', ...new avenirNextText(graphiteGray, 18, "300") },
 ////Picture Modal Stuff
 pictureModal: {
+  flex: 1,
   marginTop: 18,
   backgroundColor: '#fff',
   flexDirection: 'column'
 },
 pictureModalHeader: {
-  // flex: 0.15,
+  flex: 0.15,
   flexDirection: 'row',
   justifyContent: 'flex-start',
   padding: 10,
 },
 pictureModalBody: {
-  // flex: 0.85,
+  flex: 0.85,
   // justifyContent: 'center',
   // alignItems: 'center',
 },

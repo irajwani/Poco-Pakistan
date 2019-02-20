@@ -26,7 +26,7 @@ window.Blob = Blob;
 
 const { State: TextInputState } = TextInput;
 
-const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize}) => (
+const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize, maxLength}) => (
     <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
         <TextInput
         style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
@@ -35,7 +35,7 @@ const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize}) => 
         onChangeText={onChangeText}
         value={value}
         multiline={false}
-        maxLength={16}
+        maxLength={maxLength}
         autoCorrect={false}
         autoCapitalize={autoCapitalize ? autoCapitalize : 'none'}
         clearButtonMode={'while-editing'}
@@ -548,7 +548,7 @@ class CreateProfile extends Component {
 
                     
 
-                    <CustomTextInput placeholder={"Email Address"} value={this.state.email} onChangeText={email => this.setState({ email })}/>
+                    <CustomTextInput maxLength={40} placeholder={"Email Address"} value={this.state.email} onChangeText={email => this.setState({ email })}/>
 
                     <WhiteSpace height={inputHeightBoost}/>
 
@@ -558,7 +558,7 @@ class CreateProfile extends Component {
                     placeholder={"Password"} 
                     value={this.state.pass} 
                     onChangeText={pass => this.setState({ pass })}
-
+                    maxLength={16}
                     />
 
                     <WhiteSpace height={inputHeightBoost}/>
@@ -569,7 +569,7 @@ class CreateProfile extends Component {
                     placeholder={"Retype Password"} 
                     value={this.state.pass2} 
                     onChangeText={pass2 => this.setState({ pass2 })}
-
+                    maxLength={16}
                     />
 
                     <WhiteSpace height={inputHeightBoost}/>
@@ -643,7 +643,7 @@ class CreateProfile extends Component {
             placeholder={"First Name"} 
             value={this.state.firstName} 
             onChangeText={firstName => this.setState({ firstName })}
-
+            maxLength={13}
             />
 
             <WhiteSpace height={inputHeightBoost}/>
@@ -654,7 +654,7 @@ class CreateProfile extends Component {
             placeholder={"Last Name"} 
             value={this.state.lastName} 
             onChangeText={lastName => this.setState({ lastName })}
-
+            maxLength={13}
             />
 
             <WhiteSpace height={inputHeightBoost}/>
@@ -665,7 +665,7 @@ class CreateProfile extends Component {
             placeholder={"Country"} 
             value={this.state.country} 
             onChangeText={country => this.setState({ country })}
-
+            maxLength={16}
             />
 
             <WhiteSpace height={inputHeightBoost}/>
@@ -676,7 +676,7 @@ class CreateProfile extends Component {
             placeholder={"Instagram Handle (w/o @)"} 
             value={this.state.insta} 
             onChangeText={insta => this.setState({ insta })}
-
+            maxLength={16}
             />
 
             <WhiteSpace height={inputHeightBoost}/>

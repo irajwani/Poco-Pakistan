@@ -2,13 +2,13 @@ import React, {Component} from 'react'
 import {Dimensions, Keyboard, Text, TextInput, TouchableHighlight, TouchableOpacity, Image, View, ScrollView, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
-import { Hoshi } from 'react-native-textinput-effects'
+// import { Hoshi } from 'react-native-textinput-effects'
 import {withNavigation} from 'react-navigation';
 // import {database} from '../cloud/database';
 import firebase from '../cloud/firebase';
 import { material, systemWeights, human, iOSUIKit, iOSColors } from 'react-native-typography'
-import { PacmanIndicator } from 'react-native-indicators';
-import { highlightGreen, treeGreen, almostWhite, graphiteGray, darkGray, rejectRed, optionLabelBlue, avenirNext } from '../colors';
+// import { PacmanIndicator } from 'react-native-indicators';
+import { highlightGreen, treeGreen, almostWhite, graphiteGray, darkGray, rejectRed, optionLabelBlue, avenirNext, lightGray } from '../colors';
 
 //for each comment, use their time of post as the key
 
@@ -44,12 +44,12 @@ class UserComments extends Component {
 
     }
 
-    keyboardWillShow (e) {
+    keyboardWillShow(e) {
         let newSize = Dimensions.get('window').height - e.endCoordinates.height
         this.setState({visibleHeight: newSize})
       }
 
-    keyboardWillHide (e) {
+    keyboardWillHide(e) {
        this.setState({visibleHeight: Dimensions.get('window').height})
     }
 
@@ -213,28 +213,35 @@ class UserComments extends Component {
               }
             </ScrollView>
               
-            <View style={{ flexDirection : 'row', bottom : this.height - this.state.visibleHeight}} >
-            <Hoshi
-                style={{ width: 250, backgroundColor: '#fff' }}
-                label={'Comment'}
-                labelStyle={ {color: 'black', ...systemWeights.regular} }
-                value={this.state.commentString}
+            <View style={[styles.inputAndSendContainer, {bottom : this.height - this.state.visibleHeight}]}>
+            
+              <View style={styles.inputContainer}>
+                <TextInput
+                style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
+                placeholder={'Comment'}
+                placeholderTextColor={lightGray}
                 onChangeText={ commentString => this.onCommentTextChanged(commentString)}
-                borderColor={optionLabelBlue}
-                inputStyle={{ color: 'black', fontWeight: '400', fontFamily: avenirNext }}
+                value={this.state.commentString}
+                multiline={false}
                 autoCorrect={false}
+                autoCapitalize={'none'}
+                clearButtonMode={'while-editing'}
+                underlineColorAndroid={"transparent"}
+                />         
+              </View>
                 
-            />
 
-            <View style={{backgroundColor: '#fff', borderRadius: 0}}>
-                <Icon name="send" 
-                        size={55} 
-                        color={optionLabelBlue}
-                        onPress={ () => {this.uploadComment(name, this.state.commentString, uid, uri, yourUid);
-                                    this.setState({commentString: ''}); 
-                                    }}
-                />
-            </View>
+                <View style={styles.sendContainer}>
+                    <Icon name="send" 
+                            size={55} 
+                            color={optionLabelBlue}
+                            onPress={ () => {
+                                this.uploadComment(name, this.state.commentString, uid, uri, yourUid);
+                                this.setState({commentString: ''});
+                                Keyboard.dismiss(); 
+                                        }}
+                    />
+                </View>
                 
             </View>
            </View>
@@ -257,6 +264,7 @@ const styles = StyleSheet.create({
 
     backAndSellerRow: {
         flexDirection: 'row',
+        flex: 0.15,
         // flex: 1,
     },
 
@@ -328,7 +336,7 @@ const styles = StyleSheet.create({
     //to hold scrolling list of comments
 
     contentContainerStyle: {
-        
+        flex: 0.7
     },
     contentContainer: {
         flexGrow: 1, 
@@ -352,6 +360,7 @@ const styles = StyleSheet.create({
         paddingTop: 10
       },
     scrollcontainer: {
+        
         padding: 15,
     },
     searchInput: {
@@ -534,6 +543,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: iOSColors.black
     },  
+
+    ////
+
+    inputAndSendContainer: {
+        flexDirection: 'row',
+        flex: 0.15,
+        marginHorizontal: 2
+    },
+
+    inputContainer: {
+        flex: 0.8,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+
+    sendContainer: {
+        flex: 0.2,
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
 
   });
 

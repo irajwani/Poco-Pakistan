@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { View, Text, StyleSheet, Image, TouchableHighlight } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableHighlight, Platform, KeyboardAvoidingView } from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat';
 import {withNavigation} from 'react-navigation';
 import firebase from '../cloud/firebase';
@@ -10,7 +10,7 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import Chatkit from "@pusher/chatkit-client";
 import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
 import { treeGreen, mantisGreen, darkGreen, logoGreen } from '../colors';
-import { LoadingIndicator } from '../localFunctions/visualFunctions';
+import { LoadingIndicator, DismissKeyboardView } from '../localFunctions/visualFunctions';
 
 
 
@@ -285,6 +285,7 @@ class CustomChat extends Component {
 
         <View style={{backgroundColor: 'black', height: 1.5}}/>
         
+        <DismissKeyboardView>
         <View style={{flex: 0.88}}>
           <GiftedChat
             messages={this.state.messages}
@@ -298,10 +299,11 @@ class CustomChat extends Component {
             showAvatarForEveryMessage={false}
             renderAvatarOnTop={true}
             loadEarlier={false}
-              
-            
-          />
+          />    
+          <KeyboardAvoidingView behavior={Platform.OS == 'android' ? 'padding' : null} keyboardVerticalOffset={110}/>
+          
         </View>
+        </DismissKeyboardView>
 
       </View>
     )

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, ScrollView, View, Image, StyleSheet, TouchableHighlight, CameraRoll, PermissionsAndroid } from 'react-native'
+import { Platform, Text, ScrollView, View, Image, StyleSheet, TouchableHighlight, CameraRoll, PermissionsAndroid } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import ActionSheet from 'react-native-actionsheet'
 import { withNavigation } from 'react-navigation';
@@ -47,11 +47,11 @@ class MultipleAddButton extends Component {
   launchGallery(navToComponent) {
     // console.log('opening Photo Library');
     let photoArray;
-    
+    console.log("HERE MAN")
     CameraRoll.getPhotos({ first: 100 })
     .then(res => {
       photoArray = res.edges;
-      console.log(photoArray);
+      console.log("OVER HERE"+ photoArray);
       //now navigate to new component which will collect the image uri for usage and then nav back to create profile
       this.props.navigation.navigate('ViewPhotos', {photoArray: photoArray, navToComponent: `${navToComponent}` })
       // this.setState({ showPhotoGallery: true, photoArray: photoArray })

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import {View, Image} from 'react-native'
 import styled from "styled-components/native"; // 3.1.6
 import Carousel, {Pagination} from 'react-native-snap-carousel'; // 3.6.0
 import { graphiteGray, mantisGreen, lightGray } from '../colors';
@@ -17,23 +18,23 @@ class FullScreenCarousel extends Component {
   }
 
   handleSnapToItem(index){
-    console.log("snapped to ", index);
+    // console.log("snapped to ", index);
     this.setState({ activeSlide: index });
   }
 
   _renderItem = ( {item, index} ) => {
-    console.log("rendering,", index, item)
+    // console.log("rendering,", index, item)
     return (
       
 
         <ThumbnailBackgroundView>
           <CurrentVideoTO
              onPress={ () => { 
-                console.log("clicked to index", index)
+                // console.log("clicked to index", index)
                 this._carousel.snapToItem(index);
               }}
           >
-            <CurrentVideoImage source={{ uri: item }} />
+            <Image source={{ uri: item }} style={{width: 245,height: 245, borderWidth: 2,borderColor: "#2c2d2d",}}/>
           </CurrentVideoTO>
             {/*<NextVideoImage source={{ uri: this.state.currentVideo.nextVideoId }}/>*/}
             
@@ -76,11 +77,11 @@ class FullScreenCarousel extends Component {
     //const { params } = this.props.navigation.state;
     
 
-    console.log("videos: updating")
+    // console.log("videos: updating")
 
     return (
 
-      <CarouselBackgroundView>
+      <View>
         <Carousel
           ref={ (c) => { this._carousel = c; } }
           data={this.props.data}
@@ -92,7 +93,7 @@ class FullScreenCarousel extends Component {
           firstItem={0}
         />
         { this.pagination }
-      </CarouselBackgroundView>
+      </View>
 
     );
   }
@@ -106,27 +107,34 @@ const VideoTitleText = styled.Text`
   top: 28;
   justify-content: center;
 `
-const CurrentVideoImage = styled.Image`
-  ${'' /* top: 5; */}
-  ${'' /* box-shadow: 5px 10px; */}
-  width: 275;
-  height: 400;
-  border-radius: 0;
-  border-width: 0;
-  border-color: gray
-`;
+
+const CarouselBackgroundView = styled.View`
+  background-color: #fff;
+  height: 500;
+  width: 400;
+`
 
 const ThumbnailBackgroundView = styled.View`
   justify-content: center;
   align-items: center;
-  width: 275; 
+  width: 100%;
+  height: 100%; 
 `;
 
 const CurrentVideoTO = styled.TouchableOpacity`
 `
-const CarouselBackgroundView = styled.View`
-  background-color: #fff;
-  ${'' /* height: 200; */}
-  width: 100%;
-`
+
+const CurrentVideoImage = styled.Image`
+  ${'' /* top: 5; */}
+  ${'' /* box-shadow: 5px 10px; */}
+  ${'' /* 275 */}
+  width: 350;
+  ${'' /* 400 */}
+  height: 500; 
+  border-radius: 0;
+  border-width: 1;
+  border-color: gray
+`;
+
+
 // #156820

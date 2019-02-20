@@ -1,12 +1,12 @@
 import React, {Component} from 'react'
-import { Dimensions, Keyboard, Text, TouchableHighlight, Image, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { Dimensions, Keyboard, Text, TextInput, TouchableHighlight, Image, View, ScrollView, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import { Hoshi } from 'react-native-textinput-effects'
+// import { Hoshi } from 'react-native-textinput-effects'
 import {withNavigation} from 'react-navigation';
 import firebase from '../cloud/firebase';
 import { material, human, iOSUIKit, iOSColors, systemWeights } from 'react-native-typography'
-import { almostWhite, highlightGreen, treeGreen, avenirNext, graphiteGray, darkGray, optionLabelBlue, rejectRed } from '../colors';
+import { almostWhite, highlightGreen, treeGreen, avenirNext, graphiteGray, darkGray, optionLabelBlue, rejectRed, lightGray } from '../colors';
 import FontAwesomeIcon  from 'react-native-vector-icons/FontAwesome';
 import { avenirNextText } from '../constructors/avenirNextText';
 //for each comment, use their time of post as the key
@@ -108,6 +108,8 @@ class ProductComments extends Component {
         // comments = emptyReviews ? {a} : restOfTheComments;
 
         return (
+
+            <View style={styles.container}>
             <View style={styles.mainContainer} >
             {/* Row to go back and look at seller info */}
             <View style={styles.backAndSellerRow}>
@@ -219,33 +221,44 @@ class ProductComments extends Component {
               }
             </ScrollView>
              
-            <View style={{ flexDirection : 'row', bottom : this.height - this.state.visibleHeight}} >
+            <View style={[styles.inputAndSendContainer, {bottom: this.height - this.state.visibleHeight}]} >
 
             
-                <Hoshi
-                    style={{ width: 250, backgroundColor: '#fff' }}
-                    label={'Comment'}
-                    labelStyle={ {color: 'black', ...systemWeights.regular} }
-                    value={this.state.commentString}
+                <View style={styles.inputContainer}>
+                    <TextInput
+                    style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
+                    placeholder={'Comment'}
+                    placeholderTextColor={lightGray}
                     onChangeText={ commentString => this.onCommentTextChanged(commentString)}
-                    borderColor={optionLabelBlue}
-                    inputStyle={{ color: 'black', fontWeight: '400', fontFamily: avenirNext }}
+                    value={this.state.commentString}
+                    multiline={false}
                     autoCorrect={false}
-                    
-                />
+                    autoCapitalize={'none'}
+                    clearButtonMode={'while-editing'}
+                    underlineColorAndroid={"transparent"}
+                    />         
+                </View>
             
 
-                <View style={{backgroundColor: '#fff', borderRadius: 0}}>
-                    <Icon name="send" 
-                            size={55} 
-                            color={optionLabelBlue}
-                            onPress={ () => {this.uploadComment(name, this.state.commentString, uid, uri, key, yourUid);
-                                        this.setState({commentString: ''}); 
-                                        }}
+                <View style={styles.sendContainer}>
+                    <Icon 
+                    name="send" 
+                    size={40} 
+                    color={optionLabelBlue}
+                    onPress={ () => {
+                        this.uploadComment(name, this.state.commentString, uid, uri, key, yourUid);
+                        this.setState({commentString: ''}); 
+                        Keyboard.dismiss()
+                    }}
                     />
                 </View>
                 
             </View>
+
+           </View>
+
+           <KeyboardAvoidingView behavior={Platform.OS == 'android' ? 'padding' : null} keyboardVerticalOffset={80}/>
+
            </View>
         )
     }
@@ -255,10 +268,15 @@ export default withNavigation(ProductComments)
 
 const styles = StyleSheet.create({
 
+    container:{
+        flex:1,
+        marginTop:22
+    },
+
     mainContainer: {
         flex: 1,
-        marginTop: 22,
-        flexDirection: 'column',
+        // marginTop: 22,
+        // flexDirection: 'column',
         paddingHorizontal: 10,
         paddingVertical: 5,
         backgroundColor: '#fff',
@@ -266,7 +284,7 @@ const styles = StyleSheet.create({
 
     backAndSellerRow: {
         flexDirection: 'row',
-        // flex: 1,
+        flex: 0.18,
     },
 
     backIconContainer: {
@@ -301,7 +319,7 @@ const styles = StyleSheet.create({
 
     productInfoContainer: {
         flexDirection: 'row',
-        // flex: 1,
+        flex: 0.25,
         padding: 5,
 
     },
@@ -333,7 +351,7 @@ const styles = StyleSheet.create({
     //to hold scrolling list of comments
 
     contentContainerStyle: {
-        
+        flex: 0.45
     },
     contentContainer: {
         flexGrow: 1, 
@@ -539,6 +557,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: iOSColors.black
     },  
+
+    inputAndSendContainer: {
+        flexDirection: 'row',
+        flex: 0.12,
+        // marginHorizontal: 2
+    },
+
+    inputContainer: {
+        flex: 0.8,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+
+    sendContainer: {
+        flex: 0.2,
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
 
   });
 

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Text, TouchableOpacity, View} from 'react-native';
+import {Text, TouchableOpacity, View, Image, StyleSheet} from 'react-native';
 import styled from "styled-components/native"; // 3.1.6
 import Carousel, {Pagination} from 'react-native-snap-carousel'; // 3.6.0
 import { graphiteGray, treeGreen, optionLabelBlue } from '../colors';
@@ -28,18 +28,21 @@ class CustomCarousel extends Component {
       
 
         <ThumbnailBackgroundView>
-          <CurrentVideoImage source={{ uri: item }} />
-          {/* <CurrentVideoTO
+          
+          <CurrentVideoTO
              onPress={ () => { 
-                console.log("clicked to index", index)
+                // console.log("clicked to index", index)
                 this._carousel.snapToItem(index);
               }}
-          > */}
+          >
+            <Image source={{ uri: item }} style={styles.image}/>
+          </CurrentVideoTO>
             
           
             {/*<NextVideoImage source={{ uri: this.state.currentVideo.nextVideoId }}/>*/}
-            
         </ThumbnailBackgroundView>
+            
+        
         
        
 
@@ -84,7 +87,7 @@ class CustomCarousel extends Component {
 
     return (
 
-      <View style={{width: "100%", backgroundColor: "#fff"}}>
+      
         <Carousel
           
           ref={ (c) => { this._carousel = c; } }
@@ -96,9 +99,9 @@ class CustomCarousel extends Component {
           layout={'default'}
           firstItem={0}
           
-        />
-        {/* { this.pagination } */}
-      </View>
+        /> 
+        
+      
         
       
 
@@ -107,6 +110,21 @@ class CustomCarousel extends Component {
 }
 
 export default CustomCarousel;
+
+const styles = StyleSheet.create({
+  mainContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 250,
+    height: 250,
+  },
+  image: {
+    width: 245,
+    height: 245,
+    borderWidth: 2,
+    borderColor: "#2c2d2d",
+  },
+})
 
 
 const VideoTitleText = styled.Text`

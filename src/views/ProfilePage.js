@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     // justifyContent: 'center',
-    padding: 20, //maybe not enough padding to lower gear Icon row into view, but that solution would be bad practice
+    padding: 5, //maybe not enough padding to lower gear Icon row into view, but that solution would be bad practice
     // backgroundColor: 'white',
     height: height/1.8,
   },
