@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Linking, Dimensions, Text, StyleSheet, View, ScrollView, Platform, Modal, TouchableOpacity, KeyboardAvoidingView, TextInput } from 'react-native';
+import { Linking, Dimensions, Text, StyleSheet, View, ScrollView, Platform, Modal, TouchableOpacity, Keyboard, KeyboardAvoidingView, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ButtonGroup, Button} from 'react-native-elements';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
@@ -76,6 +76,7 @@ class CreateProfile extends Component {
           previousUri: false,
 
           //Keyboard Aware View Stuff
+          keyboardShown: true,
         //   shift: new Animated.Value(0),
       }
   }
@@ -86,6 +87,15 @@ class CreateProfile extends Component {
 //   }
 
   componentDidMount() {
+
+      this.keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      this.keyboardDidShow.bind(this),
+    );
+    this.keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      this.keyboardDidHide.bind(this),
+    );
       //If you navigate here for the purpose of editing your profile, 
       //then you should see your current values, be able to edit them and then save your info.
     var editProfileBoolean = this.props.navigation.getParam('editProfileBoolean', false)
@@ -93,6 +103,19 @@ class CreateProfile extends Component {
         this.getProfile(this.state.uid);
     }
     
+  }
+
+   keyboardDidShow() {
+    this.setState({keyboardShown: true})
+  }
+
+  keyboardDidHide() {
+    this.setState({keyboardShown: false})
+  }
+
+  componentWillUnmount() {
+    this.keyboardDidShowListener.remove();
+    this.keyboardDidHideListener.remove();
   }
 
 //   componentWillUnmount = () => {
@@ -539,25 +562,97 @@ class CreateProfile extends Component {
                     />
                 </View>    
             </View>
-    
-            
+
+
             {
-                !this.state.editProfileBoolean ?
+                Platform.OS == 'ios' ?
+                    <KeyboardAvoidingView behavior={'padding'} keyboardVerticalOffset={80} enabled={this.state.keyboardShown ? true : false}>
+                        {!this.state.editProfileBoolean ?
 
-                <View>
+                        <View>
 
+                            
+
+                            <CustomTextInput maxLength={40} placeholder={"Email Address"} value={this.state.email} onChangeText={email => this.setState({ email })}/>
+
+                            <WhiteSpace height={inputHeightBoost}/>
+
+                            <GrayLine/>
+
+                            <CustomTextInput 
+                            placeholder={"Password"} 
+                            value={this.state.pass} 
+                            onChangeText={pass => this.setState({ pass })}
+                            maxLength={16}
+                            />
+
+                            <WhiteSpace height={inputHeightBoost}/>
+
+                            <GrayLine/>
+
+                            <CustomTextInput 
+                            placeholder={"Retype Password"} 
+                            value={this.state.pass2} 
+                            onChangeText={pass2 => this.setState({ pass2 })}
+                            maxLength={16}
+                            />
+
+                            <WhiteSpace height={inputHeightBoost}/>
+
+                            <GrayLine/>
+                            
                     
+                            {passwordConditionMet ?
+                            <View style={styles.passwordStatusRow}>
+                            <Text style={[styles.passwordStatusText, {color: treeGreen}]}>Passwords Match!</Text>
+                            <Icon 
+                                name="verified" 
+                                size={30} 
+                                color={treeGreen}
+                            />
+                            </View> 
+                            :
+                            <View style={styles.passwordStatusRow}>
+                            <Text style={[styles.passwordStatusText, {color: rejectRed}]}>Passwords Don't Match!</Text>
+                            <Icon 
+                                name="alert-circle" 
+                                size={30} 
+                                color={rejectRed}
+                            />
+                            </View>
+                            
+                            }
+                        </View>
+                        :
+                        null
+                    }   
 
-                    <CustomTextInput maxLength={40} placeholder={"Email Address"} value={this.state.email} onChangeText={email => this.setState({ email })}/>
+                    <CustomTextInput 
+                    placeholder={"First Name"} 
+                    value={this.state.firstName} 
+                    onChangeText={firstName => this.setState({ firstName })}
+                    maxLength={13}
+                    />
+
+                    <WhiteSpace height={inputHeightBoost}/>
+
+                    <GrayLine/> 
+
+                    <CustomTextInput 
+                    placeholder={"Last Name"} 
+                    value={this.state.lastName} 
+                    onChangeText={lastName => this.setState({ lastName })}
+                    maxLength={13}
+                    />
 
                     <WhiteSpace height={inputHeightBoost}/>
 
                     <GrayLine/>
 
                     <CustomTextInput 
-                    placeholder={"Password"} 
-                    value={this.state.pass} 
-                    onChangeText={pass => this.setState({ pass })}
+                    placeholder={"Country"} 
+                    value={this.state.country} 
+                    onChangeText={country => this.setState({ country })}
                     maxLength={16}
                     />
 
@@ -566,175 +661,129 @@ class CreateProfile extends Component {
                     <GrayLine/>
 
                     <CustomTextInput 
-                    placeholder={"Retype Password"} 
-                    value={this.state.pass2} 
-                    onChangeText={pass2 => this.setState({ pass2 })}
+                    placeholder={"Instagram Handle (w/o @)"} 
+                    value={this.state.insta} 
+                    onChangeText={insta => this.setState({ insta })}
                     maxLength={16}
                     />
 
                     <WhiteSpace height={inputHeightBoost}/>
 
                     <GrayLine/>
-                    {/* <Sae
-                        labelStyle={{color: 'black'}}
-                        label={'Email Address'}
-                        iconClass={FontAwesomeIcon}
-                        iconName={'envelope'}
-                        iconColor={'black'}
-                        value={this.state.email}
-                        onChangeText={email => this.setState({ email })}
-                        autoCorrect={false}
-                        inputStyle={{ color: 'black' }}
-                    />
-            
-                    <Sae
-                        labelStyle={{color: darkGray}}
-                        label={'Password'}
-                        iconClass={FontAwesomeIcon}
-                        iconName={'user-secret'}
-                        iconColor={darkGray}
-                        value={this.state.pass}
-                        onChangeText={pass => this.setState({ pass })}
-                        autoCorrect={false}
-                        secureTextEntry
-                        inputStyle={{ color: darkGray }}
-                    />
-                    
-            
-                    <Sae
-                        labelStyle={{color: treeGreen}}
-                        label={'Retype Password'}
-                        iconClass={FontAwesomeIcon}
-                        iconName={'user-secret'}
-                        iconColor={treeGreen}
-                        value={this.state.pass2}
-                        onChangeText={pass2 => this.setState({ pass2 })}
-                        autoCorrect={false}
-                        secureTextEntry
-                        inputStyle={{ color: treeGreen }}
-                    /> */}
-            
-                    {passwordConditionMet ?
-                    <View style={styles.passwordStatusRow}>
-                    <Text style={[styles.passwordStatusText, {color: treeGreen}]}>Passwords Match!</Text>
-                    <Icon 
-                        name="verified" 
-                        size={30} 
-                        color={treeGreen}
-                    />
-                    </View> 
+
+                    <WhiteSpace height={15}/>
+                    </KeyboardAvoidingView>
                     :
-                    <View style={styles.passwordStatusRow}>
-                    <Text style={[styles.passwordStatusText, {color: rejectRed}]}>Passwords Don't Match!</Text>
-                    <Icon 
-                        name="alert-circle" 
-                        size={30} 
-                        color={rejectRed}
-                    />
-                    </View>
+                    <View>
+                    {
+                        !this.state.editProfileBoolean ?
+
+                        <View>
+
+                            <CustomTextInput maxLength={40} placeholder={"Email Address"} value={this.state.email} onChangeText={email => this.setState({ email })}/>
+
+                            <WhiteSpace height={inputHeightBoost}/>
+
+                            <GrayLine/>
+
+                            <CustomTextInput 
+                            placeholder={"Password"} 
+                            value={this.state.pass} 
+                            onChangeText={pass => this.setState({ pass })}
+                            maxLength={16}
+                            />
+
+                            <WhiteSpace height={inputHeightBoost}/>
+
+                            <GrayLine/>
+
+                            <CustomTextInput 
+                            placeholder={"Retype Password"} 
+                            value={this.state.pass2} 
+                            onChangeText={pass2 => this.setState({ pass2 })}
+                            maxLength={16}
+                            />
+
+                            <WhiteSpace height={inputHeightBoost}/>
+
+                            <GrayLine/>
+                            
                     
-                    }
-                </View>
-                :
-                null
-            }   
+                            {passwordConditionMet ?
+                            <View style={styles.passwordStatusRow}>
+                            <Text style={[styles.passwordStatusText, {color: treeGreen}]}>Passwords Match!</Text>
+                            <Icon 
+                                name="verified" 
+                                size={30} 
+                                color={treeGreen}
+                            />
+                            </View> 
+                            :
+                            <View style={styles.passwordStatusRow}>
+                            <Text style={[styles.passwordStatusText, {color: rejectRed}]}>Passwords Don't Match!</Text>
+                            <Icon 
+                                name="alert-circle" 
+                                size={30} 
+                                color={rejectRed}
+                            />
+                            </View>
+                            
+                            }
+                        </View>
+                        :
+                        null
+                    }   
 
-            <CustomTextInput 
-            placeholder={"First Name"} 
-            value={this.state.firstName} 
-            onChangeText={firstName => this.setState({ firstName })}
-            maxLength={13}
-            />
+                    <CustomTextInput 
+                    placeholder={"First Name"} 
+                    value={this.state.firstName} 
+                    onChangeText={firstName => this.setState({ firstName })}
+                    maxLength={13}
+                    />
 
-            <WhiteSpace height={inputHeightBoost}/>
+                    <WhiteSpace height={inputHeightBoost}/>
 
-            <GrayLine/> 
+                    <GrayLine/> 
 
-            <CustomTextInput 
-            placeholder={"Last Name"} 
-            value={this.state.lastName} 
-            onChangeText={lastName => this.setState({ lastName })}
-            maxLength={13}
-            />
+                    <CustomTextInput 
+                    placeholder={"Last Name"} 
+                    value={this.state.lastName} 
+                    onChangeText={lastName => this.setState({ lastName })}
+                    maxLength={13}
+                    />
 
-            <WhiteSpace height={inputHeightBoost}/>
+                    <WhiteSpace height={inputHeightBoost}/>
 
-            <GrayLine/>
+                    <GrayLine/>
 
-            <CustomTextInput 
-            placeholder={"Country"} 
-            value={this.state.country} 
-            onChangeText={country => this.setState({ country })}
-            maxLength={16}
-            />
+                    <CustomTextInput 
+                    placeholder={"Country"} 
+                    value={this.state.country} 
+                    onChangeText={country => this.setState({ country })}
+                    maxLength={16}
+                    />
 
-            <WhiteSpace height={inputHeightBoost}/>
+                    <WhiteSpace height={inputHeightBoost}/>
 
-            <GrayLine/>
+                    <GrayLine/>
 
-            <CustomTextInput 
-            placeholder={"Instagram Handle (w/o @)"} 
-            value={this.state.insta} 
-            onChangeText={insta => this.setState({ insta })}
-            maxLength={16}
-            />
+                    <CustomTextInput 
+                    placeholder={"Instagram Handle (w/o @)"} 
+                    value={this.state.insta} 
+                    onChangeText={insta => this.setState({ insta })}
+                    maxLength={16}
+                    />
 
-            <WhiteSpace height={inputHeightBoost}/>
+                    <WhiteSpace height={inputHeightBoost}/>
 
-            <GrayLine/>
-            
-            {/* <Sae
-                labelStyle={{color: 'black'}}
-                style={styles.nameInput}
-                label={'First Name'}
-                iconClass={Icon}
-                iconName={'account'}
-                iconColor={'black'}
-                value={this.state.firstName}
-                onChangeText={firstName => this.setState({ firstName })}
-                autoCorrect={false}
-                inputStyle={{ color: 'black' }}
-            />
-            <Sae
-                labelStyle={{color: 'gray'}}
-                style={styles.nameInput}
-                label={'Last Name'}
-                iconClass={FontAwesomeIcon}
-                iconName={'users'}
-                iconColor={'gray'}
-                value={this.state.lastName}
-                onChangeText={lastName => this.setState({ lastName })}
-                autoCorrect={false}
-                inputStyle={{ color: 'black' }}
-            /> */}
-            
+                    <GrayLine/>
+
+                    <WhiteSpace height={15}/>
+                    </View>
+            }
     
-            {/* <Sae
-                labelStyle={{color: highlightGreen}}
-                label={'City, Country Abbreviation'}
-                iconClass={FontAwesomeIcon}
-                iconName={'globe'}
-                iconColor={highlightGreen}
-                value={this.state.country}
-                onChangeText={country => this.setState({ country })}
-                autoCorrect={false}
-                inputStyle={{ color: highlightGreen }}
-            />
-
             
-            <Sae
-                labelStyle={{color: profoundPink}}
-                label={'Instagram Handle (w/o @)'}
-                iconClass={FontAwesomeIcon}
-                iconName={'instagram'}
-                iconColor={profoundPink}
-                value={this.state.insta}
-                onChangeText={insta => this.setState({ insta })}
-                autoCorrect={false}
-                inputStyle={{ color: profoundPink }}
-            /> */}
-
-            <WhiteSpace height={15}/>
+            
             
     
             

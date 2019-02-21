@@ -33,6 +33,8 @@ const noResultsFromSearchText = "Your search does not match the description of a
 // const emptyMarketDueToSearchCriteriaText = noResultsFromSearchText;
 // const noResultsFromSearchForSpecificCategoryText = "Your search does not match the description of any product for this specific category 🙁.";
 
+const textAnimationDuration=1000, textAnimationEasing = "linear";
+
 const timeToRefreshAfterLikeOrUnlike = 500;
 var {height, width} = Dimensions.get('window');
 
@@ -809,7 +811,7 @@ class Products extends Component {
       this.props.navigation.navigate('ProductDetails', {data: data, collectionKeys: collectionKeys, productKeys: productKeys})
   }
 
-  renderRow = (section, expandFunction, incrementLikesFunction, decrementLikesFunction, menuExpandFunction) => {
+  renderRow = (section, expandFunction, incrementLikesFunction, decrementLikesFunction, menuExpandFunction, column) => {
     return (
       
       <View
@@ -965,8 +967,8 @@ class Products extends Component {
                   
                 
                 <Animatable.View style={styles.brandAndSizeCol} transition='backgroundColor'>
-                  <Animatable.Text style={styles.contentCardText} animation={section.isActive ? 'bounceInRight' : undefined}>{section.text.brand}</Animatable.Text>
-                  <Animatable.Text style={[styles.contentCardText]} animation={section.isActive ? 'bounceInLeft' : undefined}>{section.text.gender == "Accessories" ? "Accessory" : `Size: ${section.text.size.length > 8 ? section.text.size.substring(0,7) + ".." : section.text.size}`}</Animatable.Text>
+                  <Animatable.Text style={styles.contentCardText} direction={column == 'left' ? 'normal' : 'alternate'} easing={textAnimationEasing} duration={textAnimationDuration} animation={section.isActive ? 'bounceInRight' : undefined}>{section.text.brand}</Animatable.Text>
+                  <Animatable.Text style={[styles.contentCardText]} direction={column == 'left' ? 'normal' : 'alternate'}  easing={textAnimationEasing} duration={textAnimationDuration} animation={section.isActive ? 'bounceInLeft' : undefined}>{section.text.gender == "Accessories" ? "Accessory" : `Size: ${section.text.size.length > 8 ? section.text.size.substring(0,7) + ".." : section.text.size}`}</Animatable.Text>
                 </Animatable.View>
 
                 <Animatable.View style={styles.magnifyingGlassCol} transition='backgroundColor'>
@@ -1301,7 +1303,7 @@ class Products extends Component {
     }
 
     else {
-    console.log('Entered MarketPlace render')
+    // console.log('Entered MarketPlace render')
     return (
 
       
@@ -1336,9 +1338,11 @@ class Products extends Component {
                       let index = this.state.leftProducts.indexOf(rowData);
                       this.state.leftProducts[index].isMenuActive = !this.state.leftProducts[index].isMenuActive;
                       this.setState({leftProducts: this.state.leftProducts});
-                    }
+                    },
+                    "left"
                       
-                  )}
+                  )
+                  }
                   enableEmptySections={true}
                   removeClippedSubviews={false}
               />
@@ -1368,7 +1372,8 @@ class Products extends Component {
                       let index = this.state.rightProducts.indexOf(rowData);
                       this.state.rightProducts[index].isMenuActive = !this.state.rightProducts[index].isMenuActive;
                       this.setState({rightProducts: this.state.rightProducts});
-                    }
+                    },
+                    "right"
                   )}
                   enableEmptySections={true}
                   removeClippedSubviews={false}

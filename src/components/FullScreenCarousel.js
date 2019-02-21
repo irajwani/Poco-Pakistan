@@ -110,8 +110,9 @@ const VideoTitleText = styled.Text`
 
 const CarouselBackgroundView = styled.View`
   background-color: #fff;
-  height: 500;
-  width: 400;
+  ${'' /* 500, 400 */}
+  height: 100%;
+  width: 100%;
 `
 
 const ThumbnailBackgroundView = styled.View`
@@ -128,9 +129,9 @@ const CurrentVideoImage = styled.Image`
   ${'' /* top: 5; */}
   ${'' /* box-shadow: 5px 10px; */}
   ${'' /* 275 */}
-  width: 350;
+  width: 99%;
   ${'' /* 400 */}
-  height: 500; 
+  height: 99%; 
   border-radius: 0;
   border-width: 1;
   border-color: gray
