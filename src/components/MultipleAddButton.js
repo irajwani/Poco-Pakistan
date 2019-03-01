@@ -81,7 +81,10 @@ class MultipleAddButton extends Component {
             <Image 
             source={
               pictureuris === 'nothing here' ? 
-              require('../images/nothing_here.png') 
+                Platform.OS == 'ios' ?
+                  require('../images/nothing_here.png') 
+                  :
+                  {uri: 'asset:/nothing_here.png'}
               :
               {uri: pictureuris[0]} } 
             style={styles.mainPicture} /> 

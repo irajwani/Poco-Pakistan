@@ -131,7 +131,7 @@ class ViewPhotos extends Component {
     const { showSelectedPhotos, showSelectedPhoto, uri, count, pictureuris } = this.state;
     const {params} = this.props.navigation.state;
     const {navToComponent, photoArray} = params;
-    console.log(count, pictureuris);
+    // console.log(count, pictureuris);
     if(showSelectedPhotos) {
       return (
         <View style={styles.selectedPhotoContainer}>

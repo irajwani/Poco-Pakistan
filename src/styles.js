@@ -1,7 +1,7 @@
-import {StyleSheet, Dimensions} from 'react-native'
-import { material, iOSColors, human } from 'react-native-typography';
+import {StyleSheet} from 'react-native'
+// import { material, iOSColors, human } from 'react-native-typography';
 
-const {width, height} = Dimensions.get('window');
+// const {width, height} = Dimensions.get('window');
 
 const styles = StyleSheet.create({
 

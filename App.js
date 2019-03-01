@@ -2,6 +2,22 @@ import React, { Component } from 'react';
 import { SignUpToCreateProfileStack } from './src/stackNavigators/signUpToCreateProfileStack';
 import Test from './src/views/Test';
 
+export default class App extends Component {
+
+  render() {
+    console.disableYellowBox = true;
+    console.log('Initializing Application')
+    
+    return (
+
+      <SignUpToCreateProfileStack/>
+
+    );
+  }
+}
+
+//Android crash fix followed thus far: https://medium.com/@impaachu/react-native-android-release-build-crash-on-device-14f2c9eacf18
+
 // import {Provider} from 'react-redux'
 // import {createStore} from 'redux'
 // import reducer from './src/store/reducer.js'
@@ -26,20 +42,6 @@ import Test from './src/views/Test';
 // import EditItem from './src/views/EditItem.js';
 
 
-
-export default class App extends Component {
-
-  render() {
-    console.disableYellowBox = true;
-    console.log('Initializing Application')
-    
-    return (
-
-      <SignUpToCreateProfileStack/>
-
-    );
-  }
-}
 
 
 
