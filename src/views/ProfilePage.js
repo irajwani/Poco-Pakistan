@@ -13,11 +13,12 @@ import ReviewsList from '../components/ReviewsList.js';
 import { PacmanIndicator } from 'react-native-indicators';
 import { highlightGreen, graphiteGray, avenirNext, mantisGreen,darkGreen,lightGreen,treeGreen, limeGreen } from '../colors.js';
 import { LoadingIndicator } from '../localFunctions/visualFunctions.js';
+import ProgressiveImage from '../components/ProgressiveImage';
 const {width, height} = Dimensions.get('window');
 
 const resizeMode = 'center';
 
-const noReviewsText = "No Reviews have been\n left for you thus far."
+const noReviewsText = "No Reviews have been\n left for you thus far.";
 
 class ProfilePage extends Component {
 
@@ -232,7 +233,12 @@ class ProfilePage extends Component {
 
           <View style={styles.picRow}>
             {this.state.uri ? 
-              <Image style= {styles.profilepic} source={ {uri: this.state.uri} }/>
+              <ProgressiveImage 
+              style= {styles.profilepic} 
+              thumbnailSource={ require('../images/blank.jpg') }
+              source={ {uri: this.state.uri} }
+              
+              />
               : 
               <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>
             } 
@@ -502,7 +508,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderRadius: 65,
     borderColor: '#fff',
-    borderWidth: 0
+    borderWidth: 0,
+    // opacity: 0.1
   },
   name: {
     fontFamily: avenirNext,

@@ -25,6 +25,7 @@ import {avenirNextText} from '../constructors/avenirNextText'
 // var provider = new firebase.auth.GoogleAuthProvider();
 import {lightGray, treeGreen, highlightGreen, lightGreen} from '../colors'
 import { LoadingIndicator } from '../localFunctions/visualFunctions.js';
+import { filterObjectByKeys } from '../localFunctions/arrayFunctions.js';
 // import { withNavigation } from 'react-navigation';
 // const {width,} = Dimensions.get('window');
 
@@ -165,8 +166,11 @@ class SignIn extends Component {
             //if the user isn't new, then re update their notifications (if any)
                 if(d.Users[user.uid].products) {
                     console.log('updating notifications a person should receive based on their products', d.Users[user.uid].products )
-                    var productKeys = d.Users[user.uid].products ? Object.keys(d.Users[user.uid].products) : [];
-                    var yourProducts = all.filter((product) => productKeys.includes(product.key) );
+                    // var productKeys = d.Users[user.uid].products ? Object.keys(d.Users[user.uid].products) : [];
+                    // console.log("Maybe we need a new method to find subset of Products Here: " + JSON.stringify(all), typeof all)
+                    // var yourProducts = filterObjectByKeys(all, productKeys);
+                    // console.log(yourProducts);
+                    // var yourProducts = all.filter((product) => productKeys.includes(product.key) );
                     // console.log(yourProducts)
                     const notifications = d.Users[user.uid].notifications ? d.Users[user.uid].notifications : false
                     if(notifications) {
@@ -205,6 +209,9 @@ class SignIn extends Component {
         console.log('trying to sign with google')
         GoogleSignin.signIn()
         .then((data) => {
+            //TODO: Since "google sign in with account" pop up does not show after person selects an account, 
+            //need a way to unlink google account and revive original chain fully so user may use another google account to sign up
+            //maybe look at other apps
             console.log(data);
             var {idToken, accessToken} = data;
             const credential = firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);
@@ -238,17 +245,17 @@ class SignIn extends Component {
                     //Credential below throws an error if the associated email address already has an account within firebase auth
                     var credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
                     console.log("the credential is:" + credential)
-                    // return firebase.auth().signInAndRetrieveDataWithCredential(credential);
-                    firebase.auth().signInWithCredential(credential)
-                    .then( () => {
-                        console.log("Firebase User Is:" + currentUser);
-                    })
-                    .catch( err => console.log(err));
+                    return firebase.auth().signInWithCredential(credential);
+                    // firebase.auth().signInWithCredential(credential)
+                    // .then( () => {
+                    //     console.log("Firebase User Is:" + currentUser);
+                    // })
+                    // .catch( err => console.log(err));
 
                 } )
                 
                 .then( (currentUser) => {
-                    console.log("Firebase User Is:" + currentUser)
+                    console.log("Firebase User Is:" + currentUser);
                     this.successfulLoginCallback(currentUser, googleUserBoolean = false, facebookUserBoolean = true);
                 })
                 // .catch( (err) => alert('Login failed with error: ' + err))
@@ -376,47 +383,60 @@ class SignIn extends Component {
         var notificationData;
         if(notificationsObj.priceReductions) {
             for(var specificNotification of Object.values(notificationsObj.priceReductions)) {
-                var month = new Date().getMonth() + 1;
-                var date= new Date().getDate();
-                var year = new Date().getFullYear();
-                
-                //send notification four days after NottMyStyle recognizes this product warrants a price reduction.
-                notificationDate = new Date( `${date + 4 > 31 ? month + 1 > 12 ? 1 : month + 1 : month}/${date + 4 > 31 ? 1 : date + 4}/${date + 4 > 31 && month + 1 > 12 ? year + 1 : year}`)
-                
-                // console.log(month, date)
+                if(!specificNotification.localNotificationSent) {
+                    let localNotificationProperty = {};
+                    localNotificationProperty[`/Users/${specificNotification.uid}/notifications/priceReductions/${specificNotification.key}`] = true;
+                    let promiseToScheduleNotification = firebase.database().ref().update(localNotificationProperty);
+                    promiseToScheduleNotification.then( () => {
+                        var month = new Date().getMonth() + 1;
+                        var date= new Date().getDate();
+                        var year = new Date().getFullYear();
+                        
+                        //send notification four days after NottMyStyle recognizes this product warrants a price reduction.
+                        notificationDate = new Date( `${date + 4 > 31 ? month + 1 > 12 ? 1 : month + 1 : month}/${date + 4 > 31 ? 1 : date + 4}/${date + 4 > 31 && month + 1 > 12 ? year + 1 : year}`)
+                        
+                        // console.log(month, date)
+        
+                        //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
+                        // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
+                        // console.log(message);
+                        PushNotification.localNotificationSchedule({
+                            message: specificNotification.message,// (required)
+                            date: notificationDate,
+                            vibrate: false,
+                        });
+                    })
+                        
+                }
 
-                //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
-                // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
-                // console.log(message);
-                PushNotification.localNotificationSchedule({
-                    message: specificNotification.message,// (required)
-                    date: notificationDate,
-                    vibrate: false,
-                });
+                else {
+                    console.log('doing nothing')
+                }
+                
             }
         }
 
-        if(notificationsObj.purchaseReceipts) {
-            for(var specificNotification of Object.values(notificationsObj.purchaseReceipts)) {
+        // if(notificationsObj.purchaseReceipts) {
+        //     for(var specificNotification of Object.values(notificationsObj.purchaseReceipts)) {
                 
                 
-                //send notification 1 hour later
-                notificationDate = new Date();
-                notificationDate.setHours(notificationDate.getHours() + 1); 
+        //         //send notification 1 hour later
+        //         notificationDate = new Date();
+        //         notificationDate.setHours(notificationDate.getHours() + 1); 
                 
-                // console.log(month, date)
+        //         // console.log(month, date)
 
-                //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
-                // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
-                // console.log(message);
-                message = `Your product: ${specificNotification.name} is being posted over by ${specificNotification.sellerName}. Please contact us at nottmystyle.help@gmail.com if it does not arrive in 2 weeks.`
-                PushNotification.localNotificationSchedule({
-                    message: message,// (required)
-                    date: notificationDate,
-                    vibrate: false,
-                });
-            }
-        }
+        //         //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
+        //         // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
+        //         // console.log(message);
+        //         message = `Your product: ${specificNotification.name} is being posted over by ${specificNotification.sellerName}. Please contact us at nottmystyle.help@gmail.com if it does not arrive in 2 weeks.`
+        //         PushNotification.localNotificationSchedule({
+        //             message: message,// (required)
+        //             date: notificationDate,
+        //             vibrate: false,
+        //         });
+        //     }
+        // }
 
         if(notificationsObj.itemsSold) {
             for(var specificNotification of Object.values(notificationsObj.itemsSold)) {

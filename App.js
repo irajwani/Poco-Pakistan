@@ -9,14 +9,16 @@ export default class App extends Component {
     console.log('Initializing Application')
     
     return (
-
+      
       <SignUpToCreateProfileStack/>
 
     );
   }
 }
 
-//Android crash fix followed thus far: https://medium.com/@impaachu/react-native-android-release-build-crash-on-device-14f2c9eacf18
+//Android crash fix followed thus far: https://medium.com/@impaachu/react-native-android-release-build-crash-on-device-14f2c9eacf18:
+
+// react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res
 
 // import {Provider} from 'react-redux'
 // import {createStore} from 'redux'

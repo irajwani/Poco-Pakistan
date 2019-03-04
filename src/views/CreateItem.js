@@ -327,7 +327,11 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
   }
 
   deleteProduct(uid, key) {
-    firebase.database().ref('/Users/' + uid + '/products/' + key)
+    
+    let promiseToUpdateProductsBranch = firebase.database().ref('/Products/' + key).remove();
+    let promiseToDeleteProduct = firebase.database().ref('/Users/' + uid + '/products/' + key).remove();
+    
+    Promise.all([promiseToDeleteProduct, promiseToUpdateProductsBranch])
     .remove( ()=>{
         this.setState({isUploading: false,})
         alert('Your product has been successfully deleted.');

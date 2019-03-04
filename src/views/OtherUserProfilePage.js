@@ -17,6 +17,7 @@ import { LoadingIndicator } from '../localFunctions/visualFunctions.js';
 import { avenirNextText } from '../constructors/avenirNextText.js';
 // import { Hoshi, Sae } from 'react-native-textinput-effects';
 // import { TextField } from 'react-native-material-textfield';
+import ProgressiveImage from '../components/ProgressiveImage';
 const {width, height} = Dimensions.get('window');
 
 const resizeMode = 'center';
@@ -223,7 +224,12 @@ class OtherUserProfilePage extends Component {
 
             <View style={styles.picRow}>
               {uri ? 
-                <Image style= {styles.profilepic} source={ {uri: uri} }/>
+                <ProgressiveImage 
+                style= {styles.profilepic} 
+                thumbnailSource={ require('../images/blank.jpg') }
+                source={ {uri: this.state.uri} }
+                
+                />
                 : 
                 <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>
               } 

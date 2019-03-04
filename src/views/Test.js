@@ -1,54 +1,151 @@
 import React, { Component } from 'react'
-import { Text, View, Modal, TouchableOpacity, WebView, StyleSheet } from 'react-native'
-// const uri = "http://localhost:5000"
-const uri = "https://calm-coast-12842.herokuapp.com";
+import { Text, StyleSheet, View, Image, Animated } from 'react-native'
+import ProgressiveImage from 'react-native-progressive-image'
+
 export default class Test extends Component {
-    state = {
-        showModal: false,
-        status: "pending",
-    }
+  constructor(props) {
+      super(props);
+      this.state = {
+        //   isImageLoading: true
+          load: 'not started', 
+          thumbnailOpacity: new Animated.Value(0),
+          
+      }
+  }
 
-    handleResponse = (data) => {
-        if(data.title == "success") {
-            this.setState({showModal: false, status: "complete"});
-        }
+  onLoad() {
+    Animated.timing(this.state.thumbnailOpacity,
+      {
+        toValue: 0,
+        duration: 250
+      }
+    ).start()
+  }
 
-        else if(data.title == "cancel") {
-            this.setState({showModal: false, status: "canceled"});
-        }
-        else {
-            return;
-        }
-    }
+  onThumbnailLoad() {
+    Animated.timing(this.state.thumbnailOpacity,
+      {
+        toValue: 1,
+        duration: 250
+      }
+    ).start()
+  }
 
-    render() {
-        return (
-            <View style={styles.container}>
-                <Modal visible={this.state.showModal} onRequestClose={() => this.setState({showModal: false})}>
-                    <WebView 
-                    source={{uri: uri}} 
-                    onNavigationStateChange={data => this.handleResponse(data)}
-                    injectedJavaScript={`document.f1.submit()`}/>
-                </Modal>
-                <TouchableOpacity style={styles.button} onPress={() => this.setState({showModal: true})}>
-                    <Text>Pay with PayPal</Text>
-                </TouchableOpacity>
-                <Text>Payment Status: {this.state.status}</Text>
-            </View>
-        )
-    }
+  
+  render() {
+
+    const {load} = this.state;
+    // const asset = require("../images/cb.png");
+    // const inProgressAsset = require("../images/logo.png");
+    // const uri = "https://s.abcnews.com/images/US/polar-bear-gty-hb-180706_hpMain_16x9_992.jpg"
+    const uri = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2NzdT0H6sCLYNo9ItTfDq1d1YiQQv8ROvcZMcfxunkIRfaak";
+    const thumb = require('../images/blank.jpg');
+    // const uris = ["https://firebasestorage.googleapis.com/v0/b/nottmystyle-447aa.appspot.com/o/Users%2FLlCyNHYiypQ8p1fKQWWsOWXkyb53%2Fprofile?alt=media&token=9a9c749e-ffaa-4b9d-97bf-bb9014daecd4", "https://firebasestorage.googleapis.com/v0/b/nottmystyle-447aa.appspot.com/o/Users%2FLlCyNHYiypQ8p1fKQWWsOWXkyb53%2Fprofile?alt=media&token=9a9c749e-ffaa-4b9d-97bf-bb9014daecd4"];
+    return (
+      <View style={{flex: 1,marginTop: 10, flexWrap: 'wrap', flexDirection: 'row'}}>
+        <View style={{flex: 1, height: 200, width: 200}}>
+          <Animated.Image 
+            resizeMode={'contain'}
+            key={1}
+            style={{position: 'absolute', width: 150, height: 150}}
+            source={{uri: uri}}
+            onLoad={this.onLoad}
+          />
+          <Animated.Image 
+            resizeMode={'contain'}
+            key={2}
+            style={{opacity: this.state.thumbnailOpacity, width: 150, height: 150}}
+            source={thumb}
+            onLoad={this.onThumbnailLoad}
+          />
+        </View>
+
+        {/* {[1].map( () => <ProgressiveImage
+          thumbnailSource={{ uri: uri }}
+          imageSource={{ uri: uri}}
+          style={{ width: 200, height: 200 }}
+          imageFadeDuration={250}
+          thumbnailFadeDuration={250}
+          thumbnailBlurRadius={20}
+          onLoadImage={Function.prototype}
+          onLoadThumbnail={Function.prototype}
+        />)} */}
+        {/* {[1,2,3,4,5,6,7,8,9,10,11,12,13,15,17,18,87,98,888,9999,859,897907,55].map( () => (
+            <Image 
+        // onLoadStart={() => this.setState({load: 'in progress'})}
+        // onLoad={()=>this.setState({load: 'done'})}
+        // source={load == "not started" ? asset : load == "in progress" ? inProgressAsset : {uri: uris[0]} } 
+        source={{uri: uri}}
+        loadingIndicatorSource={inProgressAsset}
+        style={{width: 100, height: 100}}
+
+        />
+        ))
+        
+        } */}
+      </View>
+    )
+  }
 }
 
-const styles = StyleSheet.create({
-    container: {
-        marginTop: 22,
-    },
-    button: {
-        width: 300,
-        height: 100
-    }
+const styles = StyleSheet.create({})
 
-})
+
+//Below test is a test of app's ability to open node js project which utilizes PayPal rest sdk to carry out a transaction,
+//and send the user back to the app afterwards.
+
+// import React, { Component } from 'react'
+// import { Text, View, Modal, TouchableOpacity, WebView, StyleSheet } from 'react-native'
+
+// const uri = "http://localhost:5000"
+// const uri = "https://calm-coast-12842.herokuapp.com";
+// export default class Test extends Component {
+//     state = {
+//         showModal: false,
+//         status: "pending",
+//     }
+
+//     handleResponse = (data) => {
+//         if(data.title == "success") {
+//             this.setState({showModal: false, status: "complete"});
+//         }
+
+//         else if(data.title == "cancel") {
+//             this.setState({showModal: false, status: "canceled"});
+//         }
+//         else {
+//             return;
+//         }
+//     }
+
+//     render() {
+//         return (
+//             <View style={styles.container}>
+//                 <Modal visible={this.state.showModal} onRequestClose={() => this.setState({showModal: false})}>
+//                     <WebView 
+//                     source={{uri: uri}} 
+//                     onNavigationStateChange={data => this.handleResponse(data)}
+//                     injectedJavaScript={`document.f1.submit()`}/>
+//                 </Modal>
+//                 <TouchableOpacity style={styles.button} onPress={() => this.setState({showModal: true})}>
+//                     <Text>Pay with PayPal</Text>
+//                 </TouchableOpacity>
+//                 <Text>Payment Status: {this.state.status}</Text>
+//             </View>
+//         )
+//     }
+// }
+
+// const styles = StyleSheet.create({
+//     container: {
+//         marginTop: 22,
+//     },
+//     button: {
+//         width: 300,
+//         height: 100
+//     }
+
+// })
 
 
 

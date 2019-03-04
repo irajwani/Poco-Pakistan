@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import { TouchableWithoutFeedback, Keyboard, ScrollView, View, Text, TextInput, Image, TouchableHighlight, TouchableOpacity, Modal, Dimensions, StyleSheet, Linking, WebView } from 'react-native';
+
+import PushNotification from 'react-native-push-notification';
+
 // import {Button  as RNButton} from 'react-native';
 import {Button} from 'react-native-elements';
 
@@ -483,6 +486,8 @@ class ProductDetails extends Component {
   handleResponse = (data) => {
     if(data.title == "success") {
       // console.log("Payment successfully went through");
+
+      this.initializePushNotifications();
       let productAcquisitionPostData = {
         name: this.state.name, uri: this.props.navigation.state.params.data.uris[0],
         price: this.state.postOrNah == 'post' ? this.state.totalPrice : this.state.price,
@@ -500,7 +505,22 @@ class ProductDetails extends Component {
       let promiseToUpdateSeller = firebase.database().ref().update(productAcquisitionNotificationUpdate);
       Promise.all([promiseToUpdateBuyer, promiseToUpdateSeller])
       .then( () => {
+        
         // console.log("Notifications updated for buyer and seller")
+        // send notification 1 hour later
+        let notificationDate = new Date();
+        notificationDate.setHours(notificationDate.getHours() + 1);
+
+        //         //TODO: in 20 minutes, if user's app is active (maybe it works otherwise too?), they will receive a notification
+        //         // var specificNotificatimessage = `Nobody has initiated a chat about, ${specificNotification.name} from ${specificNotification.brand} yet, since its submission on the market ${specificNotification.daysElapsed} days ago 🤔. Consider a price reduction from £${specificNotification.price} \u2192 £${Math.floor(0.80*specificNotification.price)}?`;
+        //         // console.log(message);
+        let message = `Your product: ${specificNotification.name} is being posted over by ${specificNotification.sellerName}. Please contact us at nottmystyle.help@gmail.com if it does not arrive in 2 weeks.`
+        PushNotification.localNotificationSchedule({
+            message: message,// (required)
+            date: notificationDate,
+            vibrate: false,
+        });
+
         this.setSaleTo(true, this.state.otherUserUid, this.state.sku, true);
         const {params} = this.props.navigation.state;
         this.setState({activeScreen: "afterPaymentScreen", paymentStatus: "success"}, () => this.getUserAndProductAndOtherUserData(params.data));
@@ -554,6 +574,51 @@ class ProductDetails extends Component {
   closePurchaseModal = () => {
     //TODO: clear selected options in deliveryOptions
     this.setState({showPurchaseModal: false });
+  }
+
+  initializePushNotifications = () => {
+    PushNotification.configure({
+
+      // (optional) Called when Token is generated (iOS and Android)
+      onRegister: function(token) {
+          console.log( 'TOKEN:', token );
+      },
+  
+      // (required) Called when a remote or local notification is opened or received
+      onNotification: function(notification) {
+          const {userInteraction} = notification;
+          console.log( 'NOTIFICATION:', notification, userInteraction );
+        //   if(userInteraction) {
+        //     //this.props.navigation.navigate('YourProducts');
+        //     alert("To edit a particular product's details, magnify to show full product details \n Select Edit Item. \n (Be warned, you will have to take new pictures)");
+        //   }
+          
+          //userInteraction ? this.navToEditItem() : console.log('user hasnt pressed notification, so do nothing');
+      },
+  
+      // ANDROID ONLY: GCM Sender ID (optional - not required for local notifications, but is need to receive remote push notifications) 
+      //senderID: "YOUR GCM SENDER ID",
+  
+      // IOS ONLY (optional): default: all - Permissions to register.
+      permissions: {
+          alert: true,
+          badge: true,
+          sound: true
+      },
+  
+      // Should the initial notification be popped automatically
+      // default: true
+      popInitialNotification: true,
+  
+      /**
+        * (optional) default: true
+        * - Specified if permissions (ios) and token (android and ios) will requested or not,
+        * - if not, you must call PushNotificationsHandler.requestPermissions() later
+        */
+      requestPermissions: false,
+  });
+
+
   }
 
   renderPictureModal = () => {
@@ -1172,7 +1237,7 @@ class ProductDetails extends Component {
 
     return (
       <View style={styles.mainContainer}>
-      <View style={styles.headerBar}>
+      <View style={styles.deliveryOptionHeader}>
         <FontAwesomeIcon
         name='arrow-left'
         size={30}
@@ -1180,6 +1245,14 @@ class ProductDetails extends Component {
         onPress = { () => { 
             this.props.navigation.goBack();
             } }
+        />
+
+        <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
+            
+        <FontAwesomeIcon
+          name='close'
+          size={28}
+          color={logoGreen}
         />
       </View>
       <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.contentContainer}>
@@ -1207,9 +1280,9 @@ class ProductDetails extends Component {
             alert('You may like this product directly from the Market')}
             }
             />
-            <View style={{justifyContent: 'center', position: 'absolute', paddingBottom: 5}}>
+            {/* <View style={{justifyContent: 'center', position: 'absolute', paddingBottom: 5}}>
               <Text style={[styles.likes, {color: collectionKeys.includes(params.data.key) ? 'black' : rejectRed} ]}>{params.data.text.likes}</Text>
-            </View>
+            </View> */}
           
           </View> 
           
@@ -1464,7 +1537,7 @@ const styles = StyleSheet.create( {
   },
   scrollContainer: {
     flex: 0.9,
-    marginTop: 10
+    // marginTop: 10
   },
   contentContainer: {
     
@@ -1480,7 +1553,8 @@ const styles = StyleSheet.create( {
     flex: 2,
     justifyContent: 'center',
     alignItems: 'center',
-    // backgroundColor: 'blue',
+    // backgroundColor: 'green',
+    width: "100%"
   },
   backIconAndCarouselContainer: {marginTop: 5, flex: 2, flexDirection: 'row', paddingVertical: 5, paddingRight: 2, paddingLeft: 1 },
   nameAndPriceRow: {
@@ -1773,7 +1847,7 @@ optionalDescriptionRow: {
   paddingHorizontal: 5
 },
 descriptionHeaderContainer: {flex: 0.2,justifyContent: 'center', alignItems: 'flex-start', paddingHorizontal: 0},
-descriptionHeader: new avenirNextText('black', 24, "500") ,
+descriptionHeader: new avenirNextText('black', 24, "300") ,
 descriptionContainer: {
   justifyContent: 'flex-start'
 },

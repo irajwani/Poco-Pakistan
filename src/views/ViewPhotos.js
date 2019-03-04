@@ -135,10 +135,21 @@ class ViewPhotos extends Component {
     if(showSelectedPhotos) {
       return (
         <View style={styles.selectedPhotoContainer}>
-          <View style={{margin: 5, padding: 10, alignItems: 'center'}}>
+          <View style={{flex: 0.5, alignItems: 'center', width: "100%"}}>
             <CustomCarousel data={this.state.pictureuris}/>
           </View>
-          <View style={styles.buttonsColumn}>
+          <View style={[styles.buttonsColumn, {flex: 0.5}]}>
+              
+              <Button  
+              buttonStyle={[styles.ModalButtonStyle, {backgroundColor: highlightGreen}]}
+              
+              title='Satisfied'
+              onPress={() => {
+                  console.log(`navigating to ${navToComponent} with ${this.state.pictureuris}`);
+                  this.props.navigation.navigate(`${navToComponent}`, {pictureuris: this.state.pictureuris} );
+                  }}
+              />
+
               <Button  
               buttonStyle={[styles.ModalButtonStyle, {backgroundColor: 'black'}]}
               icon={{name: 'chevron-left', type: 'material-community'}}
@@ -147,15 +158,7 @@ class ViewPhotos extends Component {
                   this.setState( {showSelectedPhotos: false, pictureuris: []} );
                   }}
               />
-              <Button  
-              buttonStyle={[styles.ModalButtonStyle, {backgroundColor: highlightGreen}]}
-              icon={{name: 'emoticon', type: 'material-community'}}
-              title='Satisfied'
-              onPress={() => {
-                  console.log(`navigating to ${navToComponent} with ${this.state.pictureuris}`);
-                  this.props.navigation.navigate(`${navToComponent}`, {pictureuris: this.state.pictureuris} );
-                  }}
-              />
+
           </View>
         </View>
       )

@@ -26,6 +26,8 @@ import { avenirNextText } from '../constructors/avenirNextText.js';
 import { GrayLine, WhiteSpace, LoadingIndicator } from '../localFunctions/visualFunctions.js';
 import { categories } from '../fashion/sizesAndTypes.js';
 
+const nottAuthEndpoint = `https://calm-coast-12842.herokuapp.com/`;
+
 const emptyMarketText = "Wow, such empty..."
 const noProductsOfYourOwnText = "So far, you have not uploaded any items on the marketplace.\nTo make some cash 🤑 and free up closet space, upload an article of clothing on the Market\nfrom the 'Sell' screen.";
 const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace 💔.";
@@ -203,10 +205,14 @@ class Products extends Component {
   }
 
 
-  componentDidMount = ()=> {
+  componentDidMount = () => {
     
     setTimeout(() => {
-      this.getMarketPlace(this.state.uid)
+      this.getMarketPlace(this.state.uid);
+      setInterval( () => {
+        this.getMarketPlace(this.state.uid);
+      },600000) //10 minutes
+      
     }, 100);
   }
 
@@ -312,11 +318,12 @@ class Products extends Component {
     this.setState({isGetting: true});
     firebase.database().ref().on('value', (snapshot) => {
       var {Products, Users} = snapshot.val();
-      // console.log(Products);
+      console.log(Products, typeof Products);
       if(Products.length < 1) {
         this.setState({isGetting: false, emptyMarket: true});
       }
       else {
+        Products = Object.values(Products);
         const {showCollection, showYourProducts} = this.props;
         var emptyMarket = false;
         var productKeys = [], collectionKeys = [];
@@ -644,6 +651,7 @@ class Products extends Component {
   // }
    
   incrementLikes(likes, uid, key, index, specificArrayOfProducts) {
+    
     //here uid refers to uid of seller so the number of likes for their product may be affected
     //func applies to scenario when heart icon is gray
     //add like to product, and add this product to user's collection; if already in collection, modal shows user
@@ -651,11 +659,11 @@ class Products extends Component {
       //add to current users WishList
       //add a like to the sellers likes count for this particular product
       //unless users already liked this product, in which case, dont do anything
-      if(this.state.collectionKeys.includes(key) == true) {
-        // console.log('show modal that users already liked this product')
-        alert("This product is already in your Wish List.")
-      } 
-      else {
+      // if(this.state.collectionKeys.includes(key) == true) {
+      //   // console.log('show modal that users already liked this product')
+      //   alert("This product is already in your Wish List.")
+      // } 
+      // else {
         // this.setState({isGetting: true});
         var userCollectionUpdates = {};
         userCollectionUpdates['/Users/' + this.state.uid + '/collection/' + key + '/'] = true;
@@ -674,11 +682,12 @@ class Products extends Component {
           //for a little time simulate the goal of this function having been achieved,
           //by locally changing the state to reflect as such
           state[specificArrayOfProducts][index].text.likes += 1;
+          // state[specificArrayOfProducts][key].text.likes += 1;
           state.collectionKeys.push(key);
           this.setState(state);
-          setTimeout(() => {
-            this.getMarketPlace(this.state.uid);  
-          }, timeToRefreshAfterLikeOrUnlike);
+          // setTimeout(() => {
+          //   this.getMarketPlace(this.state.uid);  
+          // }, timeToRefreshAfterLikeOrUnlike);
           
           // alert("This product has been added to your WishList 💕.");
         })
@@ -713,7 +722,7 @@ class Products extends Component {
         
 
 
-      }
+      
       
     
   }
@@ -721,7 +730,7 @@ class Products extends Component {
   decrementLikes(likes, uid, key, index, specificArrayOfProducts) {
     //this func applies when heart icon is red
     // console.log('decrement number of likes');
-    if(this.state.collectionKeys.includes(key) == true) {
+    // if(this.state.collectionKeys.includes(key) == true) {
       var userCollectionUpdates = {};
       let promiseToUpdateCollection = firebase.database().ref().update(userCollectionUpdates);
       userCollectionUpdates['/Users/' + firebase.auth().currentUser.uid + '/collection/' + key + '/'] = false;
@@ -741,17 +750,17 @@ class Products extends Component {
         state[specificArrayOfProducts][index].text.likes -= 1;
         state.collectionKeys = state.collectionKeys.filter( collectionKey => collectionKey != key );
         this.setState(state);
-        setTimeout(() => {
-          this.getMarketPlace(this.state.uid);  
-        }, timeToRefreshAfterLikeOrUnlike);
+        // setTimeout(() => {
+        //   this.getMarketPlace(this.state.uid);  
+        // }, timeToRefreshAfterLikeOrUnlike);
         
         // alert("This product has been added to your WishList 💕.");
       })
-    }
+    
 
-    else {
-      alert('One sec, the marketplace is probably refreshing\n. Like, basically you cannot unlike a product you have not liked yet, you know.' );
-    }
+    // else {
+    //   alert('One sec, the marketplace is probably refreshing\n. Like, basically you cannot unlike a product you have not liked yet, you know.' );
+    // }
 
   }
 
@@ -761,8 +770,10 @@ class Products extends Component {
   }
 
   deleteProduct(uid, key) {
-    firebase.database().ref('/Users/' + uid + '/products/' + key)
-    .remove()
+    let promiseToUpdateProductsBranch = firebase.database().ref('/Products/' + key).remove();
+    let promiseToDeleteProduct = firebase.database().ref('/Users/' + uid + '/products/' + key).remove();
+    
+    Promise.all([promiseToDeleteProduct, promiseToUpdateProductsBranch])
     .then( () => {
         // console.log('product has been successfully removed')
         this.getMarketPlace(this.state.uid);
@@ -1255,14 +1266,7 @@ class Products extends Component {
   render() {
     var {showCollection, showYourProducts} = this.props;
     var {isGetting, emptyMarket, noResultsFromFilter} = this.state;
-    if(isGetting == true) {
-    return ( 
-      <View style={{marginTop: 22, flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff'}}>
-          <LoadingIndicator isVisible={isGetting} color={darkGreen} type={'Wordpress'}/>            
-      </View>
-      )
-    }
-
+    
     if(isGetting == true) {
       return ( 
         <View style={{marginTop: 22, flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff'}}>

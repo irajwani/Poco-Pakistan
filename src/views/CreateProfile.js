@@ -12,7 +12,7 @@ import { iOSColors } from 'react-native-typography';
 import { EulaTop, EulaBottom, TsAndCs, PrivacyPolicy, EulaLink } from '../legal/Documents.js';
 import { confirmBlue, rejectRed, treeGreen, bobbyBlue, highlightGreen, profoundPink, darkBlue, tealBlue, lightGreen, coolBlack, darkGray, logoGreen, fbBlue, lightGray } from '../colors.js';
 import { PacmanIndicator } from 'react-native-indicators';
-import {WhiteSpace, GrayLine} from '../localFunctions/visualFunctions';
+import {WhiteSpace, GrayLine, LoadingIndicator} from '../localFunctions/visualFunctions';
 
 const {width} = Dimensions.get('window');
 const inputHeightBoost = 4;
@@ -26,9 +26,10 @@ window.Blob = Blob;
 
 const { State: TextInputState } = TextInput;
 
-const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize, maxLength}) => (
+const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize, maxLength, secureTextEntry}) => (
     <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
         <TextInput
+        secureTextEntry={secureTextEntry ? true : false}
         style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
         placeholder={placeholder}
         placeholderTextColor={lightGray}
@@ -40,6 +41,7 @@ const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize, maxL
         autoCapitalize={autoCapitalize ? autoCapitalize : 'none'}
         clearButtonMode={'while-editing'}
         underlineColorAndroid={"transparent"}
+        
         />         
     </View>
 )
@@ -161,6 +163,7 @@ class CreateProfile extends Component {
   }
   //Invoked when you 'Accept' EULA as a Google User trying to sign up
   createProfileForGoogleOrFacebookUser = (user, pictureuri) => {
+    console.log('Initiate FB or Google Sign Up')
     this.setState({createProfileLoading: true});
     const {email, pass} = this.state
     var credential = firebase.auth.EmailAuthProvider.credential(email, pass);
@@ -179,18 +182,20 @@ class CreateProfile extends Component {
   //Invoked when you 'Accept' EULA as a User trying to sign up through standard process
   createProfile = (email, pass, pictureuri) => {
       this.setState({createProfileLoading: true});
+      console.log("Initiate Sign Up");
       firebase.auth().createUserWithEmailAndPassword(email, pass)
         .then(() => {
             var unsubscribe = firebase.auth().onAuthStateChanged( ( user ) => {
                 unsubscribe();
                 if(user) {
-                const {uid} = user;
-                this.updateFirebase(this.state, pictureuri, mime = 'image/jpg', uid );
-                // alert('Your account has been created.\nPlease use your credentials to Sign In.');
-                // this.props.navigation.navigate('SignIn'); 
+                    console.log("User Is: " + user)
+                    const {uid} = user;
+                    this.updateFirebase(this.state, pictureuri, mime = 'image/jpg', uid );
+                    // alert('Your account has been created.\nPlease use your credentials to Sign In.');
+                    // this.props.navigation.navigate('SignIn'); 
                 }
                 else {
-                alert('Oops, there was an error with account registration!');
+                    alert('Oops, there was an error with account registration!');
                 }
             })
             }
@@ -234,6 +239,7 @@ class CreateProfile extends Component {
 //   }
 
   updateFirebase(data, uri, mime = 'image/jpg', uid) {
+      console.log('Initiate Firebase Update')
     //TODO: size shouldn't be here
     var updates = {};
     var updateEmptyProducts = {};
@@ -363,7 +369,7 @@ class CreateProfile extends Component {
   }
 
   successfulProfileCreationCallback = (url) => {
-    console.log(url);
+    console.log("Profile Picture Cloud URL is: " + url);
     // this.props.navigation.state.params.googleUserBoolean || this.props.navigation.state.params.googleUserBoolean ? alert('Your account has been created.\nPlease enter your credentials to Sign In from now on.\n') : alert('Your account has been created.\nPlease use your credentials to Sign In.\n'); 
     alert('Your account has been created.\nPlease use your credentials to Sign In.\n'); 
     this.setState({createProfileLoading: false});
@@ -497,6 +503,8 @@ class CreateProfile extends Component {
   render() {
     const {navigation} = this.props;
     const {params} = navigation.state
+
+    const {createProfileLoading} = this.state;
     // console.log(params);
     //TODO: navigation.getParam would do wonders here;
     // var googleUserBoolean = params.googleUserBoolean ? params.googleUserBoolean : false;
@@ -524,10 +532,10 @@ class CreateProfile extends Component {
         googleUserBoolean = true
     }
 
-    if(this.state.createProfileLoading) {
+    if(createProfileLoading) {
         return (
             <View style={styles.loadingIndicatorContainer}>
-                <LoadingIndicator isVisible={this.state.createProfileLoading} color={profoundPink} type={'Wordpress'}/>
+                <LoadingIndicator isVisible={createProfileLoading} color={treeGreen} type={'Wordpress'}/>
             </View>
         )
     }
@@ -584,6 +592,7 @@ class CreateProfile extends Component {
                             value={this.state.pass} 
                             onChangeText={pass => this.setState({ pass })}
                             maxLength={16}
+                            secureTextEntry={true}
                             />
 
                             <WhiteSpace height={inputHeightBoost}/>
@@ -595,6 +604,7 @@ class CreateProfile extends Component {
                             value={this.state.pass2} 
                             onChangeText={pass2 => this.setState({ pass2 })}
                             maxLength={16}
+                            secureTextEntry={true}
                             />
 
                             <WhiteSpace height={inputHeightBoost}/>
@@ -691,6 +701,7 @@ class CreateProfile extends Component {
                             value={this.state.pass} 
                             onChangeText={pass => this.setState({ pass })}
                             maxLength={16}
+                            secureTextEntry={true}
                             />
 
                             <WhiteSpace height={inputHeightBoost}/>
@@ -702,6 +713,7 @@ class CreateProfile extends Component {
                             value={this.state.pass2} 
                             onChangeText={pass2 => this.setState({ pass2 })}
                             maxLength={16}
+                            secureTextEntry={true}
                             />
 
                             <WhiteSpace height={inputHeightBoost}/>
@@ -951,7 +963,7 @@ export default CreateProfile;
 
 const styles = StyleSheet.create({
 
-    LoadingIndicatorContainer: {flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30, backgroundColor: '#fff'},
+    LoadingIndicatorContainer: {flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30, marginTop: 22, backgroundColor: 'green'},
 
     mainContainer: {
         marginTop: 22,

@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, TouchableWithoutFeedback, Keyboard, TouchableOpacity, Text } from 'react-native';
-import { darkGray } from '../colors';
+import { View, TouchableWithoutFeedback, Keyboard, TouchableOpacity, Text, TextInput } from 'react-native';
+import { darkGray, lightGray } from '../colors';
 import Spinner from 'react-native-spinkit';
 import { avenirNextText } from '../constructors/avenirNextText';
 
@@ -35,4 +35,24 @@ const CustomTouchableO = ({onPress, disabled, flex, color, text, textSize, textC
     
 }
 
-export {GrayLine, WhiteSpace, LoadingIndicator, DismissKeyboardView, CustomTouchableO}
+const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize, maxLength, secureTextEntry, keyboardType}) => (
+    <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
+        <TextInput
+        secureTextEntry={secureTextEntry ? true : false}
+        style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
+        placeholder={placeholder}
+        placeholderTextColor={lightGray}
+        onChangeText={onChangeText}
+        value={value}
+        multiline={false}
+        maxLength={maxLength}
+        autoCorrect={false}
+        autoCapitalize={autoCapitalize ? autoCapitalize : 'none'}
+        clearButtonMode={'while-editing'}
+        underlineColorAndroid={"transparent"}
+        keyboardType={keyboardType ? 'default' : 'number-pad'}
+        />         
+    </View>
+)
+
+export {GrayLine, WhiteSpace, LoadingIndicator, DismissKeyboardView, CustomTouchableO, CustomTextInput}
