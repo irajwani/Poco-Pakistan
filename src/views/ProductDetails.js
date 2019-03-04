@@ -123,7 +123,7 @@ class ProductDetails extends Component {
 
   componentDidMount() {
     const {params} = this.props.navigation.state;
-
+    this.initializePushNotifications();
     setTimeout(() => {
       this.getUserAndProductAndOtherUserData(params.data);
     }, 4);
@@ -486,14 +486,14 @@ class ProductDetails extends Component {
   handleResponse = (data) => {
     if(data.title == "success") {
       // console.log("Payment successfully went through");
-
-      this.initializePushNotifications();
+      this.setState({activeScreen: "afterPaymentScreen", paymentStatus: "success"});
+      // this.initializePushNotifications();
       let productAcquisitionPostData = {
         name: this.state.name, uri: this.props.navigation.state.params.data.uris[0],
         price: this.state.postOrNah == 'post' ? this.state.totalPrice : this.state.price,
         sellerName: this.state.profile.name,
         buyerName: this.state.yourProfile.name,
-        address: this.state.selectedAddress,
+        address: this.state.postOrNah == 'post' ? this.state.selectedAddress : false,
         //the message should be different for buyer and seller, so we handle that in SignIn.js
       };
       let productAcquisitionNotificationUpdate = {};
@@ -503,9 +503,19 @@ class ProductDetails extends Component {
       let promiseToUpdateBuyer = firebase.database().ref().update(productAcquisitionNotificationUpdate);
       productAcquisitionNotificationUpdate[sellerRef] = productAcquisitionPostData;
       let promiseToUpdateSeller = firebase.database().ref().update(productAcquisitionNotificationUpdate);
-      Promise.all([promiseToUpdateBuyer, promiseToUpdateSeller])
+
+      var updates={};
+    // var postData = {soldStatus: soldStatus, dateSold: Date.now()}
+      updates['Users/' + this.state.otherUserUid + '/products/' + this.state.sku + '/sold/'] = true;
+      updates['Users/' + this.state.otherUserUid + '/products/' + this.state.sku + '/dateSold/'] = new Date;
+      // updates['Users/' + uid + '/products/' + productKey + '/sold/'] = soldStatus;
+      let promiseToSetProductAsSold = firebase.database().ref().update(updates);
+    //just alert user this product has been marked as sold, and will show as such on their next visit to the app.
+      
+      Promise.all([promiseToUpdateBuyer, promiseToUpdateSeller, promiseToSetProductAsSold])
       .then( () => {
-        
+        const {params} = this.props.navigation.state;
+        this.getUserAndProductAndOtherUserData(params.data);
         // console.log("Notifications updated for buyer and seller")
         // send notification 1 hour later
         let notificationDate = new Date();
@@ -521,9 +531,8 @@ class ProductDetails extends Component {
             vibrate: false,
         });
 
-        this.setSaleTo(true, this.state.otherUserUid, this.state.sku, true);
-        const {params} = this.props.navigation.state;
-        this.setState({activeScreen: "afterPaymentScreen", paymentStatus: "success"}, () => this.getUserAndProductAndOtherUserData(params.data));
+        // this.setSaleTo(true, this.state.otherUserUid, this.state.sku, true);
+        
       })
       .catch( (e) => {
         console.log('failed to update references because' + e);
@@ -812,7 +821,7 @@ class ProductDetails extends Component {
                   {this.state.deliveryOptions[0].options.map( (option, index) => (
 
                     index != 1 ?
-                    <View style={styles.collectionInPersonContainer}>
+                    <View key={index} style={styles.collectionInPersonContainer}>
 
                       <TouchableOpacity 
                       style={[styles.collectionInPersonButton, {width: index == 0 ? chatButtonWidth : paymentButtonWidth}]}
@@ -1174,20 +1183,32 @@ class ProductDetails extends Component {
             
               {this.state.paymentStatus == "success" ? 
               <View style={[deliveryOptionBody, {padding: 10, alignItems: 'center'}]}>
-                
-                <Image source={this.state.productPictureURLs[0]} style={styles.successProductImage} />
-                <Text style={styles.successText}>
-                Congratulations! You have successfully bought {this.state.name} for £{this.state.postOrNah == 'post' ? this.state.totalPrice : this.state.price}.
-                </Text>
-                <WhiteSpace height={10}/>
-                <Text style={styles.successText}>
-                Your item will be delivered to:
-                {this.state.selectedAddress.addressOne + ", " + this.state.selectedAddress.addressTwo + ", " + this.state.selectedAddress.city + ", " + this.state.selectedAddress.postCode}.
-                </Text>
-                <WhiteSpace height={10}/>
-                <Text style={styles.successText}>
-                Please note that it may take up to 2 weeks for the item to arrive via postal delivery. In case your item doesn't arrive, send us an email at nottmystyle.help@gmail.com.
-                </Text>
+
+                <View style={{flex: 0.3, justifyContent: 'center', alignItems: 'center'}}>
+                  <Image source={this.state.productPictureURLs[0]} style={styles.successProductImage} />
+                </View>
+
+                <View style={{flex: 0.7, alignItems: 'center'}}>
+                  <Text style={styles.successText}>
+                  Congratulations! You have successfully bought {this.state.name} for £{this.state.postOrNah == 'post' ? this.state.totalPrice : this.state.price}.
+                  </Text>
+                  <WhiteSpace height={10}/>
+                  {this.state.postOrNah == 'post' ?
+                    <Text style={styles.successText}>
+                    Your item will be delivered to:
+                    {this.state.selectedAddress.addressOne + ", " + this.state.selectedAddress.addressTwo + ", " + this.state.selectedAddress.city + ", " + this.state.selectedAddress.postCode}.
+                    </Text>
+                    :
+                    <Text style={styles.successText}>
+                      You have chosen to collect this item in person.
+                    </Text>
+                  }
+                  <WhiteSpace height={10}/>
+                  <Text style={styles.successText}>
+                  Please note that it may take up to 2 weeks for the item to arrive via postal delivery. In case your item doesn't arrive, send us an email at nottmystyle.help@gmail.com.
+                  </Text>
+                </View>
+
               </View>    
               :
               <View style={[deliveryOptionBody, {alignItems: 'center', justifyContent: 'center', padding: 40}]}>
@@ -1394,28 +1415,7 @@ class ProductDetails extends Component {
             </View>
             <View style={styles.secondaryActionsColumn}>
             {productKeys.includes(data.key) ?
-              this.state.sold ?
-                <View style={styles.confirmSaleActionContainer}>
-                    <Text style={styles.confirmSaleText}>Reset</Text>
-                    <Text style={styles.confirmSaleText}>Sale</Text>
-                    <Icon
-                        name="check-circle" 
-                        size={30}  
-                        color={'#0e4406'}
-                        onPress = {() => {this.setSaleTo(false, data.uid, data.key, false)}}
-                    />
-                </View>
-              :
-                <View style={styles.confirmSaleActionContainer}>
-                  <Text style={styles.confirmSaleText}>Confirm</Text>
-                  <Text style={styles.confirmSaleText}>Sale</Text>
-                  <Icon
-                    name="check-circle" 
-                    size={30}  
-                    color={'gray'}
-                    onPress = {() => {this.setSaleTo(true, data.uid, data.key, false)}}
-                  />
-                </View> 
+              null
             :
               <View style={styles.buyOrReportActionContainer}>
                 <Icon
@@ -1428,7 +1428,6 @@ class ProductDetails extends Component {
                 />
               </View>
               
-            
             }
               
             </View>
@@ -2011,8 +2010,8 @@ addressField: {
 //////////
 /////////
 successProductImage: {
-  width: 60,
-  height: 60,
+  width: 150,
+  height: 150,
 },
 successText: new avenirNextText('black', 18, "300", "left"),
 ////////////
@@ -2069,3 +2068,29 @@ successText: new avenirNextText('black', 18, "300", "left"),
 //   padding: 2,
 // },
 // } )
+
+
+//OLD RESET SALE UI AND FUNCTIONALITY. Put within productKeys.includes(section.key) as alternative to Report Item feature.
+
+{/* this.state.sold ?
+                <View style={styles.confirmSaleActionContainer}>
+                    <Text style={styles.confirmSaleText}>Reset</Text>
+                    <Text style={styles.confirmSaleText}>Sale</Text>
+                    <Icon
+                        name="check-circle" 
+                        size={30}  
+                        color={'#0e4406'}
+                        onPress = {() => {this.setSaleTo(false, data.uid, data.key, false)}}
+                    />
+                </View>
+              :
+                <View style={styles.confirmSaleActionContainer}>
+                  <Text style={styles.confirmSaleText}>Confirm</Text>
+                  <Text style={styles.confirmSaleText}>Sale</Text>
+                  <Icon
+                    name="check-circle" 
+                    size={30}  
+                    color={'gray'}
+                    onPress = {() => {this.setSaleTo(true, data.uid, data.key, false)}}
+                  />
+                </View>  */}

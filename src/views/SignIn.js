@@ -226,7 +226,7 @@ class SignIn extends Component {
             console.log('successfully signed in:', currentUser);
             // console.log(JSON.stringify(currentUser.toJSON()))
         })
-        .catch( (err) => {console.log(err); this.setState({loading: false})})
+        .catch( (err) => {alert(err); this.setState({loading: false})})
     }
 
     signInWithFacebook = () => {
@@ -257,6 +257,10 @@ class SignIn extends Component {
                 .then( (currentUser) => {
                     console.log("Firebase User Is:" + currentUser);
                     this.successfulLoginCallback(currentUser, googleUserBoolean = false, facebookUserBoolean = true);
+                })
+                .catch( err => {
+                    alert("The login failed because: " + err);
+                    this.setState({loading: false});
                 })
                 // .catch( (err) => alert('Login failed with error: ' + err))
                 // alert('Login was successful with permissions: '

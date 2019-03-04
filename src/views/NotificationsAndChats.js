@@ -62,7 +62,7 @@ class Chats extends Component {
     fetch(`${express_app_uri}/?user_id=${yourUid}`)
     .then( (response) => {
       if(response.ok) {
-        console.log(response, JSON.parse(response));
+        console.log(response);
       }
       else {
         throw new Error("Failed to connect")
@@ -628,11 +628,15 @@ class Notifications extends Component {
             Congratulations! Your item, {details.name} has been sold successfully for £{details.price} to {details.buyerName}.
             </Text>
             <WhiteSpace height={10}/>
-            <Text>
+            {details.address ?
+              <Text>
             The buyer's address is:
             {details.address.addressOne + ", " + details.address.addressTwo + ", " + details.address.city + ", " + details.address.postCode}
             </Text>
-            <WhiteSpace height={10}/>
+            :
+            null
+            }
+            {details.address ? <WhiteSpace height={10}/> : null}
             <Text>
             We recommend you send the item over ASAP. after which your payment will be transferred via PayPal.
             </Text>

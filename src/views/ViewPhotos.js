@@ -19,7 +19,7 @@ import { treeGreen, highlightGreen, graphiteGray, optionLabelBlue } from '../col
 import CustomCarousel from '../components/CustomCarousel';
 
 
-const profilePictureText = "Pick a Profile Pictcha:";
+const profilePictureText = "Pick a Profile Picture:";
 const productPictureText = "Pick up to 4 pictures:";
 
 class ViewPhotos extends Component {
