@@ -197,7 +197,7 @@ class ProfilePage extends Component {
     if(isGetting){
       return(
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30}}>
-          <LoadingIndicator isVisible={isGetting} color={'#0baa26'} type={'Wordpress'}/>
+          <LoadingIndicator isVisible={isGetting} color={lightGreen} type={'Wordpress'}/>
         </View>
       )
     }

@@ -16,7 +16,7 @@ export const SignUpToCreateProfileStack = createStackNavigator({
     ViewPhotos: ViewPhotos,
 
     
-    HomeScreen: HomeScreen,
+    // HomeScreen: HomeScreen,
 },
 {   
     initialRouteName: 'SignIn',

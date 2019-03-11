@@ -55,4 +55,27 @@ const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize, maxL
     </View>
 )
 
-export {GrayLine, WhiteSpace, LoadingIndicator, DismissKeyboardView, CustomTouchableO, CustomTextInput}
+const SignInTextInput = ({placeholder, onChangeText, value, secureTextEntry, keyboardType}) => (
+    <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
+        <View style={{position: 'absolute', flex: 1, justifyContent: 'center'}}>
+            <Text style={new avenirNextText('#fff', 20, "200")}>{placeholder}</Text>
+        </View>
+        <TextInput
+        secureTextEntry={secureTextEntry ? true : false}
+        style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
+        placeholder={''}
+        placeholderTextColor={'#fff'}
+        onChangeText={onChangeText}
+        value={value}
+        multiline={false}
+        
+        autoCorrect={false}
+        
+        clearButtonMode={'while-editing'}
+        underlineColorAndroid={"transparent"}
+        keyboardType={keyboardType ? 'email-address' : 'default'}
+        />         
+    </View>
+)
+
+export {GrayLine, WhiteSpace, LoadingIndicator, DismissKeyboardView, CustomTouchableO, CustomTextInput, SignInTextInput}
