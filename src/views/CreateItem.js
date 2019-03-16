@@ -462,9 +462,9 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
         return (
             <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
                 <View style={{height: 200, justifyContent: 'center', alignContent: 'center', alignItems: 'center'}}>
-                    <LoadingIndicator isVisible={isUploading} color={fbBlue} type={'Wordpress'}/>
+                    <LoadingIndicator isVisible={isUploading} color={lightGreen} type={'Wordpress'}/>
                     <WhiteSpace height={20}/>
-                    <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: fbBlue, textAlign: 'center'}}>
+                    <Text style={{paddingVertical: 1, paddingHorizontal: 10, fontFamily: 'Avenir Next', fontSize: 18, fontWeight: '500', color: lightGreen, textAlign: 'center'}}>
                         Your product {this.state.name} is being uploaded to the market. Please do not resubmit the same product.
                     </Text>
                 </View>

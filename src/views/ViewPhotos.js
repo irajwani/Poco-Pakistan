@@ -6,21 +6,22 @@ import {
   ListView,
   StyleSheet,
   Text,
-  TouchableHighlight
+  TouchableHighlight,
+  Dimensions
 
 } from 'react-native';
 import { withNavigation } from 'react-navigation';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import { Button } from 'react-native-elements';
-import { treeGreen, highlightGreen, graphiteGray, optionLabelBlue } from '../colors';
+import { treeGreen, highlightGreen, graphiteGray, optionLabelBlue, darkGreen } from '../colors';
 
 // import SelectedPhoto from './SelectedPhoto';
 import CustomCarousel from '../components/CustomCarousel';
 
-
+const {width} = Dimensions.get('window')
 const profilePictureText = "Pick a Profile Picture:";
-const productPictureText = "Pick up to 4 pictures:";
+const productPictureText = "Choose pictures:";
 
 class ViewPhotos extends Component {
 
@@ -93,8 +94,14 @@ class ViewPhotos extends Component {
           
           
          } }>
-          <View style={{flexDirection: 'column', padding: 5, margin: 5}}>
-            <View style={{flexDirection: 'row', }}>
+          <View style={styles.imageContainer}>
+
+          <Image
+                source={{ uri: rowData.node.image.uri }}
+                style={styles.image} 
+              />
+            <View style={{position: 'absolute', flexDirection: 'row', }}>
+              
               <Icon 
               size={30} 
               color={this.state.pictureuris.includes(uri) ? optionLabelBlue : graphiteGray} 
@@ -102,19 +109,17 @@ class ViewPhotos extends Component {
               name={this.state.pictureuris.includes(uri) ? 'check-circle' : 'check-circle-outline'}
               />
             </View>
-            <Image
-              source={{ uri: rowData.node.image.uri }}
-              style={styles.image} />
+            
           </View>  
         </TouchableHighlight>
       )
     }
-
+// Else case is easier as we just display the singular the user will select
     else if(navToComponent == 'CreateProfile' || navToComponent == 'EditProfile') {
       return (
 
         <TouchableHighlight
-          style={{padding: 5, }}
+          style={styles.imageContainer}
           onPress={() => {
             this.setState({ showSelectedPhoto: true, uri: uri })
             } }>
@@ -202,9 +207,9 @@ class ViewPhotos extends Component {
 
           <View style={styles.backIconContainer}>
             <FontAwesomeIcon
-              name='chevron-circle-left'
-              size={45}
-              color={'#76ce1e'}
+              name='arrow-left'
+              size={35}
+              color={'black'}
               onPress = { () => { 
                 this.props.navigation.navigate(`${navToComponent}`);
                   } }
@@ -223,7 +228,7 @@ class ViewPhotos extends Component {
               <Icon
                 name={this.state.pictureuris.length > 0 ? "check-circle" : "check-circle-outline"}
                 size={45}  
-                color={this.state.pictureuris.length > 0 ? '#76ce1e' : 'gray'}
+                color={this.state.pictureuris.length > 0 ? darkGreen : 'black'}
                 onPress={this.state.pictureuris.length > 0 ? () => this.setState({showSelectedPhotos: true}) : null}
               />
             </View>
@@ -281,13 +286,19 @@ const styles = StyleSheet.create({
   },
 
   list: {
+    flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap'
   },
 
+  imageContainer: {
+  padding: 0, marginVertical: 3, marginHorizontal: 1, 
+  shadowOpacity: 0.5,shadowRadius: 1.3,shadowColor: 'black',shadowOffset: {width: 0, height: 0},
+},
+
   image: { 
-    height: 120, 
-    width: 120, 
+    height: 180, 
+    width: 0.9*(width/2) , 
     // zIndex: -1, 
     // position: 'absolute', 
     // top: 0, 
@@ -297,9 +308,10 @@ const styles = StyleSheet.create({
     // resizeMode: 'cover',
     // marginLeft: 10,
     // marginTop: 10,
-    borderRadius: 5,
-    borderWidth: 2,
-    borderColor: 'black' 
+    // borderRadius: 5,
+    // borderWidth: 0,
+  
+    // borderColor: 'black' 
 },
 
   selectedPhotoContainer: {

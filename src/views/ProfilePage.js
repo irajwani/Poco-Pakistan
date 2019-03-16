@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dimensions, Text, StyleSheet, ScrollView, View, Image, TouchableHighlight } from 'react-native'
+import { Dimensions, Text, StyleSheet, ScrollView, View, Image, TouchableHighlight, TouchableOpacity } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Button, Divider} from 'react-native-elements'
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
@@ -11,6 +11,8 @@ import { iOSColors, iOSUIKit, human } from 'react-native-typography';
 import LinearGradient from 'react-native-linear-gradient'
 import ReviewsList from '../components/ReviewsList.js';
 import { PacmanIndicator } from 'react-native-indicators';
+import { avenirNextText } from '../constructors/avenirNextText';
+
 import { highlightGreen, graphiteGray, avenirNext, mantisGreen,darkGreen,lightGreen,treeGreen, limeGreen } from '../colors.js';
 import { LoadingIndicator } from '../localFunctions/visualFunctions.js';
 import ProgressiveImage from '../components/ProgressiveImage';
@@ -55,6 +57,7 @@ class ProfilePage extends Component {
       isGetting: true,
       noComments: false,
       gradient: this.gradientColors[0],
+      isMenuActive: false
 
     }
 
@@ -72,7 +75,7 @@ class ProfilePage extends Component {
     console.log(your_uid);
     const keys = [];
     //read the value of refreshed cloud db so a user may seamlessly transition from registration to profile page
-    firebase.database().ref().once("value", (snapshot) => {
+    firebase.database().ref().on("value", (snapshot) => {
       var d = snapshot.val();
       // console.log(d.val(), d.Users, your_uid);
       var soldProducts = 0;
@@ -101,11 +104,11 @@ class ProfilePage extends Component {
       var comments;
       if(d.Users[your_uid].comments) {
         comments = d.Users[your_uid].comments;
-        this.setState({ name, country, uri, insta, numberProducts, soldProducts, comments })
+        this.setState({ name, country, uri, insta, numberProducts, soldProducts, comments, isGetting: false })
         // this.setState({comments})
       }
       else {
-        this.setState({ name, country, uri, insta, numberProducts, soldProducts, noComments: true })
+        this.setState({ name, country, uri, insta, numberProducts, soldProducts, noComments: true, isGetting: false })
       }
       
       // console.log(comments);
@@ -117,7 +120,8 @@ class ProfilePage extends Component {
       // console.log(name);
       
     })
-    .then(() => this.setState({isGetting: false}))
+    //TODO: line below is Major removal from NMS, uncommenting it may prove unwise
+    // .then(() => this.setState({isGetting: false}))
 
     // ////////////////
 
@@ -184,6 +188,14 @@ class ProfilePage extends Component {
     this.setState({gradient: this.gradientColors[index]})
   }
 
+  navToEditProfile = () => {
+    this.props.navigation.navigate('CreateProfile', {editProfileBoolean: true})
+  }
+
+  toggleMenu = () => {
+    this.setState({isMenuActive: !this.state.isMenuActive})
+  }
+
   render() {
     var {isGetting, comments, gradient} = this.state;
     // console.log(comments, 'the user has no comments, perfectly harmless');
@@ -212,8 +224,8 @@ class ProfilePage extends Component {
         
         <View style={styles.header}>
 
-         <View style={styles.gearAndPicColumn}>
-          <View style={styles.gearRow}>
+         
+          <View style={styles.iconColumn}>
             <Icon 
               name="settings" 
               size={30} 
@@ -221,42 +233,70 @@ class ProfilePage extends Component {
               onPress={() => this.props.navigation.navigate('Settings')}
 
             />
-            <Icon 
-              name="logout" 
-              size={30} 
-              color={'#020002'}
-              onPress={() => {
-                firebase.auth().signOut().then( () => {this.props.navigation.navigate('SignIn'); alert("You have successfully logged out")})
-              }}
-            />
+            
           </View>  
 
-          <View style={styles.picRow}>
-            {this.state.uri ? 
+          <View style={styles.profileColumn}>
+            {this.state.uri ?
+            <TouchableOpacity onPress={this.navToEditProfile}>
               <ProgressiveImage 
               style= {styles.profilepic} 
               thumbnailSource={ require('../images/blank.jpg') }
               source={ {uri: this.state.uri} }
               
               />
+            </TouchableOpacity> 
               : 
               <Image style= {styles.profilepic} source={require('../images/blank.jpg')}/>
-            } 
-          </View>  
-         </View>     
-            
-
-            
-
-          <View style={styles.profileTextColumn}>
+            }
             <Text style={styles.name}>{this.state.name}</Text>
             <Text style={styles.pos}>{this.state.country}</Text>
             {this.state.insta ? 
               <Text style={styles.insta}>@{this.state.insta}</Text>
              : 
               null
+            } 
+          </View>  
+
+          <View style={styles.iconColumn}>
+
+            {this.state.isMenuActive ?
+              <Icon 
+              name={"chevron-down"} 
+              size={40} 
+              color={'#fff'}
+              onPress={this.toggleMenu}
+              
+              />
+            :
+              <Icon 
+                name={"logout"} 
+                size={30} 
+                color={'#020002'}
+                onPress={this.toggleMenu}
+                
+              />
             }
+            
+            {this.state.isMenuActive ? 
+              
+              <TouchableOpacity
+              underlayColor={'transparent'} 
+              onPress={() => {
+                  firebase.auth().signOut().then( () => {this.props.navigation.navigate('SignIn');})
+                }}  
+              style={styles.popDownMenu}>
+              <Text
+                  
+                style={new avenirNextText('black', 13, "300")}>Log Out</Text>
+                
+                
+              </TouchableOpacity>
+              :
+              null
+              }
           </View>
+              
 
           
 
@@ -285,8 +325,8 @@ class ProfilePage extends Component {
       
       
       <View style={styles.footerContainer} >
-
-        <ScrollView contentContainerStyle={styles.halfPageScroll}>
+      {/* Reviews Section contained within this flex-box */}
+      <ScrollView style={styles.halfPageScrollContainer} contentContainerStyle={styles.halfPageScroll}>
           <View style={ {backgroundColor: '#fff'} }>
           <Text style={styles.reviewsHeader}>REVIEWS</Text>
           {this.state.noComments ? null : Object.keys(comments).map(
@@ -305,10 +345,10 @@ class ProfilePage extends Component {
                           <Image style= {styles.commentPic} source={ require('../images/companyLogo2.jpg') }/>
                         }
                           
-                        <View style={styles.textContainer}>
+                        <TouchableOpacity onPress={()=>this.navToOtherUserProfilePage(comments[comment].uid)} style={styles.textContainer}>
                             <Text style={ styles.commentName }> {comments[comment].name} </Text>
                             <Text style={styles.comment}> {comments[comment].text}  </Text>
-                        </View>
+                        </TouchableOpacity>
 
                       </View>
 
@@ -318,7 +358,9 @@ class ProfilePage extends Component {
 
                       </View>
 
-                      {comments[comment].uri ? <View style={styles.separator}/> : null}
+                      
+
+                      {/* {comments[comment].uri ? <View style={styles.separator}/> : null} */}
                       
                   </View>
                   
@@ -365,8 +407,18 @@ export default ProfilePage;
 
 const styles = StyleSheet.create({
   
-  halfPageScroll: {
+  halfPageScrollContainer: {
+    flex: 1,
+    width: width,
+    backgroundColor: "#fff",
     
+  },
+  halfPageScroll: {
+    backgroundColor: "#fff",
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+    justifyContent: 'space-evenly'
   },
   mainContainer: {
     flex: 1,
@@ -386,11 +438,51 @@ const styles = StyleSheet.create({
 
   header: {
     flex: 1,
-    alignItems: 'center',
+    flexDirection: 'row',
+    // alignItems: 'center',
     // justifyContent: 'center',
-    padding: 5, //maybe not enough padding to lower gear Icon row into view, but that solution would be bad practice
+    padding: 0, //maybe not enough padding to lower gear Icon row into view, but that solution would be bad practice
     // backgroundColor: 'white',
-    height: height/1.8,
+    // height: height/1.8,
+  },
+
+  iconColumn: {
+    flex: 0.25,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginVertical: 25,
+    // backgroundColor: 'red'
+    // height: 150,
+  },
+
+  profileColumn: {
+    flex: 0.5,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    marginBottom: 10
+  },
+
+  triangle: {
+    width: 0,
+    height: 0,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderLeftWidth: 25,
+    borderRightWidth: 25,
+    borderBottomWidth: 50,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: 'white'
+  },
+
+  popDownMenu: {
+    width: 55,
+    height: 35,
+    borderRadius: 8,
+    borderWidth: 0.3,
+    backgroundColor: "white",
+    justifyContent: 'center',
+    alignItems: 'center'
   },
 
   gearAndPicColumn: {
@@ -514,9 +606,10 @@ const styles = StyleSheet.create({
   name: {
     fontFamily: avenirNext,
     marginTop: 5,
-    fontSize: 24,
+    fontSize: 22,
     color: '#fff',
-    fontWeight: 'normal'
+    fontWeight: 'normal',
+    textAlign: 'center'
   },
   numberProducts: {
     fontFamily: avenirNext,
@@ -567,28 +660,39 @@ const styles = StyleSheet.create({
     paddingRight: 25
 
 }, 
-naam: {
-  ...iOSUIKit.caption2,
-  fontSize: 11,
-  color: '#37a1e8'
+// naam: {
+//   ...iOSUIKit.caption2,
+//   fontSize: 11,
+//   color: '#37a1e8'
 
-},
+// },
 
-title: {
-  ...human.headline,
-  fontSize: 20,
-  color: '#656565'
-},
+// title: {
+//   ...human.headline,
+//   fontSize: 20,
+//   color: '#656565'
+// },
 
 reviewsHeader: {
   fontFamily: 'Avenir Next',
   fontSize: 24,
   fontWeight: "normal",
-  paddingLeft: 10
+  // paddingLeft: 10
 },
 
 commentContainer: {
   flexDirection: 'column',
+  borderWidth: 0,
+  borderRadius: 10,
+  width: width - 15,
+  backgroundColor: "#fff",
+  shadowOpacity: 0.5,
+  shadowRadius: 1.3,
+  shadowColor: 'black',
+  shadowOffset: {width: 0, height: 0},
+  padding: 5,
+  marginVertical: 4
+
 },
 
 commentPicAndTextRow: {
@@ -629,7 +733,7 @@ commentTimeRow: {
 commentTime: {
   textAlign: "right",
   fontSize: 16,
-  color: iOSColors.black
+  color: 'black'
 },
 
 rowContainer: {

@@ -583,6 +583,7 @@ class Notifications extends Component {
       //when one selects a specific notification, use the notificationType to determine what structure of details
       //to expect and use the details themselves of course, so set these 2 values in state
       console.log('show notification details');
+      // let promiseToMarkRead = firebase.database
       this.setState({showDetails: true, details, notificationType, })
     }
 

@@ -314,6 +314,7 @@ class SignIn extends Component {
 //now that person has input text, their email and password are here
         firebase.auth().signInWithEmailAndPassword(email, pass)
             .then(() => {
+                console.log("Have I affected auth behavior?")
                 //This function behaves as an authentication listener for user. 
                 //If user signs in, we only use properties about the user to:
                 //1. notifications update on cloud & local push notification scheduled notifications 4 days from now for each product that deserves a price reduction.
@@ -619,7 +620,7 @@ class SignIn extends Component {
                                 </TouchableOpacity>
                             </View>
                             <View style={{flex: 0.90, justifyContent: 'center', alignItems: 'flex-start'}}>
-                                <Text style={new avenirNextText("#fff", 14, "300")}>Remember Username & Password</Text>
+                                <Text onPress={this.toggleSaveUsernamePass} style={new avenirNextText("#fff", 14, "300")}>Remember Username & Password</Text>
                             </View>
                         </View>
 

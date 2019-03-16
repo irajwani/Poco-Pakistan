@@ -519,7 +519,7 @@ class CreateProfile extends Component {
     var pictureuris = navigation.getParam('pictureuris', "nothing here");
     // console.log(pictureuris);
     (this.state.previousUri && pictureuris == "nothing here") ? pictureuris = [this.state.previousUri] : null;
-    console.log(pictureuris);
+    // console.log(pictureuris);
     // console.log(pictureuris[0].includes('googleusercontent'))
     // console.log(googleUser, googleUserBoolean, pictureuris);
     var conditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1) && (this.state.pass == this.state.pass2) && (this.state.pass.length >= 6);
@@ -963,7 +963,17 @@ export default CreateProfile;
 
 const styles = StyleSheet.create({
 
-    LoadingIndicatorContainer: {flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30, marginTop: 22, backgroundColor: 'green'},
+    loadingIndicatorContainer: {
+        flex: 1, 
+        // height: "100%",
+        // width: "100%",
+        // left: 0,
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        padding: 15, 
+        marginTop: 22, 
+        backgroundColor: '#fff'
+    },
 
     mainContainer: {
         marginTop: 22,

@@ -279,7 +279,7 @@ class OtherUserProfilePage extends Component {
           {/* Other User's Reviews */}
       <View style={styles.footerContainer} >
 
-        <ScrollView contentContainerStyle={styles.halfPageScroll}>
+      <ScrollView contentContainerStyle={styles.halfPageScroll}>
           <View style={ {backgroundColor: '#fff'} }>
 
           <View style={styles.reviewsHeaderContainer}>
@@ -299,19 +299,17 @@ class OtherUserProfilePage extends Component {
                       <View style={styles.commentPicAndTextRow}>
 
                         {comments[comment].uri ?
-                        <TouchableHighlight style={styles.commentPic} onPress={
-                          ()=>{yourUid == comments[comment].uid ? this.props.navigation.navigate('Profile') : this.loadRelevantData(yourUid, comments[comment].uid)} }
-                        >
+                        <TouchableHighlight style={styles.commentPic} onPress={()=>{yourUid == comments[comment].uid ? this.props.navigation.navigate('Profile') : this.loadRelevantData(yourUid, comments[comment].uid)} }>
                           <Image style= {styles.commentPic} source={ {uri: comments[comment].uri} }/>
                         </TouchableHighlight>  
                         :
                           <Image style= {styles.commentPic} source={ require('../images/companyLogo2.jpg') }/>
                         }
                           
-                        <View style={styles.textContainer}>
+                        <TouchableOpacity onPress={()=>{yourUid == comments[comment].uid ? this.props.navigation.navigate('Profile') : this.loadRelevantData(yourUid, comments[comment].uid)} } style={styles.textContainer}>
                             <Text style={ styles.commentName }> {comments[comment].name} </Text>
                             <Text style={styles.comment}> {comments[comment].text}  </Text>
-                        </View>
+                        </TouchableOpacity>
 
                       </View>
 
@@ -441,7 +439,11 @@ export default OtherUserProfilePage;
 
 const styles = StyleSheet.create({
   halfPageScroll: {
-    
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+    justifyContent: 'space-evenly'
   },
   mainContainer: {
     flex: 1,
@@ -679,6 +681,17 @@ reviewsHeader: {
 
 commentContainer: {
   flexDirection: 'column',
+  borderWidth: 0,
+  borderRadius: 10,
+  width: width - 15,
+  backgroundColor: "#fff",
+  shadowOpacity: 0.5,
+  shadowRadius: 1.3,
+  shadowColor: 'black',
+  shadowOffset: {width: 0, height: 0},
+  padding: 5,
+  marginVertical: 4
+
 },
 
 commentPicAndTextRow: {
