@@ -9,6 +9,7 @@ import { multipleAddButtonToMultiplePictureCameraToCreateItemStack } from '../st
 import { wishListToProductDetailsOrChatOrCommentsStack } from '../stackNavigators/wishListToProductDetailsOrChatOrCommentsStack';
 import { ChatsToCustomChatStack } from '../stackNavigators/chatsToCustomChatStack';
 import { highlightGreen } from '../colors';
+import { BadgeIcon } from '../localFunctions/visualFunctions';
 
 const HomeScreen = TabNavigator(
             {
@@ -30,6 +31,7 @@ const HomeScreen = TabNavigator(
                 
                 tabBarIcon: ({ focused, tintColor }) => {
                   const { routeName } = navigation.state;
+                  let unreadCount = navigation.getParam('unreadCount', false);
                   let iconName;
                   let iconSize = 25;
                   if (routeName === 'Profile') {
@@ -38,11 +40,13 @@ const HomeScreen = TabNavigator(
                     iconName = 'shopping';
                   } else if (routeName === 'Sell') {
                       iconName = 'plus-circle-outline';
-                      iconSize = 35;
+                      // iconSize = 30;
                     }
 
                     else if (routeName === 'Chats') {
                       iconName = 'forum';
+                      // IconComponent = BadgeIcon;
+                      return <BadgeIcon name={iconName} size={iconSize} color={tintColor} unreadCount={unreadCount} />;
                     }
 
                     else if (routeName === 'WishList') {
@@ -51,7 +55,8 @@ const HomeScreen = TabNavigator(
           
                   // You can return any component that you like here! We usually use an
                   // icon component from react-native-vector-icons
-                  return <Icon name={iconName} size={iconSize} color={tintColor} />;
+                  return <BadgeIcon name={iconName} size={iconSize} color={tintColor} unreadCount={unreadCount} />;
+                  // return 
                 },
               }),
               tabBarComponent: TabBarBottom,

@@ -495,6 +495,9 @@ class ProductDetails extends Component {
         buyerName: this.state.yourProfile.name,
         address: this.state.postOrNah == 'post' ? this.state.selectedAddress : false,
         //the message should be different for buyer and seller, so we handle that in SignIn.js
+
+        //as this is a new notification, mark it as unread
+        isRead: false
       };
       let productAcquisitionNotificationUpdate = {};
       let buyerRef = `/Users/${this.state.uid}/notifications/purchaseReceipts/${this.state.sku}/`;

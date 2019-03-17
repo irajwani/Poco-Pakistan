@@ -79,6 +79,7 @@ class OtherUserProfilePage extends Component {
     let otherUserUid = this.props.navigation.state.params.uid;
     setTimeout(() => {
       this.loadRelevantData(this.state.uid, otherUserUid);
+      this.loadReviews(otherUserUid);  
       this.timerId = setInterval(() => {
         this.loadReviews(otherUserUid);  
       }, 20000);
@@ -696,12 +697,12 @@ commentContainer: {
   flexDirection: 'column',
   borderWidth: 0,
   borderRadius: 10,
-  width: width - 15,
+  // width: width - 15,
   backgroundColor: "#fff",
-  shadowOpacity: 0.5,
-  shadowRadius: 1.3,
-  shadowColor: 'black',
-  shadowOffset: {width: 0, height: 0},
+  // shadowOpacity: 0.5,
+  // shadowRadius: 1.3,
+  // shadowColor: 'black',
+  // shadowOffset: {width: 0, height: 0},
   padding: 5,
   marginVertical: 4
 

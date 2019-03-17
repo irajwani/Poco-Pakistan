@@ -13,7 +13,38 @@ export default class AuthLoadingScreen extends Component {
   showAppOrAuth = () => {
     var unsubscribe = firebase.auth().onAuthStateChanged( ( user ) => {
         unsubscribe();
-        this.props.navigation.navigate(user ? 'AppStack' : 'AuthStack');
+        // this.props.navigation.navigate(user ? 'AppStack' : 'AuthStack');
+        if(user) {
+          
+          var unreadCount = false
+          
+          firebase.database().ref(`/Users/${user.uid}/`).once('value', (snap) => {
+            var d = snap.val();
+
+            if(d.notifications.priceReductions) {
+              console.log("Notifications length: " + Object.keys(d.notifications.priceReductions).length)
+              // unreadCount = Object.keys(d.notifications.priceReductions).length; 
+              Object.values(d.notifications.priceReductions).forEach( (n) => {
+                if(n.unreadCount) {
+                  unreadCount = true
+                }
+              })
+              
+            }
+
+          })
+          .then(() => {
+            this.props.navigation.navigate('AppStack', {unreadCount: unreadCount});
+          })
+          .catch( (e) => {
+            console.log(e);
+          })
+          
+        }
+
+        else {
+          this.props.navigation.navigate('AuthStack');
+        }
     })
   }
 

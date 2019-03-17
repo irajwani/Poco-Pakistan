@@ -3,6 +3,7 @@ import { View, TouchableWithoutFeedback, Keyboard, TouchableOpacity, Text, TextI
 import { darkGray, lightGray } from '../colors';
 import Spinner from 'react-native-spinkit';
 import { avenirNextText } from '../constructors/avenirNextText';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const GrayLine = () => (
     <View style={{backgroundColor: darkGray, height: 0.5}}/>
@@ -78,4 +79,30 @@ const SignInTextInput = ({placeholder, onChangeText, value, secureTextEntry, key
     </View>
 )
 
-export {GrayLine, WhiteSpace, LoadingIndicator, DismissKeyboardView, CustomTouchableO, CustomTextInput, SignInTextInput}
+const BadgeIcon = ({name, size, color, unreadCount}) => (
+    <View style={{ width: 35, height: 35, margin: 5, justifyContent: 'center', alignItems: 'center' }}>
+        <Icon name={name} size={size} color={color}/>
+        { unreadCount ? 
+          <View style={{
+            // If you're using react-native < 0.57 overflow outside of the parent
+            // will not work on Android, see https://git.io/fhLJ8
+            position: 'absolute',
+            // right: -6,
+            // top: -3,
+            // backgroundColor: '#fff,
+            borderRadius: 6,
+            width: 17,
+            height: 17,
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+            <Text style={{ color: 'red', fontSize: 10, fontWeight: 'bold' }}>YO</Text>
+          </View>
+        
+        :
+        null
+        }
+    </View>
+)
+
+export {GrayLine, WhiteSpace, LoadingIndicator, DismissKeyboardView, CustomTouchableO, CustomTextInput, SignInTextInput, BadgeIcon}
