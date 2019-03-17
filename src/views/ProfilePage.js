@@ -309,14 +309,14 @@ class ProfilePage extends Component {
       
       <View style={styles.midContainer}>
         
-          <View style={styles.numberCard}>
+          <View style={[styles.numberCard, {borderRightWidth: 1}]}>
             <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.numberProducts}>{this.state.numberProducts} </Text>
             <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.subText}>ON SALE</Text>
           </View>
 
-          <Divider style={{  flex: 1, backgroundColor: graphiteGray, height: 80, marginVertical: 3 }} />
+          {/* <Divider style={{  flex: 1, backgroundColor: graphiteGray, height: 80, marginVertical: 3 }} /> */}
 
-          <View style={styles.numberCard}>
+          <View style={[styles.numberCard, {borderLeftWidth: 1}]}>
             <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.numberProducts}>{this.state.soldProducts} </Text>
             <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.subText}>SOLD</Text>
           </View>    
@@ -416,14 +416,15 @@ const styles = StyleSheet.create({
   halfPageScroll: {
     backgroundColor: "#fff",
     justifyContent: 'center',
-    alignItems: 'center',
+    // alignItems: 'center',
     padding: 10,
     justifyContent: 'space-evenly'
   },
   mainContainer: {
     flex: 1,
     flexDirection: 'column',
-    padding: 0
+    padding: 0,
+    // marginTop: 18
   },
   headerContainer: {
     flex: 4, //4/7
@@ -459,7 +460,7 @@ const styles = StyleSheet.create({
     flex: 0.5,
     justifyContent: 'flex-end',
     alignItems: 'center',
-    marginBottom: 10
+    marginBottom: 20
   },
 
   triangle: {
@@ -541,6 +542,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignContent: 'center',
     alignItems: 'center',
+    borderColor: graphiteGray,
     // width: width/2 - 20,
     // height: 60,
     //55
@@ -548,9 +550,8 @@ const styles = StyleSheet.create({
     // paddingBottom: 5,
     // paddingLeft: 30,
     // paddingRight: 30,
-    borderWidth: 0,
-    borderColor: '#020202',
-    borderRadius: 0,
+    
+    // borderRadius: 0,
   },
 
   subText: {
@@ -626,7 +627,7 @@ const styles = StyleSheet.create({
   ,
   pos: {
     fontFamily: avenirNext,
-    fontSize: 18,
+    fontSize: 16,
     color: '#fff',
     fontWeight: '300',
     // fontStyle: 'italic'
@@ -677,6 +678,7 @@ reviewsHeader: {
   fontFamily: 'Avenir Next',
   fontSize: 24,
   fontWeight: "normal",
+  textAlign: 'left'
   // paddingLeft: 10
 },
 

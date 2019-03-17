@@ -772,8 +772,11 @@ class Products extends Component {
   deleteProduct(uid, key) {
     let promiseToUpdateProductsBranch = firebase.database().ref('/Products/' + key).remove();
     let promiseToDeleteProduct = firebase.database().ref('/Users/' + uid + '/products/' + key).remove();
+
+    //Additionally, schedule deletion of any priceReductionNotification notifications that affect this product
+    let promiseToDeleteNotifications = firebase.database().ref('/Users/' + uid + '/notifications/priceReductions/' + key).remove();
     
-    Promise.all([promiseToDeleteProduct, promiseToUpdateProductsBranch])
+    Promise.all([promiseToDeleteProduct, promiseToUpdateProductsBranch, promiseToDeleteNotifications])
     .then( () => {
         // console.log('product has been successfully removed')
         this.getMarketPlace(this.state.uid);

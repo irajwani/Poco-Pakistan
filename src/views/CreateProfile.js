@@ -267,11 +267,14 @@ class CreateProfile extends Component {
     //         console.log('no gender was specified')
     // }
 
+    //In case user enters a handle with an @ preceding it,
+    data.insta = data.insta ? data.insta[0] == '@' ? data.insta.replace('@', '') : data.insta : '';
+
     var postData = {
         name: data.firstName + " " + data.lastName, //data.firstName.concat(" ", data.lastName)
         country: data.country,
         // size: data.size,
-        insta: data.insta ? data.insta : '',
+        insta: data.insta,
         //TODO: Add user uid here to make navigation to their profile page easier. 
         //Occam's razor affirms the notion: To have it available to append to any branch later, it must exist for the first time at the source.
     }
@@ -355,7 +358,7 @@ class CreateProfile extends Component {
                     this.setState({createProfileLoading: false, modalVisible: false}, 
                         () => {
                             // console.log('DONE DONE DONE');
-                            this.props.navigation.navigate('SignIn'); 
+                            this.props.navigation.navigate('AppStack'); 
                         })
                 }
                 else {
@@ -369,11 +372,11 @@ class CreateProfile extends Component {
   }
 
   successfulProfileCreationCallback = (url) => {
-    console.log("Profile Picture Cloud URL is: " + url);
+    // console.log("Profile Picture Cloud URL is: " + url);
     // this.props.navigation.state.params.googleUserBoolean || this.props.navigation.state.params.googleUserBoolean ? alert('Your account has been created.\nPlease enter your credentials to Sign In from now on.\n') : alert('Your account has been created.\nPlease use your credentials to Sign In.\n'); 
-    alert('Your account has been created.\nPlease use your credentials to Sign In.\n'); 
-    this.setState({createProfileLoading: false});
-    this.props.navigation.navigate('SignIn');
+    // alert('Your account has been created.\nPlease use your credentials to Sign In.\n'); 
+    this.setState({createProfileLoading: false, modalVisible: false});
+    this.props.navigation.navigate('AppStack');
   }
 
   ///////////////////////
@@ -487,7 +490,7 @@ class CreateProfile extends Component {
                             })
                     }
                     else {
-                        alert('Your profile has successfully been updated!'); 
+                        // alert('Your profile has successfully been updated!'); 
                         this.setState({createProfileLoading: false});
                         this.props.navigation.navigate('ProfilePage');
                     }

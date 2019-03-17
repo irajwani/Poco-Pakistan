@@ -65,20 +65,25 @@ class OtherUserProfilePage extends Component {
 
   }
 
-  componentWillMount() {
-    //Whenever someone navigates to this page, load the relevant data to render this page.
-    //We need the current user's uid to extract information about blocked users.
-    setTimeout(() => {
-      this.loadRelevantData(this.state.uid, this.props.navigation.state.params.uid)  
-    }, 500);
+  // componentWillMount() {
+  //   //Whenever someone navigates to this page, load the relevant data to render this page.
+  //   //We need the current user's uid to extract information about blocked users.
+  //   setTimeout(() => {
+  //     this.loadRelevantData(this.state.uid, this.props.navigation.state.params.uid);
+
+  //   }, 500);
     
-  }
+  // }
 
   componentDidMount() {
-
-    this.timerId = setInterval(() => {
-      this.loadRelevantData(this.state.uid, this.props.navigation.state.params.uid)  
-    }, 12000);
+    let otherUserUid = this.props.navigation.state.params.uid;
+    setTimeout(() => {
+      this.loadRelevantData(this.state.uid, otherUserUid);
+      this.timerId = setInterval(() => {
+        this.loadReviews(otherUserUid);  
+      }, 20000);
+    }, 100);
+      
   }
 
   componentWillUnmount() {
@@ -86,18 +91,18 @@ class OtherUserProfilePage extends Component {
   }
 
   loadRelevantData = (yourUid, otherUserUid) => {
-    this.setState({isGetting: true})
-    firebase.database().ref().once('value', (snap) => {
+    this.setState({isGetting: true});
+    firebase.database().ref('/Users/').on('value', (snap) => {
       var d = snap.val();
 
-      const yourProfile = d.Users[yourUid].profile;
+      let yourProfile = d[yourUid].profile;
 
-      var rawUsersBlocked = d.Users[yourUid].usersBlocked ? d.Users[yourUid].usersBlocked : {};
+      var rawUsersBlocked = d[yourUid].usersBlocked ? d[yourUid].usersBlocked : {};
       var yourUsersBlocked = removeFalsyValuesFrom(rawUsersBlocked);
       // console.log(yourUsersBlocked);
 
-      const profile = d.Users[otherUserUid].profile;
-      const {name, country, insta, uri} = profile;
+      let profile = d[otherUserUid].profile;
+      let {name, country, insta, uri} = profile;
 
       //get collection keys of current user
       // var collection = d.Users[uid].collection ? d.Users[uid].collection : null;
@@ -106,32 +111,40 @@ class OtherUserProfilePage extends Component {
 
       var soldProducts = 0, numberProducts = 0;
       //get profile data of seller of product
-      if(typeof d.Users[otherUserUid].products === 'object') {
-        for(var p of Object.values(d.Users[otherUserUid].products)) {
+      if(typeof d[otherUserUid].products === 'object') {
+        for(var p of Object.values(d[otherUserUid].products)) {
           if(p.sold) {
             soldProducts++
           }
         }
         
-        var numberProducts = Object.keys(d.Users[otherUserUid].products).length;
+        var numberProducts = Object.keys(d[otherUserUid].products).length;
       }
       
 
-      var date = (new Date()).getDate();
-      var month = (new Date()).getMonth();
-      var year = (new Date()).getFullYear();
+      // var date = (new Date()).getDate();
+      // var month = (new Date()).getMonth();
+      // var year = (new Date()).getFullYear();
 
+      this.setState({yourProfile, usersBlocked: yourUsersBlocked, yourUid: yourUid, otherUserUid: otherUserUid, profile, name, country, insta, uri, soldProducts, numberProducts, isGetting: false})
+    })
+  }
+
+  loadReviews = () => {
+    // this.setState({isGetting: true});
+    firebase.database().ref(`/Users/${otherUserUid}/`).on('value', (snap) => { 
+      var d = snap.val();
       var comments;
-      if(d.Users[otherUserUid].comments) {
-        comments = d.Users[otherUserUid].comments;
+      if(d[otherUserUid].comments) {
+        comments = d[otherUserUid].comments;
       }
       else {
         comments = {a: 'nothing'}
         // comments = {a: {text: 'Write a review for this seller using the comment field below.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
       }
-
-      this.setState({yourProfile, usersBlocked: yourUsersBlocked, yourUid: yourUid, otherUserUid: otherUserUid, profile, name, country, insta, uri, soldProducts, numberProducts, comments, isGetting: false})
+      this.setState({comments});
     })
+
   }
 
   showBlockOrReport = () => {

@@ -330,9 +330,11 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
     
     let promiseToUpdateProductsBranch = firebase.database().ref('/Products/' + key).remove();
     let promiseToDeleteProduct = firebase.database().ref('/Users/' + uid + '/products/' + key).remove();
-    
-    Promise.all([promiseToDeleteProduct, promiseToUpdateProductsBranch])
-    .remove( ()=>{
+    //Additionally, schedule deletion of any priceReductionNotification notifications that affect this product
+    let promiseToDeleteNotifications = firebase.database().ref('/Users/' + uid + '/notifications/priceReductions/' + key).remove();
+
+    Promise.all([promiseToDeleteProduct, promiseToUpdateProductsBranch, promiseToDeleteNotifications])
+    .then( ()=>{
         this.setState({isUploading: false,})
         alert('Your product has been successfully deleted.');
         this.props.navigation.popToTop();
