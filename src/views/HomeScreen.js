@@ -10,6 +10,10 @@ import { wishListToProductDetailsOrChatOrCommentsStack } from '../stackNavigator
 import { ChatsToCustomChatStack } from '../stackNavigators/chatsToCustomChatStack';
 import { highlightGreen } from '../colors';
 import { BadgeIcon } from '../localFunctions/visualFunctions';
+import firebase from '../cloud/firebase';
+import getUnreadCount from '../localFunctions/dbFunctions';
+
+// const uid = firebase.auth().currentUser.uid;
 
 const HomeScreen = TabNavigator(
             {
@@ -31,7 +35,9 @@ const HomeScreen = TabNavigator(
                 
                 tabBarIcon: ({ focused, tintColor }) => {
                   const { routeName } = navigation.state;
-                  let unreadCount = navigation.getParam('unreadCount', false);
+                  // const unreadCount = navigation.getParam('unreadCount', false);
+                  let unreadCount = getUnreadCount(firebase.auth().currentUser.uid);
+                  console.log("Is it true that one deserves notification badge?" + unreadCount);
                   let iconName;
                   let iconSize = 25;
                   if (routeName === 'Profile') {
@@ -55,7 +61,7 @@ const HomeScreen = TabNavigator(
           
                   // You can return any component that you like here! We usually use an
                   // icon component from react-native-vector-icons
-                  return <BadgeIcon name={iconName} size={iconSize} color={tintColor} unreadCount={unreadCount} />;
+                  return <BadgeIcon name={iconName} size={iconSize} color={tintColor} unreadCount={false} />;
                   // return 
                 },
               }),

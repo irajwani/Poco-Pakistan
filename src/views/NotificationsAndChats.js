@@ -13,6 +13,7 @@ import { LoadingIndicator, CustomTouchableO, WhiteSpace } from '../localFunction
 
 import { withNavigation } from 'react-navigation';
 
+
 // const express_app_uri = "http://localhost:5000/leaveYourRooms";
 const express_app_uri = "https://calm-coast-12842.herokuapp.com/leaveYourRooms"
 const noChatsText = "You have not initiated any chats 😳. Choose a product from the marketplace and then converse with the seller about your preferred method of payment (Cash or PayPal), and if whether you'd like the item posted to you or not.";
@@ -40,7 +41,7 @@ class Chats extends Component {
   }
 
   componentWillMount() {
-    var your_uid = firebase.auth().currentUser.uid;
+    var your_uid = this.props.uid;
     setTimeout(() => {
       this.getChats(your_uid);
     }, 1000);
@@ -519,7 +520,7 @@ class Notifications extends Component {
       //get chats for particular user
       firebase.database().ref().once("value", (snapshot) => {
         var d = snapshot.val();
-        const uid = firebase.auth().currentUser.uid;
+        const uid = this.props.uid;
         if(d.Users[uid].notifications) {
           const notifications = d.Users[uid].notifications 
           this.setState({notifications});
@@ -557,13 +558,13 @@ class Notifications extends Component {
             
             <View key={index} style={styles.specificChatContainer}>
   
-              <TouchableOpacity onPress={() => this.showDetails(notifs[notification],notificationType)} style={styles.pictureContainer}>
+              <TouchableOpacity onPress={() => this.showDetails(notifs[notification],notificationType, notification)} style={styles.pictureContainer}>
                 <Image 
                 source={require("../images/nottmystyleLogo.png")} 
                 style={[styles.picture, {borderRadius: 35}]} />
               </TouchableOpacity>
   
-              <TouchableOpacity onPress={() => this.showDetails(notifs[notification],notificationType)} style={styles.textContainer}>
+              <TouchableOpacity onPress={() => this.showDetails(notifs[notification],notificationType, notification)} style={styles.textContainer}>
                 <Text style={styles.otherPersonName}>{notificationHeaderText}</Text>
                 <Text style={styles.lastMessageText}>{notificationType}</Text>
                 
@@ -579,12 +580,35 @@ class Notifications extends Component {
   
     }
   
-    showDetails = (details, notificationType) => {
+    showDetails = (details, notificationType, key) => {
       //when one selects a specific notification, use the notificationType to determine what structure of details
       //to expect and use the details themselves of course, so set these 2 values in state
       console.log('show notification details');
-      // let promiseToMarkRead = firebase.database
-      this.setState({showDetails: true, details, notificationType, })
+      if(details.unreadCount) {
+        var updates = {};
+        switch(notificationType) {
+          case "Price Reduction Alert":
+            updates[`/Users/${this.props.uid}/notifications/priceReductions/${key}/unreadCount`] = false
+            break;
+          case "Purchase Receipt":
+            updates[`/Users/${this.props.uid}/notifications/purchaseReceipts/${key}/unreadCount`] = false
+            break;
+          default:
+            updates[`/Users/${this.props.uid}/notifications/itemsSold/${key}/unreadCount`] = false
+            break
+        }
+        let promiseToMarkRead = firebase.database().update(updates);
+        promiseToMarkRead.then( () => {
+          this.setState({showDetails: true, details, notificationType, })
+        })
+        
+      }
+
+      else {
+        this.setState({showDetails: true, details, notificationType, })
+      }
+      
+      
     }
 
     renderDetailsModal = () => {
@@ -787,11 +811,54 @@ class NotificationsAndChats extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            showChats: true
+            showChats: true,
+            isGetting: true,
+            unreadCount: 0,
+
+            uid: false
         }
     }
 
+    componentWillMount = () => {
+      this.setState({uid: firebase.auth().currentUser.uid})
+    }
+
+    componentDidMount() {
+      setTimeout(() => {
+        this.getNotificationsCount();
+        setInterval(() => {
+          this.getNotificationsCount();
+        }, 20000);
+      }, 1);
+    }
+  
+    getNotificationsCount() {
+      //get chats for particular user
+      firebase.database().ref(`/Users/${this.state.uid}`).once("value", (snapshot) => {
+        var d = snapshot.val();
+        let unreadCount = 0
+        if(d.notifications.priceReductions) {
+          
+          Object.values(d.notifications.priceReductions).forEach( n => {
+            if(n.unreadCount) {
+              unreadCount += 1
+            }
+          })
+          
+        } 
+
+        this.setState({unreadCount, isGetting: false});
+        
+        
+        
+      })
+      .then( () => { this.setState( {isGetting: false} );  } )
+      .catch( (err) => {console.log(err) })
+      
+    }
+
     renderUpperNavTab = () => {
+
         return (
           <View style={styles.upperNavTab}>
     
@@ -800,7 +867,14 @@ class NotificationsAndChats extends Component {
             </TouchableOpacity>
             
             <TouchableOpacity disabled={this.state.showChats ? false : true} onPress={()=>this.setState({showChats: false})} style={[styles.upperNavTabButton, !this.state.showChats ? {borderBottomColor: highlightGreen, borderBottomWidth: 1} : null]}>
-              <Text style={[styles.upperNavTabText, !this.state.showChats ? {color: highlightGreen} : null]}>Notifications</Text>
+              <Text style={[styles.upperNavTabText, !this.state.showChats ? {color: highlightGreen} : null]}>Updates</Text>
+              {this.state.unreadCount ?
+                <View style={styles.notificationCountContainer}>
+                  <Text style={{color: '#fff', fontSize: 17, fontWeight: '300'}}>{this.state.unreadCount}</Text>
+                </View>
+                :
+                null
+              }
             </TouchableOpacity>
             
           </View>
@@ -808,16 +882,30 @@ class NotificationsAndChats extends Component {
       }
 
     render() {
-        return (
+        if(this.state.isGetting) {
+          return (
+            <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
+              <LoadingIndicator isVisible={this.state.isGetting} color={'black'} type={'Wordpress'}/>
+            </View>
+          )
+        }
+
+        else {
+          return (
             <View style={styles.container}>
+              
                 {this.renderUpperNavTab()}
                 {this.state.showChats ?
-                  <Chats navigationProperty={this.props.navigation}/>
+                  <Chats uid={this.state.uid} navigationProperty={this.props.navigation}/>
                 :
-                  <Notifications/>
+                  <Notifications uid={this.state.uid}/>
                 }
+              
+                
             </View>
         )
+        }
+        
     }
 }
 
@@ -852,6 +940,12 @@ const styles = StyleSheet.create({
   },
 
   upperNavTabText: new avenirNextText('black', 18, "300"),
+
+  notificationCountContainer: { 
+    justifyContent: 'center', alignItems: 'center',
+    right: 15,position: 'absolute',
+     borderRadius: 10, width: 20, height: 20, backgroundColor: treeGreen
+  },
   ////////////////
   screen: { flex: 0.85, backgroundColor: '#fff' },
 

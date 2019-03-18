@@ -91,8 +91,9 @@ class Settings extends Component {
         style={[section.settings.length == 1 ? styles.shortContentCard : styles.contentCard, isActive ? styles.active : styles.inactive]}
         transition="backgroundColor"
       >
-        {section.settings.map( (setting) => (
+        {section.settings.map( (setting, index) => (
           <Animatable.Text 
+            key={index}
             onPress={ section.settings.length == 1 ? 
             () => {this.props.navigation.navigate('CreateProfile', {editProfileBoolean: true})}
             :

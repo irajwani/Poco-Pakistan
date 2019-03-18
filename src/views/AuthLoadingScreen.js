@@ -13,38 +13,38 @@ export default class AuthLoadingScreen extends Component {
   showAppOrAuth = () => {
     var unsubscribe = firebase.auth().onAuthStateChanged( ( user ) => {
         unsubscribe();
-        // this.props.navigation.navigate(user ? 'AppStack' : 'AuthStack');
-        if(user) {
+        this.props.navigation.navigate(user ? 'AppStack' : 'AuthStack');
+        // if(user) {
           
-          var unreadCount = false
+        //   var unreadCount = false
           
-          firebase.database().ref(`/Users/${user.uid}/`).once('value', (snap) => {
-            var d = snap.val();
+        //   firebase.database().ref(`/Users/${user.uid}/`).once('value', (snap) => {
+        //     var d = snap.val();
 
-            if(d.notifications.priceReductions) {
-              console.log("Notifications length: " + Object.keys(d.notifications.priceReductions).length)
-              // unreadCount = Object.keys(d.notifications.priceReductions).length; 
-              Object.values(d.notifications.priceReductions).forEach( (n) => {
-                if(n.unreadCount) {
-                  unreadCount = true
-                }
-              })
+        //     if(d.notifications.priceReductions) {
+        //       console.log("Notifications length: " + Object.keys(d.notifications.priceReductions).length)
+        //       // unreadCount = Object.keys(d.notifications.priceReductions).length; 
+        //       Object.values(d.notifications.priceReductions).forEach( (n) => {
+        //         if(n.unreadCount) {
+        //           unreadCount = true //in this case we only care if whether at least one notification has this property
+        //         }
+        //       })
               
-            }
+        //     }
 
-          })
-          .then(() => {
-            this.props.navigation.navigate('AppStack', {unreadCount: unreadCount});
-          })
-          .catch( (e) => {
-            console.log(e);
-          })
+        //   })
+        //   .then(() => {
+        //     this.props.navigation.navigate('Profile', {unreadCount: unreadCount});
+        //   })
+        //   .catch( (e) => {
+        //     console.log(e);
+        //   })
           
-        }
+        // }
 
-        else {
-          this.props.navigation.navigate('AuthStack');
-        }
+        // else {
+        //   this.props.navigation.navigate('AuthStack');
+        // }
     })
   }
 
