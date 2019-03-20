@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Platform, Text, TextInput, StyleSheet, View, TouchableHighlight, TouchableOpacity, ScrollView } from 'react-native'
+import { Platform, Text, TextInput, Image, StyleSheet, View, TouchableHighlight, TouchableOpacity, ScrollView } from 'react-native'
 import {withNavigation} from 'react-navigation';
 // import { Jiro } from 'react-native-textinput-effects';
 // import NumericInput from 'react-native-numeric-input' 
@@ -12,6 +12,8 @@ import MultipleAddButton from '../components/MultipleAddButton';
 import ProductLabel from '../components/ProductLabel.js';
 // import {signInContainer} from '../styles.js';
 import firebase from '../cloud/firebase.js';
+
+import ImageResizer from 'react-native-image-resizer';
 // import Chatkit from "@pusher/chatkit";
 // import { CHATKIT_SECRET_KEY, CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT } from '../credentials/keys';
 // import * as Animatable from 'react-native-animatable';
@@ -80,6 +82,10 @@ class CreateItem extends Component {
           oldUploadDate: item ? item.text.time : false,
 
           /////////
+
+          /////RESIZE IMAGE STUFF
+          resizedImage: false,
+
       }
   }
 
@@ -218,7 +224,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
     
 
     return {
-        database: firebase.database().ref().update(updates),
+        // database: firebase.database().ref().update(updates),
         storage: this.uploadToStore(pictureuris, uid, actualPostKey)
     }
 
@@ -227,50 +233,70 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
   uploadToStore = (pictureuris, uid, postKey) => {
     //sequentially add each image to cloud storage (pay attention to .child() method) 
     //and then retrieve url to upload on realtime db
-    var picturesProcessed = 0;  
-    pictureuris.forEach( (uri, index, array) => {
-        var storageUpdates = {};
-        if(uri.includes('firebasestorage')) {
-            storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/' + index + '/'] = uri;
-            firebase.database().ref().update(storageUpdates);
-            picturesProcessed++;
-            if(picturesProcessed == array.length) {
-                this.callBackForProductUploadCompletion();
-            }
-        }
+    var picturesProcessed = 0;
+    const uploadUri = Platform.OS === 'ios' ? pictureuris[1].replace('file://', '') : uri
+    ImageResizer.createResizedImage(uploadUri,20, 20,'JPEG',80)
+    .then( newUri => {
+        console.log("Resized Image: " + newUri)
+        this.setState({resizedImage: newUri})
+    })
+    
+    // pictureuris.forEach( (uri, index, array) => {
 
-        else {
-            const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
-            let uploadBlob = null
-            const imageRef = firebase.storage().ref().child(`Users/${uid}/${postKey}/${index}`);
-            fs.readFile(uploadUri, 'base64')
-            .then((data) => {
-            return Blob.build(data, { type: `${mime};BASE64` })
-            })
-            .then((blob) => {
-            console.log('got to blob')
-            uploadBlob = blob
-            return imageRef.put(blob, { contentType: mime })
-            })
-            .then(() => {
-            uploadBlob.close()
-            return imageRef.getDownloadURL()
-            })
-            .then((url) => {
-                console.log(url);
-                storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/' + index + '/'] = url;
-                firebase.database().ref().update(storageUpdates);
-                picturesProcessed++;
-                if(picturesProcessed == array.length) {
-                    this.callBackForProductUploadCompletion();
-                }
-            })
-        }
+
+
+    //     if(uri.includes('firebasestorage')) { 
+
+    //     }
+    //     else {
+            
+    //     }
+        
+    // })
+
+    // pictureuris.forEach( (uri, index, array) => {
+    //     var storageUpdates = {};
+    //     if(uri.includes('firebasestorage')) {
+    //         storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/' + index + '/'] = uri;
+    //         firebase.database().ref().update(storageUpdates);
+    //         picturesProcessed++;
+    //         if(picturesProcessed == array.length) {
+    //             this.callBackForProductUploadCompletion();
+    //         }
+    //     }
+
+    //     else {
+    //         const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
+    //         let uploadBlob = null
+    //         const imageRef = firebase.storage().ref().child(`Users/${uid}/${postKey}/${index}`);
+    //         fs.readFile(uploadUri, 'base64')
+    //         .then((data) => {
+    //         return Blob.build(data, { type: `${mime};BASE64` })
+    //         })
+    //         .then((blob) => {
+    //         console.log('got to blob')
+    //         uploadBlob = blob
+    //         return imageRef.put(blob, { contentType: mime })
+    //         })
+    //         .then(() => {
+    //         uploadBlob.close()
+    //         return imageRef.getDownloadURL()
+    //         })
+    //         .then((url) => {
+    //             console.log(url);
+    //             storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/' + index + '/'] = url;
+    //             firebase.database().ref().update(storageUpdates);
+    //             picturesProcessed++;
+    //             if(picturesProcessed == array.length) {
+    //                 this.callBackForProductUploadCompletion();
+    //             }
+    //         })
+    //     }
         
         
         
 
-    } )
+    // } )
 
     // for(const uri of pictureuris) {
     //     var i = 0;
@@ -489,7 +515,8 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
             <Divider style={{  backgroundColor: '#fff', height: 8 }} />
 
             <MultipleAddButton navToComponent = {'CreateItem'} pictureuris={pictureuris}/>
-
+            {pictureuris[1] ? <Image style={{width: 60, height: 60}} source={{uri: pictureuris[1]}} /> : null}
+            {this.state.resizedImage ? <Image style={{width: 60, height: 60}} source={{uri: this.state.resizedImage}}/> : null}
             <WhiteSpace height={10}/>
             
         

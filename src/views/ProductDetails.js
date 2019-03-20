@@ -89,7 +89,8 @@ class ProductDetails extends Component {
         name: '',
         email: '',
       },
-      collectionKeys: [3],
+      collectionKeys: this.props.navigation.state.params.collectionKeys ? this.props.navigation.state.params.collectionKeys : [3],
+      likes: this.props.navigation.state.params.data.text.likes,
       showFullDescription: false,
       productComments: '',
       showPictureModal: false,
@@ -232,6 +233,120 @@ class ProductDetails extends Component {
     .then( () => {
       this.setState({isGetting: false})
     })
+  }
+
+  incrementLikes = (likes, key) => {
+    
+    //here uid refers to uid of seller so the number of likes for their product may be affected
+    //func applies to scenario when heart icon is gray
+    //add like to product, and add this product to user's collection; if already in collection, modal shows user
+    //theyve already liked the product
+      //add to current users WishList
+      //add a like to the sellers likes count for this particular product
+      //unless users already liked this product, in which case, dont do anything
+      // if(this.state.collectionKeys.includes(key) == true) {
+      //   // console.log('show modal that users already liked this product')
+      //   alert("This product is already in your Wish List.")
+      // } 
+      // else {
+        // this.setState({isGetting: true});
+        var userCollectionUpdates = {};
+        userCollectionUpdates['/Users/' + this.state.uid + '/collection/' + key + '/'] = true;
+        let promiseToUpdateCollection = firebase.database().ref().update(userCollectionUpdates);
+        //since we don't want the user to add another like to the product,
+        //tack on his unique contribution to the seller's product's total number of likes
+        var updates = {};
+        likes += 1;
+        var postData = likes;
+        updates['/Users/' + this.state.otherUserUid + '/products/' + key + '/likes/'] = postData;
+        let promiseToUpdateProductLikes = firebase.database().ref().update(updates);
+        Promise.all([promiseToUpdateCollection, promiseToUpdateProductLikes])
+        .then( () => {
+          const {...state} = this.state;
+          
+          //for a little time simulate the goal of this function having been achieved,
+          //by locally changing the state to reflect as such
+          state.likes += 1;
+          // state[specificArrayOfProducts][key].text.likes += 1;
+          state.collectionKeys.push(key);
+          this.setState(state);
+          // setTimeout(() => {
+          //   this.getMarketPlace(this.state.uid);  
+          // }, timeToRefreshAfterLikeOrUnlike);
+          
+          // alert("This product has been added to your WishList 💕.");
+        })
+        //locally reflect the updated number of likes and updated collection of the user,
+        // by re-pulling data from the cloud
+        // setTimeout(() => {
+        //   this.getPageSpecificProducts();  
+        // }, timeToRefresh);
+        
+        
+
+        ////
+        // const {productsl, productsr} = this.state;
+        
+        // productsl.forEach( (product) => {
+        //   if(product.key == key) {
+        //     product.text.likes += 1;
+        //   } 
+        //   return null;
+        // })
+
+        // productsr.forEach( (product) => {
+        //   if(product.key == key) {
+        //     product.text.likes += 1;
+        //   }
+        //   return null;
+        // })
+        // //need to also append it to your list of collection keys
+
+        // this.setState({ productsl, productsr } );
+        //////
+        
+
+
+      
+      
+    
+  }
+
+  decrementLikes = (likes, key) => {
+    //this func applies when heart icon is red
+    // console.log('decrement number of likes');
+    // if(this.state.collectionKeys.includes(key) == true) {
+      var userCollectionUpdates = {};
+      // let promiseToUpdateCollection = firebase.database().ref().update(userCollectionUpdates);
+      userCollectionUpdates['/Users/' + this.state.uid + '/collection/' + key + '/'] = false;
+      let promiseToUpdateCollection = firebase.database().ref().update(userCollectionUpdates);
+      //ask user to confirm if they'd like to unlike this product
+      var updates = {};
+      likes -= 1;
+      var postData = likes;
+      updates['/Users/' + this.state.otherUserUid + '/products/' + key + '/likes/'] = postData;
+      let promiseToUpdateProductLikes = firebase.database().ref().update(updates);
+      Promise.all([promiseToUpdateCollection, promiseToUpdateProductLikes])
+      .then( () => {
+        const {...state} = this.state;
+        
+        //for a little time simulate the goal of this function having been achieved,
+        //by locally changing the state to reflect as such
+        state.likes -= 1;
+        state.collectionKeys = state.collectionKeys.filter( collectionKey => collectionKey != key );
+        this.setState(state);
+        // setTimeout(() => {
+        //   this.getMarketPlace(this.state.uid);  
+        // }, timeToRefreshAfterLikeOrUnlike);
+        
+        // alert("This product has been added to your WishList 💕.");
+      })
+    
+
+    // else {
+    //   alert('One sec, the marketplace is probably refreshing\n. Like, basically you cannot unlike a product you have not liked yet, you know.' );
+    // }
+
   }
 
   setSaleTo(soldStatus, uid, productKey, isBuyer = false) {
@@ -1232,17 +1347,20 @@ class ProductDetails extends Component {
     
     
   }
+
   render() {
-    const { params } = this.props.navigation.state, { data, collectionKeys, productKeys } = params, 
-    { isGetting, profile, navToChatLoading, productComments, uid } = this.state,
+    const { params } = this.props.navigation.state, { data, productKeys } = params, 
+    { isGetting, profile, navToChatLoading, productComments, uid, collectionKeys } = this.state,
     {text} = data,
     details = {
       brand: text.brand,
-      gender: text.gender,
-      size: text.size,
+      category: text.gender,
+      size: text.size ? text.size : "N/A",
       type: text.type,
       condition: text.condition,
-      original_price: text.original_price
+      post_price: text.post_price,
+      
+      // original_price: text.original_price
     };
     
     
@@ -1296,7 +1414,7 @@ class ProductDetails extends Component {
           {/* Product Name (Not Brand) and Price Row */}
         <View style={styles.nameAndPriceRow}>
           <View style={styles.nameContainer}>
-            <Text style={new avenirNextText('black', 15, "300")}>{text.name.toUpperCase().replace(/ +/g, " ")}</Text>
+            <Text style={new avenirNextText('black', 18, "300")}>{text.name.toUpperCase().replace(/ +/g, " ")}</Text>
           </View>
           <View style={styles.likesContainer}>
             
@@ -1304,10 +1422,10 @@ class ProductDetails extends Component {
             size={37} 
             color='#800000'
             onPress={() => {collectionKeys.includes(params.data.key) ? 
-            alert("you've already liked this product, but may unlike it from the Market")
+              this.decrementLikes(this.state.likes, params.data.key)
             : 
-            alert('You may like this product directly from the Market')}
-            }
+              this.incrementLikes(this.state.likes, params.data.key)
+            }}
             />
             {/* <View style={{justifyContent: 'center', position: 'absolute', paddingBottom: 5}}>
               <Text style={[styles.likes, {color: collectionKeys.includes(params.data.key) ? 'black' : rejectRed} ]}>{params.data.text.likes}</Text>
@@ -1405,7 +1523,9 @@ class ProductDetails extends Component {
               {/* Specific Details */}
               { Object.keys(details).map( (key, index) => ( 
                 <Text style={[styles.detailsText]} key={index}>
-                {key === 'original_price' ? 'Retail Price' : key.replace(key.charAt(0), key.charAt(0).toUpperCase())}: {key === 'original_price' ? `£${details[key]}` : details[key]}
+                {/* {key.replace(key.charAt(0), key.charAt(0).toUpperCase())}: {details[key]} */}
+                {index == 5 ? details[key] > 0 ? `Price of Post: £${details[key]}` : null : `${key.replace(key.charAt(0), key.charAt(0).toUpperCase())}: ${details[key]}`}
+                {/* {key === 'post_price' ? 'Retail Price' : key.replace(key.charAt(0), key.charAt(0).toUpperCase())}: {key === 'original_price' ? `£${details[key]}` : details[key]} */}
                 </Text>
               ) ) }
               {/* Optional Product Description Row */}
@@ -1446,7 +1566,7 @@ class ProductDetails extends Component {
             <View>
             <View style={styles.optionalDescriptionRow}>
                 <View style={styles.descriptionHeaderContainer}>
-                    <Text style={styles.descriptionHeader}>Description</Text>
+                    <Text style={styles.descriptionHeader}>DESCRIPTION</Text>
                 </View>
                 <View style={styles.descriptionContainer}>
                   {text.description.replace(/ +/g, " ").length >= 131 ?
@@ -1799,7 +1919,7 @@ reviewsHeader: {
   fontFamily: 'Avenir Next',
   fontSize: 24,
   fontWeight: "normal",
-  paddingLeft: 10
+  paddingLeft: 5
 },
 commentContainer: {
   flexDirection: 'column',

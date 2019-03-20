@@ -732,9 +732,9 @@ class Products extends Component {
     // console.log('decrement number of likes');
     // if(this.state.collectionKeys.includes(key) == true) {
       var userCollectionUpdates = {};
-      let promiseToUpdateCollection = firebase.database().ref().update(userCollectionUpdates);
+      // let promiseToUpdateCollection = firebase.database().ref().update(userCollectionUpdates);
       userCollectionUpdates['/Users/' + firebase.auth().currentUser.uid + '/collection/' + key + '/'] = false;
-      firebase.database().ref().update(userCollectionUpdates);
+      let promiseToUpdateCollection = firebase.database().ref().update(userCollectionUpdates);
       //ask user to confirm if they'd like to unlike this product
       var updates = {};
       likes -= 1;
