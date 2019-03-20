@@ -476,6 +476,7 @@ class Chats extends Component {
     }
 
     if(this.state.chats == false) {
+      // Show nothing to the user if they have no chats
       return (
         
           <View style={[styles.screen, {padding: 10, }]}>
@@ -535,6 +536,42 @@ class Notifications extends Component {
       .catch( (err) => {console.log(err) })
       
     }
+
+    handleLongPress = (notificationType, key) => {
+      const state = {...this.state};
+      state.notifications[notificationType][key].selected = !state.notifications[notificationType][key].selected; 
+      // console.log(state.chats[key].selected);
+      this.setState(state);
+      // const chat = state.chats.find( chat => chat.name == key);
+      // state.chats.selected = !state.
+  
+      
+    }
+  
+    deleteNotification = (notificationType, key) => {
+      
+      var ref = '/Users/' + this.props.uid + '/notifications/' + notificationType + '/' + key + '/';
+      let promiseToDeleteNotification = firebase.database().ref(ref).remove();
+      
+      promiseToDeleteNotification
+      .then( ()=>{
+        // console.log('Done deleting conversations for both buyer and seller');
+        setTimeout(() => {
+          this.getNotifications();
+        }, 500);
+      })
+      .catch( err => console.log(err));
+    }
+
+    // navToEditItem(key) {
+    //   firebase.database().ref(`/Products/${key}/`).once('value', (snapshot) => {
+    //     var d = snapshot.val();
+    //     console.log("We wish to item with data: " + d);
+    //     // this.props.navigation.navigate('CreateItem', {data: item, pictureuris: item.uris, editItemBoolean: true});
+    //   })
+      
+    //   // alert('Please take brand new pictures');
+    // }
   
     renderNotifications = () => {
       var {notifications} = this.state;
@@ -552,22 +589,41 @@ class Notifications extends Component {
     }
   
     r = (notifs, notificationType) => {
-        // console.log(notifs);
-    //   console.log("OVER HEYAAAA" + notifs[0].uri);
+      var nT;
+      switch(notificationType) {
+        case "Price Reduction Alert":
+          nT = 'priceReductions';
+          break;
+        case "Purchase Receipt":
+          nT = 'purchaseReceipts';
+          break;
+        default:
+          nT = 'itemsSold'
+          break
+      }
+      // console.log(notifs);
+      //   console.log("OVER HEYAAAA" + notifs[0].uri);
       return Object.keys(notifs).map((notification, index) => (
-            
-            <View key={index} style={styles.specificChatContainer}>
+          <View
+          key={index} style={styles.specificChatExpandedContainer}
+          >
+            <View style={styles.specificChatContainer}>
   
-              <TouchableOpacity onPress={() => this.showDetails(notifs[notification],notificationType, notification)} style={styles.pictureContainer}>
+              <TouchableOpacity  
+                onPress={() => this.showDetails(notifs[notification],notificationType, notification)} style={styles.pictureContainer}
+                onLongPress={()=>this.handleLongPress(nT,notification)}
+              >
                 <Image 
                 source={require("../images/nottmystyleLogo.png")} 
                 style={[styles.picture, {borderRadius: 35}]} />
               </TouchableOpacity>
   
-              <TouchableOpacity onPress={() => this.showDetails(notifs[notification],notificationType, notification)} style={styles.textContainer}>
+              <TouchableOpacity 
+                onPress={() => this.showDetails(notifs[notification],notificationType, notification)} style={styles.textContainer}
+                onLongPress={()=>this.handleLongPress(nT, notification)}
+              >
                 <Text style={styles.otherPersonName}>{notificationHeaderText}</Text>
                 <Text style={styles.lastMessageText}>{notificationType}</Text>
-                
               </TouchableOpacity>
   
               <TouchableOpacity style={styles.pictureContainer}>
@@ -576,6 +632,21 @@ class Notifications extends Component {
               </TouchableOpacity>
   
             </View>
+
+            {notifs[notification].selected ? 
+                          
+              <CustomTouchableO extraStyles={styles.deleteConversationButton} color={rejectRed} text={"Delete Notification"} textSize={22} textColor={'#fff'} 
+                onPress={() => this.deleteNotification(nT, notification)} 
+                disabled={false} 
+              />
+              
+            :
+              null
+            }
+
+          </View>
+
+
             ))
   
     }
@@ -584,7 +655,7 @@ class Notifications extends Component {
       //when one selects a specific notification, use the notificationType to determine what structure of details
       //to expect and use the details themselves of course, so set these 2 values in state
       console.log('show notification details');
-      if(details.unreadCount) {
+      if(details.unreadCount == true) {
         var updates = {};
         switch(notificationType) {
           case "Price Reduction Alert":
@@ -597,15 +668,15 @@ class Notifications extends Component {
             updates[`/Users/${this.props.uid}/notifications/itemsSold/${key}/unreadCount`] = false
             break
         }
-        let promiseToMarkRead = firebase.database().update(updates);
+        let promiseToMarkRead = firebase.database().ref().update(updates);
         promiseToMarkRead.then( () => {
-          this.setState({showDetails: true, details, notificationType, })
+          this.setState({showDetails: true, details, notificationType })
         })
         
       }
 
       else {
-        this.setState({showDetails: true, details, notificationType, })
+        this.setState({showDetails: true, details, notificationType })
       }
       
       
@@ -762,7 +833,17 @@ class Notifications extends Component {
   
             </View>
   
-            <View style={[deliveryOptionBody, {padding: 10}]}>
+            <View style={[deliveryOptionBody, {padding: 5}]}>
+
+              <View style={{flex: 0.5, justifyContent: 'center', alignItems: 'center', marginVertical: 10}}>
+                <Image style={styles.detailsImage} source={{uri: details.uri}}/>
+              </View>
+
+              <View style={{flex: 0.5, margin: 5, flexDirection: 'row'}}>
+                <Text style={styles.detailsText}>We noticed your item, {details.name} has been on the marketplace for a week, and hasn't sold. In order to make it more likely to sell, we recommend you reduce your price to {0.90*details.price}. In order to change your price, </Text>
+                <Text onPress={()=>this.navToEditItem(this.state.editProductKey)} style={[styles.detailsText, {color: lightGreen}]}>click here</Text>
+              </View>
+
               
             </View>
                 
@@ -837,6 +918,7 @@ class NotificationsAndChats extends Component {
       firebase.database().ref(`/Users/${this.state.uid}`).once("value", (snapshot) => {
         var d = snapshot.val();
         let unreadCount = 0
+
         if(d.notifications.priceReductions) {
           
           Object.values(d.notifications.priceReductions).forEach( n => {
@@ -845,14 +927,33 @@ class NotificationsAndChats extends Component {
             }
           })
           
-        } 
+        }
+        
+        if(d.notifications.itemsSold) {
+          
+          Object.values(d.notifications.itemsSold).forEach( n => {
+            if(n.unreadCount) {
+              unreadCount += 1
+            }
+          })
+          
+        }
+
+        if(d.notifications.purchaseReceipts) {
+          
+          Object.values(d.notifications.purchaseReceipts).forEach( n => {
+            if(n.unreadCount) {
+              unreadCount += 1
+            }
+          })
+          
+        }
 
         this.setState({unreadCount, isGetting: false});
         
         
         
       })
-      .then( () => { this.setState( {isGetting: false} );  } )
       .catch( (err) => {console.log(err) })
       
     }
@@ -868,7 +969,7 @@ class NotificationsAndChats extends Component {
             
             <TouchableOpacity disabled={this.state.showChats ? false : true} onPress={()=>this.setState({showChats: false})} style={[styles.upperNavTabButton, !this.state.showChats ? {borderBottomColor: highlightGreen, borderBottomWidth: 1} : null]}>
               <Text style={[styles.upperNavTabText, !this.state.showChats ? {color: highlightGreen} : null]}>Updates</Text>
-              {this.state.unreadCount ?
+              {this.state.unreadCount > 0 ?
                 <View style={styles.notificationCountContainer}>
                   <Text style={{color: '#fff', fontSize: 17, fontWeight: '300'}}>{this.state.unreadCount}</Text>
                 </View>

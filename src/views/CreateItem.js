@@ -64,7 +64,7 @@ class CreateItem extends Component {
         //   original_price: 0,
         //   size: 2,
         //   type: 'Trousers',
-          gender: item ? categories.indexOf(item.text.gender) : 2,
+          gender: item ? categories.indexOf(item.text.gender) : 1,
         //   condition: 'Slightly Used',
         //   insta: '',
           description: item ? item.text.description ? item.text.description : '' : '',
@@ -485,7 +485,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
 
             <Divider style={{  backgroundColor: '#fff', height: 12 }} />
         
-            <Text style={{fontFamily: avenirNext, textAlign: 'center', color: optionLabelBlue}}>Picture(s) of Product:</Text>
+            <Text style={[styles.detailHeader, {fontSize: 18, textAlign: 'center'}]}>Picture(s) of Product:</Text>
             <Divider style={{  backgroundColor: '#fff', height: 8 }} />
 
             <MultipleAddButton navToComponent = {'CreateItem'} pictureuris={pictureuris}/>

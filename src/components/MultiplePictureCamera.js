@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Text, StyleSheet, View, ActivityIndicator, TouchableHighlight, Image } from 'react-native'
 import { RNCamera } from 'react-native-camera';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 import {Button} from 'react-native-elements';
 
@@ -77,17 +78,15 @@ class MultiplePictureCamera extends Component {
             permissionDialogMessage={'We need your permission to use your camera phone'}
         >
         <View style={styles.backButtonRow}>
-          <Button  
-                  buttonStyle={ {
-                      backgroundColor: graphiteGray,
-                      // width: width/3 +20,
-                      // height: height/15,
-                      borderRadius: 10,
-                  }}
-                  icon={{name: 'chevron-left', type: 'material-community'}}
-                  title='Back'
-                  onPress={() => this.props.navigation.goBack() } 
-              />
+          <FontAwesomeIcon
+            name='arrow-left'
+            size={34}
+            color={'#fff'}
+            onPress = { () => { 
+              this.props.navigation.goBack();
+            } }
+
+          />
         </View>      
         <View style = { styles.buttonsRow }>
         {/* confirm button */}
@@ -105,7 +104,7 @@ class MultiplePictureCamera extends Component {
           {!this.state.isLoading ? 
             <TouchableHighlight onPress={this.takePicture.bind(this, navToComponent) } >
                 
-              <Icon size={58} type='material-community' name='camera-iris' color='#008000' />
+              <Icon size={58} type='material-community' name='camera-iris' color='#fff' />
 
             </TouchableHighlight>  
           :    
@@ -123,9 +122,9 @@ class MultiplePictureCamera extends Component {
           <View style={styles.frontButton}>
             <TouchableHighlight onPress={ () => {this.setState({front: !this.state.front})}}>
               {this.state.front ? 
-              <Icon size={40} color='#800000' type='material-community' name='camera-rear-variant' /> 
+              <Icon size={40} color='#fff' type='material-community' name='camera-rear-variant' /> 
               : 
-              <Icon size={40} color='#3db6e2' type='material-community' name='camera-front-variant' />
+              <Icon size={40} color={'#fff'} type='material-community' name='camera-front-variant' />
               }
             </TouchableHighlight>  
           </View>

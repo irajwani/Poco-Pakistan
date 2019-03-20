@@ -1,4 +1,4 @@
-const confirmBlue = '#335996', rejectRed = '#822323';
+const confirmBlue = '#335996', rejectRed = '#822323', flagRed = '#db0610';
 const lightGreen = '#0bb710', aquaGreen = '#a7f2b7', mantisGreen = '#99e265', logoGreen = "#39b729", limeGreen = "#00FF00";
 const highlightGreen = '#19841a';
 const treeGreen = '#167a19', darkGreen = "#0d5b22"
@@ -12,4 +12,4 @@ const lightBlack = '#2c2d2d', coolBlack = '#242528';
 // FONTS
 const avenirNext = 'Avenir Next';
 
-export {avenirNext, lightBlack, coolBlack, almostWhite, flashOrange, highlightYellow, confirmBlue, rejectRed, treeGreen, highlightGreen, aquaGreen, lightGreen, fbBlue, bobbyBlue, tealBlue, darkBlue, woodBrown, darkGray, graphiteGray, profoundPink, poopBrown, optionLabelBlue, lightGray, mantisGreen, logoGreen, darkGreen, limeGreen}
+export {avenirNext, lightBlack, coolBlack, almostWhite, flashOrange, flagRed, highlightYellow, confirmBlue, rejectRed, treeGreen, highlightGreen, aquaGreen, lightGreen, fbBlue, bobbyBlue, tealBlue, darkBlue, woodBrown, darkGray, graphiteGray, profoundPink, poopBrown, optionLabelBlue, lightGray, mantisGreen, logoGreen, darkGreen, limeGreen}

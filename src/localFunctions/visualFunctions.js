@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, TouchableWithoutFeedback, Keyboard, TouchableOpacity, Text, TextInput } from 'react-native';
-import { darkGray, lightGray, rejectRed, almostWhite } from '../colors';
+import { darkGray, lightGray, rejectRed, almostWhite, flagRed } from '../colors';
 import Spinner from 'react-native-spinkit';
 import { avenirNextText } from '../constructors/avenirNextText';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -89,16 +89,17 @@ const BadgeIcon = ({name, size, color, unreadCount}) => (
             position: 'absolute',
             right: -4,
             top: -3,
-            backgroundColor: rejectRed,
+            backgroundColor: flagRed,
             borderRadius: 9,
             width: 18,
             height: 18,
-            borderWidth: 1,
-            borderColor: almostWhite,
+            // borderWidth: 1,
+            // borderColor: almostWhite,
+            padding: 2,
             justifyContent: 'center',
             alignItems: 'center',
           }}>
-            <Icon name={'exclamation'} size={16} color={almostWhite}/>
+            <Text style={{color: almostWhite, fontWeight: "800", fontSize: 14}}>!</Text>
           </View>
         
         :

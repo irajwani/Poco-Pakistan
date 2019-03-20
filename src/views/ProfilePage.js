@@ -688,10 +688,10 @@ commentContainer: {
   borderRadius: 10,
   // width: width - 15,
   backgroundColor: "#fff",
-  // shadowOpacity: 0.5,
-  // shadowRadius: 1.3,
-  // shadowColor: 'black',
-  // shadowOffset: {width: 0, height: 0},
+  shadowOpacity: 0.5,
+  shadowRadius: 1.3,
+  shadowColor: 'black',
+  shadowOffset: {width: 0, height: 0},
   padding: 5,
   marginVertical: 4
 

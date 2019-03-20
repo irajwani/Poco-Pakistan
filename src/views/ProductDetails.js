@@ -500,6 +500,9 @@ class ProductDetails extends Component {
 
         //check if this notification will at least contribute to being unread
         unreadCount: true,
+
+        //handleLongPress property
+        selected: false
       };
       let productAcquisitionNotificationUpdate = {};
       let buyerRef = `/Users/${this.state.uid}/notifications/purchaseReceipts/${this.state.sku}/`;
@@ -1398,15 +1401,15 @@ class ProductDetails extends Component {
         {/* Details and Report Item Row */}
         <View style={styles.detailsAndReportItemRow}>
             <View style={styles.detailsColumn}>
-              <Text style={[styles.detailsText, {fontSize: 20, color: 'black', fontWeight: '300'}]}>DETAILS</Text>
+              <Text style={styles.descriptionHeader}>DETAILS</Text>
               {/* Specific Details */}
               { Object.keys(details).map( (key, index) => ( 
-                <Text style={[styles.detailsText, index == 4 && text.condition.length>10 ? {fontSize: 14} : null]} key={index}>
+                <Text style={[styles.detailsText]} key={index}>
                 {key === 'original_price' ? 'Retail Price' : key.replace(key.charAt(0), key.charAt(0).toUpperCase())}: {key === 'original_price' ? `£${details[key]}` : details[key]}
                 </Text>
               ) ) }
               {/* Optional Product Description Row */}
-              {text.description !== "Seller did not specify a description" ?
+              {/* {text.description !== "Seller did not specify a description" ?
                 text.description.replace(/ +/g, " ").length >= 131 ?
                     <Text 
                     onPress={()=>{this.setState({showFullDescription: !this.state.showFullDescription})}} 
@@ -1416,7 +1419,7 @@ class ProductDetails extends Component {
                   :
                     <Text style={styles.detailsText}>Description: {text.description}</Text>
               :
-                null}
+                null} */}
             </View>
             <View style={styles.secondaryActionsColumn}>
             {productKeys.includes(data.key) ?
@@ -1647,7 +1650,7 @@ const styles = StyleSheet.create( {
   },
   detailsText: {
     textAlign: 'left',
-    fontSize: 17,
+    fontSize: 14,
     fontFamily: 'Avenir Next',
     fontWeight: '300',
     color: graphiteGray
