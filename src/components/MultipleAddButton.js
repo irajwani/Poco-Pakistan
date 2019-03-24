@@ -76,7 +76,7 @@ class MultipleAddButton extends Component {
   renderMainPictureRow = (pictureuris) => {
     return (
       <View style={styles.mainPictureRow}>
-        <TouchableHighlight style={styles.mainPictureTouchContainer} onPress={() => this.showActionSheet()} >
+        <TouchableHighlight underlayColor={'transparent'} style={styles.mainPictureTouchContainer} onPress={() => this.showActionSheet()} >
           
             <Image 
             source={
@@ -105,7 +105,7 @@ class MultipleAddButton extends Component {
       <ScrollView horizontal={true} scrollEnabled={pictures.length == 3 ? true : false} style={{flex: 0.3,}} contentContainerStyle={styles.otherPicturesRow}>
         
         {pictures.map( (uri, index) => 
-          <TouchableHighlight style={{paddingHorizontal: 3}} onPress={() => this.showActionSheet()} >
+          <TouchableHighlight key={index} underlayColor={'transparent'} style={{paddingHorizontal: 3}} onPress={() => this.showActionSheet()} >
             <Image source={{uri: uri}} style={styles.otherPicture} /> 
           </TouchableHighlight>  
           

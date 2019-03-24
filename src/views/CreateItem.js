@@ -224,108 +224,182 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
     
 
     return {
-        // database: firebase.database().ref().update(updates),
+        database: firebase.database().ref().update(updates),
         storage: this.uploadToStore(pictureuris, uid, actualPostKey)
     }
 
 }
 
-  uploadToStore = (pictureuris, uid, postKey) => {
-    //sequentially add each image to cloud storage (pay attention to .child() method) 
-    //and then retrieve url to upload on realtime db
+uploadToStore = (pictureuris, uid, postKey) => {
     var picturesProcessed = 0;
-    const uploadUri = Platform.OS === 'ios' ? pictureuris[1].replace('file://', '') : uri
-    ImageResizer.createResizedImage(uploadUri,20, 20,'JPEG',80)
-    .then( newUri => {
-        console.log("Resized Image: " + newUri)
-        this.setState({resizedImage: newUri})
-    })
+    pictureuris.forEach(async (uri, index, array) => {
+        //TODO: Are dimensions correct?
+        let resizedImage = await ImageResizer.createResizedImage(uri,20, 20,'JPEG',80);
+        let imageUris = [uri, resizedImage.uri]
+        imageUris.forEach((imageUri, imageIndex, imageArray) => {
+            const storageUpdates = {};
+            const uploadUri = Platform.OS === 'ios' ? imageUri.replace('file://', '') : uri
+
+            if(imageUri.includes('firebasestorage')) {
+                //if the person did not take brand new pictures and chose to maintain the URIS received in EditItem mode
+                console.log(url);
+                if(imageIndex == 0) {
+                    storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/source/' + index + '/'] = url;
+                }
+
+                else {
+                    storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/thumbnail/' + index + '/'] = url;
+                }
+                
+                firebase.database().ref().update(storageUpdates);
+                picturesProcessed++;
+                if(picturesProcessed == (imageArray.length*array.length)) {
+                    this.callBackForProductUploadCompletion();
+                }
+            }
+            else {
+                let uploadBlob = null
+                const imageRef = firebase.storage().ref().child(`Users/${uid}/${postKey}/${imageIndex == 0 ? index : index+'-thumbnail'}`);
+                fs.readFile(uploadUri, 'base64')
+                .then((data) => {
+                return Blob.build(data, { type: `${mime};BASE64` })
+                })
+                .then((blob) => {
+                console.log('got to blob')
+                uploadBlob = blob
+                return imageRef.put(blob, { contentType: mime })
+                })
+                .then(() => {
+                console.log('upload successful')
+                uploadBlob.close()
+                return imageRef.getDownloadURL()
+                })
+                .then((url) => {
+                    console.log(url);
+                    if(imageIndex == 0) {
+                        storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/source/' + index + '/'] = url;
+                    }
     
-    // pictureuris.forEach( (uri, index, array) => {
-
-
-
-    //     if(uri.includes('firebasestorage')) { 
-
-    //     }
-    //     else {
+                    else {
+                        storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/thumbnail/' + index + '/'] = url;
+                    }
+                    
+                    firebase.database().ref().update(storageUpdates);
+                    picturesProcessed++;
+                    if(picturesProcessed == (imageArray.length*array.length)) {
+                        this.callBackForProductUploadCompletion();
+                    }
+                })
+            }
             
-    //     }
-        
-    // })
 
-    // pictureuris.forEach( (uri, index, array) => {
-    //     var storageUpdates = {};
-    //     if(uri.includes('firebasestorage')) {
-    //         storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/' + index + '/'] = uri;
-    //         firebase.database().ref().update(storageUpdates);
-    //         picturesProcessed++;
-    //         if(picturesProcessed == array.length) {
-    //             this.callBackForProductUploadCompletion();
-    //         }
-    //     }
 
-    //     else {
-    //         const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
-    //         let uploadBlob = null
-    //         const imageRef = firebase.storage().ref().child(`Users/${uid}/${postKey}/${index}`);
-    //         fs.readFile(uploadUri, 'base64')
-    //         .then((data) => {
-    //         return Blob.build(data, { type: `${mime};BASE64` })
-    //         })
-    //         .then((blob) => {
-    //         console.log('got to blob')
-    //         uploadBlob = blob
-    //         return imageRef.put(blob, { contentType: mime })
-    //         })
-    //         .then(() => {
-    //         uploadBlob.close()
-    //         return imageRef.getDownloadURL()
-    //         })
-    //         .then((url) => {
-    //             console.log(url);
-    //             storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/' + index + '/'] = url;
-    //             firebase.database().ref().update(storageUpdates);
-    //             picturesProcessed++;
-    //             if(picturesProcessed == array.length) {
-    //                 this.callBackForProductUploadCompletion();
-    //             }
-    //         })
-    //     }
+        })
+        
+    })
+
+}
+
+//   uploadToStore = (pictureuris, uid, postKey) => {
+//     //sequentially add each image to cloud storage (pay attention to .child() method) 
+//     //and then retrieve url to upload on realtime db
+//     // var picturesProcessed = 0;
+    
+//     // const uploadUri = Platform.OS === 'ios' ? pictureuris[1].replace('file://', '') : uri
+//     // ImageResizer.createResizedImage(uploadUri,20, 20,'JPEG',80)
+//     // .then( newUri => {
+//     //     console.log("Resized Image: " + newUri);
+//     //     // this.setState({resizedImage: newUri});
+
+//     // })
+//     // .catch( e => console.log('error resizing image because of: ' + e))
+    
+//     // pictureuris.forEach( (uri, index, array) => {
+
+
+
+//     //     if(uri.includes('firebasestorage')) { 
+
+//     //     }
+//     //     else {
+            
+//     //     }
+        
+//     // })
+
+//     pictureuris.forEach( (uri, index, array) => {
+//         var storageUpdates = {};
+//         if(uri.includes('firebasestorage')) {
+//             //if the person did not take brand new pictures and chose to maintain the URIS received in EditItem mode
+//             storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/' + index + '/'] = uri;
+//             firebase.database().ref().update(storageUpdates);
+//             picturesProcessed++;
+//             if(picturesProcessed == array.length) {
+//                 this.callBackForProductUploadCompletion();
+//             }
+//         }
+
+//         else {
+//             const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
+//             let uploadBlob = null
+//             const imageRef = firebase.storage().ref().child(`Users/${uid}/${postKey}/${index}-thumbnail`);
+//             fs.readFile(uploadUri, 'base64')
+//             .then((data) => {
+//             return Blob.build(data, { type: `${mime};BASE64` })
+//             })
+//             .then((blob) => {
+//             console.log('got to blob')
+//             uploadBlob = blob
+//             return imageRef.put(blob, { contentType: mime })
+//             })
+//             .then(() => {
+//             uploadBlob.close()
+//             return imageRef.getDownloadURL()
+//             })
+//             .then((url) => {
+//                 console.log(url);
+//                 storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/' + index + '/'] = url;
+//                 firebase.database().ref().update(storageUpdates);
+//                 picturesProcessed++;
+//                 if(picturesProcessed == array.length) {
+//                     this.callBackForProductUploadCompletion();
+//                 }
+//             })
+//         }
         
         
         
 
-    // } )
+//     // } )
 
-    // for(const uri of pictureuris) {
-    //     var i = 0;
-    //     console.log(i);
+//     // for(const uri of pictureuris) {
+//     //     var i = 0;
+//     //     console.log(i);
         
-    //     const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
-    //     let uploadBlob = null
-    //     const imageRef = firebase.storage().ref().child(`Users/${uid}/${newPostKey}/${i}`);
-    //     fs.readFile(uploadUri, 'base64')
-    //     .then((data) => {
-    //     return Blob.build(data, { type: `${mime};BASE64` })
-    //     })
-    //     .then((blob) => {
-    //     console.log('got to blob')
-    //     i++;
-    //     uploadBlob = blob
-    //     return imageRef.put(blob, { contentType: mime })
-    //     })
-    //     .then(() => {
-    //     uploadBlob.close()
-    //     return imageRef.getDownloadURL()
-    //     })
-    //     .then((url) => {
-    //         console.log(url);
-    //     })
+//     //     const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
+//     //     let uploadBlob = null
+//     //     const imageRef = firebase.storage().ref().child(`Users/${uid}/${newPostKey}/${i}`);
+//     //     fs.readFile(uploadUri, 'base64')
+//     //     .then((data) => {
+//     //     return Blob.build(data, { type: `${mime};BASE64` })
+//     //     })
+//     //     .then((blob) => {
+//     //     console.log('got to blob')
+//     //     i++;
+//     //     uploadBlob = blob
+//     //     return imageRef.put(blob, { contentType: mime })
+//     //     })
+//     //     .then(() => {
+//     //     uploadBlob.close()
+//     //     return imageRef.getDownloadURL()
+//     //     })
+//     //     .then((url) => {
+//     //         console.log(url);
+//     //     })
         
         
-    // }
-  }
+//     // }
+//   }
 
   callBackForProductUploadCompletion = () => {
     alert(`Product named ${this.state.name} successfully uploaded to Market!`)
@@ -515,8 +589,8 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
             <Divider style={{  backgroundColor: '#fff', height: 8 }} />
 
             <MultipleAddButton navToComponent = {'CreateItem'} pictureuris={pictureuris}/>
-            {pictureuris[1] ? <Image style={{width: 60, height: 60}} source={{uri: pictureuris[1]}} /> : null}
-            {this.state.resizedImage ? <Image style={{width: 60, height: 60}} source={{uri: this.state.resizedImage}}/> : null}
+            {/* {pictureuris[1] ? <Image style={{width: 60, height: 60}} source={{uri: pictureuris[1]}} /> : null}
+            {this.state.resizedImage ? <Image style={{width: 60, height: 60}} source={{uri: this.state.resizedImage}}/> : null} */}
             <WhiteSpace height={10}/>
             
         

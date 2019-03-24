@@ -222,7 +222,7 @@ class ProductDetails extends Component {
       this.setState( {
         cloudDatabaseUsers,
         yourProfile, uid, otherUserUid, profile, productComments, addresses,
-        productPictureURLs: d.Users[data.uid].products[data.key].uris,
+        productPictureURLs: d.Users[data.uid].products[data.key].uris.thumbnail,
         sold: data.text.sold,
         price: data.text.price, name: data.text.name, sku: data.key, description: data.text.description.replace(/ +/g, " ").substring(0,124),
         chat,
@@ -462,7 +462,7 @@ class ProductDetails extends Component {
 
           var newConversationUpdate = {};
           var newConversation = { 
-                  productSellerId: uid, productImageURL: this.props.navigation.state.params.data.uris[0], 
+                  productSellerId: uid, productImageURL: this.props.navigation.state.params.data.uris.thumbnail[0], 
                   createdByUserId: CHATKIT_USER_NAME, name: room.name, id: room.id, 
                   buyerIdentification: CHATKIT_USER_NAME, sellerIdentification: uid,
                   seller: this.state.profile.name, sellerAvatar: this.state.profile.uri, 
@@ -604,7 +604,7 @@ class ProductDetails extends Component {
       this.setState({activeScreen: "afterPaymentScreen", paymentStatus: "success"});
       // this.initializePushNotifications();
       let productAcquisitionPostData = {
-        name: this.state.name, uri: this.props.navigation.state.params.data.uris[0],
+        name: this.state.name, uri: this.props.navigation.state.params.data.uris.thumbnail[0],
         price: this.state.postOrNah == 'post' ? this.state.totalPrice : this.state.price,
         sellerName: this.state.profile.name,
         buyerName: this.state.yourProfile.name,
@@ -775,7 +775,7 @@ class ProductDetails extends Component {
         </View>
 
         <View style={styles.pictureModalBody}>
-          <FullScreenCarousel data={this.props.navigation.state.params.data.uris}/>
+          <FullScreenCarousel data={this.props.navigation.state.params.data.uris.source}/>
         </View>
 
       </View>
@@ -1308,7 +1308,7 @@ class ProductDetails extends Component {
               <View style={[deliveryOptionBody, {padding: 10, alignItems: 'center'}]}>
 
                 <View style={{flex: 0.3, justifyContent: 'center', alignItems: 'center'}}>
-                  <Image source={this.state.productPictureURLs[0]} style={styles.successProductImage} />
+                  <Image source={this.state.productPictureURLs.thumbnail[0]} style={styles.successProductImage} />
                 </View>
 
                 <View style={{flex: 0.7, alignItems: 'center'}}>
@@ -1408,7 +1408,7 @@ class ProductDetails extends Component {
         
           
         <TouchableOpacity onPress={() => this.setState({showPictureModal: true})} style={styles.carouselContainer}>        
-          <CustomCarousel onPress={() => this.setState({showPictureModal: true})} data={params.data.uris} />
+          <CustomCarousel onPress={() => this.setState({showPictureModal: true})} data={params.data.uris.thumbnail} />
         </TouchableOpacity>
         
           {/* Product Name (Not Brand) and Price Row */}

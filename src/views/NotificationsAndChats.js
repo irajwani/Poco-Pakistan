@@ -508,9 +508,10 @@ class Notifications extends Component {
     }
   
     componentWillMount() {
+      // this.getNotifications();
       setTimeout(() => {
         this.getNotifications();
-      }, 1000);
+      }, 1);
     }
   
     // navToChats() {
@@ -524,6 +525,7 @@ class Notifications extends Component {
         const uid = this.props.uid;
         if(d.Users[uid].notifications) {
           const notifications = d.Users[uid].notifications 
+          // console.log('Whole Notifications Obj is: ' + notifications);
           this.setState({notifications});
         } 
         else {

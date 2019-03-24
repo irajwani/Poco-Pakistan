@@ -11,7 +11,7 @@ import { ChatsToCustomChatStack } from '../stackNavigators/chatsToCustomChatStac
 import { highlightGreen } from '../colors';
 import { BadgeIcon } from '../localFunctions/visualFunctions';
 import firebase from '../cloud/firebase';
-import getUnreadCount from '../localFunctions/dbFunctions';
+import {unreadCount} from '../localFunctions/dbFunctions';
 
 // const uid = firebase.auth().currentUser.uid;
 
@@ -36,8 +36,17 @@ const HomeScreen = TabNavigator(
                 tabBarIcon: ({ focused, tintColor }) => {
                   const { routeName } = navigation.state;
                   // const unreadCount = navigation.getParam('unreadCount', false);
-                  let unreadCount = getUnreadCount(firebase.auth().currentUser.uid);
-                  console.log("Is it true that one deserves notification badge?" + unreadCount);
+                  // let unreadCount = false;
+                  // setTimeout(() => {
+                  //   let unreadCount = getUnreadCount(firebase.auth().currentUser.uid);
+                  //   setInterval(() => {
+                  //     unreadCount = getUnreadCount(firebase.auth().currentUser.uid);
+                  //     console.log("Is it true that one deserves notification badge?" + unreadCount);
+                  //   }, 20000);
+                    
+                  // }, 1);
+                  //TODO: Is below susceptible to app crash upon lack of network?
+                  // let unreadCount = getUnreadCount(firebase.auth().currentUser.uid);
                   let iconName;
                   let iconSize = 25;
                   if (routeName === 'Profile') {

@@ -765,7 +765,7 @@ class Products extends Component {
   }
 
   navToEditItem(item) {
-    this.props.navigation.navigate('CreateItem', {data: item, pictureuris: item.uris, editItemBoolean: true});
+    this.props.navigation.navigate('CreateItem', {data: item, pictureuris: item.uris.source, editItemBoolean: true});
     // alert('Please take brand new pictures');
   }
 
@@ -904,14 +904,14 @@ class Products extends Component {
                 <View style={styles.soldTextContainer}>
                   <Text style={styles.soldText}>SOLD</Text>
                   <Image 
-                  source={{uri: section.uris[0]}}
+                  source={{uri: section.uris.thumbnail[0]}}
                   style={styles.productImage} 
                   />
                 </View>
                 
               :
               <Image 
-                  source={{uri: section.uris[0]}}
+                  source={{uri: section.uris.thumbnail[0]}}
                   style={styles.productImage}
               />
               }  
