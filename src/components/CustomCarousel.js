@@ -29,7 +29,7 @@ class CustomCarousel extends Component {
     return (
       
 
-        <ThumbnailBackgroundView>
+        <ThumbnailBackgroundView >
           
           <CurrentVideoTO
              onPress={ () => { 
@@ -94,7 +94,7 @@ class CustomCarousel extends Component {
 
     return (
 
-      
+      <TouchableOpacity onLongPress={this.props.onPress}>
         <Carousel
           
           ref={ (c) => { this._carousel = c; } }
@@ -105,8 +105,10 @@ class CustomCarousel extends Component {
           itemWidth={500}
           layout={'default'}
           firstItem={0}
+          onPress={this.props.onPress}
           
         /> 
+      </TouchableOpacity>  
         
       
         
@@ -152,7 +154,7 @@ const ThumbnailBackgroundView = styled.View`
   ${'' /* position: relative; */}
 `;
 
-const CurrentVideoTO = styled.TouchableOpacity`
+const CurrentVideoTO = styled.View`
   justify-content: center;
   align-items: center;
   position: relative;

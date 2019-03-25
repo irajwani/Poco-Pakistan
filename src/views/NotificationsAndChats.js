@@ -921,35 +921,36 @@ class NotificationsAndChats extends Component {
         var d = snapshot.val();
         let unreadCount = 0
 
-        if(d.notifications.priceReductions) {
+        if(d.notifications) {
+          if(d.notifications.priceReductions) {
           
-          Object.values(d.notifications.priceReductions).forEach( n => {
-            if(n.unreadCount) {
-              unreadCount += 1
-            }
-          })
+            Object.values(d.notifications.priceReductions).forEach( n => {
+              if(n.unreadCount) {
+                unreadCount += 1
+              }
+            })
           
-        }
+          }
         
-        if(d.notifications.itemsSold) {
-          
-          Object.values(d.notifications.itemsSold).forEach( n => {
-            if(n.unreadCount) {
-              unreadCount += 1
-            }
-          })
-          
-        }
+          if(d.notifications.itemsSold) {
+            
+            Object.values(d.notifications.itemsSold).forEach( n => {
+              if(n.unreadCount) {
+                unreadCount += 1
+              }
+            })
+            
+          }
 
-        if(d.notifications.purchaseReceipts) {
-          
-          Object.values(d.notifications.purchaseReceipts).forEach( n => {
-            if(n.unreadCount) {
-              unreadCount += 1
-            }
-          })
-          
-        }
+          if(d.notifications.purchaseReceipts) {
+            
+            Object.values(d.notifications.purchaseReceipts).forEach( n => {
+              if(n.unreadCount) {
+                unreadCount += 1
+              }
+            })
+            
+          }}
 
         this.setState({unreadCount, isGetting: false});
         

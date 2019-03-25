@@ -1362,7 +1362,7 @@ class ProductDetails extends Component {
       
       // original_price: text.original_price
     };
-    
+    console.log(this.state.showPictureModal);
     
     if(isGetting) {
       return (
@@ -1986,14 +1986,17 @@ pictureModal: {
   backgroundColor: '#fff',
   flexDirection: 'column'
 },
+
 pictureModalHeader: {
   flex: 0.15,
   flexDirection: 'row',
   justifyContent: 'flex-start',
   padding: 10,
 },
+
 pictureModalBody: {
   flex: 0.85,
+  marginVertical: 10
   // justifyContent: 'center',
   // alignItems: 'center',
 },

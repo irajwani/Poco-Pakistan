@@ -33,6 +33,9 @@ const Bullet = '\u2022';
 const categories = ["Men", "Women", "Accessories"]
 const categoryColors = [darkBlue, profoundPink, treeGreen] //Men, Women, Accessories
 
+//For Resized Image
+const maxWidth = 300, maxHeight = 300, suppressionLevel = 0;
+
 // const {height, width} = Dimensions.get('window');
 
 const Blob = RNFetchBlob.polyfill.Blob;
@@ -234,7 +237,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
     var picturesProcessed = 0;
     pictureuris.forEach(async (uri, index, array) => {
         //TODO: Are dimensions correct?
-        let resizedImage = await ImageResizer.createResizedImage(uri,20, 20,'JPEG',80);
+        let resizedImage = await ImageResizer.createResizedImage(uri,maxWidth, maxHeight,'JPEG',suppressionLevel);
         let imageUris = [uri, resizedImage.uri]
         imageUris.forEach((imageUri, imageIndex, imageArray) => {
             const storageUpdates = {};

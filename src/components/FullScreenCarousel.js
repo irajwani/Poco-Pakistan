@@ -34,7 +34,7 @@ class FullScreenCarousel extends Component {
                 this._carousel.snapToItem(index);
               }}
           >
-            <Image source={{ uri: item }} style={{width: 245,height: 245, borderWidth: 2,borderColor: "#2c2d2d",}}/>
+            <Image source={{ uri: item }} style={{width: 270,height: 350, borderWidth: 2,borderColor: "#2c2d2d",}}/>
           </CurrentVideoTO>
             {/*<NextVideoImage source={{ uri: this.state.currentVideo.nextVideoId }}/>*/}
             
