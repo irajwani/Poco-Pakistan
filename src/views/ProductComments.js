@@ -148,7 +148,7 @@ class ProductComments extends Component {
             <View style={styles.productInfoContainer}>
                 {/* row containing picture, and details for product */}
                <View style={styles.productImageContainer}>
-                <Image source={ {uri: uris[0] }} style={styles.productPic} />
+                <Image source={ {uri: uris.thumbnail[0] }} style={styles.productPic} />
                </View>
                 
                <View style={styles.productTextContainer}>
@@ -226,7 +226,7 @@ class ProductComments extends Component {
             
                 <View style={styles.inputContainer}>
                     <TextInput
-                    style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
+                    style={{height: 50, width: width/2, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
                     placeholder={'Comment'}
                     placeholderTextColor={lightGray}
                     onChangeText={ commentString => this.onCommentTextChanged(commentString)}
@@ -269,16 +269,17 @@ export default withNavigation(ProductComments)
 const styles = StyleSheet.create({
 
     container:{
-        flex:1,
-        marginTop:22
+        // flex:1,
+        
     },
 
     mainContainer: {
         flex: 1,
         // marginTop: 22,
         // flexDirection: 'column',
+        marginTop:22,
         paddingHorizontal: 10,
-        paddingVertical: 5,
+        // paddingVertical: 5,
         backgroundColor: '#fff',
     },
 
@@ -312,9 +313,9 @@ const styles = StyleSheet.create({
     },
 
     profilePic: {
-        width: 50,
-        height: 50,
-        borderRadius: 25
+        width: 46,
+        height: 46,
+        borderRadius: 23
     },
 
     productInfoContainer: {
@@ -329,8 +330,8 @@ const styles = StyleSheet.create({
     },
 
     productPic: {
-        height: 90,
-        width: 90,
+        height: 75,
+        width: 80,
         borderRadius: 0
     },
 
@@ -351,7 +352,7 @@ const styles = StyleSheet.create({
     //to hold scrolling list of comments
 
     contentContainerStyle: {
-        flex: 0.45
+        flex: 0.38
     },
     contentContainer: {
         flexGrow: 1, 
@@ -560,20 +561,22 @@ const styles = StyleSheet.create({
 
     inputAndSendContainer: {
         flexDirection: 'row',
-        flex: 0.12,
+        flex: 0.19,
         // marginHorizontal: 2
     },
 
     inputContainer: {
         flex: 0.8,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        // backgroundColor: 'blue'
     },
 
     sendContainer: {
         flex: 0.2,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        // backgroundColor: 'green'
     }
 
   });

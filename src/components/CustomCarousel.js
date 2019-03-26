@@ -29,21 +29,21 @@ class CustomCarousel extends Component {
     return (
       
 
-        <ThumbnailBackgroundView >
+        <ThumbnailBackgroundView onPress={ () => { 
+          // console.log("clicked to index", index)
+          this._carousel.snapToItem(index);
+        }}
+        
+        >
           
-          <CurrentVideoTO
-             onPress={ () => { 
-                // console.log("clicked to index", index)
-                this._carousel.snapToItem(index);
-              }}
-          >
+          
             <Image source={{ uri: item }} style={styles.image}/>
 
             <View style={{alignItems: 'center',bottom: 0,position: "absolute"}}>
             {this.pagination}
             </View>
 
-          </CurrentVideoTO>
+          
             
           
             {/*<NextVideoImage source={{ uri: this.state.currentVideo.nextVideoId }}/>*/}
@@ -94,7 +94,7 @@ class CustomCarousel extends Component {
 
     return (
 
-      <TouchableOpacity onLongPress={this.props.onPress}>
+      
         <Carousel
           
           ref={ (c) => { this._carousel = c; } }
@@ -105,10 +105,10 @@ class CustomCarousel extends Component {
           itemWidth={500}
           layout={'default'}
           firstItem={0}
-          onPress={this.props.onPress}
+          
           
         /> 
-      </TouchableOpacity>  
+      
         
       
         
@@ -144,11 +144,12 @@ const VideoTitleText = styled.Text`
 `
 
 
-const ThumbnailBackgroundView = styled.View`
+const ThumbnailBackgroundView = styled.TouchableOpacity`
   justify-content: center;
   align-items: center;
   flex: 1;
   width: 100%;
+  position: relative;
   ${'' /* background-color: blue */}
   ${'' /* width: 90%;  */}
   ${'' /* position: relative; */}

@@ -140,29 +140,32 @@ class ViewPhotos extends Component {
     if(showSelectedPhotos) {
       return (
         <View style={styles.selectedPhotoContainer}>
-          <View style={{flex: 0.5, alignItems: 'center', width: "100%"}}>
+          <View style={styles.backButtonHeader}>
+            <Icon 
+              name='arrow-left'
+              size={38}
+              color={'black'}
+              onPress={() => {
+                this.setState( {showSelectedPhotos: false, pictureuris: []} );
+              }}
+            />
+          </View>
+          <View style={{flex: 0.57, alignItems: 'center', width: "100%"}}>
             <CustomCarousel data={this.state.pictureuris}/>
           </View>
-          <View style={[styles.buttonsColumn, {flex: 0.5}]}>
+          <View style={[styles.buttonsColumn, {flex: 0.3, justifyContent: 'center', alignItems: 'center'}]}>
               
               <Button  
               buttonStyle={[styles.ModalButtonStyle, {backgroundColor: highlightGreen}]}
               
-              title='Satisfied'
+              title='Okay'
               onPress={() => {
                   console.log(`navigating to ${navToComponent} with ${this.state.pictureuris}`);
                   this.props.navigation.navigate(`${navToComponent}`, {pictureuris: this.state.pictureuris} );
                   }}
               />
 
-              <Button  
-              buttonStyle={[styles.ModalButtonStyle, {backgroundColor: 'black'}]}
-              icon={{name: 'chevron-left', type: 'material-community'}}
-              title='Back'
-              onPress={() => {
-                  this.setState( {showSelectedPhotos: false, pictureuris: []} );
-                  }}
-              />
+              
 
           </View>
         </View>
@@ -173,27 +176,33 @@ class ViewPhotos extends Component {
       return (
 
         <View style={styles.selectedPhotoContainer}>
-            <Image
-                source={{uri: uri}}
-                style={styles.selectedPhotoImage}/>
-            <View style={styles.buttonsColumn}>
-                <Button  
-                buttonStyle={[styles.ModalButtonStyle, {backgroundColor: 'black'}]}
-                icon={{name: 'chevron-left', type: 'material-community'}}
-                title='Back'
+            <View style={styles.backButtonHeader}>
+              <Icon 
+                name='arrow-left'
+                size={38}
+                color={'black'}
                 onPress={() => {
-                    this.setState( {showSelectedPhoto: false, pictureuris: []} );
-                    }}
-                />
+                  this.setState( {showSelectedPhoto: false, pictureuris: []} );
+                }}
+              />
+            </View>
+            <View style={{flex: 0.57, alignItems: 'center'}}>
+              <Image
+                  source={{uri: uri}}
+                  style={styles.selectedPhotoImage}/>
+            </View>    
+            <View style={[styles.buttonsColumn, {flex: 0.3, justifyContent: 'center', alignItems: 'center'}]}>
+                
                 <Button  
                 buttonStyle={[styles.ModalButtonStyle, {backgroundColor: highlightGreen}]}
                 icon={{name: 'emoticon', type: 'material-community'}}
-                title='Satisfied'
+                title='Okay'
                 onPress={() => {
                     this.state.pictureuris.push(uri)
                     this.props.navigation.navigate(`${navToComponent}`, {pictureuris: this.state.pictureuris} )
                     }}
                 />
+
             </View>    
         </View>
         
@@ -317,10 +326,15 @@ const styles = StyleSheet.create({
   selectedPhotoContainer: {
       backgroundColor: '#fff',
     flex: 1,
-    justifyContent: 'center',
+    // justifyContent: 'center',
     marginTop: 22,
-    alignItems: 'center'
+    // alignItems: 'center'
   },
+
+  backButtonHeader: {flex: 0.13, flexDirection: 'row',justifyContent: 'flex-start', alignItems: 'center',},
+
+
+
   selectedPhotoImage: {
     flex: 2,
     margin: 10,

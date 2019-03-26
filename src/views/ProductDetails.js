@@ -1407,9 +1407,17 @@ class ProductDetails extends Component {
         {/* image carousel in center with back button on its left */}
         
           
-        <TouchableOpacity onPress={() => this.setState({showPictureModal: true})} style={styles.carouselContainer}>        
-          <CustomCarousel onPress={() => this.setState({showPictureModal: true})} data={params.data.uris.thumbnail} />
-        </TouchableOpacity>
+        <View style={styles.carouselContainer}>        
+          <CustomCarousel data={params.data.uris.source} />
+          <View style={{position: 'absolute', right: 10, top: 10}}>
+            <Icon 
+            name={'arrow-expand'}
+            size={35} 
+            color={'#fff'} 
+            onPress={() => this.setState({showPictureModal: true})}
+            />
+          </View>
+        </View>
         
           {/* Product Name (Not Brand) and Price Row */}
         <View style={styles.nameAndPriceRow}>
@@ -1996,7 +2004,8 @@ pictureModalHeader: {
 
 pictureModalBody: {
   flex: 0.85,
-  marginVertical: 10
+  // marginVertical: 10,
+
   // justifyContent: 'center',
   // alignItems: 'center',
 },

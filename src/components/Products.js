@@ -29,7 +29,7 @@ import { categories } from '../fashion/sizesAndTypes.js';
 const nottAuthEndpoint = `https://calm-coast-12842.herokuapp.com/`;
 
 const emptyMarketText = "Wow, such empty..."
-const noProductsOfYourOwnText = "So far, you have not uploaded any items on the marketplace.\nTo make some cash 🤑 and free up closet space, upload an article of clothing on the Market\nfrom the 'Sell' screen.";
+const noProductsOfYourOwnText = "So far, you have not uploaded any items on the marketplace.\nTo make some cash 🤑 and free up closet space, upload an article of clothing on the Market from the 'Sell' screen.";
 const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace 💔.";
 const noResultsFromSearchText = "Your search does not match the description of any product on the marketplace 🙁.";
 // const emptyMarketDueToSearchCriteriaText = noResultsFromSearchText;
@@ -904,14 +904,14 @@ class Products extends Component {
                 <View style={styles.soldTextContainer}>
                   <Text style={styles.soldText}>SOLD</Text>
                   <Image 
-                  source={{uri: section.uris.thumbnail[0]}}
+                  source={{uri: section.uris.pd[0]}}
                   style={styles.productImage} 
                   />
                 </View>
                 
               :
               <Image 
-                  source={{uri: section.uris.thumbnail[0]}}
+                  source={{uri: section.uris.pd[0]}}
                   style={styles.productImage}
               />
               }  

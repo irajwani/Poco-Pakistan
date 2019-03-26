@@ -34,7 +34,7 @@ const categories = ["Men", "Women", "Accessories"]
 const categoryColors = [darkBlue, profoundPink, treeGreen] //Men, Women, Accessories
 
 //For Resized Image
-const maxWidth = 300, maxHeight = 300, suppressionLevel = 0;
+const maxWidth = 320, maxHeight = 320, suppressionLevel = 0;
 
 // const {height, width} = Dimensions.get('window');
 
@@ -237,8 +237,9 @@ uploadToStore = (pictureuris, uid, postKey) => {
     var picturesProcessed = 0;
     pictureuris.forEach(async (uri, index, array) => {
         //TODO: Are dimensions correct?
-        let resizedImage = await ImageResizer.createResizedImage(uri,maxWidth, maxHeight,'JPEG',suppressionLevel);
-        let imageUris = [uri, resizedImage.uri]
+        let resizedImageThumbnail = await ImageResizer.createResizedImage(uri,maxWidth, maxHeight,'JPEG',suppressionLevel);
+        let resizedImageProductDetails = await ImageResizer.createResizedImage(uri,2000, 2000,'JPEG',suppressionLevel);
+        let imageUris = [uri, resizedImageThumbnail.uri, resizedImageProductDetails.uri];
         imageUris.forEach((imageUri, imageIndex, imageArray) => {
             const storageUpdates = {};
             const uploadUri = Platform.OS === 'ios' ? imageUri.replace('file://', '') : uri
@@ -250,8 +251,12 @@ uploadToStore = (pictureuris, uid, postKey) => {
                     storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/source/' + index + '/'] = url;
                 }
 
-                else {
+                else if(imageIndex == 1){
                     storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/thumbnail/' + index + '/'] = url;
+                }
+
+                else {
+                    storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/pd/' + index + '/'] = url;
                 }
                 
                 firebase.database().ref().update(storageUpdates);
@@ -262,7 +267,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
             }
             else {
                 let uploadBlob = null
-                const imageRef = firebase.storage().ref().child(`Users/${uid}/${postKey}/${imageIndex == 0 ? index : index+'-thumbnail'}`);
+                const imageRef = firebase.storage().ref().child(`Users/${uid}/${postKey}/${imageIndex == 0 ? index : imageIndex == 1 ? index+'-thumbnail' : index+'-pd'}`);
                 fs.readFile(uploadUri, 'base64')
                 .then((data) => {
                 return Blob.build(data, { type: `${mime};BASE64` })
@@ -283,8 +288,12 @@ uploadToStore = (pictureuris, uid, postKey) => {
                         storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/source/' + index + '/'] = url;
                     }
     
-                    else {
+                    else if(imageIndex == 1){
                         storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/thumbnail/' + index + '/'] = url;
+                    }
+
+                    else {
+                        storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/pd/' + index + '/'] = url;
                     }
                     
                     firebase.database().ref().update(storageUpdates);
@@ -302,7 +311,6 @@ uploadToStore = (pictureuris, uid, postKey) => {
     })
 
 }
-
 //   uploadToStore = (pictureuris, uid, postKey) => {
 //     //sequentially add each image to cloud storage (pay attention to .child() method) 
 //     //and then retrieve url to upload on realtime db

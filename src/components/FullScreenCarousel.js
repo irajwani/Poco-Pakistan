@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
-import {View, Image} from 'react-native'
+import {View, Image, TouchableOpacity, Dimensions} from 'react-native'
 import styled from "styled-components/native"; // 3.1.6
 import Carousel, {Pagination} from 'react-native-snap-carousel'; // 3.6.0
 import { graphiteGray, mantisGreen, lightGray } from '../colors';
 // import { iOSColors } from 'react-native-typography';
+
+const {height} = Dimensions.get('window');
 
 class FullScreenCarousel extends Component {
 
@@ -27,18 +29,17 @@ class FullScreenCarousel extends Component {
     return (
       
 
-        <ThumbnailBackgroundView>
-          <CurrentVideoTO
-             onPress={ () => { 
-                // console.log("clicked to index", index)
-                this._carousel.snapToItem(index);
-              }}
-          >
-            <Image source={{ uri: item }} style={{width: 270,height: 350, borderWidth: 2,borderColor: "#2c2d2d",}}/>
-          </CurrentVideoTO>
-            {/*<NextVideoImage source={{ uri: this.state.currentVideo.nextVideoId }}/>*/}
+        <TouchableOpacity
             
-        </ThumbnailBackgroundView>
+            underlayColor={'transparent'}
+            onPress={ () => { 
+              // console.log("clicked to index", index)
+              this._carousel.snapToItem(index);
+            }}
+        >
+            <Image source={{ uri: item }} style={{width: 270,height: 420, borderWidth: 2,borderColor: "#2c2d2d",}}/>
+        </TouchableOpacity>
+        
         
        
 
