@@ -1,12 +1,13 @@
-import React, { Component } from 'react'
-import { Text, StyleSheet, View, ActivityIndicator, TouchableHighlight, Image } from 'react-native'
+import React, { Component } from 'react';
+import { Text, StyleSheet, View, ActivityIndicator, TouchableHighlight, Image, Platform } from 'react-native';
+import {withNavigationFocus} from 'react-navigation';
 import { RNCamera } from 'react-native-camera';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 import {Button} from 'react-native-elements';
 
-import { withNavigation } from 'react-navigation';
+// import { withNavigation } from 'react-navigation';
 // import { material } from 'react-native-typography';
 import {flashOrange, graphiteGray, almostWhite, treeGreen} from '../colors.js';
 import { LoadingIndicator } from '../localFunctions/visualFunctions.js';
@@ -63,10 +64,12 @@ class MultiplePictureCamera extends Component {
   render() {
     const {params} = this.props.navigation.state;
     var {navToComponent} = params;
+    const isFocused = this.props.navigation.isFocused();
 
     return (
         <View style={styles.container}>
 
+        {isFocused ? 
         <RNCamera
             ref={ref => {
               this.camera = ref;
@@ -131,6 +134,9 @@ class MultiplePictureCamera extends Component {
         </View>
 
         </RNCamera>
+        :
+        null
+        }
 
       </View>
     )
@@ -226,4 +232,5 @@ const styles = StyleSheet.create({
         
       },
 })
-export default withNavigation(MultiplePictureCamera)
+export default withNavigationFocus(MultiplePictureCamera)
+// export default MultiplePictureCamera

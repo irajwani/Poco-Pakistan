@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableWithoutFeedback, Keyboard, TouchableOpacity, Text, TextInput } from 'react-native';
+import { View, TouchableWithoutFeedback, Keyboard, TouchableOpacity, Text, TextInput, Platform } from 'react-native';
 import { darkGray, lightGray, rejectRed, almostWhite, flagRed } from '../colors';
 import Spinner from 'react-native-spinkit';
 import { avenirNextText } from '../constructors/avenirNextText';
@@ -83,9 +83,8 @@ const BadgeIcon = ({name, size, color, unreadCount}) => (
     <View style={{ width: 35, height: 35, margin: 5, justifyContent: 'center', alignItems: 'center' }}>
         <Icon name={name} size={size} color={color}/>
         { unreadCount ? 
-          <View style={{
-            // If you're using react-native < 0.57 overflow outside of the parent
-            // will not work on Android, see https://git.io/fhLJ8
+          <View style={Platform.OS == 'ios' ? {
+            
             position: 'absolute',
             right: -4,
             top: -3,
@@ -98,8 +97,22 @@ const BadgeIcon = ({name, size, color, unreadCount}) => (
             padding: 2,
             justifyContent: 'center',
             alignItems: 'center',
+          } : {
+            
+            position: 'absolute',
+            right: 3,
+            top: 2,
+            backgroundColor: flagRed,
+            borderRadius: 6,
+            width: 12,
+            height: 12,
+            // borderWidth: 1,
+            // borderColor: almostWhite,
+            padding: 2,
+            justifyContent: 'center',
+            alignItems: 'center',
           }}>
-            <Text style={{color: almostWhite, fontWeight: "800", fontSize: 14}}>!</Text>
+            <Text style={{color: almostWhite, fontWeight: "800", fontSize: Platform.OS == 'ios' ? 14:10}}>!</Text>
           </View>
         
         :

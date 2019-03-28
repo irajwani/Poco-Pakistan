@@ -689,12 +689,17 @@ class SignIn extends Component {
                     </View>
 
                     <ViewWithChildAtPosition flex={1} >
-                        <Icon
-                            name="facebook-box" 
-                            size={33} 
-                            color={'#3b5998'}
-                            onPress={() => this.signInWithFacebook()}
-                        />
+
+                        {Platform.OS == 'ios' ?
+                            <Icon
+                                name="facebook-box" 
+                                size={33} 
+                                color={'#3b5998'}
+                                onPress={() => this.signInWithFacebook()}
+                            />
+                            :
+                            null
+                        }
                     </ViewWithChildAtPosition>
 
                 </View>

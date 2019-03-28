@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dimensions, View, Text, TextInput, Image, StyleSheet, ScrollView, ListView, TouchableHighlight, Modal, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { Platform, Dimensions, View, Text, TextInput, Image, StyleSheet, ScrollView, ListView, TouchableHighlight, Modal, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import { Button } from 'react-native-elements';
 import {withNavigation} from 'react-navigation'; // Version can be specified in package.json
 // import { Text,  } from 'native-base';
@@ -1272,7 +1272,7 @@ class Products extends Component {
     
     if(isGetting == true) {
       return ( 
-        <View style={{marginTop: 22, flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff'}}>
+        <View style={{marginTop: Platform.OS == 'ios' ? 22:0, flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff'}}>
             <LoadingIndicator isVisible={isGetting} color={darkGreen} type={'Wordpress'}/>            
         </View>
       )
@@ -1280,7 +1280,7 @@ class Products extends Component {
 
     else if(emptyMarket == true) {
       return (
-        <View style={{marginTop: 22, backgroundColor: '#fff', padding: 10}}>
+        <View style={{marginTop: Platform.OS == 'ios' ? 22:0, backgroundColor: '#fff', padding: 10}}>
           <NothingHereYet specificText={showCollection == true ? emptyCollectionText : showYourProducts == true ? noProductsOfYourOwnText : emptyMarketText } />
         </View>
       )
@@ -1289,7 +1289,7 @@ class Products extends Component {
     else if(noResultsFromFilter == true){
 
       return(
-        <View style={{flex: 1, marginTop: 22, backgroundColor: '#fff', padding: 5, alignItems: 'center'}}>
+        <View style={{flex: 1, marginTop: Platform.OS == 'ios' ? 22:0, backgroundColor: '#fff', padding: 5, alignItems: 'center'}}>
 
           <View style={{flex: 0.2, }}>
             <NothingHereYet specificText={noResultsFromSearchText} />
@@ -1314,7 +1314,7 @@ class Products extends Component {
     return (
 
       
-      <View style={styles.container}>
+      <View style={[styles.container, {marginTop: Platform.OS == 'ios' ? 22:0}]}>
 
       <ScrollView
           style={{flex: 1}}
@@ -1626,7 +1626,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    marginTop: 22,
+    // marginTop: 22,
     paddingBottom: 3,
     paddingHorizontal: 3,
     // width: 320,

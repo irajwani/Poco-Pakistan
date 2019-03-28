@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { TouchableWithoutFeedback, Keyboard, ScrollView, View, Text, TextInput, Image, TouchableHighlight, TouchableOpacity, Modal, Dimensions, StyleSheet, Linking, WebView } from 'react-native';
+import { Platform, TouchableWithoutFeedback, Keyboard, ScrollView, View, Text, TextInput, Image, TouchableHighlight, TouchableOpacity, Modal, Dimensions, StyleSheet, Linking, WebView } from 'react-native';
 
 import PushNotification from 'react-native-push-notification';
 
@@ -1374,7 +1374,7 @@ class ProductDetails extends Component {
 
     if(navToChatLoading) {
       return(
-        <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
+        <View style={{marginTop: Platform.OS == 'ios' ? 22:0, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
           <View style={{height: 200, justifyContent: 'center', alignItems: 'center', padding: 10}}>
             <LoadingIndicator isVisible={navToChatLoading} color={logoGreen} type={'Wordpress'}/>
           </View>  
@@ -1383,7 +1383,7 @@ class ProductDetails extends Component {
     }
 
     return (
-      <View style={styles.mainContainer}>
+      <View style={[styles.mainContainer, {marginTop: Platform.OS == 'ios' ? 22:0}]}>
       <View style={styles.deliveryOptionHeader}>
         <FontAwesomeIcon
         name='arrow-left'
@@ -1658,7 +1658,7 @@ const styles = StyleSheet.create( {
   mainContainer: {
     flex: 1,
     // flexDirection: 'column',
-    marginTop: 20,
+    // marginTop: 20,
     marginBottom: 3,
     backgroundColor: '#fff'
   },

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, Dimensions, StyleSheet, ScrollView, View, Image, TouchableOpacity, Modal } from 'react-native'
+import { Platform, Text, Dimensions, StyleSheet, ScrollView, View, Image, TouchableOpacity, Modal } from 'react-native'
 import firebase from '../cloud/firebase';
 
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
@@ -988,7 +988,7 @@ class NotificationsAndChats extends Component {
     render() {
         if(this.state.isGetting) {
           return (
-            <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
+            <View style={[styles.container, {justifyContent: 'center', alignItems: 'center', marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
               <LoadingIndicator isVisible={this.state.isGetting} color={'black'} type={'Wordpress'}/>
             </View>
           )
@@ -996,7 +996,7 @@ class NotificationsAndChats extends Component {
 
         else {
           return (
-            <View style={styles.container}>
+            <View style={[styles.container, {marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
               
                 {this.renderUpperNavTab()}
                 {this.state.showChats ?
@@ -1020,7 +1020,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    marginTop: 22,
+    
   },
   upperNavTab: {
     flex: 0.15,

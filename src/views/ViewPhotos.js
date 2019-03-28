@@ -7,8 +7,8 @@ import {
   StyleSheet,
   Text,
   TouchableHighlight,
+  Platform,
   Dimensions
-
 } from 'react-native';
 import { withNavigation } from 'react-navigation';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -139,7 +139,7 @@ class ViewPhotos extends Component {
     // console.log(count, pictureuris);
     if(showSelectedPhotos) {
       return (
-        <View style={styles.selectedPhotoContainer}>
+        <View style={[styles.selectedPhotoContainer, {marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
           <View style={styles.backButtonHeader}>
             <Icon 
               name='arrow-left'
@@ -175,7 +175,7 @@ class ViewPhotos extends Component {
     if (showSelectedPhoto) {
       return (
 
-        <View style={styles.selectedPhotoContainer}>
+        <View style={[styles.selectedPhotoContainer, {marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
             <View style={styles.backButtonHeader}>
               <Icon 
                 name='arrow-left'
@@ -210,7 +210,7 @@ class ViewPhotos extends Component {
     }
 
     return (
-      <View style={styles.mainContainer}>
+      <View style={[styles.mainContainer, {marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
 
         <View style={{ flex: 0.2, flexDirection: 'row', paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center' }}>
 
@@ -269,7 +269,7 @@ class ViewPhotos extends Component {
 
 const styles = StyleSheet.create({
 
-  mainContainer: { backgroundColor: '#fff', flex: 1, marginTop: 22, padding: 3 },
+  mainContainer: { backgroundColor: '#fff', flex: 1, padding: 3 },
 
   contentContainerStyle: {
     flexGrow: 4,
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
       backgroundColor: '#fff',
     flex: 1,
     // justifyContent: 'center',
-    marginTop: 22,
+    // marginTop: 22,
     // alignItems: 'center'
   },
 

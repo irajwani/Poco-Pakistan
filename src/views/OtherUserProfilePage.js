@@ -59,7 +59,8 @@ class OtherUserProfilePage extends Component {
       report: '',
       showReportUserModal: false,
       isGetting: true,
-      uid: firebase.auth().currentUser.uid
+      uid: firebase.auth().currentUser.uid,
+      comments: {a: 'nothing'}
 
     }
 
@@ -83,7 +84,7 @@ class OtherUserProfilePage extends Component {
       this.timerId = setInterval(() => {
         this.loadReviews(otherUserUid);  
       }, 20000);
-    }, 100);
+    }, 1);
       
   }
 

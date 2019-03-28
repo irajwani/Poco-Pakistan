@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {View, Image, TouchableOpacity, Dimensions} from 'react-native'
+import {View, Image, TouchableOpacity, Platform, Dimensions} from 'react-native'
 import styled from "styled-components/native"; // 3.1.6
 import Carousel, {Pagination} from 'react-native-snap-carousel'; // 3.6.0
 import { graphiteGray, mantisGreen, lightGray } from '../colors';
@@ -37,7 +37,7 @@ class FullScreenCarousel extends Component {
               this._carousel.snapToItem(index);
             }}
         >
-            <Image source={{ uri: item }} style={{width: 270,height: 420, borderWidth: 2,borderColor: "#2c2d2d",}}/>
+            <Image source={{ uri: item }} style={Platform.OS == 'ios' ? {width: 270,height: 420, borderWidth: 2,borderColor: "#2c2d2d",} : {width: 200,height: 400, borderWidth: 2,borderColor: "#2c2d2d",}}/>
         </TouchableOpacity>
         
         
