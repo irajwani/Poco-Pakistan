@@ -39,13 +39,14 @@ class MultipleAddButton extends Component {
 
   launchCamera(navToComponent) {
     // console.log('launching camera');
-    if(Platform.OS == 'ios') {
-      this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` });
-    }
+    this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` });
+    // if(Platform.OS == 'ios') {
+    //   this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` });
+    // }
 
-    else {
-      alert('Sorry. We are currently working on this feature for Android phones. Please select picture from photo gallery for now.');
-    }
+    // else {
+    //   alert('Sorry. We are currently working on this feature for Android phones. Please select picture from photo gallery for now.');
+    // }
     
     //<MyCustomCamera />
     

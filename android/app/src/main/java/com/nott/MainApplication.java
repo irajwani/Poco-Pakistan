@@ -48,7 +48,6 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-            new ImageResizerPackage(),
           new RNGoogleSigninPackage(),
           new FBSDKPackage(mCallbackManager),
           new LinearGradientPackage(),
@@ -56,7 +55,8 @@ public class MainApplication extends Application implements ReactApplication {
           new RNFetchBlobPackage(),
           new SvgPackage(),
           new ReactNativePushNotificationPackage(),
-          new RNSpinkitPackage()
+          new RNSpinkitPackage(),
+          new ImageResizerPackage()
       );
     }
 
