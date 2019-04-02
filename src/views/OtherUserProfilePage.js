@@ -138,8 +138,8 @@ class OtherUserProfilePage extends Component {
     firebase.database().ref(`/Users/${otherUserUid}/`).on('value', (snap) => { 
       var d = snap.val();
       var comments = false;
-      if(d[otherUserUid].comments) {
-        comments = d[otherUserUid].comments;
+      if(d.comments) {
+        comments = d.comments;
       }
       //Removed hard code this.state.comments to unhelpful object with one property
       this.setState({comments, isGetting: false});

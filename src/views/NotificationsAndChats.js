@@ -841,9 +841,9 @@ class Notifications extends Component {
                 <Image style={styles.detailsImage} source={{uri: details.uri}}/>
               </View>
 
-              <View style={{flex: 0.5, margin: 5, flexDirection: 'row'}}>
-                <Text style={styles.detailsText}>We noticed your item, {details.name} has been on the marketplace for a week, and hasn't sold. In order to make it more likely to sell, we recommend you reduce your price to {0.90*details.price}. In order to change your price, </Text>
-                <Text onPress={()=>this.navToEditItem(this.state.editProductKey)} style={[styles.detailsText, {color: lightGreen}]}>click here</Text>
+              <View style={{flex: 0.5, margin: 5}}>
+                <Text style={styles.detailsText}>We noticed your item, {details.name} has been on the marketplace for a week, and hasn't sold. In order to make it more likely to sell, we recommend you reduce your price to {0.90*details.price}. Consider editing this item's details from its description page.</Text>
+                {/* <Text onPress={()=>this.navToEditItem(this.state.editProductKey)} style={[styles.detailsText, {color: lightGreen}]}>click here</Text> */}
               </View>
 
               

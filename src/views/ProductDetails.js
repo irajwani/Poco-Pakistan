@@ -774,7 +774,7 @@ class ProductDetails extends Component {
           />
         </View>
 
-        <View style={styles.pictureModalBody}>
+        <View style={[styles.pictureModalBody, {alignItems: 'center'}]}>
           <FullScreenCarousel data={this.props.navigation.state.params.data.uris.source}/>
         </View>
 
@@ -2022,7 +2022,7 @@ pictureModalBody: {
 deliveryOptionModal: {
   backgroundColor: "#fff",
   flex: 1,
-  marginTop: 22
+  marginTop: Platform.OS == "ios" ? 22 : 0
 },
 deliveryOptionHeader: {
   flex: 0.1,

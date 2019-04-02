@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import {View, Image, TouchableOpacity, Platform, Dimensions} from 'react-native'
+import {View, Image, TouchableOpacity, Platform, Dimensions, StyleSheet} from 'react-native'
 import styled from "styled-components/native"; // 3.1.6
 import Carousel, {Pagination} from 'react-native-snap-carousel'; // 3.6.0
 import { graphiteGray, mantisGreen, lightGray } from '../colors';
 // import { iOSColors } from 'react-native-typography';
 
-const {height} = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 class FullScreenCarousel extends Component {
 
@@ -37,7 +37,11 @@ class FullScreenCarousel extends Component {
               this._carousel.snapToItem(index);
             }}
         >
-            <Image source={{ uri: item }} style={Platform.OS == 'ios' ? {width: 270,height: 420, borderWidth: 2,borderColor: "#2c2d2d",} : {width: 200,height: 400, borderWidth: 2,borderColor: "#2c2d2d",}}/>
+            <Image 
+            source={{ uri: item }} 
+            style={Platform.OS == 'ios' ? styles.iosImage : styles.androidImage}
+
+            />
         </TouchableOpacity>
         
         
@@ -82,7 +86,7 @@ class FullScreenCarousel extends Component {
 
     return (
 
-      <View>
+      
         <Carousel
           ref={ (c) => { this._carousel = c; } }
           data={this.props.data}
@@ -93,14 +97,20 @@ class FullScreenCarousel extends Component {
           layout={'default'}
           firstItem={0}
         />
-        { this.pagination }
-      </View>
+      
+        
+      
 
     );
   }
 }
 
 export default FullScreenCarousel;
+
+const styles = StyleSheet.create({
+  iosImage: {width: 256,height: 420, borderWidth: 2,borderColor: "#2c2d2d",},
+  androidImage: {width: 256,height: 400, borderWidth: 2,borderColor: "#2c2d2d",}
+})
 
 
 const VideoTitleText = styled.Text`
