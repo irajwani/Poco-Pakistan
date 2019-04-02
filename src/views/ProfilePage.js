@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dimensions, Text, StyleSheet, ScrollView, View, Image, TouchableHighlight, TouchableOpacity } from 'react-native'
+import { Dimensions, Text, StyleSheet, ScrollView, View, Image, TouchableHighlight, TouchableOpacity, SafeAreaView } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Button, Divider} from 'react-native-elements'
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
@@ -449,18 +449,19 @@ const styles = StyleSheet.create({
 
   iconColumn: {
     flex: 0.25,
-    justifyContent: 'flex-start',
+    // justifyContent: 'flex-start',
     alignItems: 'center',
-    marginVertical: 25,
+    margin: 10,
+    // marginVertical: 25,
     // backgroundColor: 'red'
     // height: 150,
   },
 
   profileColumn: {
     flex: 0.5,
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20
+    // marginVertical: 20
   },
 
   triangle: {

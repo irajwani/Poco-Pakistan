@@ -67,7 +67,7 @@ class MultiplePictureCamera extends Component {
     const isFocused = this.props.navigation.isFocused();
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, {marginTop: Platform.OS == "ios" ? 18 : 0}]}>
 
         {isFocused ? 
         <RNCamera
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
         flex: 1,
         // flexDirection: 'column',
         backgroundColor: 'black',
-        marginTop: 18
+        // marginTop: 18
       },
       preview: {
         flex: 1,

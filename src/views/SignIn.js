@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AsyncStorage, Dimensions, View, Text, Image, Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import { AsyncStorage, Dimensions, View, Modal, Text, TextInput, Image, Platform, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 
 import PushNotification from 'react-native-push-notification';
 
@@ -17,19 +17,21 @@ import firebase from '../cloud/firebase.js';
 import {GoogleSignin} from 'react-native-google-signin'
 import {LoginManager, AccessToken} from 'react-native-fbsdk';
 
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 // import { systemWeights, iOSColors } from 'react-native-typography';
 import {avenirNextText} from '../constructors/avenirNextText'
 // import HomeScreen from './HomeScreen';
 // import { SignUpToCreateProfileStack } from '../stackNavigators/signUpToEditProfileStack';
 
 // var provider = new firebase.auth.GoogleAuthProvider();
-import {lightGray, treeGreen, highlightGreen, lightGreen} from '../colors'
-import { LoadingIndicator, SignInTextInput } from '../localFunctions/visualFunctions.js';
+import {lightGray, treeGreen, highlightGreen, lightGreen, logoGreen} from '../colors'
+import { LoadingIndicator, SignInTextInput, CustomTextInput } from '../localFunctions/visualFunctions.js';
 import { filterObjectByKeys } from '../localFunctions/arrayFunctions.js';
 import Svg, { Path } from 'react-native-svg';
 // import { withNavigation } from 'react-navigation';
 // const {width,} = Dimensions.get('window');
 
+const passwordResetText = "Enter your email and we will send you a link to reset your password"
 
 //THIS PAGE: 
 //Allows user to sign in or sign up and handles the flow specific to standard sign in, or standard sign up, or google sign in, or google sign up.
@@ -39,8 +41,8 @@ import Svg, { Path } from 'react-native-svg';
 
 //var database = firebase.database();
 
-var googleAuthProvider = new firebase.auth.GoogleAuthProvider();
-var facebookAuthProvider = new firebase.auth.FacebookAuthProvider();
+// var googleAuthProvider = new firebase.auth.GoogleAuthProvider();
+// var facebookAuthProvider = new firebase.auth.FacebookAuthProvider();
 
 function timeSince(date) {
 
@@ -75,7 +77,8 @@ class SignIn extends Component {
       super(props);
       this.state = { 
         products: [], email: '', uid: '', pass: '', loading: false, loggedIn: false, googleIconColor: '#db3236', 
-        saveUsernamePass: true
+        saveUsernamePass: true,
+        showPasswordReset: false
     };
       }
 
@@ -533,6 +536,69 @@ class SignIn extends Component {
         });
     }
 
+    toggleShowPasswordReset = () => {
+        this.setState({showPasswordReset: !this.state.showPasswordReset});
+    }
+
+    renderPasswordResetModal = () => {
+        return (
+            <Modal
+            animationType="slide"
+            transparent={false}
+            visible={this.state.showPasswordReset}
+            >
+                <View style={[styles.signInContainer, {padding: 0, marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
+                    <View style={styles.headerBar}>
+                        <FontAwesomeIcon
+                        name='close'
+                        size={28}
+                        color={'black'}
+                        onPress={this.toggleShowPasswordReset}
+                        />
+                    </View>
+                    <View style={styles.passwordResetContainer}>
+
+                        <View style={{flex: 0.2, margin: 5, alignItems: 'center'}}>
+                            <Text style={new avenirNextText("#fff", 18, "300")}>{passwordResetText}</Text>
+                        </View>
+
+                        <View style={{flex: 0.2, margin: 5}}>
+                            <TextInput 
+                            maxLength={40} 
+                            placeholder={"Email Address"} 
+                            placeholderTextColor={lightGray}
+                            value={this.state.email} onChangeText={email => this.setState({ email })}
+                            clearButtonMode={'while-editing'}
+                            underlineColorAndroid={"transparent"}
+                            style={[{height: 50, width: 280 }, new avenirNextText('#fff', 20, "300")]}
+                            />
+                        </View>
+                        
+                        
+                        <TouchableOpacity 
+                        onPress={()=> {
+                            firebase.auth().sendPasswordResetEmail(this.state.email)
+                            .then( () => {
+                                this.setState({showPasswordReset: false}, ()=>{
+                                    alert('Password Reset Email successfully sent! Please check your inbox for instructions on how to reset your password');
+                                })
+                                
+                            })
+                            .catch( () => {
+                                alert('Please input a valid email address');
+                            })
+                        }}
+                        style={{backgroundColor: "#fff", margin: 10, height: 50, justifyContent: 'center', alignItems: 'center'}}>
+                            <Text style={new avenirNextText('black', 18, "300", 'center')}>SEND</Text>
+                        </TouchableOpacity>
+                        
+
+                    </View>
+                </View>
+            </Modal>
+        )
+    }
+
 
     render() {
 
@@ -542,8 +608,8 @@ class SignIn extends Component {
         
         
         return (
-                
-            <View style={styles.signInContainer}>
+            <SafeAreaView style={{flex: 1, backgroundColor: "#122021"}}>
+            <View style={[styles.signInContainer, {marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
 
                 
                     <View style={styles.companyLogoContainer}>
@@ -627,7 +693,7 @@ class SignIn extends Component {
                     </View>
                 
                 {loading ? 
-                    <View style={styles.allAuthButtonsContainer}>
+                    <View style={[styles.allAuthButtonsContainer, {flex: 0.4}]}>
                         <LoadingIndicator isVisible={loading} color={lightGreen} type={'Wordpress'}/>
                     </View>
                 :
@@ -704,6 +770,13 @@ class SignIn extends Component {
 
                 </View>
                 }
+
+                
+                <View style={styles.forgotPasswordContainer}>
+                    <Text style={new avenirNextText('#fff', 18, "300")} onPress={this.toggleShowPasswordReset}>Forgot Password?</Text>
+                </View>
+                
+                {this.renderPasswordResetModal()}
                     
                     
 
@@ -711,6 +784,7 @@ class SignIn extends Component {
                     
             
             </View>
+            </SafeAreaView>
                     )
 
 
@@ -743,7 +817,7 @@ const styles = StyleSheet.create({
   //SIGN IN PAGE
     signInContainer: {
       flex: 1,
-      marginTop: 20,
+    //   marginTop: 20,
       //marginBottom: 5,
       padding: 15,
       flexDirection: 'column',
@@ -776,7 +850,7 @@ const styles = StyleSheet.create({
   },
 
   twoTextInputsContainer: {
-    flex: 0.40,
+    flex: 0.35,
     justifyContent: 'flex-start',
     // backgroundColor: 'red',
     // alignItems: 'center',
@@ -784,7 +858,7 @@ const styles = StyleSheet.create({
   },
 
   allAuthButtonsContainer: {
-    flex: 0.35,
+    flex: 0.30,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',
@@ -796,6 +870,29 @@ const styles = StyleSheet.create({
     // backgroundColor: 'white',
     // justifyContent: 'flex-end',
     // alignItems: 'center'
+  },
+
+  forgotPasswordContainer: {
+      flex: 0.1,
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+      
+  },
+
+  headerBar: {
+      flex: 0.07,
+      flexDirection: 'row',
+      padding: 10,
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+      backgroundColor: logoGreen
+  },
+
+  passwordResetContainer: {
+    flex: 0.93,
+    paddingVertical: 5,
+    paddingHorizontal: 10
   },
 
     authButtonText: { fontWeight: "bold" },

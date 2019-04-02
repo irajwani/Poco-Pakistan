@@ -60,7 +60,7 @@ class OtherUserProfilePage extends Component {
       showReportUserModal: false,
       isGetting: true,
       uid: firebase.auth().currentUser.uid,
-      comments: {a: 'nothing'}
+      comments: false
 
     }
 
@@ -78,7 +78,7 @@ class OtherUserProfilePage extends Component {
 
   componentDidMount() {
     let otherUserUid = this.props.navigation.state.params.uid;
-    setTimeout(() => {
+    this.timeoutId = setTimeout(() => {
       this.loadRelevantData(this.state.uid, otherUserUid);
       this.loadReviews(otherUserUid);  
       this.timerId = setInterval(() => {
@@ -89,6 +89,7 @@ class OtherUserProfilePage extends Component {
   }
 
   componentWillUnmount() {
+   clearTimeout(this.timeoutId);
    clearInterval(this.timerId); 
   }
 
@@ -132,19 +133,16 @@ class OtherUserProfilePage extends Component {
     })
   }
 
-  loadReviews = () => {
-    // this.setState({isGetting: true});
+  loadReviews = (otherUserUid) => {
+    this.setState({isGetting: true});
     firebase.database().ref(`/Users/${otherUserUid}/`).on('value', (snap) => { 
       var d = snap.val();
-      var comments;
+      var comments = false;
       if(d[otherUserUid].comments) {
         comments = d[otherUserUid].comments;
       }
-      else {
-        comments = {a: 'nothing'}
-        // comments = {a: {text: 'Write a review for this seller using the comment field below.', name: 'NottMyStyle Team', time: `${year}/${month.toString().length == 2 ? month : '0' + month }/${date}`, uri: '' } };
-      }
-      this.setState({comments});
+      //Removed hard code this.state.comments to unhelpful object with one property
+      this.setState({comments, isGetting: false});
     })
 
   }
@@ -307,7 +305,7 @@ class OtherUserProfilePage extends Component {
               onPress={() => {this.navToUserComments()}}
             /> 
           </View>  
-          {comments['a'] ? null : Object.keys(comments).map(
+          {!comments ? null : Object.keys(comments).map(
                   (comment) => (
                   <View key={comment} style={styles.commentContainer}>
 

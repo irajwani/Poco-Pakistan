@@ -1106,7 +1106,7 @@ const styles = StyleSheet.create({
   deliveryOptionModal: {
     backgroundColor: "#fff",
     flex: 1,
-    marginTop: 22
+    marginTop: Platform.OS == "ios" ? 22 : 0
   },
   
   deliveryOptionHeader: {

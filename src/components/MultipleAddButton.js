@@ -39,14 +39,14 @@ class MultipleAddButton extends Component {
 
   launchCamera(navToComponent) {
     // console.log('launching camera');
-    this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` });
-    // if(Platform.OS == 'ios') {
-    //   this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` });
-    // }
+    // this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` });
+    if(Platform.OS == 'ios') {
+      this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` });
+    }
 
-    // else {
-    //   alert('Sorry. We are currently working on this feature for Android phones. Please select picture from photo gallery for now.');
-    // }
+    else {
+      alert('Sorry. We are currently working on this feature for Android phones. Please select picture(s) from Photo Gallery for now.');
+    }
     
     //<MyCustomCamera />
     
@@ -56,7 +56,7 @@ class MultipleAddButton extends Component {
     // console.log('opening Photo Library');
     let photoArray;
     // console.log("HERE MAN")
-    CameraRoll.getPhotos({ first: 100 })
+    CameraRoll.getPhotos({ first: 30 })
     .then(res => {
       photoArray = res.edges;
       // console.log("OVER HERE"+ photoArray);
