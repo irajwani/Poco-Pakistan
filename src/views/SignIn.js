@@ -419,7 +419,7 @@ class SignIn extends Component {
             for(var specificNotification of Object.values(notificationsObj.priceReductions)) {
                 if(!specificNotification.localNotificationSent) {
                     let localNotificationProperty = {};
-                    localNotificationProperty[`/Users/${specificNotification.uid}/notifications/priceReductions/${specificNotification.key}`] = true;
+                    localNotificationProperty[`/Users/${specificNotification.uid}/notifications/priceReductions/${specificNotification.key}/localNotificationSent/`] = true;
                     let promiseToScheduleNotification = firebase.database().ref().update(localNotificationProperty);
                     promiseToScheduleNotification.then( () => {
                         var month = new Date().getMonth() + 1;
