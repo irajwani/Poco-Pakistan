@@ -1034,7 +1034,7 @@ class Products extends Component {
         Alert.alert('Modal has been closed.');
       }}
       >
-      <View style={[{flex: 1},{backgroundColor: lightBlack }, styles.filterModal]}>
+      <View style={[{flex: 1},{backgroundColor: lightBlack }, styles.filterModal, {marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
 
         <View style={styles.filterModalHeader}>
           
@@ -1901,7 +1901,7 @@ const styles = StyleSheet.create({
   filterModal: {
     // paddingVertical: 10,
     paddingHorizontal: 0, 
-    marginTop: 22
+    // marginTop: 22
   },
 
   filterModalHeader: {

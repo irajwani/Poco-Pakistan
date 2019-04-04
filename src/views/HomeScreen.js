@@ -10,8 +10,8 @@ import { wishListToProductDetailsOrChatOrCommentsStack } from '../stackNavigator
 import { ChatsToCustomChatStack } from '../stackNavigators/chatsToCustomChatStack';
 import { highlightGreen } from '../colors';
 import { BadgeIcon } from '../localFunctions/visualFunctions';
-import firebase from '../cloud/firebase';
-import {unreadCount} from '../localFunctions/dbFunctions';
+// import firebase from '../cloud/firebase';
+// import {unreadCount} from '../localFunctions/dbFunctions';
 
 // const uid = firebase.auth().currentUser.uid;
 
@@ -61,7 +61,7 @@ const HomeScreen = TabNavigator(
                     else if (routeName === 'Chats') {
                       iconName = 'forum';
                       // IconComponent = BadgeIcon;
-                      return <BadgeIcon name={iconName} size={iconSize} color={tintColor} unreadCount={unreadCount} />;
+                      return <BadgeIcon name={iconName} size={iconSize} color={tintColor} unreadCount={true} />;
                     }
 
                     else if (routeName === 'WishList') {

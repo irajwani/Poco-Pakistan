@@ -47,4 +47,4 @@ var unsubscribe = firebase.auth().onAuthStateChanged( ( user ) => {
 } )
 
 
-export {unreadCount}
+// export {unreadCount}

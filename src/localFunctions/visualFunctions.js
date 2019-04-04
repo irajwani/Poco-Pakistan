@@ -4,6 +4,7 @@ import { darkGray, lightGray, rejectRed, almostWhite, flagRed } from '../colors'
 import Spinner from 'react-native-spinkit';
 import { avenirNextText } from '../constructors/avenirNextText';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import firebase from '../cloud/firebase';
 
 const GrayLine = () => (
     <View style={{backgroundColor: darkGray, height: 0.5}}/>
@@ -23,8 +24,8 @@ const DismissKeyboardView = ({children}) => (
     </TouchableWithoutFeedback>
   )
 
-const LoadingIndicator = ({isVisible, type, color}) => (
-    <Spinner style={{}} isVisible={isVisible} size={50} type={type} color={color}/>    
+const LoadingIndicator = ({isVisible, type, color, size}) => (
+    <Spinner style={{}} isVisible={isVisible} size={size ? size : 50} type={type} color={color}/>    
 ) 
 
 const CustomTouchableO = ({onPress, disabled, flex, color, text, textSize, textColor, extraStyles}) => {
@@ -79,46 +80,133 @@ const SignInTextInput = ({placeholder, onChangeText, value, secureTextEntry, key
     </View>
 )
 
-const BadgeIcon = ({name, size, color, unreadCount}) => (
-    <View style={{ width: 35, height: 35, margin: 5, justifyContent: 'center', alignItems: 'center' }}>
-        <Icon name={name} size={size} color={color}/>
-        { unreadCount ? 
-          <View style={Platform.OS == 'ios' ? {
-            
-            position: 'absolute',
-            right: -4,
-            top: -3,
-            backgroundColor: flagRed,
-            borderRadius: 9,
-            width: 18,
-            height: 18,
-            // borderWidth: 1,
-            // borderColor: almostWhite,
-            padding: 2,
-            justifyContent: 'center',
-            alignItems: 'center',
-          } : {
-            
-            position: 'absolute',
-            right: 3,
-            top: 2,
-            backgroundColor: flagRed,
-            borderRadius: 6,
-            width: 12,
-            height: 12,
-            // borderWidth: 1,
-            // borderColor: almostWhite,
-            padding: 2,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-            <Text style={{color: almostWhite, fontWeight: "800", fontSize: Platform.OS == 'ios' ? 14:10}}>!</Text>
-          </View>
-        
-        :
-        null
+class BadgeIcon extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            uid: false,
+            unreadCount: false,
+            isGetting: true
         }
-    </View>
-)
+    }
+
+    componentWillMount = () => {
+        if(this.props.unreadCount) {
+            setTimeout(() => {
+                
+                this.setState({uid: firebase.auth().currentUser.uid}, () => {
+                    this.getNotificationsCount(this.state.uid);
+                });
+                
+                
+                
+                this.getNotificationsCountInterval = setInterval(() => {
+                    this.getNotificationsCount(this.state.uid)
+                }, 20000);
+                
+            }, 1);
+        }
+        
+    }
+
+    getNotificationsCount = (uid) => {
+        this.setState({isGetting: true});
+        firebase.database().ref(`/Users/${uid}`).once("value", (snapshot) => {
+          var d = snapshot.val();
+          let unreadCount = 0
+  
+          if(d.notifications) {
+            if(d.notifications.priceReductions) {
+            
+              Object.values(d.notifications.priceReductions).forEach( n => {
+                if(n.unreadCount) {
+                  unreadCount += 1
+                }
+              })
+            
+            }
+          
+            if(d.notifications.itemsSold) {
+              
+              Object.values(d.notifications.itemsSold).forEach( n => {
+                if(n.unreadCount) {
+                  unreadCount += 1
+                }
+              })
+              
+            }
+  
+            if(d.notifications.purchaseReceipts) {
+              
+              Object.values(d.notifications.purchaseReceipts).forEach( n => {
+                if(n.unreadCount) {
+                  unreadCount += 1
+                }
+              })
+              
+            }}
+  
+          this.setState({unreadCount, isGetting: false})
+          
+          
+          
+        })
+        .catch( (err) => {console.log(err); return false })
+        
+      }
+
+    render() {
+        return (
+            <View style={{ width: 35, height: 35, margin: 5, justifyContent: 'center', alignItems: 'center' }}>
+                <Icon name={this.props.name} size={this.props.size} color={this.props.color}/>
+                {/* Now just for chats icon */}
+                { this.props.unreadCount && this.state.unreadCount > 0 ?
+                    
+                  <View style={Platform.OS == 'ios' ? {
+                    
+                    position: 'absolute',
+                    right: -4,
+                    top: -3,
+                    backgroundColor: flagRed,
+                    borderRadius: 9,
+                    width: 18,
+                    height: 18,
+                    // borderWidth: 1,
+                    // borderColor: almostWhite,
+                    padding: 2,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  } : {
+                    
+                    position: 'absolute',
+                    right: 3,
+                    top: 2,
+                    backgroundColor: flagRed,
+                    borderRadius: 6,
+                    width: 12,
+                    height: 12,
+                    // borderWidth: 1,
+                    // borderColor: almostWhite,
+                    padding: 2,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                    {this.state.isGetting ?
+                        <LoadingIndicator isVisible={this.state.isGetting} type={'Circle'} color={'#fff'} size={10}/>
+                        :
+                        <Text style={{color: almostWhite, fontWeight: "300", fontSize: Platform.OS == 'ios' ? 12:8}}>{this.state.unreadCount}</Text>
+                    }
+                  </View>
+                
+                :
+                null
+                }
+            </View>
+        )
+    } 
+}
+
+
 
 export {GrayLine, WhiteSpace, LoadingIndicator, DismissKeyboardView, CustomTouchableO, CustomTextInput, SignInTextInput, BadgeIcon}

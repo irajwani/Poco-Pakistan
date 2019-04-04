@@ -642,6 +642,7 @@ class SignIn extends Component {
                         <View style={{flex: 0.33, paddingVertical: 2}}>
                             <Hoshi
                                 label={'Email Address'}
+                                
                                 labelStyle={ new avenirNextText(lightGray, 15, "500") }
                                 value={this.state.email}
                                 onChangeText={email => this.setState({ email })}
@@ -652,6 +653,8 @@ class SignIn extends Component {
                                 // please pass the backgroundColor of your TextInput container.
                                 // maskColor={"#120221"}
                                 inputStyle={new avenirNextText(lightGreen, 19, "300")}
+                                returnKeyType={'next'}
+                                onSubmitEditing={() => this.passInput.focus()}
                             />
                         </View>    
                         <View style={{flex: 0.33, paddingVertical: 2}}>
@@ -668,6 +671,7 @@ class SignIn extends Component {
                                 // maskColor={"#120221"}
                                 // please pass the backgroundColor of your TextInput container.
                                 inputStyle={new avenirNextText('#fff', 19, "300")}
+                                ref={ref => this.passInput = ref}
                             />
                         </View>
 
