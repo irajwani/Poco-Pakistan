@@ -29,7 +29,7 @@ class MultipleAddButton extends Component {
     }
 
     if (index == 1) {
-      Platform.OS == "android" ? this.requestPhotosPermission(navToComponent) : this.launchGallery(navToComponent);
+      Platform.OS == "android" ? Platform.Version <= 22 ? this.launchGallery(navToComponent) : this.requestPhotosPermission(navToComponent) : this.launchGallery(navToComponent);
     }
     
     // if (index == 0) {
@@ -39,14 +39,14 @@ class MultipleAddButton extends Component {
 
   launchCamera(navToComponent) {
     // console.log('launching camera');
-    // this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` });
-    if(Platform.OS == 'ios') {
-      this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` });
-    }
+    this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` });
+    // if(Platform.OS == 'ios') {
+    //   this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` });
+    // }
 
-    else {
-      alert('Sorry. We are currently working on this feature for Android phones. Please select picture(s) from Photo Gallery for now.');
-    }
+    // else {
+    //   alert('Sorry. We are currently working on this feature for Android phones. Please select picture(s) from Photo Gallery for now.');
+    // }
     
     //<MyCustomCamera />
     

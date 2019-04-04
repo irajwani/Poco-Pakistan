@@ -434,7 +434,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
         isUploading: false,
                  });
 
-    this.state.oldItemPostKey ? this.props.navigation.popToTop() : this.props.navigation.navigate('Profile'); 
+    this.state.oldItemPostKey ? this.props.navigation.popToTop() : this.props.navigation.navigate('Market'); 
   }
 
   deleteProduct(uid, key) {

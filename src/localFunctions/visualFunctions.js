@@ -100,14 +100,19 @@ class BadgeIcon extends React.Component {
                 });
                 
                 
-                
-                this.getNotificationsCountInterval = setInterval(() => {
-                    this.getNotificationsCount(this.state.uid)
-                }, 20000);
-                
             }, 1);
         }
         
+    }
+
+    // componentDidMount = () => {
+    //     this.getNotificationsCountInterval = setInterval(() => {
+    //         this.getNotificationsCount(this.state.uid);
+    //     }, 20000);
+    // }
+
+    componentWillUnmount = () => {
+        // clearInterval(this.getNotificationsCountInterval);
     }
 
     getNotificationsCount = (uid) => {

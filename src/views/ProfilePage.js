@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dimensions, Text, StyleSheet, ScrollView, View, Image, TouchableHighlight, TouchableOpacity, SafeAreaView } from 'react-native'
+import { Platform, Dimensions, Text, StyleSheet, ScrollView, View, Image, TouchableHighlight, TouchableOpacity, SafeAreaView } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Button, Divider} from 'react-native-elements'
 import {withNavigation, StackNavigator} from 'react-navigation'; // Version can be specified in package.json
@@ -310,7 +310,7 @@ class ProfilePage extends Component {
       <View style={styles.midContainer}>
         
           <View style={[styles.numberCard, {borderRightWidth: 1}]}>
-            <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.numberProducts}>{this.state.numberProducts} </Text>
+            <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.numberProducts}>{this.state.numberProducts}</Text>
             <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.subText}>ON SALE</Text>
           </View>
 
