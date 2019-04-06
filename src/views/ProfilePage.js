@@ -216,7 +216,7 @@ class ProfilePage extends Component {
  
 
     return (
-      <View style={styles.mainContainer}>
+      <View style={[styles.mainContainer, {marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
       <View style={styles.headerContainer}>
 
         <LinearGradient style={styles.linearGradient} colors={gradientColors}>

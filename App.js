@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { SignUpToCreateProfileStack } from './src/stackNavigators/signUpToCreateProfileStack';
+// import { SignUpToCreateProfileStack } from './src/stackNavigators/signUpToCreateProfileStack';
 import Test from './src/views/Test';
 import AuthOrAppSwitch from './src/switchNavigators/AuthOrAppSwitch';
 

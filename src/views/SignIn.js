@@ -301,7 +301,7 @@ class SignIn extends Component {
           );
     }
 
-    onSignInPress() {
+    onSignInPress = () => {
         this.setState({ error: '', loading: true });
         const { email, pass } = this.state;
 
@@ -608,8 +608,8 @@ class SignIn extends Component {
         
         
         return (
-            <SafeAreaView style={{flex: 1, backgroundColor: "#122021"}}>
-            <View style={[styles.signInContainer, {marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
+            <SafeAreaView style={[{flex: 1, backgroundColor: "#122021"}, {marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
+            <View style={styles.signInContainer}>
 
                 
                     <View style={styles.companyLogoContainer}>
@@ -639,7 +639,7 @@ class SignIn extends Component {
 
                         /> */}
 
-                        <View style={{flex: 0.33, paddingVertical: 2}}>
+                        <View style={{paddingVertical: 2}}>
                             <Hoshi
                                 label={'Email Address'}
                                 
@@ -652,12 +652,12 @@ class SignIn extends Component {
                                 // this is used to set backgroundColor of label mask.
                                 // please pass the backgroundColor of your TextInput container.
                                 // maskColor={"#120221"}
-                                inputStyle={new avenirNextText(lightGreen, 19, "300")}
+                                inputStyle={new avenirNextText(lightGreen, 15, "300")}
                                 returnKeyType={'next'}
                                 onSubmitEditing={() => this.passInput.focus()}
                             />
                         </View>    
-                        <View style={{flex: 0.33, paddingVertical: 2}}>
+                        <View style={{ paddingVertical: 2}}>
                             <Hoshi
                                 label={'Password'}
                                 labelStyle={ new avenirNextText(lightGray, 15, "500") }
@@ -670,18 +670,19 @@ class SignIn extends Component {
                                 // this is used to set backgroundColor of label mask.
                                 // maskColor={"#120221"}
                                 // please pass the backgroundColor of your TextInput container.
-                                inputStyle={new avenirNextText('#fff', 19, "300")}
+                                inputStyle={new avenirNextText('#fff', 15, "300")}
                                 ref={ref => this.passInput = ref}
+                                // onSubmitEditing={this.onSignInPress}
                             />
                         </View>
 
-                        <View style={{flex: 0.33, flexDirection: 'row', justifyContent: 'center'}}>
-                            <View style={{flex: 0.1, justifyContent: 'center', alignItems: 'flex-start'}}>
-                                <TouchableOpacity onPress={this.toggleSaveUsernamePass} style={{height: 18, width: 18, borderWidth: 2, borderColor: '#fff', alignItems: 'center'}}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', marginVertical: 15, marginHorizontal: 5}}>
+                            <View style={{ justifyContent: 'center', alignItems: 'flex-start'}}>
+                                <TouchableOpacity onPress={this.toggleSaveUsernamePass} style={{height: 25, width: 25, borderWidth: 2, borderColor: '#fff', justifyContent: 'center', alignItems: 'center'}}>
                                     {this.state.saveUsernamePass ?
                                         <Icon
                                         name="check"
-                                        size={12}
+                                        size={22}
                                         color={"#fff"} 
                                         />
                                     :
@@ -689,7 +690,7 @@ class SignIn extends Component {
                                     }
                                 </TouchableOpacity>
                             </View>
-                            <View style={{flex: 0.90, justifyContent: 'center', alignItems: 'flex-start'}}>
+                            <View style={{ justifyContent: 'center', alignItems: 'center'}}>
                                 <Text onPress={this.toggleSaveUsernamePass} style={new avenirNextText("#fff", 14, "300")}>Remember Username & Password</Text>
                             </View>
                         </View>
@@ -776,9 +777,15 @@ class SignIn extends Component {
                 }
 
                 
-                <View style={styles.forgotPasswordContainer}>
-                    <Text style={new avenirNextText('#fff', 18, "300")} onPress={this.toggleShowPasswordReset}>Forgot Password?</Text>
-                </View>
+                {loading ? 
+                null
+                :
+                <TouchableOpacity 
+                onPress={this.toggleShowPasswordReset}
+                style={styles.forgotPasswordContainer}>
+                    <Text style={new avenirNextText('#fff', 14, "300")} >Forgot Password?</Text>
+                </TouchableOpacity>
+                }
                 
                 {this.renderPasswordResetModal()}
                     
@@ -854,11 +861,12 @@ const styles = StyleSheet.create({
   },
 
   twoTextInputsContainer: {
-    flex: 0.35,
-    justifyContent: 'flex-start',
+    flex: 0.4,
+    // justifyContent: 'flex-start',
     // backgroundColor: 'red',
     // alignItems: 'center',
     // paddingHorizontal: 10
+    // backgroundColor: 'red'
   },
 
   allAuthButtonsContainer: {
@@ -877,7 +885,7 @@ const styles = StyleSheet.create({
   },
 
   forgotPasswordContainer: {
-      flex: 0.1,
+      flex: 0.05,
       flexDirection: 'row',
       justifyContent: 'flex-start',
       alignItems: 'center',

@@ -24,8 +24,8 @@ const DismissKeyboardView = ({children}) => (
     </TouchableWithoutFeedback>
   )
 
-const LoadingIndicator = ({isVisible, type, color, size}) => (
-    <Spinner style={{}} isVisible={isVisible} size={size ? size : 50} type={type} color={color}/>    
+const LoadingIndicator = ({isVisible, type, color}) => (
+    <Spinner style={{}} isVisible={isVisible} size={50} type={type} color={color}/>    
 ) 
 
 const CustomTouchableO = ({onPress, disabled, flex, color, text, textSize, textColor, extraStyles}) => {
@@ -166,7 +166,7 @@ class BadgeIcon extends React.Component {
             <View style={{ width: 35, height: 35, margin: 5, justifyContent: 'center', alignItems: 'center' }}>
                 <Icon name={this.props.name} size={this.props.size} color={this.props.color}/>
                 {/* Now just for chats icon */}
-                { this.props.unreadCount && this.state.unreadCount > 0 ?
+                { this.state.unreadCount > 0 ?
                     
                   <View style={Platform.OS == 'ios' ? {
                     
@@ -198,7 +198,7 @@ class BadgeIcon extends React.Component {
                     alignItems: 'center',
                   }}>
                     {this.state.isGetting ?
-                        <LoadingIndicator isVisible={this.state.isGetting} type={'Circle'} color={'#fff'} size={10}/>
+                        <LoadingIndicator isVisible={this.state.isGetting} type={'Circle'} color={'#fff'}/>
                         :
                         <Text style={{color: almostWhite, fontWeight: "300", fontSize: Platform.OS == 'ios' ? 12:8}}>{this.state.unreadCount}</Text>
                     }

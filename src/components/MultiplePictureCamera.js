@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Text, StyleSheet, View, ActivityIndicator, TouchableHighlight, Image, Platform } from 'react-native';
-import {withNavigationFocus} from 'react-navigation';
+// import {withNavigationFocus} from 'react-navigation';
 import { RNCamera } from 'react-native-camera';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
@@ -64,12 +64,12 @@ class MultiplePictureCamera extends Component {
   render() {
     const {params} = this.props.navigation.state;
     var {navToComponent} = params;
-    const isFocused = this.props.navigation.isFocused();
+    // const isFocused = this.props.navigation.isFocused();
 
     return (
         <View style={[styles.container, {marginTop: Platform.OS == "ios" ? 18 : 0}]}>
 
-        {isFocused ? 
+         
         <RNCamera
             ref={ref => {
               this.camera = ref;
@@ -134,9 +134,7 @@ class MultiplePictureCamera extends Component {
         </View>
 
         </RNCamera>
-        :
-        null
-        }
+        
 
       </View>
     )
@@ -232,5 +230,5 @@ const styles = StyleSheet.create({
         
       },
 })
-export default withNavigationFocus(MultiplePictureCamera)
+export default MultiplePictureCamera
 // export default MultiplePictureCamera
