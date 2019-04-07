@@ -50,22 +50,26 @@ const HomeScreen = TabNavigator(
                   let iconName;
                   let iconSize = 25;
                   if (routeName === 'Profile') {
-                    iconName = 'account-circle';
+                    iconName = focused ? 'account-circle' : 'account';
+                    iconSize = focused ? 30 : 25;
                   } else if (routeName === 'Market') {
                     iconName = 'shopping';
+                    iconSize = focused ? 30 : 25;
                   } else if (routeName === 'Sell') {
-                      iconName = 'plus-circle-outline';
-                      // iconSize = 30;
+                      iconName = focused ? 'plus-circle' : 'plus-circle-outline';
+                      iconSize = focused ? 30 : 25;
                     }
 
                     else if (routeName === 'Chats') {
-                      iconName = 'forum';
+                      iconName = focused ? 'forum' : 'forum-outline';
+                      iconSize = focused ? 30 : 25;
                       // IconComponent = BadgeIcon;
                       return <BadgeIcon name={iconName} size={iconSize} color={tintColor} unreadCount={true} />;
                     }
 
                     else if (routeName === 'WishList') {
                       iconName = 'basket';
+                      iconSize = focused ? 30 : 25;
                     }
           
                   // You can return any component that you like here! We usually use an
@@ -79,8 +83,10 @@ const HomeScreen = TabNavigator(
               tabBarOptions: {
                 activeTintColor: highlightGreen,
                 inactiveTintColor: 'black',
+                showLabel: false
+
               },
-              animationEnabled: false,
+              animationEnabled: true,
               swipeEnabled: false,
             }
           ); 

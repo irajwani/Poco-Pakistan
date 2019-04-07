@@ -6,7 +6,7 @@ import { View } from 'react-native';
 class Collection extends Component {
   render() {
     return (
-      <Products showCollection={true} showYourProducts={false} />
+      <Products showCollection={true} showYourProducts={false} showSoldProducts={false} />
     )
   }
 }

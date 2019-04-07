@@ -413,7 +413,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
 //   }
 
   callBackForProductUploadCompletion = () => {
-    alert(`Product named ${this.state.name} successfully uploaded to Market!`)
+    alert(`Product named ${this.state.name} successfully uploaded to Market!`);
     // alert(`Your product ${this.state.name} is being\nuploaded to the market.\nPlease do not resubmit the same product.`);
     //TODO: example of how in this instance we needed to remove pictureuris if its sitting in the navigation params
     this.props.navigation.setParams({pictureuris: 'nothing here', price: 0, original_price: 0, type: false, size: false, condition: false});

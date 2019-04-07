@@ -2,16 +2,16 @@ import React, { Component } from 'react'
 import Products from '../components/Products';
 import { withNavigation } from 'react-navigation'; 
 
-class YourProducts extends Component {
+class SoldProducts extends Component {
   render() {
     return (
       
-        <Products showYourProducts={true} showCollection={false} showSoldProducts={false}/>
+        <Products showYourProducts={true} showCollection={false} showSoldProducts={true}/>
       
     )
   }
 }
 
-export default withNavigation(YourProducts);
+export default withNavigation(SoldProducts);
 
 ////you may navigate to this component from the profile page's sold items button.

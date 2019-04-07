@@ -30,6 +30,7 @@ const nottAuthEndpoint = `https://calm-coast-12842.herokuapp.com/`;
 
 const emptyMarketText = "Wow, such empty..."
 const noProductsOfYourOwnText = "So far, you have not uploaded any items on the marketplace.\nTo make some cash 🤑 and free up closet space, upload an article of clothing on the Market from the 'Sell' screen.";
+const noSoldProductsText = "So far, you have not sold any products. When a user purchases a product, that product will automatically be marked as sold."
 const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace 💔.";
 const noResultsFromSearchText = "Your search does not match the description of any product on the marketplace 🙁.";
 // const emptyMarketDueToSearchCriteriaText = noResultsFromSearchText;
@@ -205,7 +206,7 @@ class Products extends Component {
   }
 
 
-  componentDidMount = () => {
+  componentWillMount = () => {
     
     setTimeout(() => {
       this.getMarketPlace(this.state.uid);
@@ -215,6 +216,10 @@ class Products extends Component {
       
     }, 100);
   }
+
+  // componentDidMount = () => {
+  //   this.getMarketPlace(this.state.uid);
+  // }
 
   // componentWillMount() {
   //   // setTimeout(() => {
@@ -324,7 +329,7 @@ class Products extends Component {
       }
       else {
         Products = Object.values(Products);
-        const {showCollection, showYourProducts} = this.props;
+        const {showCollection, showYourProducts, showSoldProducts} = this.props;
         var emptyMarket = false;
         var productKeys = [], collectionKeys = [];
 
@@ -336,10 +341,15 @@ class Products extends Component {
           var collectionKeys = removeKeysWithFalsyValuesFrom(Users[uid].collection);
         }
         
-        if(showYourProducts) {
-          Products = Products.filter((product) => productKeys.includes(product.key) );
+        if(showYourProducts && showSoldProducts) {
+          Products = Products.filter((product) => productKeys.includes(product.key) && product.text.sold );
           Products.length > 0 ? null : emptyMarket = true;
           // this.setState({isGetting: false, noProducts: true, productKeys})
+        }
+
+        else if(showYourProducts && !showSoldProducts) {
+          Products = Products.filter((product) => productKeys.includes(product.key) );
+          Products.length > 0 ? null : emptyMarket = true;
         }
 
         else if(showCollection) {
@@ -1267,7 +1277,7 @@ class Products extends Component {
   }
 
   render() {
-    var {showCollection, showYourProducts} = this.props;
+    var {showCollection, showYourProducts, showSoldProducts} = this.props;
     var {isGetting, emptyMarket, noResultsFromFilter} = this.state;
     
     if(isGetting == true) {
@@ -1281,7 +1291,7 @@ class Products extends Component {
     else if(emptyMarket == true) {
       return (
         <View style={{marginTop: Platform.OS == 'ios' ? 22:0, backgroundColor: '#fff', padding: 10}}>
-          <NothingHereYet specificText={showCollection == true ? emptyCollectionText : showYourProducts == true ? noProductsOfYourOwnText : emptyMarketText } />
+          <NothingHereYet specificText={showCollection == true ? emptyCollectionText : (showYourProducts == true && showSoldProducts == true) ? noSoldProductsText : (showYourProducts == true && showSoldProducts == false) ? noProductsOfYourOwnText : emptyMarketText } />
         </View>
       )
     }

@@ -97,8 +97,11 @@ class BadgeIcon extends React.Component {
                 
                 this.setState({uid: firebase.auth().currentUser.uid}, () => {
                     this.getNotificationsCount(this.state.uid);
+                    setInterval(() => {
+                      this.getNotificationsCount(this.state.uid);
+                    }, 20000);
                 });
-                
+
                 
             }, 1);
         }
@@ -117,7 +120,7 @@ class BadgeIcon extends React.Component {
 
     getNotificationsCount = (uid) => {
         this.setState({isGetting: true});
-        firebase.database().ref(`/Users/${uid}`).once("value", (snapshot) => {
+        firebase.database().ref(`/Users/${uid}`).on("value", (snapshot) => {
           var d = snapshot.val();
           let unreadCount = 0
   
@@ -157,7 +160,9 @@ class BadgeIcon extends React.Component {
           
           
         })
-        .catch( (err) => {console.log(err); return false })
+        // .catch( (err) => { 
+        //   this.setState({unreadCount: 0, isGetting: false})
+        //  })
         
       }
 

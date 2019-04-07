@@ -317,8 +317,8 @@ class ProfilePage extends Component {
           {/* <Divider style={{  flex: 1, backgroundColor: graphiteGray, height: 80, marginVertical: 3 }} /> */}
 
           <View style={[styles.numberCard, {borderLeftWidth: 1}]}>
-            <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.numberProducts}>{this.state.soldProducts} </Text>
-            <Text onPress={() => {this.props.navigation.navigate('YourProducts')}} style={styles.subText}>SOLD</Text>
+            <Text onPress={() => {this.props.navigation.navigate('SoldProducts')}} style={styles.numberProducts}>{this.state.soldProducts} </Text>
+            <Text onPress={() => {this.props.navigation.navigate('SoldProducts')}} style={styles.subText}>SOLD</Text>
           </View>    
         
       </View>

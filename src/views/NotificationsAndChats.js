@@ -674,6 +674,7 @@ class Notifications extends Component {
         promiseToMarkRead.then( () => {
           this.setState({showDetails: true, details, notificationType })
         })
+        .catch(e => console.log("Could not update unreadCount of notification because: " + e))
         
       }
 
@@ -842,7 +843,7 @@ class Notifications extends Component {
               </View>
 
               <View style={{flex: 0.5, margin: 5}}>
-                <Text style={styles.detailsText}>We noticed your item, {details.name} has been on the marketplace for a week, and hasn't sold. In order to make it more likely to sell, we recommend you reduce your price to {0.90*details.price}. Consider editing this item's details from its description page.</Text>
+                <Text style={styles.detailsText}>We noticed your item, {details.name} has been on the marketplace for a week, and hasn't sold. In order to make it more likely to sell, we recommend you reduce your price to £{0.90*details.price}. Consider editing this item's details from its description page.</Text>
                 {/* <Text onPress={()=>this.navToEditItem(this.state.editProductKey)} style={[styles.detailsText, {color: lightGreen}]}>click here</Text> */}
               </View>
 

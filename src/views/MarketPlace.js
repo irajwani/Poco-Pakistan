@@ -14,7 +14,7 @@ class MarketPlace extends Component {
 
   render() {
     
-    return <Products showYourProducts={false} showCollection={false}/>
+    return <Products showYourProducts={false} showCollection={false} showSoldProducts={false}/>
 
   }
 }
