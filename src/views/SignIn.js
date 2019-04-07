@@ -653,6 +653,7 @@ class SignIn extends Component {
                                 // please pass the backgroundColor of your TextInput container.
                                 // maskColor={"#120221"}
                                 inputStyle={new avenirNextText(lightGreen, 15, "300")}
+                                keyboardType={'email-address'}
                                 returnKeyType={'next'}
                                 onSubmitEditing={() => this.passInput.focus()}
                             />
@@ -761,16 +762,13 @@ class SignIn extends Component {
 
                     <ViewWithChildAtPosition flex={1} >
 
-                        {Platform.OS == 'ios' ?
-                            <Icon
-                                name="facebook-box" 
-                                size={33} 
-                                color={'#3b5998'}
-                                onPress={() => this.signInWithFacebook()}
-                            />
-                            :
-                            null
-                        }
+                        <Icon
+                            name="facebook-box" 
+                            size={33} 
+                            color={'#3b5998'}
+                            onPress={() => this.signInWithFacebook()}
+                        />
+                            
                     </ViewWithChildAtPosition>
 
                 </View>

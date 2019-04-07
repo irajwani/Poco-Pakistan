@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dimensions, Modal, Text, StyleSheet, ScrollView, View, Image, TextInput, TouchableHighlight, TouchableWithoutFeedback, Keyboard } from 'react-native'
+import { Platform, Dimensions, Modal, Text, StyleSheet, ScrollView, View, Image, TextInput, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from 'react-native'
 import email from 'react-native-email'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
@@ -332,7 +332,6 @@ class OtherUserProfilePage extends Component {
 
                       </View>
 
-                      {comments[comment].uri ? <View style={styles.separator}/> : null}
                       
                   </View>
                   
@@ -353,7 +352,7 @@ class OtherUserProfilePage extends Component {
             Alert.alert('Modal has been closed.');
           }}
        >
-          <View style={styles.modal}>
+          <View style={[styles.modal, {marginTop: Platform.OS == "ios" ? 22 : 0}]}>
             <Text style={styles.modalHeader}>Block or Report This User</Text>
             <Text style={styles.modalText}>If you block this user, then they cannot initiate a chat with you regarding one of your products.</Text>
             <Text style={styles.modalText}>This will delete all chats you have with this individual, so if you decide to unblock this user later, they will have to initiate new chats with you.</Text>
@@ -408,12 +407,13 @@ class OtherUserProfilePage extends Component {
                     value={this.state.report}
                     multiline={true}
                     numberOfLines={4}
+                    underlineColorAndroid={"transparent"}
                 />
                 <Button
                     title='Send' 
                     titleStyle={{ fontWeight: "300" }}
                     buttonStyle={{
-                    backgroundColor: bobbyBlue,
+                    backgroundColor: highlightGreen,
                     //#2ac40f
                     width: (width)*0.40,
                     height: 40,
@@ -745,7 +745,7 @@ commentTimeRow: {
 commentTime: {
   textAlign: "right",
   fontSize: 16,
-  color: iOSColors.black
+  color: 'black'
 },
 
 rowContainer: {
@@ -765,7 +765,7 @@ height: 2,
 backgroundColor: '#111110'
 },  
 
-modal: {flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', padding: 30, marginTop: 22},
+modal: {flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', padding: 30},
 modalHeader: {
     textAlign: 'center',
     fontSize: 20,
@@ -814,7 +814,7 @@ reportModalHeader: {
     paddingBottom: 20,
 },
 
-reportInput: {width: width - 40, height: 120, marginBottom: 50, borderColor: bobbyBlue, borderWidth: 1}
+reportInput: {width: width - 40, height: 120, marginBottom: 50, borderColor: highlightGreen, borderWidth: 1}
 
 });
 

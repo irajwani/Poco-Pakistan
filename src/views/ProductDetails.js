@@ -531,38 +531,55 @@ class ProductDetails extends Component {
       }}
       >
         <DismissKeyboardView>
-            <View style={styles.reportModal}>
-                <Text style={styles.reportModalHeader}>Please Explain What You Wish To Report About This Product</Text>
-                <TextInput
-                    style={styles.reportInput}
-                    onChangeText={(report) => this.setState({report})}
-                    value={this.state.report}
-                    multiline={true}
-                    numberOfLines={4}
-                />
-                <Button
-                    title='Send' 
-                    titleStyle={{ fontWeight: "300" }}
-                    buttonStyle={{
-                    backgroundColor: darkBlue,
-                    //#2ac40f
-                    width: 90,
-                    height: 40,
-                    borderColor: "#fff",
-                    borderWidth: 1,
-                    borderRadius: 20,
-                    }}
-                    containerStyle={{ marginTop: 0, marginBottom: 0 }}
-                    onPress={() => {this.reportItem(this.state.yourProfile, data)}} 
-                />
-                
-                <TouchableHighlight
-                    underlayColor={'#fff'}
-                    onPress={() => {
-                        this.setState( {showReportUserModal: false} )
-                    }}>
-                    <Text style={styles.hideModal}>Back</Text>
-                </TouchableHighlight>
+            <View style={{flex: 1, marginTop: Platform.OS == "ios" ? 22 : 0}}>
+                <View style={styles.deliveryOptionHeader}>
+                  <FontAwesomeIcon
+                  name='arrow-left'
+                  size={28}
+                  color={'black'}
+                  onPress = {() => { 
+                    this.setState( {showReportUserModal: false} )
+                  }}
+                  />
+              
+                  <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
+                  
+      
+                  <FontAwesomeIcon
+                    name='close'
+                    size={28}
+                    color={logoGreen}
+                    
+                    />
+                </View>
+                <View style={[styles.reportModal, {flex: 0.9}]}>
+                  <Text style={styles.reportModalHeader}>Please Explain What You Wish To Report About This Product</Text>
+                  <TextInput
+                      style={styles.reportInput}
+                      onChangeText={(report) => this.setState({report})}
+                      value={this.state.report}
+                      multiline={true}
+                      numberOfLines={4}
+                      underlineColorAndroid={"transparent"}
+                  />
+                  <Button
+                      title='Send' 
+                      titleStyle={{ fontWeight: "300" }}
+                      buttonStyle={{
+                      backgroundColor: highlightGreen,
+                      //#2ac40f
+                      width: 90,
+                      height: 40,
+                      borderColor: "#fff",
+                      borderWidth: 1,
+                      borderRadius: 20,
+                      }}
+                      containerStyle={{ marginTop: 0, marginBottom: 0 }}
+                      onPress={() => {this.reportItem(this.state.yourProfile, data)}} 
+                  />
+                  
+                  
+                </View>
             </View>
           </DismissKeyboardView>
       </Modal>
@@ -1893,7 +1910,7 @@ const styles = StyleSheet.create( {
 //     fontSize: 18,
 //     fontWeight: '300'
 // },
-reportModal: {flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', padding: 25, marginTop: 22},
+reportModal: {justifyContent: 'flex-start', alignItems: 'center', padding: 25},
 reportModalHeader: {
     textAlign: 'center',
     fontSize: 20,
@@ -1907,7 +1924,11 @@ hideModal: {
   color: 'green',
   fontWeight:'bold'
 },
-reportInput: {width: 200, height: 160, marginBottom: 50, borderColor: darkBlue, borderWidth: 2},
+reportInput: {
+  width: 200, height: 140,
+  // flex: 0.33,
+  marginBottom: 50, borderColor: highlightGreen, borderWidth: 2
+},
 halfPageScroll: {
     
 },
