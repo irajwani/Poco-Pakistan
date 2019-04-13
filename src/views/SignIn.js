@@ -677,8 +677,8 @@ class SignIn extends Component {
                             />
                         </View>
 
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', marginVertical: 15, marginHorizontal: 5}}>
-                            <View style={{ justifyContent: 'center', alignItems: 'flex-start'}}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', marginVertical: 15, marginHorizontal: 5}}>
+                            <View style={{ justifyContent: 'center', alignItems: 'flex-start', marginHorizontal: 5}}>
                                 <TouchableOpacity onPress={this.toggleSaveUsernamePass} style={{height: 25, width: 25, borderWidth: 2, borderColor: '#fff', justifyContent: 'center', alignItems: 'center'}}>
                                     {this.state.saveUsernamePass ?
                                         <Icon
@@ -691,23 +691,37 @@ class SignIn extends Component {
                                     }
                                 </TouchableOpacity>
                             </View>
-                            <View style={{ justifyContent: 'center', alignItems: 'center'}}>
+                            <View style={{ justifyContent: 'center', alignItems: 'center', marginHorizontal: 5}}>
                                 <Text onPress={this.toggleSaveUsernamePass} style={new avenirNextText("#fff", 14, "300")}>Remember Username & Password</Text>
                             </View>
                         </View>
 
+                        {loading ? 
+                            null
+                        :
+                            <TouchableOpacity 
+                            onPress={this.toggleShowPasswordReset}
+                            style={styles.forgotPasswordContainer}>
+                                <Text style={new avenirNextText('#fff', 14, "300")}>Forgot Password?</Text>
+                            </TouchableOpacity>
+                        }
+
+                        
+
                     </View>
+
+                    {this.renderPasswordResetModal()}
                 
                 {loading ? 
-                    <View style={[styles.allAuthButtonsContainer, {flex: 0.4}]}>
+                    <View style={styles.allAuthButtonsContainer}>
                         <LoadingIndicator isVisible={loading} color={lightGreen} type={'Wordpress'}/>
                     </View>
                 :
                     
                         
-                <View style={styles.allAuthButtonsContainer}>
+                <View style={[styles.allAuthButtonsContainer, {marginTop: 10}]}>
 
-                    <ViewWithChildAtPosition flex={1}  >
+                    <ViewWithChildAtPosition flex={1/7}  >
                         <Icon
                             name="google" 
                             size={30} 
@@ -760,7 +774,7 @@ class SignIn extends Component {
                         
                     </View>
 
-                    <ViewWithChildAtPosition flex={1} >
+                    <ViewWithChildAtPosition flex={1/7} >
 
                         <Icon
                             name="facebook-box" 
@@ -775,17 +789,9 @@ class SignIn extends Component {
                 }
 
                 
-                {loading ? 
-                null
-                :
-                <TouchableOpacity 
-                onPress={this.toggleShowPasswordReset}
-                style={styles.forgotPasswordContainer}>
-                    <Text style={new avenirNextText('#fff', 14, "300")} >Forgot Password?</Text>
-                </TouchableOpacity>
-                }
                 
-                {this.renderPasswordResetModal()}
+                
+                
                     
                     
 
@@ -826,9 +832,10 @@ const styles = StyleSheet.create({
   //SIGN IN PAGE
     signInContainer: {
       flex: 1,
+      marginHorizontal: 15,
     //   marginTop: 20,
       //marginBottom: 5,
-      padding: 15,
+    //   padding: 15,
       flexDirection: 'column',
       // justifyContent: 'space-between',
       // alignContent: 'center',
@@ -876,14 +883,14 @@ const styles = StyleSheet.create({
   },
 
   twoAuthButtonsContainer: {
-    flex: 5,
+    flex: 5/7,
     // backgroundColor: 'white',
     // justifyContent: 'flex-end',
     // alignItems: 'center'
   },
 
   forgotPasswordContainer: {
-      flex: 0.05,
+    //   flex: 0.05,
       flexDirection: 'row',
       justifyContent: 'flex-start',
       alignItems: 'center',

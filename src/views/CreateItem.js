@@ -599,7 +599,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
             <Text style={[styles.detailHeader, {fontSize: 18, textAlign: 'center'}]}>Picture(s) of Product:</Text>
             <Divider style={{  backgroundColor: '#fff', height: 8 }} />
 
-            <MultipleAddButton navToComponent = {'CreateItem'} pictureuris={pictureuris}/>
+            <MultipleAddButton navToComponent={'CreateItem'} pictureuris={pictureuris}/>
             {/* {pictureuris[1] ? <Image style={{width: 60, height: 60}} source={{uri: pictureuris[1]}} /> : null}
             {this.state.resizedImage ? <Image style={{width: 60, height: 60}} source={{uri: this.state.resizedImage}}/> : null} */}
             <WhiteSpace height={10}/>

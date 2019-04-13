@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Linking, Dimensions, Text, StyleSheet, View, ScrollView, Platform, Modal, TouchableOpacity, Keyboard, KeyboardAvoidingView, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {ButtonGroup, Button} from 'react-native-elements';
+import {Button} from 'react-native-elements';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 // import RNFetchBlob from 'react-native-fetch-blob';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -10,8 +10,8 @@ import firebase from '../cloud/firebase.js';
 import MultipleAddButton from '../components/MultipleAddButton.js';
 import { iOSColors } from 'react-native-typography';
 import { EulaTop, EulaBottom, TsAndCs, PrivacyPolicy, EulaLink } from '../legal/Documents.js';
-import { confirmBlue, rejectRed, treeGreen, bobbyBlue, highlightGreen, profoundPink, darkBlue, tealBlue, lightGreen, coolBlack, darkGray, logoGreen, fbBlue, lightGray } from '../colors.js';
-import { PacmanIndicator } from 'react-native-indicators';
+import { confirmBlue, rejectRed, treeGreen, bobbyBlue, highlightGreen, profoundPink, darkBlue, tealBlue, lightGreen, coolBlack, darkGray, logoGreen, fbBlue, lightGray, bgBlack } from '../colors.js';
+// import { PacmanIndicator } from 'react-native-indicators';
 import {WhiteSpace, GrayLine, LoadingIndicator} from '../localFunctions/visualFunctions';
 
 const {width} = Dimensions.get('window');
@@ -24,7 +24,7 @@ const fs = RNFetchBlob.fs;
 window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest;
 window.Blob = Blob;
 
-const { State: TextInputState } = TextInput;
+// const { State: TextInputState } = TextInput;
 
 const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize, maxLength, secureTextEntry}) => (
     <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
@@ -544,30 +544,30 @@ class CreateProfile extends Component {
     }
 
     return (
-        <ScrollView style={styles.mainContainer} contentContainerStyle={styles.container}>
+        <ScrollView style={[styles.mainContainer, {marginTop: Platform.OS == "ios" ? 22 : 0}]} contentContainerStyle={styles.container}>
             
-            <Text style={{fontFamily: 'Avenir Next', fontWeight: '300', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text>
+            {/* <Text style={{fontFamily: 'Avenir Next', fontWeight: '300', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text> */}
             
             <View style={styles.backIconAndMABAndHelpContainer}>
-                <View style={{flex: 0.06, justifyContent: 'flex-start',}}>
+                <View style={{flex: 0.1, justifyContent: 'flex-start',}}>
                     <FontAwesomeIcon
-                    name='chevron-left'
+                    name='arrow-left'
                     size={28}
-                    color={'black'}
+                    color={'#fff'}
                     onPress = { () => { 
                         this.props.navigation.goBack();
                         } }
 
                     />
                 </View>
-                <View style={{flex: 0.88, justifyContent: 'flex-start', alignItems: 'center',  }}>
-                    <MultipleAddButton navToComponent = {'CreateProfile'} pictureuris={pictureuris} />
+                <View style={{flex: 0.80, justifyContent: 'flex-start', alignItems: 'center',  }}>
+                    <MultipleAddButton navToComponent={'CreateProfile'} pictureuris={pictureuris} />
                 </View>
-                <View style={{flex: 0.06, justifyContent: 'flex-start', alignItems: 'center'}}>
+                <View style={{flex: 0.1, justifyContent: 'flex-start', alignItems: 'center'}}>
                     <Icon
                     name='information-variant'
                     size={28}
-                    color={bobbyBlue}
+                    color={'#fff'}
                     onPress={() => this.setState({infoModalVisible: true}) } 
 
                     />
@@ -975,12 +975,10 @@ const styles = StyleSheet.create({
         alignItems: 'center', 
         padding: 15, 
         marginTop: 22, 
-        backgroundColor: '#fff'
+        backgroundColor: bgBlack
     },
 
     mainContainer: {
-        marginTop: 22,
-        backgroundColor: "#fff",
         flex: 1,
         height: '100%',
         // justifyContent: 'space-around',
@@ -1003,7 +1001,7 @@ const styles = StyleSheet.create({
         //alignItems: 'center'
         paddingLeft: 10,
         paddingRight: 10,
-        backgroundColor: 'white'
+        backgroundColor: bgBlack,
 
     },
 

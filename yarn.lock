@@ -4965,6 +4965,10 @@ react-native-google-signin@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/react-native-google-signin/-/react-native-google-signin-1.0.0.tgz#1af81402995fc11d7a82044cd09a4f5363690c28"
 
+react-native-image-picker@^0.28.1:
+  version "0.28.1"
+  resolved "https://registry.yarnpkg.com/react-native-image-picker/-/react-native-image-picker-0.28.1.tgz#1127460522e0c9741fc62f3d040271d298fb6a6e"
+
 react-native-image-resizer@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/react-native-image-resizer/-/react-native-image-resizer-1.0.1.tgz#e9eeb7f81596ffc490f822897952b046c07ee95c"

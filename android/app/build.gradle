@@ -101,7 +101,7 @@ android {
         applicationId "com.nott"
         minSdkVersion 18
         targetSdkVersion 26
-        versionCode 6
+        versionCode 7
         versionName "1.0"
         ndk {
             abiFilters "armeabi-v7a", "x86"
@@ -148,6 +148,7 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-image-picker')
     implementation project(':react-native-image-resizer')
     compile project(':react-native-google-signin')
     compile project(':react-native-fbsdk')

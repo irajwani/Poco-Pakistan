@@ -1,9 +1,20 @@
 import React, { Component } from 'react'
 import { Platform, Text, ScrollView, View, Image, StyleSheet, TouchableHighlight, CameraRoll, PermissionsAndroid } from 'react-native'
+import Svg, { Path } from 'react-native-svg';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import ActionSheet from 'react-native-actionsheet'
+import ImagePicker from 'react-native-image-picker';
 import { withNavigation } from 'react-navigation';
-import { lightGreen, highlightGreen, darkBlue, optionLabelBlue } from '../colors';
+import { lightGreen, highlightGreen, darkBlue, optionLabelBlue, bgBlack } from '../colors';
+
+const NothingHere = () => (
+  <Svg height={"100%"} width={"100%"} viewBox="0 0 400 400">
+      <Path 
+      d="M166.109 113.155 C 158.368 115.958,154.918 120.083,150.658 131.627 L 147.610 139.887 131.605 140.143 C 112.960 140.442,110.751 141.100,103.471 148.518 C 95.580 156.559,95.935 153.202,96.184 217.472 L 96.400 273.200 98.204 276.860 C 100.977 282.487,104.984 286.644,110.539 289.656 L 115.600 292.400 199.600 292.400 L 283.600 292.400 288.118 290.282 C 293.872 287.584,298.784 282.672,301.482 276.918 L 303.600 272.400 303.600 216.000 L 303.600 159.600 301.373 155.373 C 294.951 143.186,289.063 140.475,268.289 140.142 L 252.178 139.884 249.089 131.433 C 245.658 122.046,242.095 117.158,236.503 114.167 C 232.277 111.906,171.950 111.039,166.109 113.155 M208.230 169.166 C 235.215 173.977,253.118 201.333,246.420 227.523 C 236.444 266.528,186.059 277.272,162.040 245.515 C 135.687 210.672,165.415 161.534,208.230 169.166 M190.269 186.335 C 154.771 197.688,165.605 250.841,202.783 247.730 C 236.902 244.874,241.745 195.688,208.855 186.071 C 203.204 184.418,195.939 184.522,190.269 186.335 "
+      stroke={bgBlack} 
+      strokeWidth="1"/>
+  </Svg>
+)
 
 class MultipleAddButton extends Component {
   constructor(props) {
@@ -15,7 +26,7 @@ class MultipleAddButton extends Component {
     };
   }
 
-  showActionSheet() {
+  showActionSheet = () => {
     // console.log('adding Item')
     this.ActionSheet.show()
 
@@ -39,7 +50,7 @@ class MultipleAddButton extends Component {
 
   launchCamera(navToComponent) {
     // console.log('launching camera');
-    this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` });
+    Platform.OS == "ios" ? this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` }) : this.launchImagePickerCamera(navToComponent);
     // if(Platform.OS == 'ios') {
     //   this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` });
     // }
@@ -68,6 +79,22 @@ class MultipleAddButton extends Component {
     
   }
 
+  launchImagePickerCamera = (navToComponent) => {
+    const options = {
+      title: null,
+      cancelButtonTitle: null,
+      takePhotoButtonTitle: null,
+      chooseFromLibraryButtonTitle: null,
+      cameraType: 'back',
+      mediaType: 'photo',
+
+    }
+    ImagePicker.launchCamera(options, (response) => {
+      const pictureuris = [response.uri];
+      this.props.navigation.navigate(`${navToComponent}`, {pictureuris: pictureuris});
+    })
+  }
+
   requestPhotosPermission = async (navToComponent) => {
     try {
       const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE)
@@ -86,16 +113,16 @@ class MultipleAddButton extends Component {
       <View style={styles.mainPictureRow}>
         <TouchableHighlight underlayColor={'transparent'} style={styles.mainPictureTouchContainer} onPress={() => this.showActionSheet()} >
           
-            <Image 
-            source={
-              pictureuris === 'nothing here' ? 
-                Platform.OS == 'ios' ?
-                  require('../images/nothing_here.png') 
-                  :
-                  {uri: 'asset:/nothing_here.png'}
+            {pictureuris === 'nothing here' ? 
+              <View style={[this.props.navToComponent == "CreateProfile" ? styles.mainPictureCP : styles.mainPicture, {justifyContent: 'center', alignItems: 'center'}]}>
+                <NothingHere/>
+              </View>
               :
-              {uri: pictureuris[0]} } 
-            style={styles.mainPicture} /> 
+              <Image 
+            source={{uri: pictureuris[0]} } 
+            style={this.props.navToComponent == "CreateProfile" ? styles.mainPictureCP : styles.mainPicture} 
+            /> 
+            }
             
         </TouchableHighlight>        
       </View>
@@ -236,6 +263,13 @@ const styles = StyleSheet.create( {
     borderColor: optionLabelBlue,
     borderWidth: 0.5,
     
+  },
+
+  mainPictureCP: {
+    width: 130,
+    height: 130,
+    borderRadius: 65,
+    backgroundColor: '#fff'
   },
 
   otherPicturesRow: {

@@ -9,7 +9,7 @@ import { multipleAddButtonToMultiplePictureCameraToCreateItemStack } from '../st
 import { wishListToProductDetailsOrChatOrCommentsStack } from '../stackNavigators/wishListToProductDetailsOrChatOrCommentsStack';
 import { ChatsToCustomChatStack } from '../stackNavigators/chatsToCustomChatStack';
 import { highlightGreen } from '../colors';
-import { BadgeIcon } from '../localFunctions/visualFunctions';
+import { BadgeIcon, MarketplaceIcon } from '../localFunctions/visualFunctions';
 // import firebase from '../cloud/firebase';
 // import {unreadCount} from '../localFunctions/dbFunctions';
 
@@ -55,6 +55,7 @@ const HomeScreen = TabNavigator(
                   } else if (routeName === 'Market') {
                     iconName = 'shopping';
                     iconSize = focused ? 30 : 25;
+                    return <MarketplaceIcon strokeWidth={"3"} focused={focused}/>
                   } else if (routeName === 'Sell') {
                       iconName = focused ? 'plus-circle' : 'plus-circle-outline';
                       iconSize = focused ? 30 : 25;

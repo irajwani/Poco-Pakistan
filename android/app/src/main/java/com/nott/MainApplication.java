@@ -5,6 +5,8 @@ import android.app.Application;
 import com.facebook.react.ReactApplication;
 import fr.bamlab.rnimageresizer.ImageResizerPackage;
 
+import com.imagepicker.ImagePickerPackage;
+
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -56,7 +58,8 @@ public class MainApplication extends Application implements ReactApplication {
           new SvgPackage(),
           new ReactNativePushNotificationPackage(),
           new RNSpinkitPackage(),
-          new ImageResizerPackage()
+          new ImageResizerPackage(),
+          new ImagePickerPackage()
       );
     }
 
