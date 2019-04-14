@@ -10,9 +10,11 @@ import firebase from '../cloud/firebase.js';
 import MultipleAddButton from '../components/MultipleAddButton.js';
 import { iOSColors } from 'react-native-typography';
 import { EulaTop, EulaBottom, TsAndCs, PrivacyPolicy, EulaLink } from '../legal/Documents.js';
-import { confirmBlue, rejectRed, treeGreen, bobbyBlue, highlightGreen, profoundPink, darkBlue, tealBlue, lightGreen, coolBlack, darkGray, logoGreen, fbBlue, lightGray, bgBlack } from '../colors.js';
+import { confirmBlue, rejectRed, treeGreen, bobbyBlue, mantisGreen, bgBlack, almostWhite, flashOrange } from '../colors.js';
 // import { PacmanIndicator } from 'react-native-indicators';
-import {WhiteSpace, GrayLine, LoadingIndicator} from '../localFunctions/visualFunctions';
+import {WhiteSpace, GrayLine, LoadingIndicator, CustomTextInput} from '../localFunctions/visualFunctions';
+import { shadow } from '../constructors/shadow.js';
+import { avenirNextText } from '../constructors/avenirNextText.js';
 
 const {width} = Dimensions.get('window');
 const inputHeightBoost = 4;
@@ -26,25 +28,25 @@ window.Blob = Blob;
 
 // const { State: TextInputState } = TextInput;
 
-const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize, maxLength, secureTextEntry}) => (
-    <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
-        <TextInput
-        secureTextEntry={secureTextEntry ? true : false}
-        style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
-        placeholder={placeholder}
-        placeholderTextColor={lightGray}
-        onChangeText={onChangeText}
-        value={value}
-        multiline={false}
-        maxLength={maxLength}
-        autoCorrect={false}
-        autoCapitalize={autoCapitalize ? autoCapitalize : 'none'}
-        clearButtonMode={'while-editing'}
-        underlineColorAndroid={"transparent"}
+// const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize, maxLength, secureTextEntry}) => (
+//     <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
+//         <TextInput
+//         secureTextEntry={secureTextEntry ? true : false}
+//         style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
+//         placeholder={placeholder}
+//         placeholderTextColor={lightGray}
+//         onChangeText={onChangeText}
+//         value={value}
+//         multiline={false}
+//         maxLength={maxLength}
+//         autoCorrect={false}
+//         autoCapitalize={autoCapitalize ? autoCapitalize : 'none'}
+//         clearButtonMode={'while-editing'}
+//         underlineColorAndroid={"transparent"}
         
-        />         
-    </View>
-)
+//         />         
+//     </View>
+// )
 
 class CreateProfile extends Component {
   constructor(props) {
@@ -586,9 +588,9 @@ class CreateProfile extends Component {
 
                             <CustomTextInput maxLength={40} placeholder={"Email Address"} value={this.state.email} onChangeText={email => this.setState({ email })}/>
 
-                            <WhiteSpace height={inputHeightBoost}/>
+                            
 
-                            <GrayLine/>
+                            
 
                             <CustomTextInput 
                             placeholder={"Password"} 
@@ -598,9 +600,9 @@ class CreateProfile extends Component {
                             secureTextEntry={true}
                             />
 
-                            <WhiteSpace height={inputHeightBoost}/>
+                            
 
-                            <GrayLine/>
+                            
 
                             <CustomTextInput 
                             placeholder={"Retype Password"} 
@@ -610,29 +612,32 @@ class CreateProfile extends Component {
                             secureTextEntry={true}
                             />
 
-                            <WhiteSpace height={inputHeightBoost}/>
+                            
 
-                            <GrayLine/>
+                            
                             
                     
-                            {passwordConditionMet ?
-                            <View style={styles.passwordStatusRow}>
-                            <Text style={[styles.passwordStatusText, {color: treeGreen}]}>Passwords Match!</Text>
-                            <Icon 
-                                name="verified" 
-                                size={30} 
-                                color={treeGreen}
-                            />
-                            </View> 
+                            {this.state.pass && this.state.pass2 ?
+                                passwordConditionMet ?
+                                <View style={styles.passwordStatusRow}>
+                                    <Text style={[styles.passwordStatusText, {color: mantisGreen}]}>Passwords Match!</Text>
+                                    <Icon 
+                                        name="verified" 
+                                        size={30} 
+                                        color={mantisGreen}
+                                    />
+                                </View> 
+                                :
+                                <View style={styles.passwordStatusRow}>
+                                    <Text style={[styles.passwordStatusText, {color: flashOrange}]}>Passwords Don't Match!</Text>
+                                    <Icon 
+                                        name="alert-circle" 
+                                        size={30} 
+                                        color={flashOrange}
+                                    />
+                                </View>
                             :
-                            <View style={styles.passwordStatusRow}>
-                            <Text style={[styles.passwordStatusText, {color: rejectRed}]}>Passwords Don't Match!</Text>
-                            <Icon 
-                                name="alert-circle" 
-                                size={30} 
-                                color={rejectRed}
-                            />
-                            </View>
+                            null
                             
                             }
                         </View>
@@ -647,20 +652,12 @@ class CreateProfile extends Component {
                     maxLength={13}
                     />
 
-                    <WhiteSpace height={inputHeightBoost}/>
-
-                    <GrayLine/> 
-
                     <CustomTextInput 
                     placeholder={"Last Name"} 
                     value={this.state.lastName} 
                     onChangeText={lastName => this.setState({ lastName })}
                     maxLength={13}
                     />
-
-                    <WhiteSpace height={inputHeightBoost}/>
-
-                    <GrayLine/>
 
                     <CustomTextInput 
                     placeholder={"Country"} 
@@ -669,10 +666,6 @@ class CreateProfile extends Component {
                     maxLength={16}
                     />
 
-                    <WhiteSpace height={inputHeightBoost}/>
-
-                    <GrayLine/>
-
                     <CustomTextInput 
                     placeholder={"Instagram Handle (w/o @)"} 
                     value={this.state.insta} 
@@ -680,11 +673,7 @@ class CreateProfile extends Component {
                     maxLength={16}
                     />
 
-                    <WhiteSpace height={inputHeightBoost}/>
-
-                    <GrayLine/>
-
-                    <WhiteSpace height={15}/>
+                    
                     </KeyboardAvoidingView>
                     :
                     <View>
@@ -695,7 +684,7 @@ class CreateProfile extends Component {
 
                             <CustomTextInput maxLength={40} placeholder={"Email Address"} value={this.state.email} onChangeText={email => this.setState({ email })}/>
 
-                            <WhiteSpace height={inputHeightBoost}/>
+                            
 
                             <GrayLine/>
 
@@ -707,9 +696,9 @@ class CreateProfile extends Component {
                             secureTextEntry={true}
                             />
 
-                            <WhiteSpace height={inputHeightBoost}/>
+                            
 
-                            <GrayLine/>
+                            
 
                             <CustomTextInput 
                             placeholder={"Retype Password"} 
@@ -719,30 +708,32 @@ class CreateProfile extends Component {
                             secureTextEntry={true}
                             />
 
-                            <WhiteSpace height={inputHeightBoost}/>
+                            
 
-                            <GrayLine/>
+                            
                             
                     
-                            {passwordConditionMet ?
-                            <View style={styles.passwordStatusRow}>
-                            <Text style={[styles.passwordStatusText, {color: treeGreen}]}>Passwords Match!</Text>
-                            <Icon 
-                                name="verified" 
-                                size={30} 
-                                color={treeGreen}
-                            />
-                            </View> 
+                            {this.state.pass && this.state.pass2?
+                                passwordConditionMet ?
+                                <View style={styles.passwordStatusRow}>
+                                <Text style={[styles.passwordStatusText, {color: mantisGreen}]}>Passwords Match!</Text>
+                                <Icon 
+                                    name="verified" 
+                                    size={30} 
+                                    color={mantisGreen}
+                                />
+                                </View> 
+                                :
+                                <View style={styles.passwordStatusRow}>
+                                <Text style={[styles.passwordStatusText, {color: flashOrange}]}>Passwords Don't Match!</Text>
+                                <Icon 
+                                    name="alert-circle" 
+                                    size={30} 
+                                    color={flashOrange}
+                                />
+                                </View>
                             :
-                            <View style={styles.passwordStatusRow}>
-                            <Text style={[styles.passwordStatusText, {color: rejectRed}]}>Passwords Don't Match!</Text>
-                            <Icon 
-                                name="alert-circle" 
-                                size={30} 
-                                color={rejectRed}
-                            />
-                            </View>
-                            
+                            null
                             }
                         </View>
                         :
@@ -756,20 +747,12 @@ class CreateProfile extends Component {
                     maxLength={13}
                     />
 
-                    <WhiteSpace height={inputHeightBoost}/>
-
-                    <GrayLine/> 
-
                     <CustomTextInput 
                     placeholder={"Last Name"} 
                     value={this.state.lastName} 
                     onChangeText={lastName => this.setState({ lastName })}
                     maxLength={13}
                     />
-
-                    <WhiteSpace height={inputHeightBoost}/>
-
-                    <GrayLine/>
 
                     <CustomTextInput 
                     placeholder={"Country"} 
@@ -778,10 +761,6 @@ class CreateProfile extends Component {
                     maxLength={16}
                     />
 
-                    <WhiteSpace height={inputHeightBoost}/>
-
-                    <GrayLine/>
-
                     <CustomTextInput 
                     placeholder={"Instagram Handle (w/o @)"} 
                     value={this.state.insta} 
@@ -789,11 +768,6 @@ class CreateProfile extends Component {
                     maxLength={16}
                     />
 
-                    <WhiteSpace height={inputHeightBoost}/>
-
-                    <GrayLine/>
-
-                    <WhiteSpace height={15}/>
                     </View>
             }
     
@@ -926,21 +900,10 @@ class CreateProfile extends Component {
 
             {/* Action Buttons */}
             
-            <TouchableOpacity disabled = {this.state.editProfileBoolean ? editProfileConditionMet ? true: false : conditionMet ? true: false} onPress={()=>this.setState({infoModalVisible: true})}>
-                <Button
+            <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', marginVertical: 10}} disabled={this.state.editProfileBoolean ? editProfileConditionMet ? true: false : conditionMet ? true: false} onPress={()=>this.setState({infoModalVisible: true})}>
+                <TouchableOpacity
                     disabled = { this.state.editProfileBoolean ? editProfileConditionMet ? false : true : conditionMet ? false: true}
-                    containerViewStyle={{paddingVertical: 20, alignItems: 'center', justifyContent: 'center'}}
-                    large
-                    buttonStyle={{
-                        backgroundColor: treeGreen,
-                        width: 280,
-                        height: 80,
-                        borderColor: "transparent",
-                        borderWidth: 0,
-                        borderRadius: 5,
-                    }}
-                    icon={{name: 'save', type: 'font-awesome'}}
-                    title='Save'
+                    style={styles.signUpButton}
                     onPress={
                         () => {
                         if(this.state.editProfileBoolean) {
@@ -951,7 +914,9 @@ class CreateProfile extends Component {
                         }
                         
                         }} 
-                />
+                >
+                    <Text style={new avenirNextText("black", 20, "300")}>Create Account</Text>
+                </TouchableOpacity>
             </TouchableOpacity>
             
         </ScrollView>
@@ -1006,6 +971,16 @@ const styles = StyleSheet.create({
     },
 
     backIconAndMABAndHelpContainer: {marginTop: 5, flexDirection: 'row', paddingVertical: 5, paddingRight: 2, paddingLeft: 1 },
+
+    signUpButton: {
+        width: 175,
+        height: 60,
+        borderRadius: 10,
+        backgroundColor: "#fff",
+        justifyContent: 'center', alignItems: 'center',
+        ...new shadow(2,2,almostWhite, -2,2)
+    },
+
     modal: {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', padding: 10, marginTop: 22},
     modalHeader: {
         textAlign: 'center',
@@ -1060,18 +1035,18 @@ const styles = StyleSheet.create({
 
     passwordStatusRow: {
         flexDirection: 'row',
-        width: width - 30,
-        height: 40,
-        marginTop: 7,
+        // width: width - 30,
+        height: 35,
+        marginVertical: 5,
         paddingHorizontal: 10,
-        justifyContent: 'space-between',
+        justifyContent: 'space-evenly',
         alignItems: 'center'
     },
 
     passwordStatusText: {
         fontSize: 20,
-        fontWeight: "bold",
-        fontFamily: "Cochin"
+        fontWeight: "300",
+        fontFamily: "Avenir Next"
     },
 
     buttonGroupText: {

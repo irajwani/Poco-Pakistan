@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, TouchableWithoutFeedback, Keyboard, TouchableOpacity, Text, TextInput, Platform } from 'react-native';
+import { View, TouchableWithoutFeedback, Keyboard, TouchableOpacity, Text, TextInput, Platform, StyleSheet } from 'react-native';
 import Svg, { G, Path } from 'react-native-svg';
-import { darkGray, lightGray, rejectRed, almostWhite, flagRed, highlightGreen } from '../colors';
+import { darkGray, lightGray, rejectRed, almostWhite, flagRed, highlightGreen, mantisGreen } from '../colors';
 import Spinner from 'react-native-spinkit';
 import { avenirNextText } from '../constructors/avenirNextText';
+import {shadow} from '../constructors/shadow';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import firebase from '../cloud/firebase';
 
@@ -38,30 +39,33 @@ const CustomTouchableO = ({onPress, disabled, flex, color, text, textSize, textC
     
 }
 
-const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize, maxLength, secureTextEntry, keyboardType}) => (
-    <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
-        <TextInput
-        secureTextEntry={secureTextEntry ? true : false}
-        style={{height: 50, width: 280, fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500"}}
-        placeholder={placeholder}
-        placeholderTextColor={lightGray}
-        onChangeText={onChangeText}
-        value={value}
-        multiline={false}
-        maxLength={maxLength}
-        autoCorrect={false}
-        autoCapitalize={autoCapitalize ? autoCapitalize : 'none'}
-        clearButtonMode={'while-editing'}
-        underlineColorAndroid={"transparent"}
-        keyboardType={keyboardType ? 'default' : 'number-pad'}
-        />         
+const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize, maxLength, secureTextEntry}) => (
+    <View style={styles.inputContainer}>
+      <View style={styles.input}>
+          <TextInput
+          secureTextEntry={secureTextEntry ? true : false}
+          style={styles.inputText}
+          placeholder={placeholder}
+          placeholderTextColor={lightGray}
+          onChangeText={onChangeText}
+          value={value}
+          multiline={false}
+          maxLength={maxLength}
+          autoCorrect={false}
+          autoCapitalize={autoCapitalize ? autoCapitalize : 'none'}
+          clearButtonMode={'while-editing'}
+          underlineColorAndroid={"transparent"}
+          
+          returnKeyType={'next'}
+          />         
+      </View>
     </View>
 )
 
-const SignInTextInput = ({placeholder, onChangeText, value, secureTextEntry, keyboardType}) => (
-    <View style={{paddingHorizontal: 7, justifyContent: 'center', alignItems: 'flex-start'}}>
-        <View style={{position: 'absolute', flex: 1, justifyContent: 'center'}}>
-            <Text style={new avenirNextText('#fff', 20, "200")}>{placeholder}</Text>
+const SignInTextInput = ({width, placeholder, onChangeText, value, secureTextEntry, keyboardType, returnKeyType, onSubmitEditing, ref}) => (
+    <View style={{width: width, height: 40, borderRadius: 30, backgroundColor: '#fff', }}>
+        <View style={{position: 'absolute', flex: 1, justifyContent: 'center', alignItems: 'flex-start'}}>
+            <Text style={new avenirNextText(lightGray, 20, "200")}>{placeholder}</Text>
         </View>
         <TextInput
         secureTextEntry={secureTextEntry ? true : false}
@@ -77,6 +81,9 @@ const SignInTextInput = ({placeholder, onChangeText, value, secureTextEntry, key
         clearButtonMode={'while-editing'}
         underlineColorAndroid={"transparent"}
         keyboardType={keyboardType ? 'email-address' : 'default'}
+        ref={ref ? ref : null}
+        returnKeyType={returnKeyType}
+        onSubmitEditing={onSubmitEditing ? onSubmitEditing : null}
         />         
     </View>
 )
@@ -184,6 +191,7 @@ class BadgeIcon extends React.Component {
 
     render() {
         return (
+          
             <View style={{ width: 35, height: 35, margin: 5, justifyContent: 'center', alignItems: 'center' }}>
                 <Icon name={this.props.name} size={this.props.size} color={this.props.color}/>
                 {/* Now just for chats icon */}
@@ -229,6 +237,7 @@ class BadgeIcon extends React.Component {
                 null
                 }
             </View>
+          
         )
     } 
 }
@@ -236,3 +245,25 @@ class BadgeIcon extends React.Component {
 
 
 export {GrayLine, WhiteSpace, LoadingIndicator, DismissKeyboardView, CustomTouchableO, CustomTextInput, SignInTextInput, MarketplaceIcon, BadgeIcon}
+
+const styles = StyleSheet.create({
+  inputContainer: {
+    marginVertical: 7,
+    marginHorizontal: 5,
+    justifyContent: 'center'
+  //   alignItems: 'center'
+},
+
+//   placeholderContainer: {
+//     position: 'absolute', flex: 1, justifyContent: 'flex-start', alignItems: 'center'
+//   },
+
+input: {
+  height: 38, borderRadius: 19, backgroundColor: '#fff', 
+  padding: 10, 
+  // justifyContent: 'center', alignItems: 'flex-start',
+  ...new shadow(2,2, color = mantisGreen, -1, 1)
+},
+
+inputText: { fontFamily: 'Avenir Next', fontSize: 14, fontWeight: "500", color: highlightGreen},
+})

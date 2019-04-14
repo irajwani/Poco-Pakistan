@@ -20,16 +20,17 @@ import {LoginManager, AccessToken} from 'react-native-fbsdk';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 // import { systemWeights, iOSColors } from 'react-native-typography';
 import {avenirNextText} from '../constructors/avenirNextText'
+import {shadow} from '../constructors/shadow'
 // import HomeScreen from './HomeScreen';
 // import { SignUpToCreateProfileStack } from '../stackNavigators/signUpToEditProfileStack';
 
 // var provider = new firebase.auth.GoogleAuthProvider();
-import {lightGray, treeGreen, highlightGreen, lightGreen, logoGreen} from '../colors'
+import {lightGray, treeGreen, highlightGreen, lightGreen, logoGreen, mantisGreen, almostWhite} from '../colors'
 import { LoadingIndicator, SignInTextInput, CustomTextInput } from '../localFunctions/visualFunctions.js';
 import { filterObjectByKeys } from '../localFunctions/arrayFunctions.js';
 import Svg, { Path } from 'react-native-svg';
 // import { withNavigation } from 'react-navigation';
-// const {width,} = Dimensions.get('window');
+const {width,} = Dimensions.get('window');
 
 const passwordResetText = "Enter your email and we will send you a link to reset your password"
 
@@ -76,7 +77,8 @@ class SignIn extends Component {
     constructor(props) {
       super(props);
       this.state = { 
-        products: [], email: '', uid: '', pass: '', loading: false, loggedIn: false, googleIconColor: '#db3236', 
+        products: [], email: '', uid: '', pass: '', loading: false, loggedIn: false, 
+        googleIconColor: '#db3236', fbIconColor: "#3b5998",
         saveUsernamePass: true,
         showPasswordReset: false
     };
@@ -119,11 +121,12 @@ class SignIn extends Component {
 
         let i = 0;
         const googleIconColors = ['#3cba54', '#db3236', '#f4c20d', '#4885ed'];
+        const fbIconColors = ["#3b5998", "#8a3ab9", "#cd486b", almostWhite];
         this.colorRefreshId = setInterval( () => {
             // i = Math.random() > 0.5 ? Math.random() > 0.5 ? Math.random() > 0.5 ? 1 : 2 : 4 : 3
             i++
             // console.log(googleIconColors[i % 4])
-            this.setState({googleIconColor: googleIconColors[i % 4]})
+            this.setState({googleIconColor: googleIconColors[i % 4], fbIconColor: fbIconColors[i % 4]})
         }, 3500)
         // .then( () => {console.log('google sign in is now possible')})
 
@@ -571,6 +574,7 @@ class SignIn extends Component {
                             clearButtonMode={'while-editing'}
                             underlineColorAndroid={"transparent"}
                             style={[{height: 50, width: 280 }, new avenirNextText('#fff', 20, "300")]}
+                            
                             />
                         </View>
                         
@@ -624,22 +628,54 @@ class SignIn extends Component {
                     
                     <View style={styles.twoTextInputsContainer}>
                         
-                        {/* <SignInTextInput
-                        placeholder={'Email Address'}  
-                        value={this.state.email}
-                        onChangeText={email => this.setState({ email })}
-                        keyboardType={true}
-                        />
+                        <View style={styles.inputContainer}>
 
-                        <SignInTextInput
-                        placeholder={'Password'}  
-                        value={this.state.pass}
-                        onChangeText={pass => this.setState({ pass })}
-                        secureTextEntry={true}
+                            <View style={styles.input}>
+                                <TextInput
+                                secureTextEntry={false}
+                                style={styles.inputText}
+                                placeholder={'Email Address'}
+                                placeholderTextColor={lightGray}
+                                onChangeText={email => this.setState({ email })}
+                                value={this.state.email}
+                                multiline={false}
+                                
+                                autoCorrect={false}
+                                
+                                clearButtonMode={'while-editing'}
+                                underlineColorAndroid={"transparent"}
+                                keyboardType={'email-address'}
+                                returnKeyType={'next'}
+                                onSubmitEditing={()=>{this.passInput.focus()}}
+                                />         
+                            </View>
+                            
+                        </View>
 
-                        /> */}
+                        <View style={styles.inputContainer}>
+                            <View style={styles.input}>
+                                <TextInput
+                                secureTextEntry={true}
+                                style={styles.inputText}
+                                placeholder={'Password'}
+                                placeholderTextColor={lightGray}
+                                onChangeText={pass => this.setState({ pass })}
+                                value={this.state.pass}
+                                multiline={false}
+                                
+                                autoCorrect={false}
+                                
+                                clearButtonMode={'while-editing'}
+                                underlineColorAndroid={"transparent"}
+                                returnKeyType={'done'}
+                                ref={ref => this.passInput = ref}
+                                
+                                
+                                />         
+                            </View>
+                        </View>
 
-                        <View style={{paddingVertical: 2}}>
+                        {/* <View style={{paddingVertical: 2}}>
                             <Hoshi
                                 label={'Email Address'}
                                 
@@ -675,7 +711,7 @@ class SignIn extends Component {
                                 ref={ref => this.passInput = ref}
                                 // onSubmitEditing={this.onSignInPress}
                             />
-                        </View>
+                        </View> */}
 
                         <View style={{ flexDirection: 'row', justifyContent: 'flex-start', marginVertical: 15, marginHorizontal: 5}}>
                             <View style={{ justifyContent: 'center', alignItems: 'flex-start', marginHorizontal: 5}}>
@@ -779,7 +815,7 @@ class SignIn extends Component {
                         <Icon
                             name="facebook-box" 
                             size={33} 
-                            color={'#3b5998'}
+                            color={this.state.fbIconColor}
                             onPress={() => this.signInWithFacebook()}
                         />
                             
@@ -873,6 +909,26 @@ const styles = StyleSheet.create({
     // paddingHorizontal: 10
     // backgroundColor: 'red'
   },
+
+  inputContainer: {
+      marginVertical: 7,
+      marginHorizontal: 5,
+      justifyContent: 'center'
+    //   alignItems: 'center'
+  },
+
+//   placeholderContainer: {
+//     position: 'absolute', flex: 1, justifyContent: 'flex-start', alignItems: 'center'
+//   },
+
+  input: {
+    height: 45, borderRadius: 22.5, backgroundColor: '#fff', 
+    padding: 10, 
+    // justifyContent: 'center', alignItems: 'flex-start',
+    ...new shadow(2,2, color = mantisGreen, -1, 1)
+},
+
+  inputText: { fontFamily: 'Avenir Next', fontSize: 20, fontWeight: "500", color: highlightGreen},
 
   allAuthButtonsContainer: {
     flex: 0.30,
