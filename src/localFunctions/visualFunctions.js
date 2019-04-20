@@ -41,7 +41,7 @@ const CustomTouchableO = ({onPress, disabled, flex, color, text, textSize, textC
 
 const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize, maxLength, secureTextEntry}) => (
     <View style={styles.inputContainer}>
-      <View style={styles.input}>
+      
           <TextInput
           secureTextEntry={secureTextEntry ? true : false}
           style={styles.inputText}
@@ -58,7 +58,7 @@ const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize, maxL
           
           returnKeyType={'next'}
           />         
-      </View>
+      
     </View>
 )
 
@@ -250,7 +250,10 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginVertical: 7,
     marginHorizontal: 5,
-    justifyContent: 'center'
+    // flexDirection: ''
+    justifyContent: 'center',
+    borderBottomWidth: 0.2,
+    borderBottomColor: '#fff'
   //   alignItems: 'center'
 },
 
@@ -265,5 +268,5 @@ input: {
   ...new shadow(2,2, color = mantisGreen, -1, 1)
 },
 
-inputText: { fontFamily: 'Avenir Next', fontSize: 14, fontWeight: "500", color: highlightGreen},
+inputText: { fontFamily: 'Avenir Next', fontSize: 14, fontWeight: "500", color: "#fff"},
 })

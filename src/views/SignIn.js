@@ -550,7 +550,7 @@ class SignIn extends Component {
             transparent={false}
             visible={this.state.showPasswordReset}
             >
-                <View style={[styles.signInContainer, {padding: 0, marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
+                <View style={[styles.signInContainer, {padding: 0, marginHorizontal: 0, marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
                     <View style={styles.headerBar}>
                         <FontAwesomeIcon
                         name='close'
@@ -628,7 +628,7 @@ class SignIn extends Component {
                     
                     <View style={styles.twoTextInputsContainer}>
                         
-                        <View style={styles.inputContainer}>
+                        {/* <View style={styles.inputContainer}>
 
                             <View style={styles.input}>
                                 <TextInput
@@ -639,9 +639,7 @@ class SignIn extends Component {
                                 onChangeText={email => this.setState({ email })}
                                 value={this.state.email}
                                 multiline={false}
-                                
                                 autoCorrect={false}
-                                
                                 clearButtonMode={'while-editing'}
                                 underlineColorAndroid={"transparent"}
                                 keyboardType={'email-address'}
@@ -673,9 +671,9 @@ class SignIn extends Component {
                                 
                                 />         
                             </View>
-                        </View>
+                        </View> */}
 
-                        {/* <View style={{paddingVertical: 2}}>
+                        <View style={{paddingVertical: 2}}>
                             <Hoshi
                                 label={'Email Address'}
                                 
@@ -711,7 +709,7 @@ class SignIn extends Component {
                                 ref={ref => this.passInput = ref}
                                 // onSubmitEditing={this.onSignInPress}
                             />
-                        </View> */}
+                        </View>
 
                         <View style={{ flexDirection: 'row', justifyContent: 'flex-start', marginVertical: 15, marginHorizontal: 5}}>
                             <View style={{ justifyContent: 'center', alignItems: 'flex-start', marginHorizontal: 5}}>
@@ -745,8 +743,6 @@ class SignIn extends Component {
                         
 
                     </View>
-
-                    {this.renderPasswordResetModal()}
                 
                 {loading ? 
                     <View style={styles.allAuthButtonsContainer}>
@@ -755,7 +751,7 @@ class SignIn extends Component {
                 :
                     
                         
-                <View style={[styles.allAuthButtonsContainer, {marginTop: 10}]}>
+                <View style={[styles.allAuthButtonsContainer]}>
 
                     <ViewWithChildAtPosition flex={1/7}  >
                         <Icon
@@ -835,6 +831,7 @@ class SignIn extends Component {
                     
             
             </View>
+            {this.renderPasswordResetModal()}
             </SafeAreaView>
                     )
 
@@ -948,7 +945,8 @@ const styles = StyleSheet.create({
   forgotPasswordContainer: {
     //   flex: 0.05,
       flexDirection: 'row',
-      justifyContent: 'flex-start',
+      justifyContent: 'center',
+    //   marginLeft: 15,
       alignItems: 'center',
       
   },

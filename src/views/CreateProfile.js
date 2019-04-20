@@ -10,16 +10,19 @@ import firebase from '../cloud/firebase.js';
 import MultipleAddButton from '../components/MultipleAddButton.js';
 import { iOSColors } from 'react-native-typography';
 import { EulaTop, EulaBottom, TsAndCs, PrivacyPolicy, EulaLink } from '../legal/Documents.js';
-import { confirmBlue, rejectRed, treeGreen, bobbyBlue, mantisGreen, bgBlack, almostWhite, flashOrange } from '../colors.js';
+import { lightGray, treeGreen, bobbyBlue, mantisGreen, bgBlack, almostWhite, flashOrange, highlightGreen, logoGreen } from '../colors.js';
 // import { PacmanIndicator } from 'react-native-indicators';
 import {WhiteSpace, GrayLine, LoadingIndicator, CustomTextInput} from '../localFunctions/visualFunctions';
 import { shadow } from '../constructors/shadow.js';
 import { avenirNextText } from '../constructors/avenirNextText.js';
+import { center } from '../constructors/center.js';
 
 const {width} = Dimensions.get('window');
-const inputHeightBoost = 4;
+// const inputHeightBoost = 4;
 const info = "In order to sign up, ensure that the values you input meet the following conditions:\n1. Take a profile picture of yourself. If you wish to keep your image a secret, just take a picture of your finger pressed against your camera lens to simulate a dark blank photo.\n2. Use a legitimate email address as other buyers and sellers need a way to contact you if the functionality in NottMyStyle is erroneous for some reason.\n3. Your Password's length must be greater than or equal to 6 characters. To add some security, consider using at least one upper case letter and one symbol like !.\n4. Please limit the length of your name to 40 characters.\n5. An Example answer to the 'city, country abbreviation' field is: 'Nottingham, UK' "
 const limeGreen = '#2e770f';
+
+const locations = [{country: "UK", flag: "🇬🇧"},{country: "Pakistan", flag: "🇵🇰"},{country: "USA", flag: "🇺🇸"}]
 
 const Blob = RNFetchBlob.polyfill.Blob;
 const fs = RNFetchBlob.fs;
@@ -64,7 +67,8 @@ class CreateProfile extends Component {
           pass: '',
           pass2: '',
           firstName: params.googleUserBoolean || params.facebookUserBoolean ? params.user.displayName.split(" ")[0] : '',
-          lastName: params.googleUserBoolean || params.facebookUserBoolean ? params.user.displayName.split(" ")[1] : '',    
+          lastName: params.googleUserBoolean || params.facebookUserBoolean ? params.user.displayName.split(" ")[1] : '',
+          city: '',    
           country: '',
         //   size: 1,
           uri: undefined,
@@ -75,6 +79,10 @@ class CreateProfile extends Component {
           privacyModalVisible: false,
           infoModalVisible: false,
           createProfileLoading: false,
+
+          //////COUNTRY SELECT STUFF
+          showCountrySelect: false,
+
           ////EDIT PROFILE STUFF
           editProfileBoolean: false,
           previousUri: false,
@@ -92,7 +100,7 @@ class CreateProfile extends Component {
 
   componentDidMount() {
 
-      this.keyboardDidShowListener = Keyboard.addListener(
+    this.keyboardDidShowListener = Keyboard.addListener(
       'keyboardDidShow',
       this.keyboardDidShow.bind(this),
     );
@@ -274,7 +282,7 @@ class CreateProfile extends Component {
 
     var postData = {
         name: data.firstName + " " + data.lastName, //data.firstName.concat(" ", data.lastName)
-        country: data.country,
+        country: data.city + ", " + data.country,
         // size: data.size,
         insta: data.insta,
         //TODO: Add user uid here to make navigation to their profile page easier. 
@@ -392,7 +400,7 @@ class CreateProfile extends Component {
 
         //pull uri as well and store it in pictureuris, and if there's no uri, MAB doesn't show anything
         var {name, country, insta} = profile;
-        this.setState({editProfileBoolean: true, firstName: name.split(" ")[0], lastName: name.split(" ")[1], country, insta, previousUri: profile.uri ? profile.uri : false })
+        this.setState({editProfileBoolean: true, firstName: name.split(" ")[0], lastName: name.split(" ")[1], city: country.split(", ")[0],country: country.split(", ")[1], insta, previousUri: profile.uri ? profile.uri : false })
 
 
       })
@@ -428,7 +436,7 @@ class CreateProfile extends Component {
 
     var postData = {
         name: data.firstName + " " + data.lastName, //data.firstName.concat(" ", data.lastName)
-        country: data.country,
+        country: data.city + ", " + data.country,
         size: data.size,
         insta: data.insta
     }
@@ -501,6 +509,71 @@ class CreateProfile extends Component {
 }
   }
 
+  toggleShowCountrySelect = () => {
+    this.setState({showCountrySelect: !this.state.showCountrySelect});
+  }
+
+  renderLocationSelect = () => (
+    <View style={[{flexDirection: 'row'}, styles.inputContainer]}>
+        <View style={{flex: 0.7}}>
+            <TextInput 
+            style={styles.inputText}
+            placeholder={"City"} 
+            placeholderTextColor={lightGray}
+            value={this.state.city} 
+            onChangeText={city => this.setState({ city })}
+            maxLength={16}
+            />
+            
+        </View>
+
+        <TouchableOpacity style={{flex: 0.3}} onPress={this.toggleShowCountrySelect}>
+            <Text 
+            style={styles.inputText}
+            >
+            {this.state.country ? this.state.country : "Country"}
+            </Text>
+        </TouchableOpacity>
+    
+    </View>
+  )
+
+  renderLocationSelectModal = () => (
+    <Modal
+    animationType="slide"
+    transparent={false}
+    visible={this.state.showCountrySelect}
+    >
+        <View style={[styles.mainContainer, {backgroundColor: bgBlack,marginTop: Platform.OS == 'ios' ? 22 : 0}]}>
+            <View style={styles.headerBar}>
+                <FontAwesomeIcon
+                name='close'
+                size={28}
+                color={'black'}
+                onPress={this.toggleShowCountrySelect}
+                />
+            </View>
+
+            <View style={styles.locationSelectBody}>
+                {locations.map((location) => (
+                    <TouchableOpacity onPress={()=>{
+                        this.setState({country: location.country}, this.toggleShowCountrySelect)
+                    }} 
+                    style={[{flexDirection: 'row'}, {borderBottomColor: '#fff', borderBottomWidth: 1}]}>
+                        <View style={{margin: 5, ...new center()}}>
+                            <Text style={{fontSize: 20}}>{location.flag}</Text>
+                        </View>
+                        <View style={{margin: 5, ...new center()}}>
+                            <Text style={new avenirNextText("#fff", 20, "300")}>{location.country}</Text>
+                        </View>
+                    </TouchableOpacity>
+                ))}
+            </View>
+
+        </View>
+    </Modal>
+  )
+
 
   ///////////////
 
@@ -527,7 +600,7 @@ class CreateProfile extends Component {
     // console.log(pictureuris);
     // console.log(pictureuris[0].includes('googleusercontent'))
     // console.log(googleUser, googleUserBoolean, pictureuris);
-    var conditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1) && (this.state.pass == this.state.pass2) && (this.state.pass.length >= 6);
+    var conditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (this.state.city) && (Array.isArray(pictureuris) && pictureuris.length == 1) && (this.state.pass == this.state.pass2) && (this.state.pass.length >= 6);
     var passwordConditionMet = (this.state.pass == this.state.pass2) && (this.state.pass.length > 0);
     // var googleUserConditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1);
     var editProfileConditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1);
@@ -658,13 +731,8 @@ class CreateProfile extends Component {
                     onChangeText={lastName => this.setState({ lastName })}
                     maxLength={13}
                     />
-
-                    <CustomTextInput 
-                    placeholder={"Country"} 
-                    value={this.state.country} 
-                    onChangeText={country => this.setState({ country })}
-                    maxLength={16}
-                    />
+                    
+                    {this.renderLocationSelect()}
 
                     <CustomTextInput 
                     placeholder={"Instagram Handle (w/o @)"} 
@@ -754,12 +822,7 @@ class CreateProfile extends Component {
                     maxLength={13}
                     />
 
-                    <CustomTextInput 
-                    placeholder={"Country"} 
-                    value={this.state.country} 
-                    onChangeText={country => this.setState({ country })}
-                    maxLength={16}
-                    />
+                    {this.renderLocationSelect()}
 
                     <CustomTextInput 
                     placeholder={"Instagram Handle (w/o @)"} 
@@ -804,36 +867,19 @@ class CreateProfile extends Component {
                     </Text>
                 </View>
                 <View style={styles.decisionButtons}>
-                    <Button
-                        title='Reject' 
-                        titleStyle={{ fontWeight: "300" }}
-                        buttonStyle={{
-                        backgroundColor: rejectRed,
-                        //#2ac40f
-                        width: (width)*0.40,
-                        height: 45,
-                        borderColor: "#226b13",
-                        borderWidth: 0,
-                        borderRadius: 10,
-                        }}
-                        containerStyle={{ marginTop: 0, marginBottom: 0 }}
+                    <TouchableOpacity
+                        style={[styles.decisionButton, {backgroundColor: 'black'}]}
                         onPress={() => {this.setModalVisible(false); }} 
-                    />
-                    <Button
-                        title='Accept' 
-                        titleStyle={{ fontWeight: "300" }}
-                        buttonStyle={{
-                        backgroundColor: confirmBlue,
-                        //#2ac40f
-                        width: (width)*0.40,
-                        height: 45,
-                        borderColor: "#226b13",
-                        borderWidth: 0,
-                        borderRadius: 10,
-                        }}
-                        containerStyle={{ marginTop: 0, marginBottom: 0 }}
+                    >
+                        <Text style={new avenirNextText('#fff', 15, "300")}>Reject</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.decisionButton, {backgroundColor: mantisGreen}]}
                         onPress={() => {console.log('Sign Up Initiated') ; googleUser || facebookUser ? this.createProfileForGoogleOrFacebookUser(user, pictureuris[0]) : this.createProfile(this.state.email, this.state.pass, pictureuris[0]) ;}} 
-                    />
+                    >
+                        <Text style={new avenirNextText('#fff', 15, "300")}>Accept</Text>
+                    </TouchableOpacity>
                 </View>
     
             </View>
@@ -918,6 +964,8 @@ class CreateProfile extends Component {
                     <Text style={new avenirNextText("black", 20, "300")}>Create Account</Text>
                 </TouchableOpacity>
             </TouchableOpacity>
+
+            {this.renderLocationSelectModal()}
             
         </ScrollView>
         )
@@ -972,6 +1020,27 @@ const styles = StyleSheet.create({
 
     backIconAndMABAndHelpContainer: {marginTop: 5, flexDirection: 'row', paddingVertical: 5, paddingRight: 2, paddingLeft: 1 },
 
+    inputContainer: {
+        marginVertical: 7,
+        marginHorizontal: 5,
+        // padding: 10,
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    
+    //   placeholderContainer: {
+    //     position: 'absolute', flex: 1, justifyContent: 'flex-start', alignItems: 'center'
+    //   },
+    
+    input: {
+      height: 38, borderRadius: 4, backgroundColor: '#fff', 
+      padding: 10, 
+      // justifyContent: 'center', alignItems: 'flex-start',
+      ...new shadow(2,2, color = mantisGreen, -1, 1)
+    },
+    
+    inputText: { fontFamily: 'Avenir Next', fontSize: 14, fontWeight: "500", color: "#fff"},
+
     signUpButton: {
         width: 175,
         height: 60,
@@ -979,6 +1048,22 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         justifyContent: 'center', alignItems: 'center',
         ...new shadow(2,2,almostWhite, -2,2)
+    },
+
+    headerBar: {
+        flex: 0.07,
+        flexDirection: 'row',
+        padding: 10,
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        backgroundColor: logoGreen
+    },
+
+    locationSelectBody: {
+        flex: 0.93,
+        margin: 5
+        // paddingVertical: 5,
+        // paddingHorizontal: 10
     },
 
     modal: {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', padding: 10, marginTop: 22},
@@ -1027,6 +1112,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
+
+    decisionButton: {
+        width: 40,
+        height: 30,
+        borderRadius: 10,
+        ...new center()
+    },
+
     gotIt: {
         fontWeight: "bold",
         color: limeGreen,

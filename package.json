@@ -10,6 +10,7 @@
     "@pusher/chatkit-client": "^1.2.2",
     "accounting": "^0.4.1",
     "adm-zip": "^0.4.13",
+    "emoji-flags": "^1.2.0",
     "emoji-utils": "^1.0.1",
     "firebase": "^5.2.0",
     "native-base": "^2.7.2",

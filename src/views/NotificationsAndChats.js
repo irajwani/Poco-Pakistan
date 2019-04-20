@@ -20,7 +20,7 @@ const noChatsText = "You have not initiated any chats 😳. Choose a product fro
 const DaysOfTheWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const {width} = Dimensions.get('window');
 
-const pictureWidth = 70, pictureHeight = 70;
+const pictureWidth = 65, pictureHeight = 65, pictureBorderRadius = 32.5;
 
 const notificationHeaderText = "NottMyStyle";
 const noNotificationsText = "The NottMyStyle team believes your products don't warrant any stats yet 👌, thus you have no notifications.";
@@ -388,7 +388,7 @@ class Chats extends Component {
             <TouchableOpacity onLongPress={() => this.handleLongPress(index)} onPress={() => this.navToChat(chat)} style={styles.pictureContainer}>
               <Image 
               source={this.state.yourUid == chat.sellerIdentification ? chat.buyerAvatar ? {uri: chat.buyerAvatar } : require('../images/blank.jpg') : chat.sellerAvatar ? {uri: chat.sellerAvatar } : require('../images/blank.jpg')   } 
-              style={[styles.picture, {borderRadius: 37}]} />
+              style={[styles.picture, {borderRadius: pictureBorderRadius}]} />
             </TouchableOpacity>
 
             <TouchableOpacity onLongPress={() => this.handleLongPress(index)} onPress={() => this.navToChat(chat)} style={styles.textContainer}>
@@ -610,22 +610,32 @@ class Notifications extends Component {
           key={index} style={styles.specificChatExpandedContainer}
           >
             <View style={styles.specificChatContainer}>
-  
+
               <TouchableOpacity  
-                onPress={() => this.showDetails(notifs[notification],notificationType, notification)} style={styles.pictureContainer}
+                onPress={() => this.showDetails(notifs[notification],notificationType, notification)} style={[styles.pictureContainer, {flexDirection: 'row'}]}
                 onLongPress={()=>this.handleLongPress(nT,notification)}
               >
-                <Image 
-                source={require("../images/nottmystyleLogo.png")} 
-                style={[styles.picture, {borderRadius: 35}]} />
+                <View style={[styles.unreadDotContainer, {flex: 0.1}]}>
+                  {notifs[notification].unreadCount == true ? 
+                    <View style={styles.unreadDot}/>
+                    :
+                    null
+                  }
+                </View>
+                <View style={{flex: 0.9, alignItems: 'stretch'}}>
+                  <Image 
+                  source={require("../images/nottmystyleLogo.png")} 
+                  style={[styles.picture, {borderRadius: pictureBorderRadius}]} 
+                  />
+                </View>
               </TouchableOpacity>
   
               <TouchableOpacity 
                 onPress={() => this.showDetails(notifs[notification],notificationType, notification)} style={styles.textContainer}
                 onLongPress={()=>this.handleLongPress(nT, notification)}
               >
-                <Text style={styles.otherPersonName}>{notificationHeaderText}</Text>
-                <Text style={styles.lastMessageText}>{notificationType}</Text>
+                <Text style={[styles.otherPersonName, notifs[notification].unreadCount == true ? {fontSize: 16} : null]}>{notificationHeaderText}</Text>
+                <Text style={[styles.lastMessageText, notifs[notification].unreadCount == true ? {fontSize: 14} : null]}>{notificationType}</Text>
               </TouchableOpacity>
   
               <TouchableOpacity style={styles.pictureContainer}>
@@ -1072,6 +1082,18 @@ const styles = StyleSheet.create({
   pictureContainer: {
     flex: 0.25,
     alignItems: 'center'
+  },
+
+  unreadDotContainer: {
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  unreadDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: treeGreen
   },
 
   picture: {
