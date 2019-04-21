@@ -20,7 +20,7 @@ const noChatsText = "You have not initiated any chats 😳. Choose a product fro
 const DaysOfTheWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const {width} = Dimensions.get('window');
 
-const pictureWidth = 65, pictureHeight = 65, pictureBorderRadius = 32.5;
+const pictureWidth = 60, pictureHeight = 60, pictureBorderRadius = 30;
 
 const notificationHeaderText = "NottMyStyle";
 const noNotificationsText = "The NottMyStyle team believes your products don't warrant any stats yet 👌, thus you have no notifications.";
@@ -612,7 +612,7 @@ class Notifications extends Component {
             <View style={styles.specificChatContainer}>
 
               <TouchableOpacity  
-                onPress={() => this.showDetails(notifs[notification],notificationType, notification)} style={[styles.pictureContainer, {flexDirection: 'row'}]}
+                onPress={() => this.showDetails(notifs[notification],notificationType, notification, nT)} style={[styles.pictureContainer, {flexDirection: 'row'}]}
                 onLongPress={()=>this.handleLongPress(nT,notification)}
               >
                 <View style={[styles.unreadDotContainer, {flex: 0.1}]}>
@@ -622,7 +622,7 @@ class Notifications extends Component {
                     null
                   }
                 </View>
-                <View style={{flex: 0.9, alignItems: 'stretch'}}>
+                <View style={{flex: 0.9, alignItems: 'stretch', marginHorizontal: 4}}>
                   <Image 
                   source={require("../images/nottmystyleLogo.png")} 
                   style={[styles.picture, {borderRadius: pictureBorderRadius}]} 
@@ -631,7 +631,7 @@ class Notifications extends Component {
               </TouchableOpacity>
   
               <TouchableOpacity 
-                onPress={() => this.showDetails(notifs[notification],notificationType, notification)} style={styles.textContainer}
+                onPress={() => this.showDetails(notifs[notification],notificationType, notification, nT)} style={styles.textContainer}
                 onLongPress={()=>this.handleLongPress(nT, notification)}
               >
                 <Text style={[styles.otherPersonName, notifs[notification].unreadCount == true ? {fontSize: 16} : null]}>{notificationHeaderText}</Text>
@@ -663,7 +663,7 @@ class Notifications extends Component {
   
     }
   
-    showDetails = (details, notificationType, key) => {
+    showDetails = (details, notificationType, key, notificationTypeProperty) => {
       //when one selects a specific notification, use the notificationType to determine what structure of details
       //to expect and use the details themselves of course, so set these 2 values in state
       console.log('show notification details');
@@ -682,6 +682,11 @@ class Notifications extends Component {
         }
         let promiseToMarkRead = firebase.database().ref().update(updates);
         promiseToMarkRead.then( () => {
+          const {...state} = this.state;
+          state.showDetails = true;
+          state.details = details;
+          state.notificationType = notificationType;
+          state.notifications[notificationTypeProperty][key].unreadCount = false;
           this.setState({showDetails: true, details, notificationType })
         })
         .catch(e => console.log("Could not update unreadCount of notification because: " + e))
@@ -922,7 +927,7 @@ class NotificationsAndChats extends Component {
         this.getNotificationsCount();
         setInterval(() => {
           this.getNotificationsCount();
-        }, 20000);
+        }, 10000);
       }, 1);
     }
   
@@ -1086,13 +1091,14 @@ const styles = StyleSheet.create({
 
   unreadDotContainer: {
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    // marginHorizontal: 3
   },
 
   unreadDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: treeGreen
   },
 

@@ -375,7 +375,17 @@ class ProductDetails extends Component {
   }
 
   navToEditItem(item) {
-    this.props.navigation.navigate('CreateItem', {data: item, pictureuris: item.uris, editItemBoolean: true});
+    this.props.navigation.navigate('CreateItem', {
+      data: item, //possibly unnecessary
+      pictureuris: item.uris.source, 
+      price: item.text.price, 
+      original_price: item.text.original_price, 
+      post_price: item.text.post_price > 0 ? item.text.post_price : 0,
+      condition: item.text.condition,
+      type: item.text.type,
+      size: item.text.size,
+      editItemBoolean: true
+    });
     // alert('Please take brand new pictures');
   }
 

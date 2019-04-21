@@ -56,7 +56,8 @@ const CustomTextInput = ({placeholder, onChangeText, value, autoCapitalize, maxL
           clearButtonMode={'while-editing'}
           underlineColorAndroid={"transparent"}
           
-          returnKeyType={'next'}
+          returnKeyType={'default'}
+          
           />         
       
     </View>
@@ -251,10 +252,10 @@ const styles = StyleSheet.create({
     marginVertical: 7,
     marginHorizontal: 5,
     // flexDirection: ''
-    justifyContent: 'center',
+    // justifyContent: 'center',
     borderBottomWidth: 0.2,
-    borderBottomColor: '#fff'
-  //   alignItems: 'center'
+    borderBottomColor: '#fff',
+    alignItems: 'stretch'
 },
 
 //   placeholderContainer: {
@@ -268,5 +269,5 @@ input: {
   ...new shadow(2,2, color = mantisGreen, -1, 1)
 },
 
-inputText: { fontFamily: 'Avenir Next', fontSize: 14, fontWeight: "500", color: "#fff"},
+inputText: { fontFamily: 'Avenir Next', fontSize: 16, fontWeight: "500", color: "#fff"},
 })

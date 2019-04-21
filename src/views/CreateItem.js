@@ -74,7 +74,7 @@ class CreateItem extends Component {
         //   insta: '',
           description: item ? item.text.description ? item.text.description : '' : '',
           typing: true,
-          canSnailMail: false,
+          canSnailMail: item ? item.text.post_price > 0 ? true : false : false,
           isUploading: false,
           pictureuris: 'nothing here',
           helpDialogVisible: false,
@@ -573,7 +573,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
 
     if(isUploading) {
         return (
-            <View style={{marginTop: 22, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
+            <View style={{marginTop: Platform.OS == "ios" ? 22 : 0, flex: 1, justifyContent: 'center', backgroundColor: '#fff'}}>
                 <View style={{height: 200, justifyContent: 'center', alignContent: 'center', alignItems: 'center'}}>
                     <LoadingIndicator isVisible={isUploading} color={lightGreen} type={'Wordpress'}/>
                     <WhiteSpace height={20}/>
@@ -590,7 +590,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
       
     
         <ScrollView
-            
+             style={{flex: 1, marginTop: Platform.OS == "ios" ? 22 : 0}}
              contentContainerStyle={styles.contentContainer}
         >
 
@@ -1063,7 +1063,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         // alignContent:'center',
         // alignItems: 'center',
-        paddingTop: 15
+        // paddingTop: 15
           
     },
 
@@ -1194,7 +1194,7 @@ const styles = StyleSheet.create({
     },
     
     buttonGroupSelectedContainer: {
-        backgroundColor: aquaGreen
+        backgroundColor: lightGreen
     },
 
     actionButtonContainer: {padding: 5, alignItems: 'center'},

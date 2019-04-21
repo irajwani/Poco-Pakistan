@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 import ActionSheet from 'react-native-actionsheet'
 import ImagePicker from 'react-native-image-picker';
 import { withNavigation } from 'react-navigation';
-import { lightGreen, highlightGreen, darkBlue, optionLabelBlue, bgBlack } from '../colors';
+import { lightGreen, highlightGreen, darkBlue, optionLabelBlue, bgBlack, treeGreen } from '../colors';
 
 const NothingHere = () => (
   <Svg height={"100%"} width={"100%"} viewBox="0 0 400 400">
@@ -260,8 +260,8 @@ const styles = StyleSheet.create( {
     // resizeMode: 'cover',
     // alignSelf: 'stretch',
     borderRadius: 10,
-    borderColor: optionLabelBlue,
-    borderWidth: 0.5,
+    borderColor: treeGreen,
+    borderWidth: 2,
     
   },
 
@@ -300,7 +300,7 @@ const styles = StyleSheet.create( {
     height: 110,
     // alignSelf: 'stretch',
     borderRadius: 5,
-    borderColor: optionLabelBlue,
+    borderColor: treeGreen,
     borderWidth: 1,
   },
 

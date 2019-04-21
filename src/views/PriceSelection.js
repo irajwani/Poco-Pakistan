@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, Keyboard } from 'react-native'
+import { Text, TextInput, StyleSheet, View, Keyboard } from 'react-native'
 import { Jiro } from 'react-native-textinput-effects';
-import { treeGreen, darkGray } from '../colors';
+import { treeGreen, darkGray, lightGray } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { avenirNextText } from '../constructors/avenirNextText';
 import { CustomTextInput } from '../localFunctions/visualFunctions';
@@ -50,19 +50,17 @@ export default class PriceSelection extends Component {
 
         <View style={styles.selectionContainer}>
 
-            <CustomTextInput 
+            <TextInput 
                 placeholder={typeOfPrice == "sellingPrice" ? 'Selling Price (£)' : typeOfPrice == "retailPrice" ? 'Original price of this item (£)' : 'Estimated cost of postal services (£)'}
+                placeholderTextColor={lightGray}
                 value={typeOfPrice == "sellingPrice" ? this.state.price : typeOfPrice == "retailPrice" ? this.state.original_price : this.state.post_price}
                 maxLength={typeOfPrice == "postPrice" ? 2 : 3}
                 onChangeText={p => {
                     this.setState(typeOfPrice == "sellingPrice" ? { price: Number(p) } : typeOfPrice == "retailPrice" ? { original_price: Number(p)} : { post_price: Number(p)});
-                    } }
-                
-                // this is used as active border color
-                
-                // this is used to set backgroundColor of label mask.
-                // please pass the backgroundColor of your TextInput container.
-                
+                }}
+                style={new avenirNextText("black", 16, "500")}
+                clearButtonMode={'while-editing'}
+                underlineColorAndroid={"transparent"}
                 
                 keyboardType='number-pad'
             />
@@ -121,7 +119,9 @@ const styles = StyleSheet.create({
     selectionContainer: {
         // backgroundColor: 'red',
         flex: 0.91,
-        paddingHorizontal: 3,
-        paddingVertical: 2,
+        margin: 10,
+        alignItems: 'stretch'
+        // paddingHorizontal: 3,
+        // paddingVertical: 2,
     },
 })

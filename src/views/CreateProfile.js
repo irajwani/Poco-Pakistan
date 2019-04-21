@@ -523,6 +523,9 @@ class CreateProfile extends Component {
             value={this.state.city} 
             onChangeText={city => this.setState({ city })}
             maxLength={16}
+            clearButtonMode={'while-editing'}
+            underlineColorAndroid={"transparent"}
+            returnKeyType={'default'}
             />
             
         </View>
@@ -612,7 +615,7 @@ class CreateProfile extends Component {
 
     if(createProfileLoading) {
         return (
-            <View style={styles.loadingIndicatorContainer}>
+            <View style={[styles.loadingIndicatorContainer,  {marginTop: Platform.OS == "ios" ? 22 : 0}]}>
                 <LoadingIndicator isVisible={createProfileLoading} color={treeGreen} type={'Wordpress'}/>
             </View>
         )
@@ -659,11 +662,11 @@ class CreateProfile extends Component {
 
                             
 
-                            <CustomTextInput maxLength={40} placeholder={"Email Address"} value={this.state.email} onChangeText={email => this.setState({ email })}/>
-
-                            
-
-                            
+                            <CustomTextInput 
+                            maxLength={40} placeholder={"Email Address"} 
+                            value={this.state.email} onChangeText={email => this.setState({ email })}
+                                
+                            />
 
                             <CustomTextInput 
                             placeholder={"Password"} 
@@ -671,11 +674,8 @@ class CreateProfile extends Component {
                             onChangeText={pass => this.setState({ pass })}
                             maxLength={16}
                             secureTextEntry={true}
+                            
                             />
-
-                            
-
-                            
 
                             <CustomTextInput 
                             placeholder={"Retype Password"} 
@@ -684,11 +684,6 @@ class CreateProfile extends Component {
                             maxLength={16}
                             secureTextEntry={true}
                             />
-
-                            
-
-                            
-                            
                     
                             {this.state.pass && this.state.pass2 ?
                                 passwordConditionMet ?
@@ -871,14 +866,14 @@ class CreateProfile extends Component {
                         style={[styles.decisionButton, {backgroundColor: 'black'}]}
                         onPress={() => {this.setModalVisible(false); }} 
                     >
-                        <Text style={new avenirNextText('#fff', 15, "300")}>Reject</Text>
+                        <Text style={new avenirNextText('#fff', 16, "500")}>Reject</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
                         style={[styles.decisionButton, {backgroundColor: mantisGreen}]}
                         onPress={() => {console.log('Sign Up Initiated') ; googleUser || facebookUser ? this.createProfileForGoogleOrFacebookUser(user, pictureuris[0]) : this.createProfile(this.state.email, this.state.pass, pictureuris[0]) ;}} 
                     >
-                        <Text style={new avenirNextText('#fff', 15, "300")}>Accept</Text>
+                        <Text style={new avenirNextText('#fff', 16, "500")}>Accept</Text>
                     </TouchableOpacity>
                 </View>
     
@@ -961,7 +956,7 @@ class CreateProfile extends Component {
                         
                         }} 
                 >
-                    <Text style={new avenirNextText("black", 20, "300")}>Create Account</Text>
+                    <Text style={new avenirNextText("black", 20, "300")}>{this.state.editProfileBoolean ? "Edit Profile" : "Create Account" }</Text>
                 </TouchableOpacity>
             </TouchableOpacity>
 
@@ -987,18 +982,17 @@ const styles = StyleSheet.create({
         justifyContent: 'center', 
         alignItems: 'center', 
         padding: 15, 
-        marginTop: 22, 
         backgroundColor: bgBlack
     },
 
     mainContainer: {
         flex: 1,
-        height: '100%',
+        // height: '100%',
         // justifyContent: 'space-around',
-        left: 0,
-        position: 'absolute',
-        top: 0,
-        width: '100%'
+        // left: 0,
+        // position: 'absolute',
+        // top: 0,
+        // width: '100%'
     },
     // mainContainer: {
     //     marginTop: 22,
@@ -1018,14 +1012,14 @@ const styles = StyleSheet.create({
 
     },
 
-    backIconAndMABAndHelpContainer: {marginTop: 5, flexDirection: 'row', paddingVertical: 5, paddingRight: 2, paddingLeft: 1 },
+    backIconAndMABAndHelpContainer: {flexDirection: 'row', paddingVertical: 3, paddingRight: 2, paddingLeft: 1 },
 
     inputContainer: {
         marginVertical: 7,
         marginHorizontal: 5,
         // padding: 10,
-        justifyContent: 'space-between',
-        alignItems: 'center'
+        // justifyContent: 'space-between',
+        alignItems: 'stretch'
     },
     
     //   placeholderContainer: {
@@ -1039,7 +1033,7 @@ const styles = StyleSheet.create({
       ...new shadow(2,2, color = mantisGreen, -1, 1)
     },
     
-    inputText: { fontFamily: 'Avenir Next', fontSize: 14, fontWeight: "500", color: "#fff"},
+    inputText: { fontFamily: 'Avenir Next', fontSize: 16, fontWeight: "500", color: "#fff"},
 
     signUpButton: {
         width: 175,
@@ -1109,15 +1103,16 @@ const styles = StyleSheet.create({
     decisionButtons: {
         width: width - 30,
         flexDirection: 'row',
-        justifyContent: 'center',
+        justifyContent: 'space-evenly',
         alignItems: 'center'
     },
 
     decisionButton: {
-        width: 40,
-        height: 30,
+        width: 70,
+        height: 40,
         borderRadius: 10,
-        ...new center()
+        ...new center(),
+        ...new shadow(2,2,'black', -1,1)
     },
 
     gotIt: {
