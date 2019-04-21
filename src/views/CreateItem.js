@@ -236,7 +236,7 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
 uploadToStore = (pictureuris, uid, postKey) => {
     var picturesProcessed = 0;
     pictureuris.forEach(async (uri, index, array) => {
-        //TODO: Are dimensions correct?
+        //TODO: Will this flow work in EditItem mode for Image Uris placed in firebasestorage
         let resizedImageThumbnail = await ImageResizer.createResizedImage(uri,maxWidth, maxHeight,'JPEG',suppressionLevel);
         let resizedImageProductDetails = await ImageResizer.createResizedImage(uri,2000, 2000,'JPEG',suppressionLevel);
         let imageUris = [uri, resizedImageThumbnail.uri, resizedImageProductDetails.uri];
@@ -434,7 +434,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
         isUploading: false,
                  });
 
-    this.state.oldItemPostKey ? this.props.navigation.popToTop() : this.props.navigation.navigate('Market'); 
+    this.state.oldItemPostKey ? this.props.navigation.navigate('Market') : this.props.navigation.navigate('Market'); 
   }
 
   deleteProduct(uid, key) {

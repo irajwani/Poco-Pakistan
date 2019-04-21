@@ -55,7 +55,7 @@ const HomeScreen = TabNavigator(
                   } else if (routeName === 'Market') {
                     iconName = 'shopping';
                     iconSize = focused ? 30 : 25;
-                    return <MarketplaceIcon strokeWidth={"3"} focused={focused}/>
+                    return <MarketplaceIcon strokeWidth={"8"} focused={focused}/>
                   } else if (routeName === 'Sell') {
                       iconName = focused ? 'plus-circle' : 'plus-circle-outline';
                       iconSize = focused ? 30 : 25;

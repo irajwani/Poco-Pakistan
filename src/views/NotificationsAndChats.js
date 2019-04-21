@@ -565,15 +565,28 @@ class Notifications extends Component {
       .catch( err => console.log(err));
     }
 
-    // navToEditItem(key) {
-    //   firebase.database().ref(`/Products/${key}/`).once('value', (snapshot) => {
-    //     var d = snapshot.val();
-    //     console.log("We wish to item with data: " + d);
-    //     // this.props.navigation.navigate('CreateItem', {data: item, pictureuris: item.uris, editItemBoolean: true});
-    //   })
+    navToEditItem = async (key) => {
+      await firebase.database().ref(`/Products/${key}/`).once('value', (snapshot) => {
+        var item = snapshot.val();
+        this.setState({showDetails: false}, ()=>{
+        // console.log("We wish to item with data: " + d);
+        this.props.navigationProperty.navigate('CreateItem', {
+          data: item, 
+          pictureuris: item.uris.source, 
+          price: item.text.price, 
+          original_price: item.text.original_price, 
+          post_price: item.text.post_price > 0 ? item.text.post_price : 0,
+          condition: item.text.condition,
+          type: item.text.type,
+          size: item.text.size,
+          editItemBoolean: true});
+
+        });
+        
+      })
       
-    //   // alert('Please take brand new pictures');
-    // }
+      // alert('Please take brand new pictures');
+    }
   
     renderNotifications = () => {
       var {notifications} = this.state;
@@ -634,8 +647,8 @@ class Notifications extends Component {
                 onPress={() => this.showDetails(notifs[notification],notificationType, notification, nT)} style={styles.textContainer}
                 onLongPress={()=>this.handleLongPress(nT, notification)}
               >
-                <Text style={[styles.otherPersonName, notifs[notification].unreadCount == true ? {fontSize: 16} : null]}>{notificationHeaderText}</Text>
-                <Text style={[styles.lastMessageText, notifs[notification].unreadCount == true ? {fontSize: 14} : null]}>{notificationType}</Text>
+                <Text style={[styles.otherPersonName, notifs[notification].unreadCount == true ? {fontSize: 16, fontWeight: "700"} : null]}>{notificationHeaderText}</Text>
+                <Text style={[styles.lastMessageText, notifs[notification].unreadCount == true ? {fontSize: 14, fontWeight: "700"} : null]}>{notificationType}</Text>
               </TouchableOpacity>
   
               <TouchableOpacity style={styles.pictureContainer}>
@@ -857,9 +870,9 @@ class Notifications extends Component {
                 <Image style={styles.detailsImage} source={{uri: details.uri}}/>
               </View>
 
-              <View style={{flex: 0.5, margin: 5}}>
-                <Text style={styles.detailsText}>We noticed your item, {details.name} has been on the marketplace for a week, and hasn't sold. In order to make it more likely to sell, we recommend you reduce your price to £{0.90*details.price}. Consider editing this item's details from its description page.</Text>
-                {/* <Text onPress={()=>this.navToEditItem(this.state.editProductKey)} style={[styles.detailsText, {color: lightGreen}]}>click here</Text> */}
+              <View style={{flex: 0.5, margin: 5, padding: 5, justifyContent: 'space-evenly', alignItems: 'center'}}>
+                <Text style={[styles.detailsText, {fontSize: 12}]}>We noticed your item, {details.name} has been on the marketplace for a week, and hasn't sold. In order to make it more likely to sell, we recommend you reduce your price to £{Math.floor(0.90*details.price)}. Consider editing this item's details from its description page.</Text>
+                <Text onPress={()=>this.navToEditItem(details.key)} style={[styles.detailsText, {color: lightGreen, fontSize: 20, fontWeight: "500"}]}>Edit Item</Text>
               </View>
 
               
@@ -1018,7 +1031,7 @@ class NotificationsAndChats extends Component {
                 {this.state.showChats ?
                   <Chats uid={this.state.uid} navigationProperty={this.props.navigation}/>
                 :
-                  <Notifications uid={this.state.uid}/>
+                  <Notifications uid={this.state.uid} navigationProperty={this.props.navigation}/>
                 }
               
                 
