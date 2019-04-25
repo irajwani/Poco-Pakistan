@@ -1435,7 +1435,7 @@ class ProductDetails extends Component {
         
           
         <View style={styles.carouselContainer}>        
-          <CustomCarousel data={params.data.uris.source} />
+          <CustomCarousel data={params.data.uris.thumbnail} />
           <View style={{position: 'absolute', right: 10, top: 10}}>
             <Icon 
             name={'arrow-expand'}

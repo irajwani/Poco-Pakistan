@@ -101,9 +101,9 @@ const MarketplaceIcon = ({strokeWidth, focused}) => (
  
 )
 
-// const LoadingIndicator = ({isVisible, type, color}) => (
-//   <Spinner style={{}} isVisible={isVisible} size={50} type={type} color={color}/>    
-// )
+const BasicLoadingIndicator = ({isVisible, type, color}) => (
+  <Spinner style={{}} isVisible={isVisible} size={50} type={type} color={color}/>    
+)
 
 class LoadingIndicator extends React.Component {
   constructor(props) {
@@ -118,7 +118,7 @@ class LoadingIndicator extends React.Component {
     Animated.timing(this.RotateValueHolder, {
       toValue: 1,
       duration: 1000,
-      easing: Easing.ease,
+      easing: Easing.linear,
     }).start(() => this.StartImageRotateFunction());
   }
   render() {
@@ -300,7 +300,7 @@ class BadgeIcon extends React.Component {
 
 
 
-export {GrayLine, WhiteSpace, LoadingIndicator, DismissKeyboardView, CustomTouchableO, CustomTextInput, SignInTextInput, MarketplaceIcon, BadgeIcon}
+export {GrayLine, WhiteSpace, BasicLoadingIndicator, LoadingIndicator, DismissKeyboardView, CustomTouchableO, CustomTextInput, SignInTextInput, MarketplaceIcon, BadgeIcon}
 
 const styles = StyleSheet.create({
   inputContainer: {

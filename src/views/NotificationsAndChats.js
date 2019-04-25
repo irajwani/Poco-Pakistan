@@ -871,7 +871,7 @@ class Notifications extends Component {
               </View>
 
               <View style={{flex: 0.5, margin: 5, padding: 5, justifyContent: 'space-evenly', alignItems: 'center'}}>
-                <Text style={[styles.detailsText, {fontSize: 12}]}>We noticed your item, {details.name} has been on the marketplace for a week, and hasn't sold. In order to make it more likely to sell, we recommend you reduce your price to £{Math.floor(0.90*details.price)}. Consider editing this item's details from its description page.</Text>
+                <Text style={[styles.detailsText, {fontSize: 15}]}>We noticed your item, {details.name} has been on the marketplace for a week, and hasn't sold. In order to make it more likely to sell, we recommend you reduce your price to £{Math.floor(0.90*details.price)}. Consider editing this item's details from its description page.</Text>
                 <Text onPress={()=>this.navToEditItem(details.key)} style={[styles.detailsText, {color: lightGreen, fontSize: 20, fontWeight: "500"}]}>Edit Item</Text>
               </View>
 

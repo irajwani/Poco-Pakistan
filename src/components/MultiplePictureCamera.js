@@ -9,8 +9,8 @@ import {Button} from 'react-native-elements';
 
 // import { withNavigation } from 'react-navigation';
 // import { material } from 'react-native-typography';
-import {flashOrange, graphiteGray, almostWhite, treeGreen} from '../colors.js';
-import { LoadingIndicator } from '../localFunctions/visualFunctions.js';
+import {flashOrange, graphiteGray, almostWhite, treeGreen, highlightGreen} from '../colors.js';
+import { BasicLoadingIndicator } from '../localFunctions/visualFunctions.js';
 
 class MultiplePictureCamera extends Component {
   
@@ -111,7 +111,7 @@ class MultiplePictureCamera extends Component {
 
             </TouchableHighlight>  
           :    
-            <LoadingIndicator isVisible={this.state.isLoading} color={'#0040ff'} type={'Bounce'}/>
+            <BasicLoadingIndicator isVisible={this.state.isLoading} color={highlightGreen} type={'Bounce'}/>
           }   
           
               {/* toggle flash mode */}

@@ -236,16 +236,41 @@ updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, pri
 uploadToStore = (pictureuris, uid, postKey) => {
     var picturesProcessed = 0;
     pictureuris.forEach(async (uri, index, array) => {
-        //TODO: Will this flow work in EditItem mode for Image Uris placed in firebasestorage
+        console.log("Picture's Original URL:" + uri);
+        //TODO: Will this flow work in EditItem mode for Image Uris placed in firebasestorage: NO it won't, just do simpler thing and
+        //don't touch the cloud if these images have not been changed
+        if(uri.includes('firebasestorage')) {
+            this.callBackForProductUploadCompletion();
+        }
+
+        else {
+
+        
         let resizedImageThumbnail = await ImageResizer.createResizedImage(uri,maxWidth, maxHeight,'JPEG',suppressionLevel);
-        let resizedImageProductDetails = await ImageResizer.createResizedImage(uri,2000, 2000,'JPEG',suppressionLevel);
+        let resizedImageProductDetails = await ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
         let imageUris = [uri, resizedImageThumbnail.uri, resizedImageProductDetails.uri];
         imageUris.forEach((imageUri, imageIndex, imageArray) => {
+            console.log("Picture URL:", imageUri, imageIndex)
             const storageUpdates = {};
             const uploadUri = Platform.OS === 'ios' ? imageUri.replace('file://', '') : uri
 
-            if(imageUri.includes('firebasestorage')) {
-                //if the person did not take brand new pictures and chose to maintain the URIS received in EditItem mode
+            let uploadBlob = null
+            const imageRef = firebase.storage().ref().child(`Users/${uid}/${postKey}/${imageIndex == 0 ? index : imageIndex == 1 ? index+'-thumbnail' : index+'-pd'}`);
+            fs.readFile(uploadUri, 'base64')
+            .then((data) => {
+            return Blob.build(data, { type: `${mime};BASE64` })
+            })
+            .then((blob) => {
+            console.log('got to blob')
+            uploadBlob = blob
+            return imageRef.put(blob, { contentType: mime })
+            })
+            .then(() => {
+            console.log('upload successful')
+            uploadBlob.close()
+            return imageRef.getDownloadURL()
+            })
+            .then((url) => {
                 console.log(url);
                 if(imageIndex == 0) {
                     storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/source/' + index + '/'] = url;
@@ -264,49 +289,35 @@ uploadToStore = (pictureuris, uid, postKey) => {
                 if(picturesProcessed == (imageArray.length*array.length)) {
                     this.callBackForProductUploadCompletion();
                 }
-            }
-            else {
-                let uploadBlob = null
-                const imageRef = firebase.storage().ref().child(`Users/${uid}/${postKey}/${imageIndex == 0 ? index : imageIndex == 1 ? index+'-thumbnail' : index+'-pd'}`);
-                fs.readFile(uploadUri, 'base64')
-                .then((data) => {
-                return Blob.build(data, { type: `${mime};BASE64` })
-                })
-                .then((blob) => {
-                console.log('got to blob')
-                uploadBlob = blob
-                return imageRef.put(blob, { contentType: mime })
-                })
-                .then(() => {
-                console.log('upload successful')
-                uploadBlob.close()
-                return imageRef.getDownloadURL()
-                })
-                .then((url) => {
-                    console.log(url);
-                    if(imageIndex == 0) {
-                        storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/source/' + index + '/'] = url;
-                    }
-    
-                    else if(imageIndex == 1){
-                        storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/thumbnail/' + index + '/'] = url;
-                    }
+            })
+            // if(imageUri.includes('firebasestorage')) {
+            //     //if the person did not take brand new pictures and chose to maintain the URIS received in EditItem mode
+            //     console.log(url);
+            //     if(imageIndex == 0) {
+            //         storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/source/' + index + '/'] = url;
+            //     }
 
-                    else {
-                        storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/pd/' + index + '/'] = url;
-                    }
-                    
-                    firebase.database().ref().update(storageUpdates);
-                    picturesProcessed++;
-                    if(picturesProcessed == (imageArray.length*array.length)) {
-                        this.callBackForProductUploadCompletion();
-                    }
-                })
-            }
+            //     else if(imageIndex == 1){
+            //         storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/thumbnail/' + index + '/'] = url;
+            //     }
+
+            //     else {
+            //         storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/pd/' + index + '/'] = url;
+            //     }
+                
+            //     firebase.database().ref().update(storageUpdates);
+            //     picturesProcessed++;
+            //     if(picturesProcessed == (imageArray.length*array.length)) {
+            //         this.callBackForProductUploadCompletion();
+            //     }
+            // }
+        })
+            
+            
             
 
 
-        })
+        }
         
     })
 
