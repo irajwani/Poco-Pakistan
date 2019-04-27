@@ -128,7 +128,8 @@ class LoadingIndicator extends React.Component {
       outputRange: ['0deg', '360deg'],
     });
     const strokeWidth = 5;
-    const {color} = this.props;
+    // const {color} = this.props;
+    const color = highlightGreen;
 
     return (
       <Animated.View style={[styles.loadingIndicatorContainer, {transform: [{ rotate: RotateData }],}]}>

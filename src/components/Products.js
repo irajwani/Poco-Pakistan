@@ -842,7 +842,11 @@ class Products extends Component {
       style={{height: section.isActive == true ? cardFull : cardHeaderHeight}}>
       
         <TouchableHighlight 
-          onPress={expandFunction} 
+          onPress={() => {
+            section.isActive ? this.navToProductDetails(section, this.state.collectionKeys, this.state.productKeys) : null;
+            expandFunction();
+            
+            }} 
           style={styles.card}
           underlayColor={almostWhite}
         >
