@@ -235,6 +235,7 @@ class ProductComments extends Component {
                     autoCorrect={false}
                     autoCapitalize={'none'}
                     clearButtonMode={'while-editing'}
+                    maxLength={150}
                     underlineColorAndroid={"transparent"}
                     />         
                 </View>

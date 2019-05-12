@@ -53,6 +53,7 @@ class Chats extends Component {
       var chats = d.Users[your_uid].conversations ? d.Users[your_uid].conversations : false;
       chats = chats ? Object.values(chats) : false;
       // console.log(chats);
+      
       this.leaveYourRooms(your_uid);
       this.setState({chats, yourUid: your_uid, noChats: chats ? true : false , isGetting: false});
     })
@@ -385,16 +386,27 @@ class Chats extends Component {
 
           <View  style={styles.specificChatContainer}>
 
-            <TouchableOpacity onLongPress={() => this.handleLongPress(index)} onPress={() => this.navToChat(chat)} style={styles.pictureContainer}>
-              <Image 
-              source={this.state.yourUid == chat.sellerIdentification ? chat.buyerAvatar ? {uri: chat.buyerAvatar } : require('../images/blank.jpg') : chat.sellerAvatar ? {uri: chat.sellerAvatar } : require('../images/blank.jpg')   } 
-              style={[styles.picture, {borderRadius: pictureBorderRadius}]} />
+            <TouchableOpacity onLongPress={() => this.handleLongPress(index)} onPress={() => this.navToChat(chat)} style={[styles.pictureContainer, {flexDirection: 'row'}]}>
+              <View style={[styles.unreadDotContainer, {flex: 0.1}]}>
+                  {chat.unread == true ? 
+                    <View style={styles.unreadDot}/>
+                    :
+                    null
+                  }
+              </View>
+              <View style={{flex: 0.9, alignItems: 'stretch', marginHorizontal: 4}}>
+                <Image 
+                source={this.state.yourUid == chat.sellerIdentification ? chat.buyerAvatar ? {uri: chat.buyerAvatar } : require('../images/blank.jpg') : chat.sellerAvatar ? {uri: chat.sellerAvatar } : require('../images/blank.jpg')   } 
+                style={[styles.picture, {borderRadius: pictureBorderRadius}]} />
+              </View>
+              
             </TouchableOpacity>
 
             <TouchableOpacity onLongPress={() => this.handleLongPress(index)} onPress={() => this.navToChat(chat)} style={styles.textContainer}>
-              <Text style={styles.otherPersonName}>{this.state.yourUid == chat.sellerIdentification ? (chat.buyer.split(' '))[0] : (chat.seller.split(' '))[0] }</Text>
-              <Text style={styles.lastMessageText}>
-              {chat.lastMessage.lastMessageText ? this.state.yourUid == chat.sellerIdentification ? `${(chat.buyer.split(' '))[0]}: ${chat.lastMessage.lastMessageText.substring(0,60)}` : `${(chat.seller.split(' '))[0]}: ${chat.lastMessage.lastMessageText.substring(0,60)}` : "Empty conversation"}
+                {/* Name of message sender */}
+              <Text style={[styles.otherPersonName, chat.unread == true ? {fontSize: 16, fontWeight: "700"} : null]}>{this.state.yourUid == chat.buyerIdentification ? (chat.seller.split(' '))[0] : (chat.buyer.split(' '))[0] }</Text>
+              <Text style={[styles.lastMessageText, chat.unread == true ? {fontSize: 14, fontWeight: "700"} : null]}>
+              {chat.lastMessage.lastMessageText ? chat.lastMessage.lastMessageSenderIdentification == chat.sellerIdentification ? `${(chat.seller.split(' '))[0]}: ${chat.lastMessage.lastMessageText.substring(0,60)}` : `${(chat.buyer.split(' '))[0]}: ${chat.lastMessage.lastMessageText.substring(0,60)}` : "Empty conversation"}
               </Text>
               <Text style={styles.lastMessageDate}>{DaysOfTheWeek[chat.lastMessage.lastMessageDate]}</Text>
             </TouchableOpacity>
@@ -1013,7 +1025,7 @@ class NotificationsAndChats extends Component {
           </View>
         )
       }
-
+// TODO: flex values are messed up here, renderUpperNavTab should also be with LoadingIndicator
     render() {
         if(this.state.isGetting) {
           return (
@@ -1069,7 +1081,9 @@ const styles = StyleSheet.create({
     flex: 0.5,
     padding: 10,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    borderBottomWidth:1,
+    borderBottomColor: '#fff'
   },
 
   upperNavTabText: new avenirNextText('black', 18, "300"),

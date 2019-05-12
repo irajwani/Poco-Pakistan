@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-import { Platform, Dimensions, View, Text, TextInput, Image, StyleSheet, ScrollView, ListView, TouchableHighlight, Modal, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import React, { Component, Fragment } from 'react'
+import { Platform, Dimensions, View, Text, TextInput, Image, StyleSheet, ScrollView, ListView, TouchableHighlight, Modal, TouchableOpacity, TouchableWithoutFeedback, SafeAreaView } from 'react-native';
 import { Button } from 'react-native-elements';
 import {withNavigation} from 'react-navigation'; // Version can be specified in package.json
 // import { Text,  } from 'native-base';
@@ -33,6 +33,7 @@ const noProductsOfYourOwnText = "So far, you have not uploaded any items on the 
 const noSoldProductsText = "So far, you have not sold any products. When a user purchases a product, that product will automatically be marked as sold."
 const emptyCollectionText = "Thus far, you have not liked any of the products on the marketplace 💔.";
 const noResultsFromSearchText = "Your search does not match the description of any product on the marketplace 🙁.";
+const noSelectedCategoryText = "Please select a Category"
 // const emptyMarketDueToSearchCriteriaText = noResultsFromSearchText;
 // const noResultsFromSearchForSpecificCategoryText = "Your search does not match the description of any product for this specific category 🙁.";
 
@@ -183,7 +184,8 @@ class Products extends Component {
         ////Filter Modal Stuff
         searchTerm: '',
         selectedBrands: [],
-        selectedCategory: 'Women',
+        // selectedCategory: 'Women',
+        selectedCategory: '',
         selectedType: '',
         selectedConditions: [],
         selectedSize: '',
@@ -324,7 +326,7 @@ class Products extends Component {
     firebase.database().ref().on('value', (snapshot) => {
       var {Products, Users} = snapshot.val();
       console.log(Products, typeof Products);
-      if(Products.length < 1) {
+      if(Products == undefined || Products.length < 1) {
         this.setState({isGetting: false, emptyMarket: true});
       }
       else {
@@ -381,6 +383,7 @@ class Products extends Component {
           var brands = [];
           var typesForCategory = {Men: [], Women: [], Accessories: []};
           var conditions = [{name: "New With Tags", selected: false}, {name: "New Without Tags", selected: false}, {name: "Slightly Used", selected: false}, {name: "Used", selected: false}]
+          //Default Sizes
           var sizes = womenUpperWear;
           //Now because there's a fixed number of values of SIZE for each TYPE, 
           //just generate the sizes based on the type selected by the person when they tap the category
@@ -438,25 +441,48 @@ class Products extends Component {
     })
   }
 
-
-  filterMarketPlace = () => {
-    // this.setState({isGetting: true});
+  //Filter an array of products for user selected properties of a product
+  filterProducts = (products) => {
     const {...state} = this.state;
     const {selectedBrands, selectedCategory, selectedType, selectedConditions, selectedSize} = state;
 
-    state.leftProducts = selectedBrands.length > 0 ? state.leftProducts.filter( (product) => selectedBrands.includes(product.text.brand)) : state.leftProducts;
-    state.leftProducts = state.leftProducts.filter( (product) => selectedCategory == product.text.gender);
-    state.leftProducts = selectedType ? state.leftProducts.filter( (product) => selectedType == product.text.type ) : state.leftProducts;
-    state.leftProducts = selectedConditions.length > 0 ? state.leftProducts.filter( (product) => selectedConditions.includes(product.text.condition)) : state.leftProducts;
-    state.leftProducts = selectedSize ? state.leftProducts.filter( (product) => selectedSize == product.text.size ) : state.leftProducts;
+    products = selectedBrands.length > 0 ? products.filter( (product) => selectedBrands.includes(product.text.brand)) : products;
+    products = products.filter( (product) => selectedCategory == product.text.gender);
+    products = selectedType ? products.filter( (product) => selectedType == product.text.type ) : products;
+    products = selectedConditions.length > 0 ? products.filter( (product) => selectedConditions.includes(product.text.condition)) : products;
+    products = selectedSize ? products.filter( (product) => selectedSize == product.text.size ) : products;
 
-    state.rightProducts = selectedBrands.length > 0 ? state.rightProducts.filter( (product) => selectedBrands.includes(product.text.brand)) : state.rightProducts;
-    state.rightProducts = state.rightProducts.filter( (product) => selectedCategory == product.text.gender);
-    state.rightProducts = selectedType ? state.rightProducts.filter( (product) => selectedType == product.text.type ) : state.rightProducts;
-    state.rightProducts = selectedConditions.length > 0 ? state.rightProducts.filter( (product) => selectedConditions.includes(product.text.condition)) : state.rightProducts;
-    state.rightProducts = selectedSize ? state.rightProducts.filter( (product) => selectedSize == product.text.size ) : state.rightProducts;
-    console.log(state.leftProducts, state.rightProducts);
-    state.noResultsFromFilter = state.leftProducts.length > 0 ? false : true;
+    return products
+  }
+
+
+  filterMarketPlace = () => {
+    // this.setState({isGetting: true});
+    console.log("Filtering Marketplace");
+    const {...state} = this.state;
+    console.log(products.concat(state.rightProducts));
+    
+    console.log(selectedBrands, selectedCategory, selectedType, selectedConditions, selectedSize);
+    state.leftProducts = this.filterProducts(state.leftProducts);
+    state.rightProducts = this.filterProducts(state.rightProducts);
+
+
+
+    // state.leftProducts = selectedBrands.length > 0 ? state.leftProducts.filter( (product) => selectedBrands.includes(product.text.brand)) : state.leftProducts;
+    // state.leftProducts = state.leftProducts.filter( (product) => selectedCategory == product.text.gender);
+    // state.leftProducts = selectedType ? state.leftProducts.filter( (product) => selectedType == product.text.type ) : state.leftProducts;
+    // state.leftProducts = selectedConditions.length > 0 ? state.leftProducts.filter( (product) => selectedConditions.includes(product.text.condition)) : state.leftProducts;
+    // state.leftProducts = selectedSize ? state.leftProducts.filter( (product) => selectedSize == product.text.size ) : state.leftProducts;
+
+    // state.rightProducts = selectedBrands.length > 0 ? state.rightProducts.filter( (product) => selectedBrands.includes(product.text.brand)) : state.rightProducts;
+    // state.rightProducts = state.rightProducts.filter( (product) => selectedCategory == product.text.gender);
+    // state.rightProducts = selectedType ? state.rightProducts.filter( (product) => selectedType == product.text.type ) : state.rightProducts;
+    // state.rightProducts = selectedConditions.length > 0 ? state.rightProducts.filter( (product) => selectedConditions.includes(product.text.condition)) : state.rightProducts;
+    // state.rightProducts = selectedSize ? state.rightProducts.filter( (product) => selectedSize == product.text.size ) : state.rightProducts;
+    // console.log(state.leftProducts.concat(state.rightProducts));
+
+    //It's good enough to just check leftProducts for isNoResult
+    state.noResultsFromFilter = state.leftProducts ? false : true;
 
     this.setState(state);
   }
@@ -468,7 +494,8 @@ class Products extends Component {
     state.selectedBrands = [];
     state.searchTerm = '';
     state.selectedType = '';
-    state.selectedCategory = 'Women';
+    // state.selectedCategory = 'Women';
+    state.selectedCategory = ''
     state.selectedConditions = [];
     state.selectedSize = '';
 
@@ -1033,10 +1060,15 @@ class Products extends Component {
   renderFilterModal = () => {
 
     var {brands, typesForCategory, conditions, searchTerm, selectedBrands, selectedCategory, selectedConditions, selectedType} = this.state;
+    console.log(brands, categories, conditions, sizes);
+    if(searchTerm) {
+      brands = brands.filter( (brand) => brand.name.includes(searchTerm) );
+    }
     
-    brands = brands.filter( (brand) => brand.name.includes(searchTerm) );
-    var sizes = generateSizesBasedOn(selectedType, selectedCategory)
-    
+
+    if(selectedCategory && selectedType) {
+      var sizes = generateSizesBasedOn(selectedType, selectedCategory)
+    }
 
 
     return (
@@ -1072,9 +1104,9 @@ class Products extends Component {
 
         <ScrollView style={{flex: 0.8}} contentContainerStyle={styles.filterModalContainer}>
 
-          <View style={styles.searchBarAndIconContainer}>
+          <View style={[styles.searchBarAndIconContainer, {justifyContent: 'space-between'}]}>
             <TextInput
-              style={{height: 50, width: 220, fontFamily: 'Avenir Next', fontSize: 20}}
+              style={{height: 50, width: 220, fontFamily: 'Avenir Next', fontSize: 20, color: highlightGreen}}
               placeholder={"Search..."}
               placeholderTextColor={lightGray}
               onChangeText={(searchTerm) => this.setState({searchTerm})}
@@ -1084,6 +1116,12 @@ class Products extends Component {
               autoCorrect={false}
               clearButtonMode={'while-editing'}
             />     
+
+            {this.state.searchTerm ? 
+            null
+            :
+            <Icon name={'magnify'} size={30} color={graphiteGray}/>
+            }
           </View>
 
           <GrayLine/>
@@ -1155,30 +1193,46 @@ class Products extends Component {
 
           <GrayLine/>
 
+          
+            
           <View style={styles.filterBlock}>
 
-            <View style={[styles.filterBlockHeadingContainer, {flex: 0.4}]}>
-              <Text style={new avenirNextText('#fff', 25, "200")}>Type</Text>
-            </View>
+          <View style={[styles.filterBlockHeadingContainer, {flex: 0.6}]}>
+            <Text style={new avenirNextText('#fff', 25, "200")}>Type</Text>
+          </View>
 
-            <ScrollView horizontal showsHorizontalScrollIndicator style={[styles.optionsScroll, {flex: 0.6}]} contentContainerStyle={styles.optionsScrollContentContainer}>
-              {typesForCategory[selectedCategory].map((type, index)=>(
-                <View key={index} style={[styles.optionContainer, (typesForCategory[selectedCategory].length > 1 && index != typesForCategory[selectedCategory].length - 1) == true ? {borderRightWidth: 0.3, borderRightColor: graphiteGray,} : null]}>
-                  <Text
-                   onPress={()=>{
-                    this.state.selectedType == type.name ? null : this.setState({selectedType: type.name});
-                    // this.state.typesForCategory[selectedCategory][index].selected = !this.state.typesForCategory[selectedCategory][index].selected;
-                    // this.setState({typesForCategory: this.state.typesForCategory});
-                   }}
-                   style={[styles.option, {color: this.state.selectedType == type.name ? highlightGreen : graphiteGray }]}>{type.name}</Text>
-                </View>
-                
-              ))}
-            </ScrollView>
+          <ScrollView horizontal showsHorizontalScrollIndicator style={[styles.optionsScroll, {flex: 0.4}]} contentContainerStyle={[styles.optionsScrollContentContainer, ]}>
+            {selectedCategory ?
+              
+            typesForCategory[selectedCategory].map((type, index)=>(
+              <View key={index} style={[styles.optionContainer, (typesForCategory[selectedCategory].length > 1 && index != typesForCategory[selectedCategory].length - 1) == true ? {borderRightWidth: 0.3, borderRightColor: graphiteGray,} : null]}>
+                <Text
+                onPress={()=>{
+                  this.state.selectedType == type.name ? null : this.setState({selectedType: type.name});
+                  // this.state.typesForCategory[selectedCategory][index].selected = !this.state.typesForCategory[selectedCategory][index].selected;
+                  // this.setState({typesForCategory: this.state.typesForCategory});
+                }}
+                style={[styles.option, {color: this.state.selectedType == type.name ? highlightGreen : graphiteGray }]}>{type.name}</Text>
+              </View>
+              
+            ))
+
+            :
+
+            <View style={styles.optionContainer}>
+              <Text style={[styles.option, {color: graphiteGray}]}>{noSelectedCategoryText}</Text>
+            </View>
+            
+            }
+          </ScrollView>
 
           </View>
 
-          <GrayLine/>  
+          <GrayLine/> 
+
+          
+
+           
 
           <View style={styles.filterBlock}>
 
@@ -1222,7 +1276,7 @@ class Products extends Component {
 
 
               
-          { this.state.selectedCategory == "Accessories" ?
+          { (selectedCategory == "Accessories") || !(selectedCategory && selectedType) ?
             null
             :
             <View style={styles.filterBlock}>
@@ -1254,15 +1308,15 @@ class Products extends Component {
         
         <View style={styles.filterModalFooter}>
           <Text
-          onPress={(this.state.selectedBrands.length > 0 || this.state.selectedType || this.state.selectedConditions.length > 0 || this.state.selectedSize) == true ?
-            () => {
-              this.getMarketPlace(this.state.uid); 
-              this.filterMarketPlace();
+          onPress={(this.state.selectedBrands.length > 0 || this.state.selectedType || this.state.selectedConditions.length > 0 || this.state.selectedSize) ?
+            async () => {
+              await this.getMarketPlace(this.state.uid); 
+              await this.filterMarketPlace();
               this.setState({showFilterModal: false});
             }
             :
-            () => {
-              this.getMarketPlace(this.state.uid); 
+            async () => {
+              await this.getMarketPlace(this.state.uid); 
               this.setState({showFilterModal: false});
             }
             
@@ -1327,8 +1381,8 @@ class Products extends Component {
     // console.log('Entered MarketPlace render')
     return (
 
-      
-      <View style={[styles.container, {marginTop: Platform.OS == 'ios' ? 22:0}]}>
+      <SafeAreaView style={[{flex: 1}, {marginTop: Platform.OS == 'ios' ? 22:0}]}>
+      <View style={[styles.container]}>
 
       <ScrollView
           style={{flex: 1}}
@@ -1423,7 +1477,7 @@ class Products extends Component {
             </TouchableOpacity>
           </View>
       </View>
-      
+      </SafeAreaView>
 
     
   
@@ -1946,7 +2000,7 @@ const styles = StyleSheet.create({
 
   filterModalContainer: {
     flexGrow: 4, 
-    padding: 10,
+    padding: 3,
     // backgroundColor: '#fff',
     // flexDirection: 'column',
     justifyContent: 'center',
@@ -2082,11 +2136,12 @@ const styles = StyleSheet.create({
   },
 
   searchBarAndIconContainer: {
-    // flexDirection: 'row',
+    flexDirection: 'row',
     paddingVertical: 3,
     // paddingHorizontal: 3,
     // justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    // backgroundColor: 'green'
   },
 
   searchBarContainer: {
@@ -2400,6 +2455,10 @@ const styles = StyleSheet.create({
 //           buttonStyle={styles.confirmFiltersButtonStyle}
 //           icon={{name: 'filter', type: 'material-community'}}
 //           title='Confirm Selection'
+
+
+
+
 //           onPress={() => {
 //               this.getPageSpecificProducts(extractValuesFrom(selectedBrands), extractValuesFrom(selectedTypes), extractValuesFrom(selectedSizes));
 //               this.setState( {showFilterModal: false} );

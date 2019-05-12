@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Platform, Text, TextInput, Image, StyleSheet, View, TouchableHighlight, TouchableOpacity, ScrollView } from 'react-native'
+import { Platform, Text, TextInput, Image, StyleSheet, View, TouchableHighlight, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native'
 import {withNavigation} from 'react-navigation';
 // import { Jiro } from 'react-native-textinput-effects';
 // import NumericInput from 'react-native-numeric-input' 
@@ -19,7 +19,7 @@ import ImageResizer from 'react-native-image-resizer';
 // import * as Animatable from 'react-native-animatable';
 import { iOSColors } from 'react-native-typography';
 import { PacmanIndicator } from 'react-native-indicators';
-import { lightGreen, confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, highlightYellow, profoundPink, tealBlue, graphiteGray, lightBlack, fbBlue, mantisGreen } from '../colors';
+import { lightGreen, confirmBlue, woodBrown, rejectRed, optionLabelBlue, aquaGreen, treeGreen, avenirNext, darkGray, lightGray, darkBlue, highlightYellow, profoundPink, tealBlue, graphiteGray, lightBlack, fbBlue, mantisGreen, lightPurple, petalPurple } from '../colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { DismissKeyboardView, WhiteSpace, GrayLine, LoadingIndicator } from '../localFunctions/visualFunctions';
 import { avenirNextText } from '../constructors/avenirNextText';
@@ -163,94 +163,98 @@ helpUserFillDetails = () => {
 }
 
 updateFirebaseAndNavToProfile = (pictureuris, mime = 'image/jpg', uid, type, price, original_price, post_price, condition, size, oldItemPostKey, oldItemUploadDate) => {
-    this.setState({isUploading: true});    
+    this.setState({isUploading: true}); 
     // if(priceIsWrong) {
-    //     alert("You must a choose a non-zero positive real number for the selling price/retail price of this product");
-    //     return;
+    // alert("You must a choose a non-zero positive real number for the selling price/retail price of this product");
+    // return;
     // }
-
+   
     //Locally stored in this component:
     var {name, description, brand, gender} = this.state;
-
+   
     
     // : if request.auth != null;
     switch(gender) {
-        case 0:
-            gender = 'Men'
-            break; 
-        case 1:
-            gender = 'Women'
-            break;
-        case 2:
-            gender = 'Accessories'
-            break;
-        default:
-            gender = 'Men'
-            console.log('no gender was specified')
+    case 0:
+    gender = 'Men'
+    break; 
+    case 1:
+    gender = 'Women'
+    break;
+    case 2:
+    gender = 'Accessories'
+    break;
+    default:
+    gender = 'Men'
+    // console.log('no gender was specified')
     }
-
+   
     var postData = {
-        name: name,
-        brand: brand,
-        price: price,
-        original_price: original_price ? original_price : "",
-        type: type,
-        size: size,
-        description: description ? description : 'Seller did not specify a description',
-        gender: gender,
-        condition: condition,
-        sold: false,
-        likes: 0,
-        comments: '',
-        time: oldItemPostKey ? oldItemUploadDate : Date.now(), //for now, do ot override initial upload Date
-        dateSold: '',
-        post_price: post_price ? post_price : 0,
-      };
+    name: name,
+    brand: brand,
+    price: price,
+    original_price: original_price ? original_price : "",
+    type: type,
+    size: size,
+    description: description ? description : 'Seller did not specify a description',
+    gender: gender,
+    condition: condition,
+    sold: false,
+    likes: 0,
+    comments: '',
+    time: oldItemPostKey ? oldItemUploadDate : Date.now(), //for now, do ot override initial upload Date
+    dateSold: '',
+    post_price: post_price ? post_price : 0,
+    };
     
-    var updates = {};  
+    var updates = {}; 
     var actualPostKey;
-
+   
     if(oldItemPostKey) {
-        actualPostKey = oldItemPostKey
+    actualPostKey = oldItemPostKey
     }
-
+   
     else {
-        actualPostKey = firebase.database().ref().child(`Users/${uid}/products`).push().key;
+    actualPostKey = firebase.database().ref().child(`Users/${uid}/products`).push().key;
     }
-
-    updates['/Users/' + uid + '/products/' + actualPostKey + '/'] = postData;
+   
+    updates['/Users/' + uid + '/products/' + actualPostKey + '/text/'] = postData;
     
     
     //this.createRoom(newPostKey);
-
+   
     
     
-
+   
     return {
-        database: firebase.database().ref().update(updates),
-        storage: this.uploadToStore(pictureuris, uid, actualPostKey)
+    database: firebase.database().ref().update(updates),
+    storage: this.uploadToStore(pictureuris, uid, actualPostKey)
     }
-
+   
 }
 
 uploadToStore = (pictureuris, uid, postKey) => {
     var picturesProcessed = 0;
     pictureuris.forEach(async (uri, index, array) => {
-        console.log("Picture's Original URL:" + uri);
-        //TODO: Will this flow work in EditItem mode for Image Uris placed in firebasestorage: NO it won't, just do simpler thing and
-        //don't touch the cloud if these images have not been changed
+    // console.log("Picture's Original URL:" + uri);
+    //TODO: Will this flow work in EditItem mode for Image Uris placed in firebasestorage: NO it won't, just do simpler thing and
+    //don't touch the cloud if these images have not been changed
         if(uri.includes('firebasestorage')) {
-            this.callBackForProductUploadCompletion();
+            picturesProcessed++;
+            if(picturesProcessed == array.length) {
+                this.callBackForProductUploadCompletion();
+            }
+        
         }
 
         else {
 
         
-        let resizedImageThumbnail = await ImageResizer.createResizedImage(uri,maxWidth, maxHeight,'JPEG',suppressionLevel);
-        let resizedImageProductDetails = await ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
-        let imageUris = [uri, resizedImageThumbnail.uri, resizedImageProductDetails.uri];
-        imageUris.forEach((imageUri, imageIndex, imageArray) => {
-            console.log("Picture URL:", imageUri, imageIndex)
+            let resizedImageThumbnail = await ImageResizer.createResizedImage(uri,maxWidth, maxHeight,'JPEG',suppressionLevel);
+            let resizedImageProductDetails = await ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
+            let imageUris = [uri, resizedImageThumbnail.uri, resizedImageProductDetails.uri];
+            imageUris.forEach((imageUri, imageIndex, imageArray) => {
+            // console.log("Picture URL:", imageUri, imageIndex)
             const storageUpdates = {};
             const uploadUri = Platform.OS === 'ios' ? imageUri.replace('file://', '') : uri
 
@@ -258,68 +262,68 @@ uploadToStore = (pictureuris, uid, postKey) => {
             const imageRef = firebase.storage().ref().child(`Users/${uid}/${postKey}/${imageIndex == 0 ? index : imageIndex == 1 ? index+'-thumbnail' : index+'-pd'}`);
             fs.readFile(uploadUri, 'base64')
             .then((data) => {
-            return Blob.build(data, { type: `${mime};BASE64` })
+                return Blob.build(data, { type: `${mime};BASE64` })
             })
             .then((blob) => {
-            console.log('got to blob')
-            uploadBlob = blob
-            return imageRef.put(blob, { contentType: mime })
+            // console.log('got to blob')
+                uploadBlob = blob
+                return imageRef.put(blob, { contentType: mime })
             })
             .then(() => {
-            console.log('upload successful')
-            uploadBlob.close()
-            return imageRef.getDownloadURL()
+            // console.log('upload successful')
+                uploadBlob.close()
+                return imageRef.getDownloadURL()
             })
             .then((url) => {
-                console.log(url);
-                if(imageIndex == 0) {
-                    storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/source/' + index + '/'] = url;
-                }
+            // console.log(url);
+            if(imageIndex == 0) {
+                storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/source/' + index + '/'] = url;
+            }
 
-                else if(imageIndex == 1){
-                    storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/thumbnail/' + index + '/'] = url;
-                }
+            else if(imageIndex == 1){
+                storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/thumbnail/' + index + '/'] = url;
+            }
 
-                else {
-                    storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/pd/' + index + '/'] = url;
-                }
-                
-                firebase.database().ref().update(storageUpdates);
-                picturesProcessed++;
-                if(picturesProcessed == (imageArray.length*array.length)) {
-                    this.callBackForProductUploadCompletion();
-                }
-            })
-            // if(imageUri.includes('firebasestorage')) {
-            //     //if the person did not take brand new pictures and chose to maintain the URIS received in EditItem mode
-            //     console.log(url);
-            //     if(imageIndex == 0) {
-            //         storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/source/' + index + '/'] = url;
-            //     }
-
-            //     else if(imageIndex == 1){
-            //         storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/thumbnail/' + index + '/'] = url;
-            //     }
-
-            //     else {
-            //         storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/pd/' + index + '/'] = url;
-            //     }
-                
-            //     firebase.database().ref().update(storageUpdates);
-            //     picturesProcessed++;
-            //     if(picturesProcessed == (imageArray.length*array.length)) {
-            //         this.callBackForProductUploadCompletion();
-            //     }
-            // }
-        })
+            else {
+                storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/pd/' + index + '/'] = url;
+            }
             
-            
-            
-
-
+            firebase.database().ref().update(storageUpdates);
+            picturesProcessed++;
+            if(picturesProcessed == (imageArray.length*array.length)) {
+            this.callBackForProductUploadCompletion();
         }
+        })
+        // if(imageUri.includes('firebasestorage')) {
+        // //if the person did not take brand new pictures and chose to maintain the URIS received in EditItem mode
+        // console.log(url);
+        // if(imageIndex == 0) {
+        // storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/source/' + index + '/'] = url;
+        // }
+
+        // else if(imageIndex == 1){
+        // storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/thumbnail/' + index + '/'] = url;
+        // }
+
+        // else {
+        // storageUpdates['/Users/' + uid + '/products/' + postKey + '/uris/pd/' + index + '/'] = url;
+        // }
         
-    })
+        // firebase.database().ref().update(storageUpdates);
+        // picturesProcessed++;
+        // if(picturesProcessed == (imageArray.length*array.length)) {
+        // this.callBackForProductUploadCompletion();
+        // }
+        // }
+        })
+    
+    
+    
+
+
+    }
+ 
+ })
 
 }
 //   uploadToStore = (pictureuris, uid, postKey) => {
@@ -423,7 +427,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
 //     // }
 //   }
 
-  callBackForProductUploadCompletion = () => {
+callBackForProductUploadCompletion = () => {
     alert(`Product named ${this.state.name} successfully uploaded to Market!`);
     // alert(`Your product ${this.state.name} is being\nuploaded to the market.\nPlease do not resubmit the same product.`);
     //TODO: example of how in this instance we needed to remove pictureuris if its sitting in the navigation params
@@ -443,13 +447,13 @@ uploadToStore = (pictureuris, uid, postKey) => {
         description: '',
         typing: true,
         isUploading: false,
-                 });
+    });
+    // isEditItem ? Navigate to Initial Screen in current Stack : Navigate to different Stack
+    this.state.oldItemPostKey ? this.props.navigation.navigate('MarketPlace') : this.props.navigation.navigate('Market'); 
+ }
 
-    this.state.oldItemPostKey ? this.props.navigation.navigate('Market') : this.props.navigation.navigate('Market'); 
-  }
-
-  deleteProduct(uid, key) {
-    
+ deleteProduct(uid, key) {
+ 
     let promiseToUpdateProductsBranch = firebase.database().ref('/Products/' + key).remove();
     let promiseToDeleteProduct = firebase.database().ref('/Users/' + uid + '/products/' + key).remove();
     //Additionally, schedule deletion of any priceReductionNotification notifications that affect this product
@@ -469,26 +473,26 @@ uploadToStore = (pictureuris, uid, postKey) => {
         console.log(err);
     });
 
-  }
+ }
 
-  startOver = () => {
+ startOver = () => {
     this.props.navigation.setParams({pictureuris: 'nothing here', price: 0, original_price: 0, type: false, size: false, condition: false});
     this.setState({ 
-        uri: undefined,
-        name: '',
-        brand: '',
-        // price: 0,
-        // original_price: 0,
-        // size: 2,
-        // type: 'Trousers',
-        gender: 1,
-        // condition: 'Slightly Used',
-        insta: '',
-        description: '',
-        typing: true,
-        isUploading: false,
-                 });
-  }
+    uri: undefined,
+    name: '',
+    brand: '',
+    // price: 0,
+    // original_price: 0,
+    // size: 2,
+    // type: 'Trousers',
+    gender: 1,
+    // condition: 'Slightly Used',
+    insta: '',
+    description: '',
+    typing: true,
+    isUploading: false,
+    });
+ }
 
   getColorFor = (c) => {
       var color;
@@ -599,9 +603,9 @@ uploadToStore = (pictureuris, uid, postKey) => {
 
     return (
       
-    
+        <SafeAreaView style={{flex: 1}}>
         <ScrollView
-             style={{flex: 1, marginTop: Platform.OS == "ios" ? 22 : 0}}
+             style={{flex: 1}}
              contentContainerStyle={styles.contentContainer}
         >
 
@@ -686,8 +690,6 @@ uploadToStore = (pictureuris, uid, postKey) => {
             </View>
 
             <WhiteSpace height={4}/>
-
-            
             
             <GrayLine/>
 
@@ -726,7 +728,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
 
             <WhiteSpace height={1.5}/>
 
-            <GrayLine/>
+            {/* <GrayLine/>
 
             
             <TouchableHighlight underlayColor={'#fff'} style={styles.navToFillDetailRow} onPress={() => this.navToFillPrice("retailPrice")}>
@@ -753,7 +755,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
                 </View>
 
             </View>
-            </TouchableHighlight>
+            </TouchableHighlight> */}
 
             <GrayLine/>
 
@@ -788,11 +790,11 @@ uploadToStore = (pictureuris, uid, postKey) => {
 
             <GrayLine/>
             
-            <View style={styles.priceAdjustmentReminderContainer}>
+            {/* <View style={styles.priceAdjustmentReminderContainer}>
                 <Text style={new avenirNextText(graphiteGray, 13, "300", "left")}>{priceAdjustmentReminder}</Text>
             </View>
 
-            <GrayLine/>
+            <GrayLine/> */}
 
                 
             
@@ -955,7 +957,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
                 large
                 disabled = { partialConditionMet ? false : true}
                 buttonStyle={{
-                    backgroundColor: conditionMet ? "#22681d" : highlightYellow,
+                    backgroundColor: !conditionMet ? lightPurple : highlightYellow,
                     width: 280,
                     height: 80,
                     borderColor: "transparent",
@@ -1033,6 +1035,7 @@ uploadToStore = (pictureuris, uid, postKey) => {
             <Divider style={{  backgroundColor: '#fff', height: 10 }} />
 
          </ScrollView>
+         </SafeAreaView>
          
          
         
@@ -1205,7 +1208,7 @@ const styles = StyleSheet.create({
     },
     
     buttonGroupSelectedContainer: {
-        backgroundColor: mantisGreen
+        backgroundColor: petalPurple
     },
 
     actionButtonContainer: {padding: 5, alignItems: 'center'},

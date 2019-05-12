@@ -1,4 +1,4 @@
-package com.nott;
+package com.poco;
 
 import com.facebook.react.ReactActivity;
 

@@ -1,35 +1,35 @@
 {
   "project_info": {
-    "project_number": "791527199565",
-    "firebase_url": "https://nottmystyle-447aa.firebaseio.com",
-    "project_id": "nottmystyle-447aa",
-    "storage_bucket": "nottmystyle-447aa.appspot.com"
+    "project_number": "508961154043",
+    "firebase_url": "https://poco-f8d64.firebaseio.com",
+    "project_id": "poco-f8d64",
+    "storage_bucket": "poco-f8d64.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:791527199565:android:b1143ca0048479af",
+        "mobilesdk_app_id": "1:508961154043:android:23d906cb249ba6c1",
         "android_client_info": {
-          "package_name": "com.nott"
+          "package_name": "com.poco"
         }
       },
       "oauth_client": [
         {
-          "client_id": "791527199565-1lrg47haaviafkql0c5faal7f7n2slg9.apps.googleusercontent.com",
+          "client_id": "508961154043-it78i3o2seigbh96b3l51jj3s5dtel44.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.nott",
+            "package_name": "com.poco",
             "certificate_hash": "652350cbf95b92b2bf5131a0ce822dee350eb6f6"
           }
         },
         {
-          "client_id": "791527199565-9qf592bij6sovaqhvrn0nmqquqjrg27i.apps.googleusercontent.com",
+          "client_id": "508961154043-tn0k095t77ec456b7qn7fn1mhbtivrgd.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDYudCUyaDx46OKbvWMLSmBgBPNOZqZ6YM"
+          "current_key": "AIzaSyAuu43NV_SEfaJrWQia77BA7qESaXbUyX4"
         }
       ],
       "services": {
@@ -40,15 +40,8 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "791527199565-9qf592bij6sovaqhvrn0nmqquqjrg27i.apps.googleusercontent.com",
+              "client_id": "508961154043-tn0k095t77ec456b7qn7fn1mhbtivrgd.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "791527199565-tcd1e6eak6n5fcis247mg06t37bfig63.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "-3T6KRJL5P.com.NottMyStyle.nott"
-              }
             }
           ]
         },

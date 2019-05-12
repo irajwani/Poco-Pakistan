@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform, TouchableWithoutFeedback, Keyboard, ScrollView, View, Text, TextInput, Image, TouchableHighlight, TouchableOpacity, Modal, Dimensions, StyleSheet, Linking, WebView } from 'react-native';
+import { SafeAreaView,Platform, TouchableWithoutFeedback, Keyboard, ScrollView, View, Text, TextInput, Image, TouchableHighlight, TouchableOpacity, Modal, Dimensions, StyleSheet, Linking, WebView } from 'react-native';
 
 import PushNotification from 'react-native-push-notification';
 
@@ -23,11 +23,11 @@ import { iOSColors } from 'react-native-typography';
 import Chatkit from "@pusher/chatkit-client";
 import { CHATKIT_INSTANCE_LOCATOR, CHATKIT_TOKEN_PROVIDER_ENDPOINT, CHATKIT_SECRET_KEY } from '../credentials/keys.js';
 import email from 'react-native-email';
-import { lightGreen, highlightGreen, treeGreen, graphiteGray, rejectRed, darkBlue, profoundPink, aquaGreen, bobbyBlue, mantisGreen, logoGreen, lightGray } from '../colors';
+import { lightGreen, highlightGreen, treeGreen, graphiteGray, rejectRed, citrusOrange, bgGray, darkBlue, tabIconYellow,profoundPink, aquaGreen, darkPurple, bobbyBlue, mantisGreen, logoGreen, lightGray, lightPurple } from '../colors';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 // import BackButton from '../components/BackButton';
 import { avenirNextText, delOpt, deliveryOptions } from '../constructors/avenirNextText';
-import { WhiteSpace, LoadingIndicator, CustomTouchableO } from '../localFunctions/visualFunctions';
+import { WhiteSpace, LoadingIndicator, CustomTouchableO, GrayLine } from '../localFunctions/visualFunctions';
 import NottLogo from '../../nottLogo/ios/NottLogo.js';
 
 
@@ -44,6 +44,8 @@ const chatIcon = {
   color: 'black',
   type:{name: 'message-text', type: 'material-community'}
 };
+
+const primaryButtons = [1,2];
 
 const addressFields = [
   {key: "fullName", header: "Full Name", placeholder: "e.g. Angelina Capato"},
@@ -478,6 +480,8 @@ class ProductDetails extends Component {
                   seller: this.state.profile.name, sellerAvatar: this.state.profile.uri, 
                   buyer: this.state.yourProfile.name, buyerAvatar: this.state.yourProfile.uri,
                   lastMessage: {lastMessageText, lastMessageDate, lastMessageSenderIdentification},
+                  unread: false,
+                  presence: 'offline'
                 };
           newConversationUpdate['/Users/' + CHATKIT_USER_NAME + '/conversations/' + room.id + '/'] = newConversation; 
           firebase.database().ref().update(newConversationUpdate);
@@ -778,6 +782,12 @@ class ProductDetails extends Component {
   });
 
 
+  }
+
+  showFullReview = (commentKey) => {
+    const {...state} = this.state;
+    state.productComments[commentKey].selected = !state.productComments[commentKey].selected;
+    this.setState(state); 
   }
 
   renderPictureModal = () => {
@@ -1410,65 +1420,75 @@ class ProductDetails extends Component {
     }
 
     return (
-      <View style={[styles.mainContainer, {marginTop: Platform.OS == 'ios' ? 22:0}]}>
-      <View style={styles.deliveryOptionHeader}>
+      <SafeAreaView style={{flex: 1}}>
+      <View style={styles.mainContainer}>
+      <View style={styles.headerBar}>
         <FontAwesomeIcon
-        name='arrow-left'
+        name='chevron-left'
         size={30}
-        color={'black'}
+        color={'#fff'}
         onPress = { () => { 
             this.props.navigation.goBack();
             } }
         />
-
-        <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
-            
-        <FontAwesomeIcon
-          name='close'
-          size={28}
-          color={logoGreen}
-        />
+        <View style={{width: 10}}/>
+        <Text 
+        onPress = { () => { 
+            this.props.navigation.goBack();
+            } } 
+            style={new avenirNextText("#fff", 18, "300")}>Back</Text>
       </View>
       <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.contentContainer}>
         
         {/* image carousel in center with back button on its left */}
         
           
-        <View style={styles.carouselContainer}>        
-          <CustomCarousel data={params.data.uris.thumbnail} />
-          <View style={{position: 'absolute', right: 10, top: 10}}>
-            <Icon 
-            name={'arrow-expand'}
-            size={35} 
-            color={'#fff'} 
-            onPress={() => this.setState({showPictureModal: true})}
-            />
-          </View>
+        <TouchableOpacity onPress={() => this.setState({showPictureModal: true})} style={styles.carouselContainer}>        
+          <CustomCarousel onPress={() => this.setState({showPictureModal: true})} data={params.data.uris.pd} />
+        </TouchableOpacity>
+
+        <View style={[styles.sellerProfileAndActionsRow, {height: 40, paddingHorizontal: 0, paddingTop: 2}]}>
+
+            <View style={[styles.priceContainer]}>
+              <Text style={[styles.original_price, {fontSize: 28, color: lightPurple}]} >
+                £{text.price}
+              </Text>
+            </View>  
+
+            <View style={styles.likesContainer}>
+
+              <View style={{justifyContent: 'flex-end', alignItems: 'center'}}>
+                <Text style={[{fontSize: 18,color: collectionKeys.includes(params.data.key) ? 'black' : rejectRed} ]}>{params.data.text.likes}</Text>
+              </View>
+
+              <Icon name={collectionKeys.includes(params.data.key) ? "heart" : "heart-outline" }
+              size={33} 
+              color='#800000'
+              onPress={() => {collectionKeys.includes(params.data.key) ? 
+              alert("you've already liked this product, but may unlike it from the Market")
+              : 
+              alert('You may like this product directly from the Market')}
+              }
+              />
+              
+              
+          
+          </View> 
+
         </View>
+
+        <GrayLine height={4}/>
         
           {/* Product Name (Not Brand) and Price Row */}
         <View style={styles.nameAndPriceRow}>
-          <View style={styles.nameContainer}>
-            <Text style={new avenirNextText('black', 18, "300")}>{text.name.toUpperCase().replace(/ +/g, " ")}</Text>
-          </View>
-          <View style={styles.likesContainer}>
-            
-            <Icon name={collectionKeys.includes(params.data.key) ? "heart" : "heart-outline" }
-            size={37} 
-            color='#800000'
-            onPress={() => {collectionKeys.includes(params.data.key) ? 
-              this.decrementLikes(this.state.likes, params.data.key)
-            : 
-              this.incrementLikes(this.state.likes, params.data.key)
-            }}
-            />
-            {/* <View style={{justifyContent: 'center', position: 'absolute', paddingBottom: 5}}>
-              <Text style={[styles.likes, {color: collectionKeys.includes(params.data.key) ? 'black' : rejectRed} ]}>{params.data.text.likes}</Text>
-            </View> */}
           
-          </View> 
+            <Text style={new avenirNextText(darkPurple, 20, "600")}>{text.name.toUpperCase().replace(/ +/g, " ")}</Text>
           
-            {text.original_price > 0 ?
+          
+
+              
+          
+            {/* {text.original_price > 0 ?
               <View style={[styles.priceContainer]}>
                 <Text style={[styles.original_price, {color: 'black', textDecorationLine: 'line-through',}]} >
                   £{text.original_price}
@@ -1483,85 +1503,29 @@ class ProductDetails extends Component {
                   £{text.price}
                 </Text>
               </View>
-            }
+            } */}
           
         </View>
-        <View style={{backgroundColor: 'black', height: 1.5}} />
-            {/* Profile And Actions Row */}
-        <View style={styles.sellerProfileAndActionsRow}>
-            
-          <TouchableOpacity style={styles.profilePictureContainer} onPress={() => {firebase.auth().currentUser.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(data.uid)}}>
-            <Image source={profile.uri ? {uri: profile.uri} : require('../images/blank.jpg')} style={styles.profilePicture} />
-          </TouchableOpacity>
-          <View style={styles.profileTextContainer}>
-            <Text onPress={() => 
-            {this.state.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(data.uid)}}
-            style={styles.profileText}>
-              {profile.name}
-            </Text>
-            <Text style={styles.profileText}>
-              {profile.country}
-            </Text>
-            {profile.insta ? 
-              <Text onPress={()=>Linking.openURL(`https://instagram.com/${profile.insta}`)} style={[styles.profileText, {color: "black"}]}>@{profile.insta}</Text>
-             : 
-              null
-            }
-          </View>
-          {productKeys.includes(data.key) ?
-            <View style={styles.actionIconContainer}>
-              <Icon
-                name='wrench'
-                size={32}
-                color={'black'}
-                onPress = { () => { 
-                    // console.log('going to edit item details');
-                    //subscribe to room key
-                    this.navToEditItem(data);
-                    } }
-              />
-            </View>
-            :
-            <View style={styles.actionIconContainer}>
-              <Icon
-                name='message-text-outline'
-                size={38}
-                color={chatIcon.color}
-                onPress = {
-                  this.state.canChatWithOtherUser ? 
-                    () => { 
-                        // console.log('going to chat');
-                        //subscribe to room key
-                        this.navToChat(data.uid, data.key);
-                        } 
-                    :
-                    () => {
-                      alert('You cannot create a chat with an individual that you have blocked.\n Please unblock them to proceed. ');
-                    }    
-                  }
-              />
-              <TouchableOpacity
-                disabled={this.state.sold ? true : false} 
-                style={[styles.purchaseButton, {backgroundColor: this.state.sold ? graphiteGray : mantisGreen}]}
-                onPress={() => {this.setState({showPurchaseModal: true})}} 
-              >
-                <Text style={new avenirNextText("#fff",16,"400")}>{this.state.sold ? "Sold":"Buy"}</Text>
-              </TouchableOpacity>
-            </View>
-          }
-        </View>
-        <View style={{backgroundColor: 'black', height: 1.5}} />
+        
         {/* Details and Report Item Row */}
         <View style={styles.detailsAndReportItemRow}>
             <View style={styles.detailsColumn}>
-              <Text style={styles.descriptionHeader}>DETAILS</Text>
+              <Text style={[styles.detailsText, {fontSize: 20, color: 'black', fontWeight: '300'}]}>DETAILS</Text>
+              <WhiteSpace height={4}/>
               {/* Specific Details */}
               { Object.keys(details).map( (key, index) => ( 
-                <Text style={[styles.detailsText]} key={index}>
-                {/* {key.replace(key.charAt(0), key.charAt(0).toUpperCase())}: {details[key]} */}
-                {index == 5 ? details[key] > 0 ? `Price of Post: £${details[key]}` : null : `${key.replace(key.charAt(0), key.charAt(0).toUpperCase())}: ${details[key]}`}
-                {/* {key === 'post_price' ? 'Retail Price' : key.replace(key.charAt(0), key.charAt(0).toUpperCase())}: {key === 'original_price' ? `£${details[key]}` : details[key]} */}
-                </Text>
+                <View style={{flexDirection: 'row', padding: 3}}>
+                  {/* <Text style={[styles.detailsText]} key={index}>
+                  {key === 'original_price' ? 'Retail Price' : key.replace(key.charAt(0), key.charAt(0).toUpperCase())}: {key === 'original_price' ? `£${details[key]}` : details[key]}
+                  </Text> */}
+                  <Text style={styles.detailsText} key={index}>
+                  {key.replace(key.charAt(0), key.charAt(0).toUpperCase())}: 
+                  </Text>
+                  <Text>  </Text>
+                  <Text style={[styles.detailsText, {fontWeight: "500", color: darkPurple}]} key={index}>
+                   {details[key]}
+                  </Text>
+                </View>
               ) ) }
               {/* Optional Product Description Row */}
               {/* {text.description !== "Seller did not specify a description" ?
@@ -1579,7 +1543,7 @@ class ProductDetails extends Component {
             <View style={styles.secondaryActionsColumn}>
             {productKeys.includes(data.key) ?
               null
-            :
+              :
               <View style={styles.buyOrReportActionContainer}>
                 <Icon
                   name="flag-variant-outline" 
@@ -1591,17 +1555,18 @@ class ProductDetails extends Component {
                 />
               </View>
               
+            
             }
               
             </View>
         </View>
-        <View style={{backgroundColor: 'black', height: 1.5}} />
+        <GrayLine height={4} />
         {/* Optional Product Description Row */}
         { text.description !== "Seller did not specify a description" ?
             <View>
             <View style={styles.optionalDescriptionRow}>
                 <View style={styles.descriptionHeaderContainer}>
-                    <Text style={styles.descriptionHeader}>DESCRIPTION</Text>
+                    <Text style={styles.descriptionHeader}>Description</Text>
                 </View>
                 <View style={styles.descriptionContainer}>
                   {text.description.replace(/ +/g, " ").length >= 131 ?
@@ -1617,22 +1582,101 @@ class ProductDetails extends Component {
                 <WhiteSpace height={3}/>
               
             </View>
-            <View style={{backgroundColor: 'black', height: 1.5}} />
+            <GrayLine height={4}/>
             </View>
           :
           null
         }
+
+         {/* Add to Cart and Buy Row */}
+         <View style={[styles.sellerProfileAndActionsRow, {height: 70, paddingVertical: 0, paddingHorizontal: 0}]}>
+
+          {primaryButtons.map( (button, index) => (
+            <TouchableOpacity
+            disabled={this.state.sold || this.state.uid == data.uid ? true : false} 
+            style={[styles.purchaseButton, {backgroundColor: index == 0 ? this.state.sold ? graphiteGray : tabIconYellow : citrusOrange}]}
+            onPress={() => {index == 0 ? this.setState({showPurchaseModal: true}) : this.addToCart(data)}} 
+            >
+            <Text style={new avenirNextText(darkPurple,16,"600")}>{index == 0 ? this.state.sold ? "SOLD OUT":"BUY NOW" : "ADD TO CART"}</Text>
+          </TouchableOpacity>
+          ))
+          }
+            
+        </View>
+
+        <GrayLine height={4} />
+
+        {/* Profile And Actions Row */}
+        <View style={styles.sellerProfileAndActionsRow}>
+            
+          <TouchableOpacity style={styles.profilePictureContainer} onPress={() => {firebase.auth().currentUser.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(data.uid)}}>
+            <Image source={profile.uri ? {uri: profile.uri} : require('../images/blank.jpg')} style={styles.profilePicture} />
+          </TouchableOpacity>
+          <View style={styles.profileTextContainer}>
+            <Text onPress={() => 
+            {this.state.uid == data.uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(data.uid)}}
+            style={[styles.profileText,{fontSize:22}]}>
+              {profile.name}
+            </Text>
+            <Text style={styles.profileText}>
+              {profile.country}
+            </Text>
+            {profile.insta ? 
+              <Text onPress={()=>Linking.openURL(`https://instagram.com/${profile.insta}`)} style={[styles.profileText, {color: "black"}]}>@{profile.insta}</Text>
+             : 
+              null
+            }
+          </View>
+          {productKeys.includes(data.key) ?
+            <View style={styles.actionIconContainer}>
+              <Icon
+                name='wrench'
+                size={32}
+                color={lightPurple}
+                onPress = { () => { 
+                    // console.log('going to edit item details');
+                    //subscribe to room key
+                    this.navToEditItem(data);
+                    } }
+              />
+              <Text style={new avenirNextText(lightPurple, 18, "300")}>EDIT</Text>
+            </View>
+            :
+            <View style={styles.actionIconContainer}>
+              <Icon 
+                name='forum'
+                size={38}
+                color={lightPurple}
+                onPress = {
+                  this.state.canChatWithOtherUser ? 
+                    () => { 
+                        // console.log('going to chat');
+                        //subscribe to room key
+                        this.navToChat(data.uid, data.key);
+                        } 
+                    :
+                    () => {
+                      alert('You cannot create a chat with an individual that you have blocked.\n Please unblock them to proceed. ');
+                    }    
+                  }
+              />
+              <Text style={new avenirNextText(lightPurple, 18, "300")}>CHAT</Text>
+            </View>
+          }
+        </View>
+
+        <GrayLine height={4} />
         
         {/* comments */}
         
-          
+        <View style={styles.reviewsContainer}>
           <View style={styles.reviewsHeaderContainer}>
             <Text style={styles.reviewsHeader}>REVIEWS</Text>
             <FontAwesomeIcon 
               name="edit" 
               style={styles.users}
               size={35} 
-              color={iOSColors.black}
+              color={lightPurple}
               onPress={() => {this.navToProductComments(data)}}
             /> 
           </View>
@@ -1644,7 +1688,7 @@ class ProductDetails extends Component {
                         {productComments[comment].uri ?
                           <TouchableHighlight 
                             onPress={() => this.state.uid == productComments[comment].uid ? this.props.navigation.navigate('Profile') : this.navToOtherUserProfilePage(productComments[comment].uid)} 
-                            style={styles.commentPic}
+                            style={[styles.commentPic, {flex: 0.25}]}
                           >
                             <Image style= {styles.commentPic} source={ {uri: productComments[comment].uri} }/>
                           </TouchableHighlight>  
@@ -1652,21 +1696,25 @@ class ProductDetails extends Component {
                           <Image style= {styles.commentPic} source={ require('../images/companyLogo2.jpg') }/>
                         }
                           
-                        <View style={styles.textContainer}>
+                        <TouchableOpacity style={styles.textContainer} onPress={()=> {this.showFullReview(comment)}}>
                             <Text style={ styles.commentName }> {productComments[comment].name} </Text>
-                            <Text style={styles.comment}> {productComments[comment].text}  </Text>
-                        </View>
+                            <Text style={styles.comment}>
+                            {productComments[comment].selected ? productComments[comment].text : productComments[comment].text.length > 50 ? productComments[comment].text.substr(0,47) + "...":productComments[comment].text }
+                            </Text>
+                        </TouchableOpacity>
                       </View>
                       <View style={styles.commentTimeRow}>
                         <Text style={ styles.commentTime }> {productComments[comment].time} </Text>
                       </View>
-                      {productComments[comment].uri ? <View style={styles.separator}/> : null}
+                      
                       
                   </View>
                   
               )
                       
               )}
+
+          </View>
           
         {this.renderPictureModal()}
         {this.renderReportUserModal()}
@@ -1674,6 +1722,7 @@ class ProductDetails extends Component {
         {/* {this.r()} */}
       </ScrollView> 
       </View>
+      </SafeAreaView>
     );
   }
 }
@@ -1681,6 +1730,7 @@ export default withNavigation(ProductDetails);
 {/* <View style={{flex: 2, alignItems: 'center'}}>
           <CustomCarousel data={params.data.uris} />
         </View> */}
+
 const styles = StyleSheet.create( {
   mainContainer: {
     flex: 1,
@@ -1707,7 +1757,7 @@ const styles = StyleSheet.create( {
     backgroundColor: '#fff',
     flexDirection: 'column',
     justifyContent: 'space-evenly',
-    paddingHorizontal: 2,
+    paddingHorizontal: 0,
     // marginTop: 5,
     // marginBottom: 5
   },
@@ -1722,29 +1772,33 @@ const styles = StyleSheet.create( {
   nameAndPriceRow: {
     flexDirection: 'row',
     // backgroundColor: 'red',
-    padding: 5,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
     // margin: 5
   },
   nameContainer: {
     justifyContent: 'center',
+    padding: 10,
     // align
-    flex: 0.6,
+    // flex: ,
   },
-  likesContainer: {flex: 0.15, justifyContent: 'center', alignItems: 'center', 
+  likesContainer: {flexDirection: 'row',flex: 0.3, justifyContent: 'space-evenly', alignItems: 'flex-end', 
     // backgroundColor: 'red'
 },
   priceContainer: {
     flexDirection: 'row',
-    flex: 0.25,
+    flex: 0.7,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 5,
     // backgroundColor: 'blue'
   },
   sellerProfileAndActionsRow: {
     height: 90,
     flexDirection: 'row',
     paddingVertical: 10,
-    paddingHorizontal: 5
+    paddingHorizontal: 5,
+    backgroundColor: '#fff'
   },
   profilePicture: {
     width: 60,
@@ -1754,7 +1808,7 @@ const styles = StyleSheet.create( {
     borderWidth: 1,
   },
   profilePictureContainer: {
-    flex: 0.2,
+    flex: 0.23,
     padding: 0,
     // height:100,
     // width: 150,
@@ -1762,14 +1816,15 @@ const styles = StyleSheet.create( {
     // backgroundColor: 'yellow'
   },
   profileTextContainer: {
-    flex: 0.4,
+    flex: 0.52,
     flexDirection: 'column',
     justifyContent: 'center',
-    alignContent: 'flex-end',
-    alignItems: 'center',
-    // backgroundColor: 'red'
+    padding: 5,
+    // alignContent: 'flex-end',
+    alignItems: 'flex-start',
+    // backgroundColor: 'transparent'
   },
-  profileText: new avenirNextText("black", 14, "300"),
+  profileText: new avenirNextText("black", 14, "300","left"),
   likeIconContainer: {
     padding: 5
   },
@@ -1784,10 +1839,10 @@ const styles = StyleSheet.create( {
     
   },
   actionIconContainer: {
-    flex: 0.4,
-    flexDirection: 'row',
+    flex: 0.35,
+    // flexDirection: 'row',
     // backgroundColor: 'brown',
-    justifyContent: 'space-evenly',
+    justifyContent: 'center',
     alignItems: 'center',
     padding: 0
   },
@@ -1805,7 +1860,7 @@ const styles = StyleSheet.create( {
   },
   detailsText: {
     textAlign: 'left',
-    fontSize: 14,
+    fontSize: 17,
     fontFamily: 'Avenir Next',
     fontWeight: '300',
     color: graphiteGray
@@ -1832,9 +1887,10 @@ const styles = StyleSheet.create( {
     alignItems: 'flex-end',
   },
   purchaseButton: {
-    width: 60,
-    height: 40,
-    borderRadius: 20,
+    flex: 0.5,
+    // width: 60,
+    // height: 40,
+    // borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center'
     // borderWidth: 1,
@@ -1875,7 +1931,7 @@ const styles = StyleSheet.create( {
     // backgroundColor: 'blue'
   },
   likes: {
-    fontSize: 14,
+    fontSize: 15,
   },
   priceRow: { flex: 1, flexDirection: 'row', justifyContent: 'flex-start', },
   buttonsRow: {flex: 4, flexDirection: 'row', paddingRight: 10, justifyContent: 'flex-end', },
@@ -1920,7 +1976,7 @@ const styles = StyleSheet.create( {
 //     fontSize: 18,
 //     fontWeight: '300'
 // },
-reportModal: {justifyContent: 'flex-start', alignItems: 'center', padding: 25},
+reportModal: {flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', padding: 25, marginTop: 22},
 reportModalHeader: {
     textAlign: 'center',
     fontSize: 20,
@@ -1934,19 +1990,33 @@ hideModal: {
   color: 'green',
   fontWeight:'bold'
 },
-reportInput: {
-  width: 200, height: 140,
-  // flex: 0.33,
-  marginBottom: 50, borderColor: highlightGreen, borderWidth: 2
-},
+reportInput: {width: 200, height: 160, marginBottom: 50, borderColor: darkBlue, borderWidth: 2},
 halfPageScroll: {
     
 },
-reviewsHeaderContainer: {
-  flexDirection: 'row',
+
+reviewsContainer: {
+  width: width,
   paddingTop: 5,
-  width: width-15,
-  justifyContent: 'space-between'
+    flexDirection: 'column',
+    // padding: 2,
+    backgroundColor: bgGray,
+    alignItems: 'center'
+},
+reviewsHeaderContainer: {
+  // backgroundColor: bgGray,
+  flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: width-30,
+    marginBottom: 3
+    // padding: 10,
+    // justifyContent: 'space-evenly',
+    // width: width,
+  // flexDirection: 'row',
+  // paddingTop: 5,
+  // width: width-15,
+  // justifyContent: 'space-between'
 },
 users: {
   flex: 0,
@@ -1956,12 +2026,25 @@ users: {
 },
 reviewsHeader: {
   fontFamily: 'Avenir Next',
-  fontSize: 24,
+  fontSize: 20,
   fontWeight: "normal",
-  paddingLeft: 5
+  paddingLeft: 10,
+  textAlign: 'left',
+  color: darkPurple
 },
+
 commentContainer: {
   flexDirection: 'column',
+  borderRadius: 10,
+  width: width - 15,
+  backgroundColor: "#fff",
+  shadowOpacity: 0.1,
+  shadowRadius: 0.4,
+  shadowColor: 'black',
+  shadowOffset: {width: 3, height: 3},
+  padding: 5,
+  marginVertical: 4
+
 },
 commentPicAndTextRow: {
   flexDirection: 'row',
@@ -1978,12 +2061,16 @@ commentPic: {
   borderWidth: 0
 },
 textContainer: {
-  flex: 1,
+  // flex: 1,
+  flex: 0.75,
   flexDirection: 'column',
-  padding: 5,
+  justifyContent: 'flex-start',
+  alignItems: 'flex-start',
+  // padding: 5,
+  // backgroundColor: 'red'
   },
 commentName: {
-  color: highlightGreen,
+  color: lightPurple,
   fontSize: 16,
   fontWeight: "500",
   textAlign: "left"
@@ -1995,13 +2082,15 @@ comment: {
 },  
 commentTimeRow: {
   justifyContent: 'flex-end',
-  alignContent: 'flex-end',
+  // alignContent: 'flex-end',
   alignItems: 'flex-end',
+  paddingHorizontal: 5
 },
 commentTime: {
-  textAlign: "right",
-  fontSize: 16,
-  color: iOSColors.black
+  fontFamily: 'Avenir Next',
+  // textAlign: "right",
+  fontSize: 12,
+  // color: iOSColors.black
 },
 numberOfProductsSoldRow: {
   flex: 1,
@@ -2013,7 +2102,7 @@ optionalDescriptionRow: {
   paddingHorizontal: 5
 },
 descriptionHeaderContainer: {flex: 0.2,justifyContent: 'center', alignItems: 'flex-start', paddingHorizontal: 0},
-descriptionHeader: new avenirNextText('black', 24, "300") ,
+descriptionHeader: new avenirNextText('black', 24, "500") ,
 descriptionContainer: {
   justifyContent: 'flex-start'
 },
@@ -2025,18 +2114,14 @@ pictureModal: {
   backgroundColor: '#fff',
   flexDirection: 'column'
 },
-
 pictureModalHeader: {
   flex: 0.15,
   flexDirection: 'row',
   justifyContent: 'flex-start',
   padding: 10,
 },
-
 pictureModalBody: {
   flex: 0.85,
-  // marginVertical: 10,
-
   // justifyContent: 'center',
   // alignItems: 'center',
 },
@@ -2053,7 +2138,7 @@ pictureModalBody: {
 deliveryOptionModal: {
   backgroundColor: "#fff",
   flex: 1,
-  marginTop: Platform.OS == "ios" ? 22 : 0
+  marginTop: 22
 },
 deliveryOptionHeader: {
   flex: 0.1,
@@ -2181,15 +2266,524 @@ addressField: {
 //////////
 /////////
 successProductImage: {
-  width: 150,
-  height: 150,
+  width: 60,
+  height: 60,
 },
 successText: new avenirNextText('black', 18, "300", "left"),
 ////////////
 ////////////
 ////////////
 ///////////
-} )
+} )        
+// const styles = StyleSheet.create( {
+//   mainContainer: {
+//     flex: 1,
+//     // flexDirection: 'column',
+//     // marginTop: 20,
+//     marginBottom: 3,
+//     backgroundColor: '#fff'
+//   },
+//   headerBar: {
+//     flex: 0.1,
+//     flexDirection: 'row',
+//     justifyContent: 'flex-start',
+//     alignItems: 'center',
+//     backgroundColor: logoGreen,
+//     paddingHorizontal: 5,
+//   },
+//   scrollContainer: {
+//     flex: 0.9,
+//     // marginTop: 10
+//   },
+//   contentContainer: {
+    
+//     flexGrow: 1, 
+//     backgroundColor: '#fff',
+//     flexDirection: 'column',
+//     justifyContent: 'space-evenly',
+//     paddingHorizontal: 2,
+//     // marginTop: 5,
+//     // marginBottom: 5
+//   },
+//   carouselContainer: {
+//     flex: 2,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     // backgroundColor: 'green',
+//     width: "100%"
+//   },
+//   backIconAndCarouselContainer: {marginTop: 5, flex: 2, flexDirection: 'row', paddingVertical: 5, paddingRight: 2, paddingLeft: 1 },
+//   nameAndPriceRow: {
+//     flexDirection: 'row',
+//     // backgroundColor: 'red',
+//     padding: 5,
+//     // margin: 5
+//   },
+//   nameContainer: {
+//     justifyContent: 'center',
+//     // align
+//     flex: 0.6,
+//   },
+//   likesContainer: {flex: 0.15, justifyContent: 'center', alignItems: 'center', 
+//     // backgroundColor: 'red'
+// },
+//   priceContainer: {
+//     flexDirection: 'row',
+//     flex: 0.25,
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     // backgroundColor: 'blue'
+//   },
+//   sellerProfileAndActionsRow: {
+//     height: 90,
+//     flexDirection: 'row',
+//     paddingVertical: 10,
+//     paddingHorizontal: 5
+//   },
+//   profilePicture: {
+//     width: 60,
+//     height: 60,
+//     borderRadius: 30,
+//     borderColor: 'black',
+//     borderWidth: 1,
+//   },
+//   profilePictureContainer: {
+//     flex: 0.2,
+//     padding: 0,
+//     // height:100,
+//     // width: 150,
+//     justifyContent: 'center',
+//     // backgroundColor: 'yellow'
+//   },
+//   profileTextContainer: {
+//     flex: 0.4,
+//     flexDirection: 'column',
+//     justifyContent: 'center',
+//     alignContent: 'flex-end',
+//     alignItems: 'center',
+//     // backgroundColor: 'red'
+//   },
+//   profileText: new avenirNextText("black", 14, "300"),
+//   likeIconContainer: {
+//     padding: 5
+//   },
+//   original_price: {
+//     fontFamily: 'Avenir Next',
+//     fontWeight: '400',
+//     fontSize: 17
+//   },
+//   price: {
+//     fontFamily: 'Avenir Next',
+//     fontSize: 16,
+    
+//   },
+//   actionIconContainer: {
+//     flex: 0.4,
+//     flexDirection: 'row',
+//     // backgroundColor: 'brown',
+//     justifyContent: 'space-evenly',
+//     alignItems: 'center',
+//     padding: 0
+//   },
+//   detailsAndReportItemRow: {
+//     flexDirection: 'row',
+//     paddingVertical: 10,
+//     paddingHorizontal: 5,
+//   },
+//   detailsColumn: {
+//     flex: 4,
+//     flexDirection: 'column',
+//     paddingBottom: 3,
+//     paddingTop: 1,
+//     paddingHorizontal: 0
+//   },
+//   detailsText: {
+//     textAlign: 'left',
+//     fontSize: 14,
+//     fontFamily: 'Avenir Next',
+//     fontWeight: '300',
+//     color: graphiteGray
+//   },
+//   secondaryActionsColumn: {
+//     justifyContent: 'flex-start',
+//     alignItems: 'flex-end',
+//     flexDirection: 'column',
+//     flex: 2,
+//     // backgroundColor: 'green'
+//   },
+//   confirmSaleActionContainer: {
+//     flexDirection: 'column',
+//     justifyContent: 'center',
+//     alignItems: 'center'
+//   },
+//   confirmSaleText: {color: '#0e4406', fontSize: 10, textAlign: 'center' },
+//   infoAndButtonsColumn: {
+//     flex: 1,
+//     flexDirection: 'column',
+//   },
+//   buyOrReportActionContainer: {
+//     // justifyContent: 'space-between',
+//     alignItems: 'flex-end',
+//   },
+//   purchaseButton: {
+//     width: 60,
+//     height: 40,
+//     borderRadius: 20,
+//     alignItems: 'center',
+//     justifyContent: 'center'
+//     // borderWidth: 1,
+//     // borderColor: '#fff',
+//   },
+//   brandText: {
+//     fontFamily: 'Avenir Next',
+//     fontSize: 22,
+//   },
+//   headerPriceMagnifyingGlassRow: {
+//     flex: 1.5,
+//     flexDirection: 'row', justifyContent: 'space-between', 
+//     paddingTop: 2,
+//     paddingLeft: 5,
+//     paddingRight: 5,
+//     paddingBottom: 0,
+//   },
+  
+//   nameAndLikeRow: {
+//     flex: 1,
+//     flexDirection: 'row'
+//   },
+//   nameText: {
+//     flex: 2,
+//     fontStyle: 'normal',
+//     fontWeight: 'normal',
+//     fontSize: 20,
+//     padding: 10,
+//     // backgroundColor: 'red'
+//   },
+//   likesRow: {
+//     flex: 2,
+//     flexDirection: 'row',
+//     justifyContent: 'center',
+//     padding: 5,
+//     // backgroundColor: iOSColors.white,
+//     marginLeft: 0,
+//     // backgroundColor: 'blue'
+//   },
+//   likes: {
+//     fontSize: 14,
+//   },
+//   priceRow: { flex: 1, flexDirection: 'row', justifyContent: 'flex-start', },
+//   buttonsRow: {flex: 4, flexDirection: 'row', paddingRight: 10, justifyContent: 'flex-end', },
+//   numberProducts: {
+//     flex: 5,
+//     fontSize: 16,
+//     color: 'black',
+//     fontWeight: 'bold'
+//   },
+//   soldProducts: {
+//     flex: 5,
+//     fontSize: 16,
+//     color: 'black',
+//     fontWeight: 'bold'
+//   },
+// //   dalmationContainer: {
+// //     flexDirection: 'row',
+// //     padding: 5,
+// //     justifyContent: 'space-evenly'
+// // },
+// // keyContainer: {
+// //     width: (width/2) - 30,
+// //     height: 40,
+// //     padding: 5,
+// //     justifyContent: 'center',
+// // },
+// // valueContainer: {
+// //     width: (width/2),
+// //     height: 40,
+// //     padding: 5,
+// //     justifyContent: 'center',
+// // },
+// // keyText: {
+// //     color: iOSColors.black,
+// //     fontFamily: 'TrebuchetMS-Bold',
+// //     fontSize: 15,
+// //     fontWeight: '400'
+// // },
+// // valueText: {
+// //     color: iOSColors.white,
+// //     fontFamily: 'Al Nile',
+// //     fontSize: 18,
+// //     fontWeight: '300'
+// // },
+// reportModal: {justifyContent: 'flex-start', alignItems: 'center', padding: 25},
+// reportModalHeader: {
+//     textAlign: 'center',
+//     fontSize: 20,
+//     fontFamily: 'Avenir Next',
+//     fontWeight: "bold",
+//     paddingBottom: 20,
+// },
+// hideModal: {
+//   paddingTop: 40,
+//   fontSize: 20,
+//   color: 'green',
+//   fontWeight:'bold'
+// },
+// reportInput: {
+//   width: 200, height: 140,
+//   // flex: 0.33,
+//   marginBottom: 50, borderColor: highlightGreen, borderWidth: 2
+// },
+// halfPageScroll: {
+    
+// },
+// reviewsHeaderContainer: {
+//   flexDirection: 'row',
+//   paddingTop: 5,
+//   width: width-15,
+//   justifyContent: 'space-between'
+// },
+// users: {
+//   flex: 0,
+//   paddingLeft: 60,
+//   paddingRight: 0,
+//   marginLeft: 0
+// },
+// reviewsHeader: {
+//   fontFamily: 'Avenir Next',
+//   fontSize: 24,
+//   fontWeight: "normal",
+//   paddingLeft: 5
+// },
+// commentContainer: {
+//   flexDirection: 'column',
+// },
+// commentPicAndTextRow: {
+//   flexDirection: 'row',
+//   width: width - 20,
+//   padding: 10
+// },
+// commentPic: {
+//   //flex: 1,
+//   width: 70,
+//   height: 70,
+//   alignSelf: 'center',
+//   borderRadius: 35,
+//   borderColor: '#fff',
+//   borderWidth: 0
+// },
+// textContainer: {
+//   flex: 1,
+//   flexDirection: 'column',
+//   padding: 5,
+//   },
+// commentName: {
+//   color: highlightGreen,
+//   fontSize: 16,
+//   fontWeight: "500",
+//   textAlign: "left"
+// },
+// comment: {
+//   fontSize: 16,
+//   color: 'black',
+//   textAlign: "center",
+// },  
+// commentTimeRow: {
+//   justifyContent: 'flex-end',
+//   alignContent: 'flex-end',
+//   alignItems: 'flex-end',
+// },
+// commentTime: {
+//   textAlign: "right",
+//   fontSize: 16,
+//   color: iOSColors.black
+// },
+// numberOfProductsSoldRow: {
+//   flex: 1,
+//   flexDirection: 'row'
+// },
+// optionalDescriptionRow: {
+//   // alignItems: 'center'
+//   paddingVertical: 5,
+//   paddingHorizontal: 5
+// },
+// descriptionHeaderContainer: {flex: 0.2,justifyContent: 'center', alignItems: 'flex-start', paddingHorizontal: 0},
+// descriptionHeader: new avenirNextText('black', 24, "300") ,
+// descriptionContainer: {
+//   justifyContent: 'flex-start'
+// },
+// description: {textAlign: 'justify', ...new avenirNextText(graphiteGray, 18, "300") },
+// ////Picture Modal Stuff
+// pictureModal: {
+//   flex: 1,
+//   marginTop: 18,
+//   backgroundColor: '#fff',
+//   flexDirection: 'column'
+// },
+
+// pictureModalHeader: {
+//   flex: 0.15,
+//   flexDirection: 'row',
+//   justifyContent: 'flex-start',
+//   padding: 10,
+// },
+
+// pictureModalBody: {
+//   flex: 0.85,
+//   // marginVertical: 10,
+
+//   // justifyContent: 'center',
+//   // alignItems: 'center',
+// },
+// ////Purchase Modal Stuff
+// ///////////////////////////
+// ///////////////////////////
+// ///////////////////////////
+// //Initial Screen
+// ////////////
+// ////////////
+// ///////////
+// ///////////
+// ///////////
+// deliveryOptionModal: {
+//   backgroundColor: "#fff",
+//   flex: 1,
+//   marginTop: Platform.OS == "ios" ? 22 : 0
+// },
+// deliveryOptionHeader: {
+//   flex: 0.1,
+//   //TODO: find nottGreen hex code
+//   backgroundColor: logoGreen,
+//   justifyContent: 'space-between',
+//   alignItems: 'center',
+//   flexDirection: 'row',
+//   paddingHorizontal: 12,
+// },
+// backIconContainer: {
+//   flex: 0.4,
+//   // justifyContent: 'flex-start',
+//   // alignItems: 'center'
+// },
+// logoContainer: {
+//   flex: 0.6,
+//   // justifyContent: 'flex-start',
+//   // alignItems: 'center',
+//   // backgroundColor: 'red'
+//   // width: 40,
+//   // height: 40
+// },
+// logo: {
+//   width: 45,
+//   height: 45,
+// },
+// deliveryOptionBody: {
+//   flex: 0.75,
+//   padding: 10,
+//   // alignItems: 'center'
+//   // backgroundColor: ''
+// },
+// deliveryOptionContainer: {
+//   flexDirection: 'row',
+  
+//   padding: 10
+// },
+// radioButtonContainer: {
+//   paddingHorizontal: 10,
+//   // justifyContent: 'space',
+//   alignItems: 'center',
+// },
+// radioButton: {
+//   width: 30,
+//   height: 30,
+//   borderRadius: 15,
+//   borderWidth: 0.5,
+//   borderColor: 'black',
+//   backgroundColor: '#fff',
+//   justifyContent: 'center',
+//   alignItems: 'center'
+// },
+// deliveryOptionTextContainer: {
+//   paddingHorizontal: 10,
+//   alignItems: 'flex-start'
+// },
+// ///////////////////////////
+// ///////////////////////////
+// ///////////////////////////
+// //collectionInPerson Screen
+// ////////////
+// ////////////
+// ///////////
+// ///////////
+// ///////////
+// ///////////////////////////
+// ///////////////////////////
+// ///////////////////////////
+// //postalDeliveryScreen
+// collectionInPersonContainer: {
+//   justifyContent: 'center',
+//   alignItems: 'center',
+//   paddingVertical: 10
+// },
+// collectionInPersonButton: {
+//   // width: 230,
+//   height: 60,
+//   borderRadius: 15,
+//   backgroundColor: '#99e265',
+//   justifyContent: 'center',
+//   alignItems: 'center'
+// },
+// collectionInPersonOptionsContainer: {
+//   flexDirection: 'row',
+//   padding: 5,
+//   justifyContent: 'space-evenly',
+//   alignItems: 'center'
+// },
+// addressesContainer: {
+//   paddingHorizontal: 10,
+//   justifyContent: 'space-evenly',
+// },
+// addressContainerButton: {
+//   width: 270,
+//   // height: 50,
+//   borderRadius: 5,
+// },
+// addressContainer: {
+//   flexDirection: 'row',
+//   alignItems: 'center',
+//   // justifyContent: 'space-evenly',
+//   padding: 3,
+// },
+// addressText: new avenirNextText("black", 18, "300"),
+// addDeliveryAddressButton: {
+//   width: 270,
+//   height: 40,
+//   borderRadius: 15,
+//   backgroundColor: '#fff',
+// },
+// addressForm: {
+//   paddingHorizontal: 10,
+//   // justifyContent: '',
+  
+// },
+// addressField: {
+//   alignItems: 'flex-start',
+// },
+// ////////////
+// ////////////
+// ///////////
+// ///////////
+// /////////// afterPaymentScreen
+// //////////
+// /////////
+// successProductImage: {
+//   width: 150,
+//   height: 150,
+// },
+// successText: new avenirNextText('black', 18, "300", "left"),
+// ////////////
+// ////////////
+// ////////////
+// ///////////
+// } )
 /////////////////
 // const profileRowStyles = StyleSheet.create( {
 //   rowContainer: {

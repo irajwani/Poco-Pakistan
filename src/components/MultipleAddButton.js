@@ -3,7 +3,8 @@ import { Platform, Text, ScrollView, View, Image, StyleSheet, TouchableHighlight
 import Svg, { Path } from 'react-native-svg';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import ActionSheet from 'react-native-actionsheet'
-import ImagePicker from 'react-native-image-picker';
+import * as BasicImagePicker from 'react-native-image-picker';
+import ImagePicker from 'react-native-image-crop-picker';
 import { withNavigation } from 'react-navigation';
 import { lightGreen, highlightGreen, darkBlue, optionLabelBlue, bgBlack, treeGreen } from '../colors';
 
@@ -50,7 +51,10 @@ class MultipleAddButton extends Component {
 
   launchCamera(navToComponent) {
     // console.log('launching camera');
+    
     Platform.OS == "ios" ? this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` }) : this.launchImagePickerCamera(navToComponent);
+    // this.launchImagePickerCamera(navToComponent);
+    
     // if(Platform.OS == 'ios') {
     //   this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` });
     // }
@@ -63,23 +67,49 @@ class MultipleAddButton extends Component {
     
   }
 
-  launchGallery(navToComponent) {
-    // console.log('opening Photo Library');
-    let photoArray;
-    // console.log("HERE MAN")
-    CameraRoll.getPhotos({ first: 30 })
-    .then(res => {
-      photoArray = res.edges;
-      // console.log("OVER HERE"+ photoArray);
-      //now navigate to new component which will collect the image uri for usage and then nav back to create profile
-      this.props.navigation.navigate('ViewPhotos', {photoArray: photoArray, navToComponent: `${navToComponent}` })
-      // this.setState({ showPhotoGallery: true, photoArray: photoArray })
-    })
-    
-    
+  launchGallery = (navToComponent) => {
+    ImagePicker.openPicker({
+      width: 300,
+      height: 400,
+      cropping: true,
+      multiple: true,
+      maxFiles: 4
+    }).then(images => {
+      // console.log("TEST FOR IMAGES: " + JSON.stringify(images));
+      let pictureuris = images.map((image) => {return image.sourceURL})
+      this.props.navigation.navigate(`${navToComponent}`, {pictureuris: pictureuris} );
+    });
   }
 
+  // launchGallery(navToComponent) {
+  //   // console.log('opening Photo Library');
+  //   let photoArray;
+  //   // console.log("HERE MAN")
+  //   CameraRoll.getPhotos({ first: 30 })
+  //   .then(res => {
+  //     photoArray = res.edges;
+  //     // console.log("OVER HERE"+ photoArray);
+  //     //now navigate to new component which will collect the image uri for usage and then nav back to create profile
+  //     this.props.navigation.navigate('ViewPhotos', {photoArray: photoArray, navToComponent: `${navToComponent}` })
+  //     // this.setState({ showPhotoGallery: true, photoArray: photoArray })
+  //   })
+    
+    
+  // }
+
   launchImagePickerCamera = (navToComponent) => {
+    // BasicImagePicker.openCamera({
+    //   width: 300,
+    //   height: 400,
+    //   cropping: true,
+    // }).then(image => {
+    //   console.log(image);
+    //   // let pictureuris = [image.uri];
+    //   // this.props.navigation.navigate(`${navToComponent}`, {pictureuris: pictureuris});
+    // });
+
+
+
     const options = {
       title: null,
       cancelButtonTitle: null,
@@ -89,7 +119,7 @@ class MultipleAddButton extends Component {
       mediaType: 'photo',
 
     }
-    ImagePicker.launchCamera(options, (response) => {
+    BasicImagePicker.launchCamera(options, (response) => {
       const pictureuris = [response.uri];
       this.props.navigation.navigate(`${navToComponent}`, {pictureuris: pictureuris});
     })

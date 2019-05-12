@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Fragment, Component } from 'react'
 import { Linking, Dimensions, Text, StyleSheet, View, ScrollView, Platform, Modal, TouchableOpacity, Keyboard, KeyboardAvoidingView, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Button} from 'react-native-elements';
@@ -8,21 +8,25 @@ import RNFetchBlob from 'rn-fetch-blob';
 // import { Sae } from 'react-native-textinput-effects';
 import firebase from '../cloud/firebase.js';
 import MultipleAddButton from '../components/MultipleAddButton.js';
+import ImageResizer from 'react-native-image-resizer';
+
 import { iOSColors } from 'react-native-typography';
 import { EulaTop, EulaBottom, TsAndCs, PrivacyPolicy, EulaLink } from '../legal/Documents.js';
-import { lightGray, treeGreen, bobbyBlue, mantisGreen, bgBlack, almostWhite, flashOrange, highlightGreen, logoGreen } from '../colors.js';
+import { lightGray, treeGreen, bobbyBlue, mantisGreen, bgBlack, almostWhite, flashOrange, highlightGreen, logoGreen, darkGray, darkPurple, lightPurple, highlightYellow, tabIconYellow, limeYellow, graphiteGray } from '../colors.js';
 // import { PacmanIndicator } from 'react-native-indicators';
 import {WhiteSpace, GrayLine, LoadingIndicator, CustomTextInput} from '../localFunctions/visualFunctions';
 import { shadow } from '../constructors/shadow.js';
 import { avenirNextText } from '../constructors/avenirNextText.js';
 import { center } from '../constructors/center.js';
+import { cities } from '../jsonFiles/pk.js';
 
 const {width} = Dimensions.get('window');
+const maxWidth = 320, maxHeight = 320, suppressionLevel = 0;
 // const inputHeightBoost = 4;
 const info = "In order to sign up, ensure that the values you input meet the following conditions:\n1. Take a profile picture of yourself. If you wish to keep your image a secret, just take a picture of your finger pressed against your camera lens to simulate a dark blank photo.\n2. Use a legitimate email address as other buyers and sellers need a way to contact you if the functionality in NottMyStyle is erroneous for some reason.\n3. Your Password's length must be greater than or equal to 6 characters. To add some security, consider using at least one upper case letter and one symbol like !.\n4. Please limit the length of your name to 40 characters.\n5. An Example answer to the 'city, country abbreviation' field is: 'Nottingham, UK' "
 const limeGreen = '#2e770f';
 
-const locations = [{country: "UK", flag: "🇬🇧"},{country: "Pakistan", flag: "🇵🇰"},{country: "USA", flag: "🇺🇸"}]
+const locations = [{country: "UK", flag: "🇬🇧"},{country: "Pakistan", flag: "🇵🇰"},{country: "USA", flag: "🇺🇸"}];
 
 const Blob = RNFetchBlob.polyfill.Blob;
 const fs = RNFetchBlob.fs;
@@ -68,8 +72,9 @@ class CreateProfile extends Component {
           pass2: '',
           firstName: params.googleUserBoolean || params.facebookUserBoolean ? params.user.displayName.split(" ")[0] : '',
           lastName: params.googleUserBoolean || params.facebookUserBoolean ? params.user.displayName.split(" ")[1] : '',
+          typedCity: '',
           city: '',    
-          country: '',
+          country: 'PK',
         //   size: 1,
           uri: undefined,
           insta: '',
@@ -82,6 +87,7 @@ class CreateProfile extends Component {
 
           //////COUNTRY SELECT STUFF
           showCountrySelect: false,
+          showCitySelect: false,
 
           ////EDIT PROFILE STUFF
           editProfileBoolean: false,
@@ -248,11 +254,135 @@ class CreateProfile extends Component {
 //     //otherwise this function does nothing;
 //   }
 
+  //Invoked when one creates a profile for the very first time
   updateFirebase(data, uri, mime = 'image/jpg', uid) {
-      console.log('Initiate Firebase Update')
-    //TODO: size shouldn't be here
+    console.log('Initiate Firebase Update')
+  //TODO: size shouldn't be here
+  var updates = {};
+  var updateEmptyProducts = {};
+  
+  //In case user enters a handle with an @ preceding it,
+  data.insta = data.insta ? data.insta[0] == '@' ? data.insta.replace('@', '') : data.insta : '';
+
+  var postData = {
+      name: data.firstName + " " + data.lastName, //data.firstName.concat(" ", data.lastName)
+      country: data.city + ", " + data.country,
+      // size: data.size,
+      insta: data.insta,
+
+      //TODO: Add user uid here to make navigation to their profile page easier. 
+      //Occam's razor affirms the notion: To have it available to append to any branch later, it must exist for the first time at the source.
+  }
+  //Now we have all information for profile branch of a user
+
+  
+  updates['/Users/' + uid + '/profile/'] = postData; 
+  // updates['/Users/' + uid + '/status/'] = 'offline';
+  updates['/Users' + uid + '/products/'] = '';
+  //Now we have a user who may go through the app without components crashing
+  
+  let promiseToUploadPhoto = new Promise((resolve, reject) => {
+      //We want to take a user's uri, resize the photos (necessary when picture is locally taken),
+      //and then upload them to cloud storage, and store the url refs on cloud db;
+
+      if(uri.includes('googleusercontent') || uri.includes('facebook')) {
+          console.log(`We already have a googlePhoto url: ${uri}, so need for interaction with cloud storage`)
+          
+          // const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
+          resolve(uri);
+      }
+      else {
+          console.log('user has chosen picture manually through photo lib or camera.')
+          let resizedImage = ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
+          const uploadUri = Platform.OS === 'ios' ? resizedImage.replace('file://', '') : resizedImage
+          console.log(uri, uploadUri)
+          let uploadBlob = null
+          const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
+          fs.readFile(uploadUri, 'base64')
+          .then((data) => {
+          return Blob.build(data, { type: `${mime};BASE64` })
+          })
+          .then((blob) => {
+          console.log('got to blob')
+          uploadBlob = blob
+          return imageRef.put(blob, { contentType: mime })
+          })
+          .then(() => {
+          uploadBlob.close()
+          return imageRef.getDownloadURL()
+          })
+          .then((url) => {
+  
+              resolve(url)
+              
+          })
+          .catch((error) => {
+          reject(error)
+          })
+      }
+  
+      
+  
+  })
+  
+  
+
+  return {
+      databaseProfile: firebase.database().ref().update(updates), 
+      storage: promiseToUploadPhoto.then((url) => {
+          //update db with profile picture url
+          var profileUpdates = {};
+          profileUpdates['/Users/' + uid + '/profile/uri/'] = url ;
+          firebase.database().ref().update(profileUpdates);
+          return url
+              
+          }).then( (url) => {
+              if(url.includes('googleusercontent') || url.includes('facebook')) {
+                  this.setState({createProfileLoading: false, modalVisible: false}, 
+                      () => {
+                          // console.log('DONE DONE DONE');
+                          this.props.navigation.navigate('AppStack'); 
+                      })
+              }
+              else {
+                  this.successfulProfileCreationCallback(url);
+              }
+              
+          })
+          
+      } 
+
+}
+
+  successfulProfileCreationCallback = (url) => {
+    // console.log("Profile Picture Cloud URL is: " + url);
+    // this.props.navigation.state.params.googleUserBoolean || this.props.navigation.state.params.googleUserBoolean ? alert('Your account has been created.\nPlease enter your credentials to Sign In from now on.\n') : alert('Your account has been created.\nPlease use your credentials to Sign In.\n'); 
+    // alert('Your account has been created.\nPlease use your credentials to Sign In.\n'); 
+    this.setState({createProfileLoading: false, modalVisible: false});
+    this.props.navigation.navigate('AppStack');
+  }
+
+  ///////////////////////
+  //EDIT PROFILE FUNCTIONS
+
+  getProfile = (uid) => {
+      var profile;
+
+      firebase.database().ref().once("value", (snap) => {
+        profile = snap.val().Users[uid].profile;
+
+        //pull uri as well and store it in pictureuris, and if there's no uri, MAB doesn't show anything
+        var {name, country} = profile;
+        this.setState({editProfileBoolean: true, firstName: name.split(" ")[0], lastName: name.split(" ")[1], city: country.split(", ")[0],country: country.split(", ")[1], previousUri: profile.uri ? profile.uri : false })
+
+
+      })
+  }
+
+  editProfile(data, uri, mime = 'image/jpg', uid) {
+    
+    this.setState({createProfileLoading: true});
     var updates = {};
-    var updateEmptyProducts = {};
     // switch(data.size) {
     //     case 0:
     //         data.size = 'Extra Small'
@@ -277,7 +407,6 @@ class CreateProfile extends Component {
     //         console.log('no gender was specified')
     // }
 
-    //In case user enters a handle with an @ preceding it,
     data.insta = data.insta ? data.insta[0] == '@' ? data.insta.replace('@', '') : data.insta : '';
 
     var postData = {
@@ -285,175 +414,23 @@ class CreateProfile extends Component {
         country: data.city + ", " + data.country,
         // size: data.size,
         insta: data.insta,
-        //TODO: Add user uid here to make navigation to their profile page easier. 
-        //Occam's razor affirms the notion: To have it available to append to any branch later, it must exist for the first time at the source.
     }
 
-    var emptyProductPostData = {
-        products: '',
-    }
-
-    updates['/Users/' + uid + '/profile/'] = postData; //TODO: The above should be a constructor function that returns a value here
-
-    updateEmptyProducts['/Users/' + uid + '/'] = emptyProductPostData;
-
-    // let promiseToUploadGooglePhoto = new Promise((resolve, reject) => {
-                
-    //     console.log(`We already have a googlePhoto url: ${uri}, so need for interaction with cloud storage`)
-    //     const uploadUri = uri;
-    //     // const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
-    //     var profileUpdates = {};
-    //     profileUpdates['/Users/' + uid + '/profile/' + 'uri/'] = uploadUri ;
-    //     firebase.database().ref().update(profileUpdates);
-    //     resolve(uploadUri);
-        
-        
-    //     }
-    // )
-    
-    let promiseToUploadPhoto = new Promise((resolve, reject) => {
-
-        if(uri.includes('googleusercontent') || uri.includes('facebook')) {
-            console.log(`We already have a googlePhoto url: ${uri}, so need for interaction with cloud storage`)
-            
-            // const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
-            resolve(uri);
-        }
-        else {
-            console.log('user has chosen picture manually through photo lib or camera.')
-            const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
-            let uploadBlob = null
-            const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
-            fs.readFile(uploadUri, 'base64')
-            .then((data) => {
-            return Blob.build(data, { type: `${mime};BASE64` })
-            })
-            .then((blob) => {
-            console.log('got to blob')
-            uploadBlob = blob
-            return imageRef.put(blob, { contentType: mime })
-            })
-            .then(() => {
-            uploadBlob.close()
-            return imageRef.getDownloadURL()
-            })
-            .then((url) => {
-    
-                resolve(url)
-                
-            })
-            .catch((error) => {
-            reject(error)
-            })
-        }
-    
-        
-    
-    })
-    
-    
-
-    return {
-        databaseProducts: firebase.database().ref().update(updateEmptyProducts),
-        databaseProfile: firebase.database().ref().update(updates), 
-        storage: promiseToUploadPhoto.then((url) => {
-            //update db with profile picture url
-            var profileUpdates = {};
-            profileUpdates['/Users/' + uid + '/profile/' + 'uri/'] = url ;
-            firebase.database().ref().update(profileUpdates);
-            return url
-                
-            }).then( (url) => {
-                if(url.includes('googleusercontent') || url.includes('facebook')) {
-                    this.setState({createProfileLoading: false, modalVisible: false}, 
-                        () => {
-                            // console.log('DONE DONE DONE');
-                            this.props.navigation.navigate('AppStack'); 
-                        })
-                }
-                else {
-                    this.successfulProfileCreationCallback(url);
-                }
-                
-            })
-            
-        } 
-
-  }
-
-  successfulProfileCreationCallback = (url) => {
-    // console.log("Profile Picture Cloud URL is: " + url);
-    // this.props.navigation.state.params.googleUserBoolean || this.props.navigation.state.params.googleUserBoolean ? alert('Your account has been created.\nPlease enter your credentials to Sign In from now on.\n') : alert('Your account has been created.\nPlease use your credentials to Sign In.\n'); 
-    // alert('Your account has been created.\nPlease use your credentials to Sign In.\n'); 
-    this.setState({createProfileLoading: false, modalVisible: false});
-    this.props.navigation.navigate('AppStack');
-  }
-
-  ///////////////////////
-  //EDIT PROFILE FUNCTIONS
-
-  getProfile = (uid) => {
-      var profile;
-
-      firebase.database().ref().once("value", (snap) => {
-        profile = snap.val().Users[uid].profile;
-
-        //pull uri as well and store it in pictureuris, and if there's no uri, MAB doesn't show anything
-        var {name, country, insta} = profile;
-        this.setState({editProfileBoolean: true, firstName: name.split(" ")[0], lastName: name.split(" ")[1], city: country.split(", ")[0],country: country.split(", ")[1], insta, previousUri: profile.uri ? profile.uri : false })
-
-
-      })
-  }
-
-  editProfile(data, uri, mime = 'image/jpg', uid) {
-    
-    this.setState({createProfileLoading: true});
-    var updates = {};
-    switch(data.size) {
-        case 0:
-            data.size = 'Extra Small'
-            break; 
-        case 1:
-            data.size = 'Small'
-            break;
-        case 2:
-            data.size = 'Medium'
-            break;
-        case 3:
-            data.size = 'Large'
-            break;
-        case 4:
-            data.size = 'Extra Large'
-            break;
-        case 5:
-            data.size = 'Extra Extra Large'
-            break;
-        default:
-            data.size = 'Medium'
-            console.log('no gender was specified')
-    }
-
-    var postData = {
-        name: data.firstName + " " + data.lastName, //data.firstName.concat(" ", data.lastName)
-        country: data.city + ", " + data.country,
-        size: data.size,
-        insta: data.insta
-    }
-
-    updates['/Users/' + uid + '/profile/' + '/'] = postData;
+    updates['/Users/' + uid + '/profile/'] = postData; 
+    // updates['/Users/' + uid + '/status/'] = 'online'; //TODO: Leave for later. Originally made to check if a person is in the chat room
 
     let promiseToUploadPhoto = new Promise((resolve, reject) => {
 
         if(uri.includes('googleusercontent') || uri.includes('facebook') || uri.includes('firebasestorage')) {
-            // console.log(`We already have a url for this image: ${uri}, so need for interaction with cloud storage`)
+            console.log(`We already have a url for this image: ${uri}, so need for interaction with cloud storage, just store URL in cloud db`);
             
             // const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
             resolve(uri);
         }
         else {
-            console.log('user has chosen picture manually through photo lib or camera.')
-            const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
+            console.log('user has chosen picture manually through photo lib or camera, store it on cloud and generate a URL for it.')
+            let resizedImage = ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
+            const uploadUri = Platform.OS === 'ios' ? resizedImage.replace('file://', '') : resizedImage
             let uploadBlob = null
             const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
             fs.readFile(uploadUri, 'base64')
@@ -506,39 +483,71 @@ class CreateProfile extends Component {
                     }
                     
                 })
-}
+    }
   }
 
   toggleShowCountrySelect = () => {
     this.setState({showCountrySelect: !this.state.showCountrySelect});
   }
 
+  toggleShowCitySelect = () => {
+    this.setState({showCitySelect: !this.state.showCitySelect});
+  }
+
+
+
   renderLocationSelect = () => (
-    <View style={[{flexDirection: 'row'}, styles.inputContainer]}>
-        <View style={{flex: 0.7}}>
-            <TextInput 
-            style={styles.inputText}
-            placeholder={"City"} 
-            placeholderTextColor={lightGray}
-            value={this.state.city} 
-            onChangeText={city => this.setState({ city })}
-            maxLength={16}
-            clearButtonMode={'while-editing'}
-            underlineColorAndroid={"transparent"}
-            returnKeyType={'default'}
-            />
-            
+    <View style={{justifyContent: 'space-evenly', paddingVertical: 5}}>
+        <View style={[{flexDirection: 'row'}, styles.inputContainer]}>
+            <View style={{flex: 0.7}}>
+                <TextInput 
+                style={styles.inputText}
+                placeholder={"City"} 
+                placeholderTextColor={lightGray}
+                value={this.state.city ? this.state.city : this.state.typedCity} 
+                autoCorrect={false}
+                onChangeText={typedCity => this.setState({ typedCity })}
+                maxLength={16}
+                
+                underlineColorAndroid={"transparent"}
+                returnKeyType={'default'}
+                />
+
+                
+            </View>
+
+            <View style={{flex: 0.3}} >
+                <Text 
+                style={styles.inputText}
+                >
+                PK
+                </Text>
+            </View>
+        
         </View>
 
-        <TouchableOpacity style={{flex: 0.3}} onPress={this.toggleShowCountrySelect}>
-            <Text 
-            style={styles.inputText}
-            >
-            {this.state.country ? this.state.country : "Country"}
-            </Text>
-        </TouchableOpacity>
-    
+        
+        {this.state.typedCity && cities.filter((obj) => obj.city.includes(this.state.typedCity)) ? 
+        <View style={styles.citySuggestionBoxContainer}>
+            <View style={[{flex: 0.52}, styles.citySuggestionBox]}>
+                {cities.filter((obj) => obj.city.includes(this.state.typedCity)).slice(0,3).map((obj)=>(
+                    <TouchableOpacity style={styles.citySuggestion} onPress={()=>this.setState({city: obj.city})} >
+                        <Text style={{fontFamily: 'Avenir Next', fontSize: 16, color: darkGray, fontWeight: "300"}}>{obj.city}</Text>
+                    </TouchableOpacity>
+                ))}
+            </View>
+        </View>    
+        :
+        null
+        }
+
     </View>
+
+    
+
+    
+
+
   )
 
   renderLocationSelectModal = () => (
@@ -567,7 +576,7 @@ class CreateProfile extends Component {
                             <Text style={{fontSize: 20}}>{location.flag}</Text>
                         </View>
                         <View style={{margin: 5, ...new center()}}>
-                            <Text style={new avenirNextText("#fff", 20, "300")}>{location.country}</Text>
+                            <Text style={new avenirNextText("black", 20, "300")}>{location.country}</Text>
                         </View>
                     </TouchableOpacity>
                 ))}
@@ -582,6 +591,7 @@ class CreateProfile extends Component {
 
 
   render() {
+      console.log('Initiate New Profile Creation for vanilla, google, or facebook user OR edit a current profile.')
     const {navigation} = this.props;
     const {params} = navigation.state
 
@@ -598,6 +608,7 @@ class CreateProfile extends Component {
     // googleUser && googlePhotoURL ? pictureuris = [googlePhotoURL] : 'nothing here';
 
     var pictureuris = navigation.getParam('pictureuris', "nothing here");
+    console.log("PROFILE PICTURE URI:" + pictureuris[0]);
     // console.log(pictureuris);
     (this.state.previousUri && pictureuris == "nothing here") ? pictureuris = [this.state.previousUri] : null;
     // console.log(pictureuris);
@@ -631,7 +642,7 @@ class CreateProfile extends Component {
                     <FontAwesomeIcon
                     name='arrow-left'
                     size={28}
-                    color={'#fff'}
+                    color={graphiteGray}
                     onPress = { () => { 
                         this.props.navigation.goBack();
                         } }
@@ -645,7 +656,7 @@ class CreateProfile extends Component {
                     <Icon
                     name='information-variant'
                     size={28}
-                    color={'#fff'}
+                    color={graphiteGray}
                     onPress={() => this.setState({infoModalVisible: true}) } 
 
                     />
@@ -665,7 +676,7 @@ class CreateProfile extends Component {
                             <CustomTextInput 
                             maxLength={40} placeholder={"Email Address"} 
                             value={this.state.email} onChangeText={email => this.setState({ email })}
-                                
+                            keyboardType={'email-address'}
                             />
 
                             <CustomTextInput 
@@ -688,11 +699,11 @@ class CreateProfile extends Component {
                             {this.state.pass && this.state.pass2 ?
                                 passwordConditionMet ?
                                 <View style={styles.passwordStatusRow}>
-                                    <Text style={[styles.passwordStatusText, {color: mantisGreen}]}>Passwords Match!</Text>
+                                    <Text style={[styles.passwordStatusText, {color: lightPurple}]}>Passwords Match!</Text>
                                     <Icon 
                                         name="verified" 
                                         size={30} 
-                                        color={mantisGreen}
+                                        color={lightPurple}
                                     />
                                 </View> 
                                 :
@@ -729,12 +740,12 @@ class CreateProfile extends Component {
                     
                     {this.renderLocationSelect()}
 
-                    <CustomTextInput 
+                    {/* <CustomTextInput 
                     placeholder={"Instagram Handle (w/o @)"} 
                     value={this.state.insta} 
                     onChangeText={insta => this.setState({ insta })}
                     maxLength={16}
-                    />
+                    /> */}
 
                     
                     </KeyboardAvoidingView>
@@ -779,11 +790,11 @@ class CreateProfile extends Component {
                             {this.state.pass && this.state.pass2?
                                 passwordConditionMet ?
                                 <View style={styles.passwordStatusRow}>
-                                <Text style={[styles.passwordStatusText, {color: mantisGreen}]}>Passwords Match!</Text>
+                                <Text style={[styles.passwordStatusText, {color: lightPurple}]}>Passwords Match!</Text>
                                 <Icon 
                                     name="verified" 
                                     size={30} 
-                                    color={mantisGreen}
+                                    color={lightPurple}
                                 />
                                 </View> 
                                 :
@@ -819,12 +830,12 @@ class CreateProfile extends Component {
 
                     {this.renderLocationSelect()}
 
-                    <CustomTextInput 
+                    {/* <CustomTextInput 
                     placeholder={"Instagram Handle (w/o @)"} 
                     value={this.state.insta} 
                     onChangeText={insta => this.setState({ insta })}
                     maxLength={16}
-                    />
+                    /> */}
 
                     </View>
             }
@@ -847,7 +858,7 @@ class CreateProfile extends Component {
             >
             <View style={styles.modal}>
                 
-                <Text style={styles.modalHeader}>End-User License Agreement for NottMyStyle</Text>
+                <Text style={styles.modalHeader}>End-User License Agreement for Poco</Text>
                 <ScrollView contentContainerStyle={styles.licenseContainer}>
                     <Text>{EulaTop}</Text>
                     <Text style={{color: bobbyBlue}} onPress={() => Linking.openURL(EulaLink)}>{EulaLink}</Text>
@@ -941,7 +952,7 @@ class CreateProfile extends Component {
 
             {/* Action Buttons */}
             
-            <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', marginVertical: 10}} disabled={this.state.editProfileBoolean ? editProfileConditionMet ? true: false : conditionMet ? true: false} onPress={()=>this.setState({infoModalVisible: true})}>
+            <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', marginVertical: 2}} disabled={this.state.editProfileBoolean ? editProfileConditionMet ? true: false : conditionMet ? true: false} onPress={()=>this.setState({infoModalVisible: true})}>
                 <TouchableOpacity
                     disabled = { this.state.editProfileBoolean ? editProfileConditionMet ? false : true : conditionMet ? false: true}
                     style={styles.signUpButton}
@@ -956,7 +967,7 @@ class CreateProfile extends Component {
                         
                         }} 
                 >
-                    <Text style={new avenirNextText("black", 20, "300")}>{this.state.editProfileBoolean ? "Edit Profile" : "Create Account" }</Text>
+                    <Text style={new avenirNextText(graphiteGray, 20, "300")}>{this.state.editProfileBoolean ? "Edit Profile" : "Create Account" }</Text>
                 </TouchableOpacity>
             </TouchableOpacity>
 
@@ -1003,12 +1014,12 @@ const styles = StyleSheet.create({
     container: {
         flexGrow: 1, 
         flexDirection: 'column',
-        justifyContent: 'center',
+        justifyContent: 'space-evenly',
         paddingBottom: 30,
         //alignItems: 'center'
         paddingLeft: 10,
         paddingRight: 10,
-        backgroundColor: bgBlack,
+        // backgroundColor: bgBlack,
 
     },
 
@@ -1028,20 +1039,41 @@ const styles = StyleSheet.create({
     
     input: {
       height: 38, borderRadius: 4, backgroundColor: '#fff', 
-      padding: 10, 
+      padding: 10,
       // justifyContent: 'center', alignItems: 'flex-start',
       ...new shadow(2,2, color = mantisGreen, -1, 1)
     },
     
-    inputText: { fontFamily: 'Avenir Next', fontSize: 16, fontWeight: "500", color: "#fff"},
+    inputText: { fontFamily: 'Avenir Next', fontSize: 16, fontWeight: "500", color: darkGray},
+
+    citySuggestionBoxContainer: {
+        flexDirection: 'row',
+        padding: 4
+    },
+
+    citySuggestionBox: {
+        backgroundColor: '#fff',
+        height: 100,
+        borderRadius: 10,
+        // borderWidth: 1,
+        // borderColor: 'black',
+        ...new shadow(1.5,1.5,darkGray,-0.5,0.5)
+    },
+
+    citySuggestion: {
+        borderBottomWidth: 0.5,
+        borderColor: lightGray,
+        padding: 5,
+    },
 
     signUpButton: {
+        // marginTop: 10,
         width: 175,
         height: 60,
         borderRadius: 10,
         backgroundColor: "#fff",
         justifyContent: 'center', alignItems: 'center',
-        ...new shadow(2,2,almostWhite, -2,2)
+        ...new shadow(2,1,lightGray, -1,1)
     },
 
     headerBar: {
@@ -1132,7 +1164,7 @@ const styles = StyleSheet.create({
     },
 
     passwordStatusText: {
-        fontSize: 20,
+        fontSize: 16,
         fontWeight: "300",
         fontFamily: "Avenir Next"
     },

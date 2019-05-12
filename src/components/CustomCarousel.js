@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import {Text, TouchableOpacity, View, Image, StyleSheet, Dimensions} from 'react-native';
 import styled from "styled-components/native"; // 3.1.6
 import Carousel, {Pagination} from 'react-native-snap-carousel'; // 3.6.0
+import Lightbox from 'react-native-lightbox';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { graphiteGray, treeGreen, optionLabelBlue, lightPurple } from '../colors';
 
 const {width} = Dimensions.get('window')
@@ -24,6 +26,12 @@ class CustomCarousel extends Component {
     this.setState({ activeSlide: index });
   }
 
+  renderCloseHeader = (close) => (
+    <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', margin: 10}} onPress={close}>
+      <Icon name={'close'} size={30} color={'#fff'}/>
+    </TouchableOpacity>
+  )
+
   _renderItem = ( {item, index} ) => {
     // console.log("rendering,", index, item)
     return (
@@ -36,8 +44,12 @@ class CustomCarousel extends Component {
         
         >
           
-          
-            <Image source={{ uri: item }} style={styles.image}/>
+            <Lightbox 
+            springConfig={{tension: 30, friction: 7}}
+            renderHeader={this.renderCloseHeader}
+            >
+              <Image source={{ uri: item }} style={styles.image}/>
+            </Lightbox>
 
             <View style={{alignItems: 'center',bottom: 0,position: "absolute"}}>
             {this.pagination}
