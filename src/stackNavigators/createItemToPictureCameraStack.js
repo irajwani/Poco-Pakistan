@@ -6,12 +6,15 @@ import MultiplePictureCamera from '../components/MultiplePictureCamera'
 import ViewPhotos from '../views/ViewPhotos'
 import PriceSelection from '../views/PriceSelection'
 import ConditionSelection from '../views/ConditionSelection'
+import CameraForEachPicture from '../components/CameraForEachPicture';
+
 
 export const multipleAddButtonToMultiplePictureCameraToCreateItemStack = createStackNavigator({
 
     CreateItem: CreateItem,
     ViewPhotos: ViewPhotos,
     MultiplePictureCamera: MultiplePictureCamera,
+    CameraForEachPicture: CameraForEachPicture,
     MultipleAddButton: MultipleAddButton,
     PriceSelection: PriceSelection,
     ConditionSelection: ConditionSelection,

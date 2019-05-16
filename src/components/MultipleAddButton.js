@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
 import { Platform, Text, ScrollView, View, Image, StyleSheet, TouchableHighlight, CameraRoll, PermissionsAndroid } from 'react-native'
 import Svg, { Path } from 'react-native-svg';
-import Icon from 'react-native-vector-icons/FontAwesome'
+// import Icon from 'react-native-vector-icons/FontAwesome'
 import ActionSheet from 'react-native-actionsheet'
 import * as BasicImagePicker from 'react-native-image-picker';
 import ImagePicker from 'react-native-image-crop-picker';
 import { withNavigation } from 'react-navigation';
-import { lightGreen, highlightGreen, darkBlue, optionLabelBlue, bgBlack, treeGreen } from '../colors';
+import { bgBlack, treeGreen } from '../colors';
 
 const NothingHere = () => (
   <Svg height={"100%"} width={"100%"} viewBox="0 0 400 400">
@@ -33,7 +33,7 @@ class MultipleAddButton extends Component {
 
   }
 
-  cameraOrGallery(index, navToComponent) {
+  cameraOrGallery = (index, navToComponent) => {
     if (index === 0) {
       this.setState({cameraToggle: true});
       this.launchCamera(navToComponent);
@@ -49,10 +49,11 @@ class MultipleAddButton extends Component {
     // }
   }
 
-  launchCamera(navToComponent) {
+  launchCamera = (navToComponent) => {
     // console.log('launching camera');
-    
-    Platform.OS == "ios" ? this.props.navigation.navigate('MultiplePictureCamera', {navToComponent: `${navToComponent}` }) : this.launchImagePickerCamera(navToComponent);
+    const {navigation} = this.props;
+    // Platform.OS == "ios" ? 'MultiplePictureCamera' : 
+    navigation.navigate('CameraForEachPicture', {navToComponent: `${navToComponent}` });
     // this.launchImagePickerCamera(navToComponent);
     
     // if(Platform.OS == 'ios') {

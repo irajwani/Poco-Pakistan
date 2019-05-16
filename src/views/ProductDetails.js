@@ -556,7 +556,7 @@ class ProductDetails extends Component {
                   }}
                   />
               
-                  <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
+                  <Image style={styles.logo} source={require("../images/poco/logopocov4.png")}/>
                   
       
                   <FontAwesomeIcon
@@ -848,7 +848,7 @@ class ProductDetails extends Component {
                     } }
                 />
             
-              <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
+              <Image style={styles.logo} source={require("../images/poco/logopocov4.png")}/>
               
   
               <FontAwesomeIcon
@@ -951,7 +951,7 @@ class ProductDetails extends Component {
                     } }
                 />
             
-              <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
+              <Image style={styles.logo} source={require("../images/poco/logopocov4.png")}/>
               
               <FontAwesomeIcon
                 name='close'
@@ -1069,7 +1069,7 @@ class ProductDetails extends Component {
                   } }
               />
           
-            <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
+            <Image style={styles.logo} source={require("../images/poco/logopocov4.png")}/>
             
             <FontAwesomeIcon
               name='close'
@@ -1217,7 +1217,7 @@ class ProductDetails extends Component {
                   } }
             />
           
-            <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
+            <Image style={styles.logo} source={require("../images/poco/logopocov4.png")}/>
             
             <FontAwesomeIcon
               name='close'
@@ -1328,7 +1328,7 @@ class ProductDetails extends Component {
                 size={28}
                 color={logoGreen}
               />
-              <Image style={styles.logo} source={require("../images/nottmystyleLogo.png")}/>
+              <Image style={styles.logo} source={require("../images/poco/logopocov4.png")}/>
               
               <FontAwesomeIcon
                 name='close'
