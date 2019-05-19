@@ -16,6 +16,7 @@ import OtherUserProfilePage from '../views/OtherUserProfilePage';
 import CreateProfile from '../views/CreateProfile';
 import ConditionSelection from '../views/ConditionSelection';
 import PriceSelection from '../views/PriceSelection';
+import CameraForEachPicture from '../components/CameraForEachPicture';
 
 
 export const profileToEditProfileStack = createStackNavigator({
@@ -24,6 +25,7 @@ export const profileToEditProfileStack = createStackNavigator({
     CreateProfile: CreateProfile,
     MultipleAddButton: MultipleAddButton,
     MultiplePictureCamera: MultiplePictureCamera,
+    CameraForEachPicture: CameraForEachPicture,
     ViewPhotos: ViewPhotos,
     YourProducts: YourProducts,
     SoldProducts: SoldProducts,

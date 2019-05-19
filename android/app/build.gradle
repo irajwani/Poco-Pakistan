@@ -150,10 +150,10 @@ android {
 }
 
 dependencies {
-    compile project(':react-native-image-picker')
-    implementation project(':react-native-image-crop-picker')
     implementation project(':react-native-image-picker')
+    implementation project(':react-native-image-crop-picker')
     implementation project(':react-native-image-resizer')
+    //TODO: Should these be left as compile statements?
     compile project(':react-native-google-signin')
     compile project(':react-native-fbsdk')
     implementation fileTree(dir: "libs", include: ["*.jar"])

@@ -452,7 +452,7 @@ callBackForProductUploadCompletion = () => {
     this.state.oldItemPostKey ? this.props.navigation.navigate('MarketPlace') : this.props.navigation.navigate('Market'); 
  }
 
- deleteProduct(uid, key) {
+ deleteProduct = (uid, key) => {
  
     let promiseToUpdateProductsBranch = firebase.database().ref('/Products/' + key).remove();
     let promiseToDeleteProduct = firebase.database().ref('/Users/' + uid + '/products/' + key).remove();
@@ -957,7 +957,7 @@ callBackForProductUploadCompletion = () => {
                 large
                 disabled = { partialConditionMet ? false : true}
                 buttonStyle={{
-                    backgroundColor: !conditionMet ? lightPurple : highlightYellow,
+                    backgroundColor: !conditionMet ? highlightYellow : lightPurple,
                     width: 280,
                     height: 80,
                     borderColor: "transparent",
@@ -1196,10 +1196,11 @@ const styles = StyleSheet.create({
         fontFamily: 'Avenir Next',
         fontSize: 14,
         fontWeight: '300',
+        color: 'black'
     },
 
     buttonGroupSelectedText: {
-        color: 'black'
+        color: '#fff'
     },
 
     buttonGroupContainer: {
@@ -1208,7 +1209,7 @@ const styles = StyleSheet.create({
     },
     
     buttonGroupSelectedContainer: {
-        backgroundColor: petalPurple
+        backgroundColor: lightPurple
     },
 
     actionButtonContainer: {padding: 5, alignItems: 'center'},

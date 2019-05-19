@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, ScrollView, SafeAreaView, View, StyleSheet, Platform, FlatList, TouchableOpacity } from 'react-native'
+import { Text, ScrollView, SafeAreaView, View, Image, StyleSheet, Platform, FlatList, TouchableOpacity } from 'react-native'
 
 import { StandardHeader } from '../stylesheets/view';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -69,9 +69,9 @@ export default class CameraForEachPicture extends Component {
 
     _renderSaveButton = () => {
         let conditionSatisfied = false;
-        conditionSatisfied = this.state.pictures.map( (obj) => {
-            if(obj.uri !== false) {
-                return true
+        this.state.pictures.forEach( (obj) => {
+            if(obj.uri != false) {
+                conditionSatisfied = true;
             }
         } )
 

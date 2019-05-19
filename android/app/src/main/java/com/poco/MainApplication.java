@@ -52,8 +52,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-            new ImagePickerPackage(),
-            new PickerPackage(),
+          new PickerPackage(),
           new RNGoogleSigninPackage(),
           new FBSDKPackage(mCallbackManager),
           new LinearGradientPackage(),

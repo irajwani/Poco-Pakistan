@@ -1,5 +1,5 @@
 import React, { Fragment, Component } from 'react'
-import { Linking, Dimensions, Text, StyleSheet, View, ScrollView, Platform, Modal, TouchableOpacity, Keyboard, KeyboardAvoidingView, TextInput } from 'react-native';
+import { Linking, Dimensions, Text, StyleSheet, View, SafeAreaView, ScrollView, Platform, Modal, TouchableOpacity, Keyboard, KeyboardAvoidingView, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Button} from 'react-native-elements';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
@@ -255,104 +255,105 @@ class CreateProfile extends Component {
 //   }
 
   //Invoked when one creates a profile for the very first time
-  updateFirebase(data, uri, mime = 'image/jpg', uid) {
+  updateFirebase = (data, uri, mime = 'image/jpg', uid) => {
     console.log('Initiate Firebase Update')
-  //TODO: size shouldn't be here
-  var updates = {};
-  var updateEmptyProducts = {};
-  
-  //In case user enters a handle with an @ preceding it,
-  data.insta = data.insta ? data.insta[0] == '@' ? data.insta.replace('@', '') : data.insta : '';
+    //TODO: size shouldn't be here
+    var updates = {};
+    var updateEmptyProducts = {};
+    
+    //In case user enters a handle with an @ preceding it,
+    data.insta = data.insta ? data.insta[0] == '@' ? data.insta.replace('@', '') : data.insta : '';
 
-  var postData = {
-      name: data.firstName + " " + data.lastName, //data.firstName.concat(" ", data.lastName)
-      country: data.city + ", " + data.country,
-      // size: data.size,
-      insta: data.insta,
+    var postData = {
+        name: data.firstName + " " + data.lastName, //data.firstName.concat(" ", data.lastName)
+        country: data.city + ", " + data.country,
+        // size: data.size,
+        insta: data.insta,
 
-      //TODO: Add user uid here to make navigation to their profile page easier. 
-      //Occam's razor affirms the notion: To have it available to append to any branch later, it must exist for the first time at the source.
-  }
-  //Now we have all information for profile branch of a user
+        //TODO: Add user uid here to make navigation to their profile page easier. 
+        //Occam's razor affirms the notion: To have it available to append to any branch later, it must exist for the first time at the source.
+    }
+    //Now we have all information for profile branch of a user
 
-  
-  updates['/Users/' + uid + '/profile/'] = postData; 
-  // updates['/Users/' + uid + '/status/'] = 'offline';
-  updates['/Users' + uid + '/products/'] = '';
-  //Now we have a user who may go through the app without components crashing
-  
-  let promiseToUploadPhoto = new Promise((resolve, reject) => {
-      //We want to take a user's uri, resize the photos (necessary when picture is locally taken),
-      //and then upload them to cloud storage, and store the url refs on cloud db;
+    
+    updates['/Users/' + uid + '/profile/'] = postData; 
+    // updates['/Users/' + uid + '/status/'] = 'offline';
+    updates['/Users/' + uid + '/products/'] = '';
+    //Now we have a user who may go through the app without components crashing
+    
+    let promiseToUploadPhoto = new Promise(async (resolve, reject) => {
+        //We want to take a user's uri, resize the photos (necessary when picture is locally taken),
+        //and then upload them to cloud storage, and store the url refs on cloud db;
 
-      if(uri.includes('googleusercontent') || uri.includes('facebook')) {
-          console.log(`We already have a googlePhoto url: ${uri}, so need for interaction with cloud storage`)
-          
-          // const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
-          resolve(uri);
-      }
-      else {
-          console.log('user has chosen picture manually through photo lib or camera.')
-          let resizedImage = ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
-          const uploadUri = Platform.OS === 'ios' ? resizedImage.replace('file://', '') : resizedImage
-          console.log(uri, uploadUri)
-          let uploadBlob = null
-          const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
-          fs.readFile(uploadUri, 'base64')
-          .then((data) => {
-          return Blob.build(data, { type: `${mime};BASE64` })
-          })
-          .then((blob) => {
-          console.log('got to blob')
-          uploadBlob = blob
-          return imageRef.put(blob, { contentType: mime })
-          })
-          .then(() => {
-          uploadBlob.close()
-          return imageRef.getDownloadURL()
-          })
-          .then((url) => {
-  
-              resolve(url)
-              
-          })
-          .catch((error) => {
-          reject(error)
-          })
-      }
-  
-      
-  
-  })
-  
-  
+        if(uri.includes('googleusercontent') || uri.includes('facebook')) {
+            console.log(`We already have a googlePhoto url: ${uri}, so need for interaction with cloud storage`)
+            
+            // const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
+            resolve(uri);
+        }
+        else {
+            console.log('user has chosen picture manually through photo lib or camera.')
+            let resizedImage = await ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
+            const uploadUri = Platform.OS === 'ios' ? resizedImage.uri.replace('file://', '') : resizedImage.uri
+            console.log(uri, uploadUri)
+            let uploadBlob = null
+            const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
+            fs.readFile(uploadUri, 'base64')
+            .then((data) => {
+            return Blob.build(data, { type: `${mime};BASE64` })
+            })
+            .then((blob) => {
+            console.log('got to blob')
+            uploadBlob = blob
+            return imageRef.put(blob, { contentType: mime })
+            })
+            .then(() => {
+            uploadBlob.close()
+            return imageRef.getDownloadURL()
+            })
+            .then((url) => {
+    
+                resolve(url)
+                
+            })
+            .catch((error) => {
+            reject(error)
+            })
+        }
+    
+        
+    
+    })
+    
+    
 
-  return {
-      databaseProfile: firebase.database().ref().update(updates), 
-      storage: promiseToUploadPhoto.then((url) => {
-          //update db with profile picture url
-          var profileUpdates = {};
-          profileUpdates['/Users/' + uid + '/profile/uri/'] = url ;
-          firebase.database().ref().update(profileUpdates);
-          return url
-              
-          }).then( (url) => {
-              if(url.includes('googleusercontent') || url.includes('facebook')) {
-                  this.setState({createProfileLoading: false, modalVisible: false}, 
-                      () => {
-                          // console.log('DONE DONE DONE');
-                          this.props.navigation.navigate('AppStack'); 
-                      })
-              }
-              else {
-                  this.successfulProfileCreationCallback(url);
-              }
-              
-          })
-          
-      } 
+    return {
+        databaseProfile: firebase.database().ref().update(updates), 
+        storage: promiseToUploadPhoto.then((url) => {
+            //update db with profile picture url
+            var profileUpdates = {};
+            profileUpdates['/Users/' + uid + '/profile/uri/'] = url ;
+            firebase.database().ref().update(profileUpdates);
+            return url
+                
+            }).then( (url) => {
+                this.successfulProfileCreationCallback(url);
+                //   if(url.includes('googleusercontent') || url.includes('facebook')) {
+                //       this.setState({createProfileLoading: false, modalVisible: false}, 
+                //           () => {
+                //               // console.log('DONE DONE DONE');
+                //               this.props.navigation.navigate('AppStack'); 
+                //           })
+                //   }
+                //   else {
+                //       this.successfulProfileCreationCallback(url);
+                //   }
+                
+            })
+            
+        } 
 
-}
+    }
 
   successfulProfileCreationCallback = (url) => {
     // console.log("Profile Picture Cloud URL is: " + url);
@@ -430,7 +431,7 @@ class CreateProfile extends Component {
         else {
             console.log('user has chosen picture manually through photo lib or camera, store it on cloud and generate a URL for it.')
             let resizedImage = ImageResizer.createResizedImage(uri,3000, 3000,'JPEG',suppressionLevel);
-            const uploadUri = Platform.OS === 'ios' ? resizedImage.replace('file://', '') : resizedImage
+            const uploadUri = Platform.OS === 'ios' ? resizedImage.uri.replace('file://', '') : resizedImage.uri
             let uploadBlob = null
             const imageRef = firebase.storage().ref().child(`Users/${uid}/profile`);
             fs.readFile(uploadUri, 'base64')
@@ -494,10 +495,94 @@ class CreateProfile extends Component {
     this.setState({showCitySelect: !this.state.showCitySelect});
   }
 
+  renderEmailAndPasswordFields = () => {
+    var passwordConditionMet = (this.state.pass == this.state.pass2) && (this.state.pass.length > 0);
+
+    return (
+    <View>
+
+        <CustomTextInput 
+        maxLength={40} placeholder={"Email Address"} 
+        value={this.state.email} onChangeText={email => this.setState({ email })}
+        keyboardType={'email-address'}
+        />
+
+        <CustomTextInput 
+        placeholder={"Password"} 
+        value={this.state.pass} 
+        onChangeText={pass => this.setState({ pass })}
+        maxLength={16}
+        secureTextEntry={true}
+        
+        />
+
+        <CustomTextInput 
+        placeholder={"Retype Password"} 
+        value={this.state.pass2} 
+        onChangeText={pass2 => this.setState({ pass2 })}
+        maxLength={16}
+        secureTextEntry={true}
+        />
+
+        {this.state.pass && this.state.pass2 ?
+            passwordConditionMet ?
+            <View style={styles.passwordStatusRow}>
+                <Text style={[styles.passwordStatusText, {color: lightPurple}]}>Passwords Match!</Text>
+                <Icon 
+                    name="verified" 
+                    size={30} 
+                    color={lightPurple}
+                />
+            </View> 
+            :
+            <View style={styles.passwordStatusRow}>
+                <Text style={[styles.passwordStatusText, {color: flashOrange}]}>Passwords Don't Match!</Text>
+                <Icon 
+                    name="alert-circle" 
+                    size={30} 
+                    color={flashOrange}
+                />
+            </View>
+        :
+        null
+        
+        }
+    </View>
+  )}
+
+  renderLocationDropDown = () => {
+    if(this.state.typedCity && cities.filter((obj) => obj.city.includes(this.state.typedCity))) {
+        return(
+            <View style={styles.citySuggestionBoxContainer}>
+                <View style={[{flex: 0.52}, styles.citySuggestionBox]}>
+                    {cities.filter((obj) => obj.city.toLowerCase().includes(this.state.typedCity.toLowerCase())).slice(0,3).map((obj)=>(
+                        <TouchableOpacity 
+                        style={styles.citySuggestion} 
+                        onPress={()=>{
+
+                            this.setState({city: obj.city, typedCity: ''});
+                            }} >
+                            <Text style={{fontFamily: 'Avenir Next', fontSize: 16, color: darkGray, fontWeight: "300"}}>{obj.city}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            </View>    
+            )
+    }
+
+    else {return null}
+        
+        
+    }
+  
 
 
-  renderLocationSelect = () => (
+
+  renderLocationSelectRow = () => (
     <View style={{justifyContent: 'space-evenly', paddingVertical: 5}}>
+        
+        {Platform.OS == "android" ? this.renderLocationDropDown() : null}
+
         <View style={[{flexDirection: 'row'}, styles.inputContainer]}>
             <View style={{flex: 0.7}}>
                 <TextInput 
@@ -506,7 +591,7 @@ class CreateProfile extends Component {
                 placeholderTextColor={lightGray}
                 value={this.state.city ? this.state.city : this.state.typedCity} 
                 autoCorrect={false}
-                onChangeText={typedCity => this.setState({ typedCity })}
+                onChangeText={typedCity => this.setState({ city: '',typedCity })}
                 maxLength={16}
                 
                 underlineColorAndroid={"transparent"}
@@ -516,30 +601,20 @@ class CreateProfile extends Component {
                 
             </View>
 
-            <View style={{flex: 0.3}} >
+            <View style={{flex: 0.3, justifyContent: 'center', alignItems: 'flex-start'}} >
                 <Text 
                 style={styles.inputText}
                 >
-                PK
+                {this.state.country}
                 </Text>
             </View>
         
         </View>
 
+        {Platform.OS == "ios" ? this.renderLocationDropDown() : null}
+
         
-        {this.state.typedCity && cities.filter((obj) => obj.city.includes(this.state.typedCity)) ? 
-        <View style={styles.citySuggestionBoxContainer}>
-            <View style={[{flex: 0.52}, styles.citySuggestionBox]}>
-                {cities.filter((obj) => obj.city.includes(this.state.typedCity)).slice(0,3).map((obj)=>(
-                    <TouchableOpacity style={styles.citySuggestion} onPress={()=>this.setState({city: obj.city})} >
-                        <Text style={{fontFamily: 'Avenir Next', fontSize: 16, color: darkGray, fontWeight: "300"}}>{obj.city}</Text>
-                    </TouchableOpacity>
-                ))}
-            </View>
-        </View>    
-        :
-        null
-        }
+        
 
     </View>
 
@@ -567,8 +642,8 @@ class CreateProfile extends Component {
             </View>
 
             <View style={styles.locationSelectBody}>
-                {locations.map((location) => (
-                    <TouchableOpacity onPress={()=>{
+                {locations.map((location, index) => (
+                    <TouchableOpacity key={index} onPress={()=>{
                         this.setState({country: location.country}, this.toggleShowCountrySelect)
                     }} 
                     style={[{flexDirection: 'row'}, {borderBottomColor: '#fff', borderBottomWidth: 1}]}>
@@ -591,7 +666,7 @@ class CreateProfile extends Component {
 
 
   render() {
-      console.log('Initiate New Profile Creation for vanilla, google, or facebook user OR edit a current profile.')
+    console.log('Initiate New Profile Creation for vanilla, google, or facebook user OR edit a current profile.')
     const {navigation} = this.props;
     const {params} = navigation.state
 
@@ -615,7 +690,8 @@ class CreateProfile extends Component {
     // console.log(pictureuris[0].includes('googleusercontent'))
     // console.log(googleUser, googleUserBoolean, pictureuris);
     var conditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (this.state.city) && (Array.isArray(pictureuris) && pictureuris.length == 1) && (this.state.pass == this.state.pass2) && (this.state.pass.length >= 6);
-    var passwordConditionMet = (this.state.pass == this.state.pass2) && (this.state.pass.length > 0);
+    console.log("It is " + conditionMet + " that one can create their profile.")
+    console.log(this.state.firstName, this.state.lastName, this.state.country, this.state.city, pictureuris, this.state.pass, this.state.pass2)
     // var googleUserConditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1);
     var editProfileConditionMet = (this.state.firstName) && (this.state.lastName) && (this.state.country) && (Array.isArray(pictureuris) && pictureuris.length == 1);
     
@@ -633,7 +709,8 @@ class CreateProfile extends Component {
     }
 
     return (
-        <ScrollView style={[styles.mainContainer, {marginTop: Platform.OS == "ios" ? 22 : 0}]} contentContainerStyle={styles.container}>
+        <SafeAreaView style={{flex: 1, marginTop: 10}}>
+        <ScrollView style={styles.mainContainer} contentContainerStyle={styles.container}>
             
             {/* <Text style={{fontFamily: 'Avenir Next', fontWeight: '300', fontSize: 20, textAlign: 'center'}}>Choose Profile Picture:</Text> */}
             
@@ -669,59 +746,9 @@ class CreateProfile extends Component {
                     <KeyboardAvoidingView behavior={'padding'} keyboardVerticalOffset={80} enabled={this.state.keyboardShown ? true : false}>
                         {!this.state.editProfileBoolean ?
 
-                        <View>
-
-                            
-
-                            <CustomTextInput 
-                            maxLength={40} placeholder={"Email Address"} 
-                            value={this.state.email} onChangeText={email => this.setState({ email })}
-                            keyboardType={'email-address'}
-                            />
-
-                            <CustomTextInput 
-                            placeholder={"Password"} 
-                            value={this.state.pass} 
-                            onChangeText={pass => this.setState({ pass })}
-                            maxLength={16}
-                            secureTextEntry={true}
-                            
-                            />
-
-                            <CustomTextInput 
-                            placeholder={"Retype Password"} 
-                            value={this.state.pass2} 
-                            onChangeText={pass2 => this.setState({ pass2 })}
-                            maxLength={16}
-                            secureTextEntry={true}
-                            />
-                    
-                            {this.state.pass && this.state.pass2 ?
-                                passwordConditionMet ?
-                                <View style={styles.passwordStatusRow}>
-                                    <Text style={[styles.passwordStatusText, {color: lightPurple}]}>Passwords Match!</Text>
-                                    <Icon 
-                                        name="verified" 
-                                        size={30} 
-                                        color={lightPurple}
-                                    />
-                                </View> 
-                                :
-                                <View style={styles.passwordStatusRow}>
-                                    <Text style={[styles.passwordStatusText, {color: flashOrange}]}>Passwords Don't Match!</Text>
-                                    <Icon 
-                                        name="alert-circle" 
-                                        size={30} 
-                                        color={flashOrange}
-                                    />
-                                </View>
-                            :
-                            null
-                            
-                            }
-                        </View>
+                            this.renderEmailAndPasswordFields()
                         :
-                        null
+                            null
                     }   
 
                     <CustomTextInput 
@@ -738,7 +765,7 @@ class CreateProfile extends Component {
                     maxLength={13}
                     />
                     
-                    {this.renderLocationSelect()}
+                    {this.renderLocationSelectRow()}
 
                     {/* <CustomTextInput 
                     placeholder={"Instagram Handle (w/o @)"} 
@@ -751,67 +778,13 @@ class CreateProfile extends Component {
                     </KeyboardAvoidingView>
                     :
                     <View>
+                    {/* Now for Android, the !this.state.editProfileBoolean block gets used twice */}
                     {
                         !this.state.editProfileBoolean ?
 
-                        <View>
-
-                            <CustomTextInput maxLength={40} placeholder={"Email Address"} value={this.state.email} onChangeText={email => this.setState({ email })}/>
-
-                            
-
-                            <GrayLine/>
-
-                            <CustomTextInput 
-                            placeholder={"Password"} 
-                            value={this.state.pass} 
-                            onChangeText={pass => this.setState({ pass })}
-                            maxLength={16}
-                            secureTextEntry={true}
-                            />
-
-                            
-
-                            
-
-                            <CustomTextInput 
-                            placeholder={"Retype Password"} 
-                            value={this.state.pass2} 
-                            onChangeText={pass2 => this.setState({ pass2 })}
-                            maxLength={16}
-                            secureTextEntry={true}
-                            />
-
-                            
-
-                            
-                            
-                    
-                            {this.state.pass && this.state.pass2?
-                                passwordConditionMet ?
-                                <View style={styles.passwordStatusRow}>
-                                <Text style={[styles.passwordStatusText, {color: lightPurple}]}>Passwords Match!</Text>
-                                <Icon 
-                                    name="verified" 
-                                    size={30} 
-                                    color={lightPurple}
-                                />
-                                </View> 
-                                :
-                                <View style={styles.passwordStatusRow}>
-                                <Text style={[styles.passwordStatusText, {color: flashOrange}]}>Passwords Don't Match!</Text>
-                                <Icon 
-                                    name="alert-circle" 
-                                    size={30} 
-                                    color={flashOrange}
-                                />
-                                </View>
-                            :
-                            null
-                            }
-                        </View>
+                            this.renderEmailAndPasswordFields()
                         :
-                        null
+                            null
                     }   
 
                     <CustomTextInput 
@@ -828,7 +801,7 @@ class CreateProfile extends Component {
                     maxLength={13}
                     />
 
-                    {this.renderLocationSelect()}
+                    {this.renderLocationSelectRow()}
 
                     {/* <CustomTextInput 
                     placeholder={"Instagram Handle (w/o @)"} 
@@ -881,7 +854,7 @@ class CreateProfile extends Component {
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={[styles.decisionButton, {backgroundColor: mantisGreen}]}
+                        style={[styles.decisionButton, {backgroundColor: lightPurple}]}
                         onPress={() => {console.log('Sign Up Initiated') ; googleUser || facebookUser ? this.createProfileForGoogleOrFacebookUser(user, pictureuris[0]) : this.createProfile(this.state.email, this.state.pass, pictureuris[0]) ;}} 
                     >
                         <Text style={new avenirNextText('#fff', 16, "500")}>Accept</Text>
@@ -974,6 +947,7 @@ class CreateProfile extends Component {
             {this.renderLocationSelectModal()}
             
         </ScrollView>
+        </SafeAreaView>
         )
       
     
@@ -1149,7 +1123,7 @@ const styles = StyleSheet.create({
 
     gotIt: {
         fontWeight: "bold",
-        color: limeGreen,
+        color: lightPurple,
         fontSize: 20
     },
 
